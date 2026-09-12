@@ -1,0 +1,59 @@
+# Default: text files use LF
+* text=auto eol=lf
+
+# Source/code
+*.java text eol=lf
+*.kt text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.webp binary
+
+# Microsoft Office
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# Documents / archives
+*.pdf binary
+*.zip binary
+*.7z binary
+*.rar binary
+
+# Java / compiled artifacts
+*.jar binary
+*.war binary
+*.class binary
+
+# Database files
+*.db     binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Other common binaries
+*.exe binary
+*.dll binary
+*.so binary
+*.bin binary
