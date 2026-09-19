@@ -28,7 +28,33 @@ C:\data
     └── agent_skills_release.db    <-- DuckDB database created locally
 ```
 
+> **Note:** The downloaded SQLite database and the locally generated DuckDB database are local development artifacts and should not be committed to this repository.
+
 Do not overwrite or open the downloaded SQLite file as though it were already a DuckDB database.
+
+## License and Data Use
+
+The GitSkills dataset's collected metadata and aggregation are released under the
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
+
+The dataset also contains source content collected from public GitHub repositories.
+That content remains subject to the license of the original repository. Before
+reproducing or redistributing specific `SKILL.md` files, sibling files, or other
+source content, review the corresponding repository license in `repos.license`
+and the original repository.
+
+Do not commit the GitSkills SQLite database, the locally generated DuckDB database,
+or extracted raw source content from the dataset into this repository. These files
+are intended for local analysis only.
+
+Project code, notebooks, queries, aggregate statistics, and analysis results may be
+committed normally, provided they do not reproduce source content in a way that
+conflicts with its original license.
+
+For complete dataset licensing and reuse information, see the
+[GitSkills dataset record on Zenodo](https://zenodo.org/records/21875637)
+and the
+[GitSkills dataset documentation on Hugging Face](https://huggingface.co/datasets/mvaccargiu/gitskills).
 
 ## Local DuckDB Development Setup
 
