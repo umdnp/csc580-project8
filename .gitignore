@@ -217,7 +217,14 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-#
+##
 # Project-8
 #
+
+# Exclude any output generated in scripts directory
 scripts/output/
+
+# Ignore any local copies of the GitSkills database
+data/*.db
+data/**/*.db
+
