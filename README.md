@@ -8,8 +8,9 @@ maintenance, security, specification-to-code relationships, or human–AI collab
 iteratively using Scrum and will include tested code, documented methods, reproducible results, validation,
 analysis of limitations, and a final research report and presentation.
 
-**Team:**
-- Kyle Cantrell
-- Christian Heiney
-- Vaisnavii Mohanraj
-- Jim Prantzalos
+**Team & Roles**
+- Kyle Cantrell (Scrum Master)
+- Christian Heiney (Researcher/Developer)
+- Vaisnavii Mohanraj (Researcher/Developer)
+- Jim Prantzalos (Product Owner)
+
