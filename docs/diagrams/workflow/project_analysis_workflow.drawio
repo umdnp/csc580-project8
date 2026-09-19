@@ -1,0 +1,61 @@
+<mxfile host="app.diagrams.net" agent="ChatGPT">
+  <diagram id="project-analysis-overview" name="Project Analysis Overview">
+    <mxGraphModel dx="2054" dy="1103" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#222222;" value="Project Analysis Workflow" vertex="1">
+          <mxGeometry height="45" width="700" x="350" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=15;fontColor=#555555;" value="From GitSkills data to validated findings" vertex="1">
+          <mxGeometry height="30" width="600" x="400" y="115" as="geometry" />
+        </mxCell>
+        <mxCell id="step1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=12;strokeColor=#666666;fillColor=#F5F5F5;fontColor=#222222;fontSize=17;arcSize=10;" value="&lt;b&gt;Prepare GitSkills Data&lt;/b&gt;&lt;br&gt;&lt;font size=&#39;3&#39;&gt;Load, filter, normalize, and organize the dataset for analysis&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="55" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="num1" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;verticalAlign=middle;strokeColor=#555555;fillColor=#E0E0E0;fontColor=#222222;fontSize=16;fontStyle=1;" value="1" vertex="1">
+          <mxGeometry height="38" width="38" x="38" y="282" as="geometry" />
+        </mxCell>
+        <mxCell id="step2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=12;strokeColor=#666666;fillColor=#F5F5F5;fontColor=#222222;fontSize=17;arcSize=10;" value="&lt;b&gt;Identify Related Skills&lt;/b&gt;&lt;br&gt;&lt;font size=&quot;3&quot;&gt;Narrow the comparison set and identify likely reused or modified variants&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="330" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="num2" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;verticalAlign=middle;strokeColor=#555555;fillColor=#E0E0E0;fontColor=#222222;fontSize=16;fontStyle=1;" value="2" vertex="1">
+          <mxGeometry height="38" width="38" x="313" y="282" as="geometry" />
+        </mxCell>
+        <mxCell id="step3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=12;strokeColor=#666666;fillColor=#F5F5F5;fontColor=#222222;fontSize=17;arcSize=10;" value="&lt;b&gt;Detect Risk-Sensitive Behavior&lt;/b&gt;&lt;br&gt;&lt;font size=&#39;3&#39;&gt;Scan for commands, file access, network use, credentials, and scripts&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="605" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="num3" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;verticalAlign=middle;strokeColor=#555555;fillColor=#E0E0E0;fontColor=#222222;fontSize=16;fontStyle=1;" value="3" vertex="1">
+          <mxGeometry height="38" width="38" x="588" y="282" as="geometry" />
+        </mxCell>
+        <mxCell id="step4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=12;strokeColor=#666666;fillColor=#F5F5F5;fontColor=#222222;fontSize=17;arcSize=10;" value="&lt;b&gt;Compare Behavior Changes&lt;/b&gt;&lt;br&gt;&lt;font size=&#39;3&#39;&gt;Determine what behavior was introduced, removed, or unchanged&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="880" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="num4" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;verticalAlign=middle;strokeColor=#555555;fillColor=#E0E0E0;fontColor=#222222;fontSize=16;fontStyle=1;" value="4" vertex="1">
+          <mxGeometry height="38" width="38" x="863" y="282" as="geometry" />
+        </mxCell>
+        <mxCell id="step5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=12;strokeColor=#666666;fillColor=#F5F5F5;fontColor=#222222;fontSize=17;arcSize=10;" value="&lt;b&gt;Validate &amp; Report Findings&lt;/b&gt;&lt;br&gt;&lt;font size=&#39;3&#39;&gt;Review examples, check false positives, summarize results and limitations&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="220" x="1155" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="num5" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;verticalAlign=middle;strokeColor=#555555;fillColor=#E0E0E0;fontColor=#222222;fontSize=16;fontStyle=1;" value="5" vertex="1">
+          <mxGeometry height="38" width="38" x="1138" y="282" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="step1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#555555;strokeWidth=2;" target="step2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="step2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#555555;strokeWidth=2;" target="step3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e34" edge="1" parent="1" source="step3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#555555;strokeWidth=2;" target="step4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e45" edge="1" parent="1" source="step4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#555555;strokeWidth=2;" target="step5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="footer" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontColor=#666666;fontStyle=0" value="Question 4: Skill Security and Supply-Chain Risk" vertex="1">
+          <mxGeometry height="30" width="500" x="450" y="525" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
