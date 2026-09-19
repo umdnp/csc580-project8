@@ -1,0 +1,25 @@
+[project]
+name = "gitskills-p8"
+description = "CSC 580 Group Project - Mining AI-Native Software Engineering"
+version = "0.1.0"
+requires-python = ">=3.12,<4.0"
+authors = [
+    { name = "Kyle Cantrell" },
+    { name = "Christian Heiney" },
+    { name = "Vaisnavii Mohanraj" },
+    { name = "Jim Prantzalos" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+
+dependencies = [
+    "duckdb",
+    "pandas"
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
