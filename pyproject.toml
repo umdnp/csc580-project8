@@ -14,7 +14,11 @@ readme = "README.md"
 
 dependencies = [
     "duckdb",
-    "pandas"
+    "ipykernel>=7.3.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
+    "pandas",
+    "seaborn>=0.13.2",
 ]
 
 [build-system]
