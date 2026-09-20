@@ -27,3 +27,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.scripts]
+scan_diff = "gitskills.tools.scan_diff:main"
