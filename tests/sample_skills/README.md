@@ -5,7 +5,7 @@ Each skill has a `base` and `derived` version. Run `scan_diff` with the base fil
 Example:
 
 ```bash
-python -m gitskills.tools.scan_diff sample_skills/base/repo-status-reporter/SKILL.md sample_skills/derived/repo-status-reporter/SKILL.md --show-profiles
+python -m gitskills.tools.scan_diff tests/sample_skills/base/repo-status-reporter/SKILL.md tests/sample_skills/derived/repo-status-reporter/SKILL.md --show-profiles
 ```
 
 ## Expected newly introduced capabilities
