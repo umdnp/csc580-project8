@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import Counter
 from collections.abc import Iterable
 
 from gitskills.rules.base import Rule
@@ -12,7 +11,7 @@ from .models import AnalysisResult, RiskProfile
 
 
 class SkillAnalyzer:
-    """Analyzes skill text and produces a normalized capability profile."""
+    """Analyzes skill text and produces a security capability profile."""
 
     def __init__(self, rules: Iterable[Rule] | None = None) -> None:
         self._rules = tuple(DEFAULT_RULES if rules is None else rules)
@@ -25,26 +24,32 @@ class SkillAnalyzer:
         return self._rules
 
     def scan(self, text: str) -> AnalysisResult:
-        """Analyze artifact text and return its capability profile and findings."""
+        """Analyze artifact text and return its profile and rule matches."""
 
-        findings = tuple(
-            finding
+        rule_matches = tuple(
+            rule_match
             for rule in self._rules
-            for finding in rule.evaluate(text)
+            for rule_match in rule.evaluate(text)
         )
 
         profile = RiskProfile.from_categories(
-            finding.category for finding in findings
+            rule_match.category for rule_match in rule_matches
         )
 
-        return AnalysisResult(profile=profile, findings=findings)
+        return AnalysisResult(
+            profile=profile,
+            rule_matches=rule_matches,
+        )
 
     def _validate_rule_ids(self) -> None:
-        counts = Counter(rule.rule_id for rule in self._rules)
-        duplicate_ids = sorted(
-            rule_id for rule_id, count in counts.items() if count > 1
-        )
+        seen: set[str] = set()
+        duplicates: set[str] = set()
 
-        if duplicate_ids:
-            duplicates = ", ".join(duplicate_ids)
-            raise ValueError(f"Duplicate rule IDs: {duplicates}")
+        for rule in self._rules:
+            if rule.rule_id in seen:
+                duplicates.add(rule.rule_id)
+            seen.add(rule.rule_id)
+
+        if duplicates:
+            duplicate_ids = ", ".join(sorted(duplicates))
+            raise ValueError(f"Duplicate rule IDs: {duplicate_ids}")

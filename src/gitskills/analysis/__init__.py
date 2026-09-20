@@ -1,15 +1,23 @@
 """Public analysis API."""
 
 from .analyzer import SkillAnalyzer
-from .comparator import compare_profiles
-from .models import AnalysisResult, Finding, ProfileComparison, RiskCategory, RiskProfile
+from .comparator import compare_results
+from .models import (
+    AnalysisComparison,
+    AnalysisResult,
+    RiskCategory,
+    RiskProfile,
+    RuleDelta,
+    RuleMatch,
+)
 
 __all__ = [
+    "AnalysisComparison",
     "AnalysisResult",
-    "Finding",
-    "ProfileComparison",
     "RiskCategory",
     "RiskProfile",
+    "RuleDelta",
+    "RuleMatch",
     "SkillAnalyzer",
-    "compare_profiles",
+    "compare_results",
 ]

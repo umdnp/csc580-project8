@@ -1,4 +1,4 @@
-"""Security detection rule interfaces."""
+"""Public rule API."""
 
 from .base import RegexRule, Rule
 

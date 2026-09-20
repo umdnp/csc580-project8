@@ -23,6 +23,6 @@ class FileWriteApiRule(RegexRule):
     category = RiskCategory.FILESYSTEM_ACCESS
     description = "File-writing API detected"
     patterns = (
-        r"\bopen\s*\([^\n]*,\s*[\"'][^\"']*[wax+][^\"']*[\"']",
-        r"\.(?:write_text|write_bytes|write)\s*\(",
+        r"\bopen[ \t]*\([^\n]*,[ \t]*[\"'][^\"']*[wax+][^\"']*[\"']",
+        r"\.(?:write_text|write_bytes|write)[ \t]*\(",
     )
