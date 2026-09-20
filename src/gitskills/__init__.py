@@ -1,24 +1,26 @@
 """Static analysis utilities for GitSkills artifacts."""
 
 from .analysis import (
+    AnalysisComparison,
     AnalysisResult,
-    Finding,
-    ProfileComparison,
     RiskCategory,
     RiskProfile,
+    RuleDelta,
+    RuleMatch,
     SkillAnalyzer,
-    compare_profiles,
+    compare_results,
 )
 from .rules import RegexRule, Rule
 
 __all__ = [
+    "AnalysisComparison",
     "AnalysisResult",
-    "Finding",
-    "ProfileComparison",
     "RegexRule",
     "RiskCategory",
     "RiskProfile",
     "Rule",
+    "RuleDelta",
+    "RuleMatch",
     "SkillAnalyzer",
-    "compare_profiles",
+    "compare_results",
 ]

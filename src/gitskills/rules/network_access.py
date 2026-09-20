@@ -24,5 +24,5 @@ class NetworkClientRule(RegexRule):
     description = "Network client usage detected"
     patterns = (
         r"(?<![\w.-])(?:curl|wget)[ \t]+(?=[^\s`])",
-        r"\brequests\.(?:get|post|put|patch|delete|head)\s*\(",
+        r"\brequests\.(?:get|post|put|patch|delete|head)[ \t]*\(",
     )
