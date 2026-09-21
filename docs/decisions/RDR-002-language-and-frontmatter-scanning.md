@@ -57,7 +57,9 @@ allowed-tools: Bash, Read, Write, WebFetch
 
 The words `curl`, `Bash`, and `WebFetch` describe the skill or its permitted tools. They do not by themselves show that the skill body performs or instructs those operations.
 
-The `allowed-tools` field is also optional. A skill can contain a Bash command, network request, file operation, or other security-sensitive instruction without listing the related tool in frontmatter. Likewise, listing `Bash` in `allowed-tools` does not mean the skill contains a risky Bash command.
+The `allowed-tools` field is also optional. The Agent Skills specification defines it as a space-separated list of tools that are pre-approved to run, but currently marks the field as **experimental** and notes that support may vary between agent implementations. This means `allowed-tools` can affect how a supporting client treats a skill, so it should not be described as having no effect. However, it is still a permission or configuration declaration rather than evidence that the skill body actually contains security-sensitive instructions.
+
+A skill can contain a Bash command, network request, file operation, or other security-sensitive instruction without listing the related tool in frontmatter. Likewise, listing `Bash` in `allowed-tools` does not mean the skill contains a risky Bash command.
 
 ## Decision
 
@@ -95,9 +97,11 @@ description: Uses curl to retrieve documentation
 
 will not generate a network or command finding simply because it contains the word `curl`.
 
-This is important because frontmatter describes the skill rather than providing the operational instructions the scanner is intended to evaluate.
+The Agent Skills specification separates YAML frontmatter from the Markdown body and identifies the body as the location of the skill instructions. Frontmatter can still affect how a client interprets or configures a skill. In particular, `allowed-tools` may pre-approve tools when the client supports that experimental field. For the current research question, however, a permission declaration is different from the behavioral instructions the scanner is intended to measure.
 
-Changes to `allowed-tools` or other frontmatter fields will not be analyzed separately for the current research question. If a related artifact adds `Bash` to `allowed-tools` but does not introduce a corresponding security-sensitive instruction in the body, the scanner will not treat that metadata change as newly introduced risky behavior.
+Changes to `allowed-tools` or other frontmatter fields will therefore not be analyzed separately for the current research question. If a related artifact adds `Bash` to `allowed-tools` but does not introduce a corresponding security-sensitive instruction in the body, the scanner will not treat that metadata change as newly introduced risky behavior.
+
+The experimental status of `allowed-tools` also makes it a poor basis for consistent cross-artifact behavioral classification because support may differ between agent implementations. Even if support becomes standardized later, the team would still need to decide separately whether permission expansion belongs within the scope of Question 4.
 
 ## Alternatives Considered
 
@@ -117,7 +121,8 @@ The main limitations are:
 - The exploratory language check detects writing systems, not the actual language of an entire artifact.
 - Languages that use the Latin alphabet cannot be distinguished from English using the current script-based query.
 - Security-sensitive behavior expressed only in unsupported non-English prose may be missed if it contains no recognizable technical indicators.
-- Frontmatter may describe tools or capabilities that are security relevant in a broader sense, but those declarations are not evidence that the skill body actually contains the behavior being measured.
+- Frontmatter may affect client behavior or permissions. In particular, `allowed-tools` can pre-approve tools in clients that support it, but the field is currently experimental and support may vary.
+- Permission declarations are not treated as evidence that the skill body actually contains the behavior being measured.
 - Metadata-only changes will not count as newly introduced security-sensitive behavior.
 
 These limitations should be included in the project methodology and `THREATS_TO_VALIDITY.md`.
@@ -137,6 +142,7 @@ Revisit this decision if later validation shows that:
 
 - a meaningful number of security-sensitive behaviors are missed because they are expressed only in non-English natural language;
 - excluding frontmatter causes important behavior relevant to Question 4 to be systematically missed; or
-- the scope of the research question changes in a way that makes metadata declarations themselves part of the behavior being studied.
+- `allowed-tools` becomes broadly supported and the research scope is expanded to treat permission changes as a security dimension; or
+- the scope of the research question otherwise changes in a way that makes metadata declarations themselves part of the behavior being studied.
 
 If that happens, language-aware analysis or frontmatter analysis can be considered separately rather than being mixed into the current behavioral rule processing.
