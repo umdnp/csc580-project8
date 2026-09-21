@@ -7,6 +7,7 @@ from collections.abc import Iterable
 from gitskills.rules.base import Rule
 from gitskills.rules.registry import DEFAULT_RULES
 
+from .content import mask_frontmatter
 from .models import AnalysisResult, RiskProfile
 
 
@@ -26,10 +27,11 @@ class SkillAnalyzer:
     def scan(self, text: str) -> AnalysisResult:
         """Analyze artifact text and return its profile and rule matches."""
 
+        scan_text = mask_frontmatter(text)
         rule_matches = tuple(
             rule_match
             for rule in self._rules
-            for rule_match in rule.evaluate(text)
+            for rule_match in rule.evaluate(scan_text)
         )
 
         profile = RiskProfile.from_categories(
