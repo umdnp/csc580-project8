@@ -15,7 +15,15 @@ We treat every skill artifact in the dataset as untrusted input.
 - We will not connect to any URLs or services referenced by a skill.
 - We will not assume a skill is safe or malicious based on a single textual pattern alone.
 
-This analysis is limited to static inspection of text, metadata, and bundled file references relevant to comparing a base artifact and a reused or modified version. Any result is a risk indicator, not proof of malicious behavior or active exploitation.
+This analysis is limited to static inspection of the Markdown body content and relevant bundled file references for a base artifact and a reused or modified version. YAML frontmatter is excluded from behavioral rule processing because it can contain command names, URLs, tool names, and permission declarations without representing the actual skill instructions. Any result is a risk indicator, not proof of malicious behavior or active exploitation.
+
+## Language and Frontmatter Handling
+
+- Non-English artifacts remain in scope when they contain recognizable technical constructs such as URLs, shell commands, file paths, tool names, environment variables, or credential indicators. We do not exclude artifacts solely because they are written in a non-English language.
+- Frontmatter is excluded from behavioral rule processing. The scanner analyzes the Markdown body and bundled artifacts, not YAML metadata such as `description`, `allowed-tools`, or other permission declarations.
+- Metadata-only changes in frontmatter do not count as newly introduced risky behavior unless the corresponding risky instruction also appears in the skill body.
+- This decision reduces false positives from declarative metadata while keeping the analysis grounded in the actual instructions that could change behavior across skill versions.
+- A limitation remains: risky behavior expressed in non-English prose without recognizable technical indicators may be missed by static regex rules.
 
 ## Detection Model
 
@@ -41,6 +49,8 @@ The detector is implemented as a set of regex-based rules grouped by risk catego
   - SYS-002: system modification command detected
 
 This set is intentionally aligned with the project’s implementation and with the risk categories named in the research question. Bundled or invoked scripts are treated as a risk pattern in the broader static analysis model, especially where a skill invokes a script or downloads and executes external content.
+
+The current implementation will not apply these behavioral rules to YAML frontmatter. We keep non-English artifacts in the analysis population when they contain recognizable technical constructs, but we recognize that some risky instructions written only in non-English prose without such indicators may be missed.
 
 ## Categories We Will Detect
 
@@ -196,7 +206,7 @@ Limitations:
 
 ## Comparison Logic Across Related Artifacts
 
-The project is interested in whether a reused or modified skill introduces new risky behavior relative to an earlier version or source artifact. We will compare skill files and associated metadata for static differences in:
+This project is interested in whether a reused or modified skill introduces new risky behavior relative to an earlier version or source artifact. We will compare the Markdown body of skill files, not the YAML frontmatter, for static differences in:
 
 - command strings
 - file operations
@@ -205,7 +215,7 @@ The project is interested in whether a reused or modified skill introduces new r
 - bundled or invoked script references
 - system or permission changes
 
-This is a static delta analysis, not a runtime exploit analysis. A change is treated as a candidate risk signal when the newer artifact adds one or more patterns that were not present in the earlier source. We will interpret the result as a review trigger, not a confirmed exploit.
+This is a static delta analysis, not a runtime exploit analysis. A change is treated as a candidate risk signal when the newer artifact adds one or more patterns that were not present in the earlier source. We will interpret the result as a review trigger, not a confirmed exploit. Metadata-only changes such as tool declarations in YAML frontmatter will not count as newly introduced behavioral risk unless the corresponding behavior also appears in the skill body.
 
 ## What Our Analysis Cannot Determine
 
@@ -218,8 +228,9 @@ This project cannot determine the following from static text inspection alone:
 - whether a file access is harmful in a specific environment
 - whether observed behavior reflects malicious intent or a legitimate workflow
 - whether the original artifact created the behavior or whether it was added later in a different project
+- whether a risky instruction is hidden only in non-English prose without recognizable technical indicators
 
-Static rule-based detection can identify suspicious patterns; it cannot prove compromise, exploitation, or malicious purpose.
+Static rule-based detection can identify suspicious patterns; it cannot prove compromise, exploitation, or malicious purpose. This limitation is a direct consequence of working with a static scanner and a dataset that includes both English and non-English skill text.
 
 ## What Is Outside the Scope of This Project
 
@@ -239,4 +250,4 @@ When we report findings, we will describe them as risk indicators or suspicious 
 
 ## Summary
 
-This threat model is intentionally conservative and aligned with the repository’s current scope as defined in the project research question. It focuses on the security-related patterns explicitly named there: command execution, file-system access, network access, credential-related instructions, bundled or invoked scripts, and other risky behavior introduced when skills are modified or reused. The project will review these signals statically, compare them across versions, and will not execute any content from the dataset.
+This threat model is intentionally conservative and aligned with the repository’s current scope as defined in the project research question and the language/frontmatter decision recorded in RDR-002. It focuses on the security-related patterns explicitly named there: command execution, file-system access, network access, credential-related instructions, bundled or invoked scripts, and other risky behavior introduced when skills are modified or reused. The project will review these signals statically, compare them across versions, exclude YAML frontmatter from behavioral rule processing, keep non-English artifacts in scope when technical indicators remain visible, and will not execute any content from the dataset.
