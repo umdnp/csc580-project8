@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.11" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Jim Prantzalos" />
+  <meta name="author" content="Kyle Cantrell" />
+  <meta name="author" content="Vaisnavii Mohanraj" />
+  <meta name="author" content="Christian Heiney" />
+  <title>Security-Relevant Evolution of a GitSkills</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Security-Relevant Evolution of a GitSkills</h1>
+<p class="subtitle">SWE 380 / CSC 580 Group 8 Project Report</p>
+<p class="author">Jim Prantzalos</p>
+<p class="author">Kyle Cantrell</p>
+<p class="author">Vaisnavii Mohanraj</p>
+<p class="author">Christian Heiney</p>
+<p class="date">Fall 2026</p>
+</header>
+<h1 id="abstract">Abstract</h1>
+<p>[TODO: In approximately 150-250 words, summarize the research
+problem, research question, dataset, method, principal results, and
+implications. Complete this section after the analysis is finished.]</p>
+<h1 id="introduction">Introduction</h1>
+<p>[TODO: Introduce AI-agent skills, GitSkills, and the broader
+software-engineering context of the project.]</p>
+<h2 id="background-and-context">Background and Context</h2>
+<p>GitSkills artifacts can contain instructions that direct AI agents to
+execute commands, access or modify files, communicate with external
+services, invoke scripts, or handle credentials. These behaviors are
+often legitimate and necessary, but they are security-relevant because
+carrying them out could affect a system, its data, or external
+resources.</p>
+<p>Skills may also be modified over time or reused across repositories.
+During that process, security-relevant instructions may be added,
+removed, or altered. A modified skill could introduce command execution,
+file-system access, network access, script use, credential handling, or
+another consequential behavior that was not present in an earlier
+version or related source artifact.</p>
+<h2 id="motivation">Motivation</h2>
+<p>Studying these changes can provide evidence about how
+security-relevant behavior evolves within GitSkills and whether reuse or
+modification introduces new risk signals. A reproducible analysis can
+also help developers and reviewers identify changes that may warrant
+closer security review.</p>
+<p>This topic also has personal relevance to the team because two
+members are pursuing cybersecurity concentrations. It provides an
+opportunity to apply security-focused coursework to an emerging
+software-engineering problem while developing practical experience in
+threat identification, static analysis, and responsible interpretation
+of security evidence.</p>
+<h2 id="expected-contribution">Expected Contribution</h2>
+<p>This project is expected to produce:</p>
+<ol type="1">
+<li>A documented taxonomy of security-relevant instruction patterns,
+including command execution, file-system operations, external network
+access, script use, and credential-related instructions.</li>
+<li>A reproducible, rule-based static-analysis pipeline for detecting
+those patterns in GitSkills artifacts without executing untrusted
+instructions or scripts.</li>
+<li>A reproducible method for identifying and comparing related skill
+artifacts across versions or reuse relationships.</li>
+<li>An analysis showing whether security-relevant instruction patterns
+are introduced, removed, retained, or modified between earlier or source
+artifacts and later or related artifacts.</li>
+<li>Empirical measurements describing the prevalence of each defined
+pattern and the frequency with which new patterns appear during observed
+skill evolution or reuse.</li>
+<li>A validation and reporting approach that documents detection
+limitations, relationship uncertainty, ambiguous cases, and false
+positives while distinguishing observable risk signals from confirmed
+vulnerabilities or malicious behavior.</li>
+</ol>
+<p>Together, these contributions will provide a repeatable method for
+examining both the presence and evolution of security-relevant
+instructions in GitSkills artifacts.</p>
+<h2 id="report-organization">Report Organization</h2>
+<p>[TODO: Briefly describe how the remainder of the report is
+organized.]</p>
+<h1 id="research-question-and-expectations">Research Question and
+Expectations</h1>
+<h2 id="selected-topic">Selected Topic</h2>
+<p>This project investigates Question 4, <strong>Skill security and
+supply-chain risk</strong>, from the MSR 2027 Mining Challenge-inspired
+project outline.</p>
+<h2 id="research-question">Research Question</h2>
+<blockquote>
+<p><strong>Do modified or reused skills introduce command execution,
+file-system access, network access, or other risky behavior that was
+absent from an earlier version or source artifact?</strong></p>
+</blockquote>
+<h2 id="expectations">Expectations</h2>
+<p>[TODO: Describe the patterns the team expects to observe. Clearly
+distinguish expectations from findings.]</p>
+<h2 id="operational-definitions">Operational Definitions</h2>
+<h3 id="base-artifact">Base Artifact</h3>
+<p>[TODO: Define a base artifact and explain how it is identified.]</p>
+<h3 id="derived-artifact">Derived Artifact</h3>
+<p>[TODO: Define a derived artifact and explain how it is related to the
+base artifact.]</p>
+<h3 id="security-relevant-instruction-pattern">Security-Relevant
+Instruction Pattern</h3>
+<p>[TODO: Define a security-relevant instruction pattern without
+treating it as proof of maliciousness or exploitability.]</p>
+<h3 id="introduced-risk-signal">Introduced Risk Signal</h3>
+<p>[TODO: Define what must be detected in the derived artifact and
+absent from the base artifact for a signal to count as introduced.]</p>
+<h3 id="modified-or-reused-skill">Modified or Reused Skill</h3>
+<p>[TODO: Define the relationships included in the study and the
+evidence used to establish them.]</p>
+<h1 id="dataset-and-data-preparation">Dataset and Data Preparation</h1>
+<p>This section describes the dataset source, study scope, data schema,
+sampling strategy, eligibility filters, preprocessing steps, and safety
+controls used to construct the analysis-ready data. The detailed
+algorithms and implementation pipeline are described in the Method and
+Implementation section.</p>
+<h2 id="dataset-source-and-acquisition">Dataset Source and
+Acquisition</h2>
+<p>The source dataset for this study is
+<code>agent_skills_release.db</code>, the GitSkills database provided
+for the MSR 2027 Mining Challenge. The source population consists of all
+GitSkills artifact records contained in the database.</p>
+<p>[TODO: Add the approved dataset access instructions, release or
+snapshot identifier, file integrity information, and the date on which
+the database was obtained. Explain that the full database is not
+committed to the project repository and identify the expected local
+storage location.]</p>
+<h2 id="dataset-scope">Dataset Scope</h2>
+<p>The study distinguishes three populations:</p>
+<ol type="1">
+<li><strong>Source population:</strong> All GitSkills artifact records
+in <code>agent_skills_release.db</code>.</li>
+<li><strong>Analyzable artifact population:</strong> Records from the
+source population that contain stored skill content that the static
+analyzer can process.</li>
+<li><strong>Eligible comparison population:</strong> Ordered
+base-derived comparisons that can be extracted from the database and
+satisfy the eligibility criteria defined below.</li>
+</ol>
+<p>Artifacts without analyzable content or without an identifiable,
+ordered relationship remain part of the source population, but they are
+not part of the eligible comparison population. The pipeline will report
+the number of records and candidate relationships excluded at each stage
+and the reasons for exclusion.</p>
+<p>[TODO: Insert verified counts for the source population, analyzable
+artifacts, unique content SHAs, candidate relationships, eligible
+comparisons, repositories, and other scope measures produced by the
+final pipeline.]</p>
+<h2 id="relevant-schema">Relevant Schema</h2>
+<p>The analysis uses data at four related levels: artifact,
+relationship, scanner profile, and ordered comparison. Exact
+source-table and column names will be verified against the implemented
+extraction pipeline and documented in
+<code>DATA_DICTIONARY.md</code>.</p>
+<h3 id="artifact-data">Artifact Data</h3>
+<p>For both base and derived artifacts, the prepared data retains the
+available fields needed for identification, analysis, and
+traceability:</p>
+<ul>
+<li>artifact identifier;</li>
+<li>repository identifier;</li>
+<li>artifact path;</li>
+<li>declared skill name, when available;</li>
+<li>content SHA;</li>
+<li>stored content or a safe reference to the analyzed content; and</li>
+<li>available timestamp, commit, or other ordering metadata used by the
+relationship method.</li>
+</ul>
+<h3 id="relationship-data">Relationship Data</h3>
+<p>Each candidate or eligible relationship records:</p>
+<ul>
+<li>comparison identifier;</li>
+<li>base artifact identifier;</li>
+<li>derived artifact identifier;</li>
+<li>relationship type;</li>
+<li>same-repository or cross-repository status;</li>
+<li>relationship-detection method;</li>
+<li>evidence supporting the relationship;</li>
+<li>evidence supporting base-derived ordering;</li>
+<li>relationship confidence or review status, if used by the implemented
+method; and</li>
+<li>eligibility or exclusion status and reason.</li>
+</ul>
+<h3 id="scanner-profile-data">Scanner-Profile Data</h3>
+<p>For each analyzed artifact, the prepared scanner profile
+contains:</p>
+<ul>
+<li>matched rule identifiers;</li>
+<li>matched security-relevant categories;</li>
+<li>match counts by rule and category;</li>
+<li>total matched-rule and matched-category counts;</li>
+<li>match locations or other evidence required for validation and safe
+reporting; and</li>
+<li>scanner and rule-catalog versions.</li>
+</ul>
+<h3 id="comparison-data">Comparison Data</h3>
+<p>For each eligible ordered comparison, the prepared analysis table
+contains:</p>
+<ul>
+<li>introduced, removed, and retained rule identifiers;</li>
+<li>introduced, removed, and retained categories;</li>
+<li>counts of introduced rules and categories;</li>
+<li>indicators for at least one introduced rule and at least one
+introduced category; and</li>
+<li>the overall comparison result under the documented threat
+model.</li>
+</ul>
+<p>Rule-level and category-level fields are both retained. A derived
+artifact may introduce a new rule within a category that was already
+present in the base artifact; that change is visible at the rule level
+even when the set of categories does not change.</p>
+<h2 id="unit-of-analysis">Unit of Analysis</h2>
+<p>The primary unit of analysis is one ordered comparison between two
+related, content-bearing skill artifacts:</p>
+<ul>
+<li><strong>Base artifact:</strong> The earliest identified version or
+source content in the relationship.</li>
+<li><strong>Derived artifact:</strong> The later, reused, or modified
+content being compared with the base.</li>
+</ul>
+<p>The ordering is represented as:</p>
+<p><strong>base artifact -&gt; derived artifact</strong></p>
+<p>One unique content SHA is the secondary processing unit. The pipeline
+may scan identical content once and reuse its profile, but SHA-based
+deduplication is only a computational optimization. Artifact
+occurrences, repository occurrences, and comparison relationships remain
+available after cached profiles are joined back to the complete
+extracted data.</p>
+<h2 id="inclusion-and-exclusion-criteria">Inclusion and Exclusion
+Criteria</h2>
+<p>An ordered comparison is eligible when all of the following
+conditions are satisfied:</p>
+<ol type="1">
+<li>Both artifacts contain stored content that the scanner can
+analyze.</li>
+<li>The extraction pipeline identifies a relationship using the
+project’s documented relationship method.</li>
+<li>Available evidence supports the base-derived ordering.</li>
+<li>Both artifacts can be processed with the same scanner version and
+rule-catalog version.</li>
+</ol>
+<p>A candidate comparison is excluded when one or more of these
+conditions are not satisfied. The pipeline retains the exclusion status
+and reason so that filtering is auditable. Uncertain or invalid
+relationships may be reviewed and excluded according to the documented
+relationship method.</p>
+<p>[TODO: Add any implemented content-format, parsing, duplication,
+missing-value, or relationship-confidence filters and the exact
+exclusion codes used by the pipeline.]</p>
+<h2 id="data-preparation">Data Preparation</h2>
+<p>The preparation process converts the source database into
+analysis-ready artifact and comparison data. It will:</p>
+<ol type="1">
+<li>extract artifact content and traceability metadata from the relevant
+source tables;</li>
+<li>identify candidate relationships and retain the evidence used to
+establish each relationship;</li>
+<li>determine base-derived ordering from the available evidence;</li>
+<li>apply the documented inclusion and exclusion criteria;</li>
+<li>normalize content only as required by the scanner while preserving
+the original content or a safe reference to it;</li>
+<li>identify unique content SHAs for cached scanning without discarding
+artifact occurrences;</li>
+<li>attach scanner profiles to artifact records; and</li>
+<li>join base and derived profiles into the ordered comparison
+table.</li>
+</ol>
+<p>[TODO: Document the implemented text decoding, line-ending
+normalization, parsing, missing-content handling, and any other cleaning
+transformations. Distinguish transformations used for matching from the
+original content retained for traceability.]</p>
+<h2 id="population-analysis-and-sampling">Population Analysis and
+Sampling</h2>
+<h3 id="automated-census">Automated Census</h3>
+<p>The automated analysis will attempt a census of the eligible
+comparison population rather than select a statistical sample. Every
+eligible base-derived comparison extracted from
+<code>agent_skills_release.db</code> will be processed by the comparison
+pipeline.</p>
+<p>Smaller reproducible datasets may be used while developing and
+debugging the pipeline. These development datasets are test inputs, not
+the research sample, and will not replace the final population-level
+analysis.</p>
+<h3 id="manual-validation-sample">Manual Validation Sample</h3>
+<p>The team will manually review a stratified sample of at least 100
+eligible base-derived comparisons from the automated results:</p>
+<ul>
+<li>at least 50 comparisons for which the scanner reports one or more
+newly introduced rules or categories; and</li>
+<li>at least 50 comparisons for which the scanner reports no newly
+introduced rules or categories.</li>
+</ul>
+<p>Within those two groups, the sample will represent the relationship
+types and scanner categories present in the results. Selection will use
+a recorded random seed after the strata are defined. If a stratum
+contains fewer cases than its allocation, all cases in that stratum will
+be reviewed and the remaining allocation will be redistributed using a
+documented procedure.</p>
+<p>The sample may be expanded if early review identifies unstable rules,
+poorly represented relationship types, or categories that require
+additional evidence. The manual-review procedure, labels, metrics, and
+error analysis belong in the Evaluation and Validation section.</p>
+<p>For each sampled comparison, reviewers will record:</p>
+<ul>
+<li>whether the relationship and base-derived ordering are supported by
+the retained evidence;</li>
+<li>whether each reported match corresponds to the text identified by
+the scanner;</li>
+<li>whether the assigned categories are appropriate;</li>
+<li>whether a reported introduction was absent from the base and present
+in the derived artifact;</li>
+<li>whether an unflagged comparison contains a relevant introduction
+missed by the current rules; and</li>
+<li>whether the case is a true positive, false positive, false negative,
+true negative, or ambiguous under the documented threat model.</li>
+</ul>
+<p>These records will support confirmed and rejected relationship
+counts, ordering disagreements, classification counts, precision and any
+other justified validation metrics, category- or relationship-specific
+breakdowns where sample size permits, and representative failure modes.
+The Evaluation and Validation section will define the final calculation
+and interpretation of those measures.</p>
+<h2 id="data-ethics-and-safety">Data Ethics and Safety</h2>
+<p>All artifact content is treated as untrusted data. The project
+performs static analysis only and will not execute scripts, commands, or
+instructions contained in the dataset.</p>
+<p>The pipeline and reporting process will:</p>
+<ul>
+<li>avoid executing or importing untrusted artifact code;</li>
+<li>avoid exposing credentials, tokens, or other sensitive strings that
+may appear in artifact content;</li>
+<li>retain only the match locations or excerpts needed for validation
+and safe reporting;</li>
+<li>distinguish detected risk signals from proof of malicious intent,
+vulnerability, exploitability, or real-world harm; and</li>
+<li>report aggregate findings and carefully selected examples using the
+project’s responsible reporting framework.</li>
+</ul>
+<p>[TODO: Document the implemented redaction, access-control, retention,
+and safe-example-selection procedures.]</p>
+<h1 id="method-and-implementation">Method and Implementation</h1>
+<h2 id="method-overview">Method Overview</h2>
+<p>The study measures whether modified or reused GitSkills introduce
+security-relevant behavior that was absent from an earlier version or
+source artifact. For each eligible ordered comparison, the method scans
+the base and derived artifacts with the same versioned rule catalog,
+constructs a rule and category profile for each artifact, and measures
+which signals were introduced, removed, or retained in the derived
+artifact.</p>
+<p>The threat model and rule catalog are still under development. The
+method therefore depends on stable rule identifiers, higher-level
+categories, and versioned configurations rather than on a fixed
+preliminary list of checks. Rules and categories may be refined without
+changing the overall comparison design, but a reported pipeline run must
+use one documented scanner and rule-catalog version.</p>
+<h2 id="analysis-algorithm">Analysis Algorithm</h2>
+<h3 id="artifact-profiling">Artifact Profiling</h3>
+<p>Let (R(a)) be the set of rule identifiers detected in artifact (a),
+and let (C(a)) be the set of security-relevant categories represented by
+those rules. For each artifact, the static analyzer records the matched
+rules, categories, counts, and match evidence required for
+validation.</p>
+<h3 id="base-derived-comparison">Base-Derived Comparison</h3>
+<p>For an eligible ordered pair with base artifact (b) and derived
+artifact (d), the comparison stage computes:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>i</mi><mi>n</mi><mi>t</mi><mi>r</mi><mi>o</mi><mi>d</mi><mi>u</mi><mi>c</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>\</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R_{introduced} = R(d) \setminus R(b)
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>r</mi><mi>e</mi><mi>m</mi><mi>o</mi><mi>v</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>\</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R_{removed} = R(b) \setminus R(d)
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>r</mi><mi>e</mi><mi>t</mi><mi>a</mi><mi>i</mi><mi>n</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>∩</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R_{retained} = R(b) \cap R(d)
+</annotation></semantics></math></p>
+<p>The same set operations are applied to category profiles:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>i</mi><mi>n</mi><mi>t</mi><mi>r</mi><mi>o</mi><mi>d</mi><mi>u</mi><mi>c</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>\</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>C</mi><mrow><mi>r</mi><mi>e</mi><mi>m</mi><mi>o</mi><mi>v</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>\</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>C</mi><mrow><mi>r</mi><mi>e</mi><mi>t</mi><mi>a</mi><mi>i</mi><mi>n</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>∩</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C_{introduced} = C(d) \setminus C(b), \quad
+C_{removed} = C(b) \setminus C(d), \quad
+C_{retained} = C(b) \cap C(d)
+</annotation></semantics></math></p>
+<p>A comparison has a rule-level introduction when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><msub><mi>R</mi><mrow><mi>i</mi><mi>n</mi><mi>t</mi><mi>r</mi><mi>o</mi><mi>d</mi><mi>u</mi><mi>c</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">|R_{introduced}| &gt; 0</annotation></semantics></math>,
+and it has a category-level introduction when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><msub><mi>C</mi><mrow><mi>i</mi><mi>n</mi><mi>t</mi><mi>r</mi><mi>o</mi><mi>d</mi><mi>u</mi><mi>c</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">|C_{introduced}| &gt; 0</annotation></semantics></math>.
+Both measures are retained because a new rule may appear within a
+category already present in the base artifact.</p>
+<h3 id="outcome-computation">Outcome Computation</h3>
+<p>The primary outcome is the proportion of eligible comparisons in
+which the derived artifact contains at least one detected
+security-relevant signal that was absent from the base:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Rule introduction rate</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">eligible comparisons with at least one introduced rule</mtext><mtext mathvariant="normal">eligible comparisons analyzed</mtext></mfrac></mrow><annotation encoding="application/x-tex">
+\text{Rule introduction rate} =
+\frac{\text{eligible comparisons with at least one introduced rule}}
+{\text{eligible comparisons analyzed}}
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Category introduction rate</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">eligible comparisons with at least one introduced category</mtext><mtext mathvariant="normal">eligible comparisons analyzed</mtext></mfrac></mrow><annotation encoding="application/x-tex">
+\text{Category introduction rate} =
+\frac{\text{eligible comparisons with at least one introduced category}}
+{\text{eligible comparisons analyzed}}
+</annotation></semantics></math></p>
+<p>Secondary outputs may include:</p>
+<ul>
+<li>the count and percentage of comparisons introducing each rule or
+category;</li>
+<li>distributions of introduced-rule and introduced-category
+counts;</li>
+<li>counts and percentages of comparisons with removed signals;</li>
+<li>counts and percentages with retained signals but no introduced
+signals;</li>
+<li>counts and percentages with no detected profile change;</li>
+<li>introduction rates by relationship type;</li>
+<li>introduction rates for same-repository and cross-repository
+comparisons; and</li>
+<li>the numbers of distinct artifacts, content SHAs, and repositories
+represented.</li>
+</ul>
+<p>Every reported denominator will identify whether it represents
+comparison occurrences, unique artifact relationships, or unique
+content-SHA pairs.</p>
+<h2 id="threat-model-and-rule-catalog">Threat Model and Rule
+Catalog</h2>
+<p>The static analyzer is intended to identify security-relevant
+instructions or behaviors such as executable commands, URLs, scripts,
+file operations, credential-related instructions, and other categories
+adopted by the final threat model. A rule match is a reviewable signal,
+not a conclusion that an artifact is malicious or unsafe.</p>
+<p>Each rule in the catalog should define:</p>
+<ul>
+<li>a stable rule identifier;</li>
+<li>rule name and description;</li>
+<li>higher-level security-relevant category;</li>
+<li>detection logic or pattern reference;</li>
+<li>severity or review priority, if adopted by the threat model;</li>
+<li>known false-positive conditions;</li>
+<li>positive and negative examples; and</li>
+<li>rule-catalog version.</li>
+</ul>
+<p>[TODO: Insert the finalized threat-model scope, category definitions,
+rationale for inclusion, and the path to the version-controlled rule
+catalog.]</p>
+<h2 id="static-analysis-algorithm">Static-Analysis Algorithm</h2>
+<p>The scanner processes artifact content as text and produces
+rule-level and category-level profiles without executing the content.
+Each match retains sufficient location or excerpt evidence for
+validation and safe reporting. The base and derived artifacts in one
+comparison are always scanned with the same scanner and rule-catalog
+versions.</p>
+<p>[TODO: Describe the implemented parsing strategy, pattern or rule
+engine, match aggregation, overlapping-match behavior, category mapping,
+and error handling.]</p>
+<h2 id="relationship-and-ordering-algorithm">Relationship and Ordering
+Algorithm</h2>
+<p>The relationship stage identifies related artifacts, determines which
+artifact is the base and which is derived, and records the evidence
+supporting both decisions. A comparison proceeds only when the
+relationship and ordering satisfy the eligibility criteria in the
+Dataset and Data Preparation section.</p>
+<p>[TODO: Describe the implemented relationship types,
+candidate-generation logic, ordering evidence, tie or ambiguity
+handling, confidence or review rules, and any lineage limitations.]</p>
+<h2 id="tools-and-implementation-architecture">Tools and Implementation
+Architecture</h2>
+<p>The implementation is organized around four functional
+components:</p>
+<ol type="1">
+<li><strong>Extractor:</strong> Reads the relevant records and metadata
+from <code>agent_skills_release.db</code>.</li>
+<li><strong>Relationship builder:</strong> Produces candidate ordered
+base-derived relationships and eligibility evidence.</li>
+<li><strong>Static analyzer:</strong> Applies the versioned rule catalog
+to unique artifact content and creates rule and category profiles.</li>
+<li><strong>Comparator and reporter:</strong> Joins profiles to eligible
+relationships, computes changes and aggregate measures, and writes
+reproducible analysis artifacts.</li>
+</ol>
+<p>[TODO: Name the implemented programming language, database/query
+engine, packages, command-line entry points, modules or classes,
+configuration files, test framework, and report-generation tools.
+Include exact versions or a dependency lock file where applicable.]</p>
+<h2 id="end-to-end-pipeline">End-to-End Pipeline</h2>
+<p>The intended execution path is:</p>
+<ol type="1">
+<li>Load the required source tables from
+<code>agent_skills_release.db</code>.</li>
+<li>Extract analyzable artifact content and traceability metadata.</li>
+<li>Identify candidate relationships and determine base-derived
+ordering.</li>
+<li>Apply eligibility filters and record exclusions.</li>
+<li>Identify unique content SHAs.</li>
+<li>Scan each unique SHA with the configured scanner and rule
+catalog.</li>
+<li>Join cached profiles back to all applicable artifact
+occurrences.</li>
+<li>Compare base and derived profiles to calculate introduced, removed,
+and retained rules and categories.</li>
+<li>Produce structured result tables, summary measures, validation
+inputs, logs, and report-ready figures or tables.</li>
+</ol>
+<p>The pipeline records the scanner version, rule-catalog version,
+configuration, and other run metadata needed to connect every result to
+the implementation that produced it.</p>
+<p>[TODO: Replace this intended flow with the final executable commands
+and implemented module-to-module data flow when the pipeline is
+complete.]</p>
+<h2 id="baselines-and-test-fixtures">Baselines and Test Fixtures</h2>
+<p>The earlier or source artifact serves as the within-relationship
+baseline for each derived artifact. This paired baseline supports a
+direct claim about whether a signal was detected in the derived artifact
+but not in its identified base; it is not a general-purpose prediction
+baseline.</p>
+<p>The implementation will also use manually constructed base and
+derived skill pairs as deterministic test fixtures. Fixtures will cover
+known cases in which rules and categories are introduced, removed,
+retained, or unchanged. These fixtures test scanner and comparison
+behavior and are not empirical observations from the GitSkills
+population.</p>
+<p>[TODO: Define any additional baseline rule set, heuristic, comparison
+method, or ablation required by the final evaluation, and explain what
+question that baseline answers.]</p>
+<h2 id="design-decisions">Design Decisions</h2>
+<h3 id="ordered-comparisons-rather-than-isolated-artifacts">Ordered
+Comparisons Rather Than Isolated Artifacts</h3>
+<p>The research question concerns behavior newly introduced through
+modification or reuse. An ordered base-derived pair therefore provides a
+more direct unit of analysis than an isolated artifact.</p>
+<h3 id="rule-level-and-category-level-measurement">Rule-Level and
+Category-Level Measurement</h3>
+<p>The method reports both levels because category-only comparisons can
+hide the introduction of a new rule inside an already-present category,
+while rule-only results may be too granular to summarize clearly.</p>
+<h3 id="one-rule-catalog-per-comparison-and-run">One Rule Catalog per
+Comparison and Run</h3>
+<p>Scanning both sides with the same version prevents rule-catalog
+changes from being mistaken for changes in artifact content. When rules
+change, the catalog version changes and affected analyses must be
+rerun.</p>
+<h3 id="sha-based-caching-without-statistical-deduplication">SHA-Based
+Caching Without Statistical Deduplication</h3>
+<p>Scanning each unique content SHA once avoids redundant computation.
+Cached profiles are joined back to all artifact and relationship
+occurrences so the optimization does not silently redefine the research
+population.</p>
+<h3 id="census-of-eligible-comparisons">Census of Eligible
+Comparisons</h3>
+<p>The automated pipeline attempts to analyze every eligible comparison.
+Development subsets are used only for testing and debugging; they do not
+replace the population-level run.</p>
+<h3 id="evidence-retention-and-auditable-filtering">Evidence Retention
+and Auditable Filtering</h3>
+<p>The pipeline retains evidence for relationship detection, ordering,
+rule matches, eligibility decisions, and exclusions. This supports later
+manual review and makes the construction of the analyzed population
+auditable.</p>
+<h3 id="static-analysis-and-cautious-interpretation">Static Analysis and
+Cautious Interpretation</h3>
+<p>The project does not execute untrusted artifact content. Detected
+introductions are reported as static risk signals. They do not, by
+themselves, prove malicious intent, vulnerability, exploitability, or
+real-world impact.</p>
+<h2 id="generated-outputs">Generated Outputs</h2>
+<p>The pipeline is expected to produce:</p>
+<ul>
+<li>an artifact table with traceability fields;</li>
+<li>a relationship table with ordering evidence and eligibility
+status;</li>
+<li>versioned scanner profiles;</li>
+<li>an ordered comparison table with introduced, removed, and retained
+signals;</li>
+<li>exclusion counts and reasons;</li>
+<li>aggregate summary tables;</li>
+<li>a seeded manual-validation sample;</li>
+<li>logs and run metadata; and</li>
+<li>report-ready tables and figures generated from structured
+results.</li>
+</ul>
+<p>[TODO: Replace this expected list with the final filenames, formats,
+schemas, and repository paths. Identify which outputs are committed,
+generated on demand, or omitted because of size or sensitive
+content.]</p>
+<h2 id="reproducibility">Reproducibility</h2>
+<p>A reproducible run must identify:</p>
+<ul>
+<li>the dataset release or snapshot and integrity information;</li>
+<li>the required environment and dependency versions;</li>
+<li>configuration and command-line arguments;</li>
+<li>scanner and rule-catalog versions;</li>
+<li>random seeds used for validation sampling;</li>
+<li>executable commands for each pipeline stage and the complete
+pipeline;</li>
+<li>output locations and expected artifacts; and</li>
+<li>known platform, resource, or data-availability limitations.</li>
+</ul>
+<p>[TODO: Add the final setup instructions and exact clean-environment
+execution command after the implementation is complete.]</p>
+<h1 id="evaluation-and-validation">Evaluation and Validation</h1>
+<h2 id="evaluation-objectives">Evaluation Objectives</h2>
+<p>[TODO: Explain which parts of the extraction, relationship
+identification, scanning, and comparison methods require
+validation.]</p>
+<h2 id="automated-tests">Automated Tests</h2>
+<p>[TODO: Describe unit, integration, and regression tests for important
+pipeline behavior.]</p>
+<h2 id="constructed-test-fixtures">Constructed Test Fixtures</h2>
+<p>[TODO: Explain how intentionally created base and derived skills test
+known rule introductions, removals, and retained behavior.]</p>
+<h2 id="manual-validation-sample-1">Manual Validation Sample</h2>
+<p>[TODO: Define the sample size, selection method, strata, random seed,
+and replacement procedure.]</p>
+<h2 id="annotation-protocol">Annotation Protocol</h2>
+<p>[TODO: Explain what reviewers examine and how cases are labeled.]</p>
+<h2 id="validation-measures">Validation Measures</h2>
+<p>[TODO: Define the validation metrics used, such as true-positive
+counts, false-positive counts, false-negative counts, precision, recall,
+or agreement.]</p>
+<h2 id="error-analysis">Error Analysis</h2>
+<p>[TODO: Describe how incorrect, ambiguous, or disputed results are
+examined and categorized.]</p>
+<h2 id="risk-signal-interpretation-disclaimer">Risk-Signal
+Interpretation Disclaimer</h2>
+<p>A detected risk signal indicates that a skill contains an instruction
+pattern identified as security-relevant by the project’s current rule
+catalog. It does not prove that the skill is malicious, vulnerable,
+exploitable, or unsafe.</p>
+<p>Likewise, an introduced risk signal means that the scanner detected a
+rule or category in the derived artifact that it did not detect in the
+corresponding base artifact. This is a comparison of static artifact
+content, not evidence that the instruction was executed or caused
+harm.</p>
+<p>The available evidence may not establish:</p>
+<ul>
+<li>whether the instruction is executable in the intended
+environment;</li>
+<li>whether an agent or user ever executed it;</li>
+<li>whether execution requires user approval or additional
+permissions;</li>
+<li>whether security controls would prevent or restrict the
+behavior;</li>
+<li>whether a referenced file, script, command, credential, or network
+resource is harmful;</li>
+<li>whether the behavior creates an exploitable condition; or</li>
+<li>whether the artifact’s author intended malicious behavior.</li>
+</ul>
+<p>Many legitimate skills require commands, file operations, network
+access, scripts, or authentication instructions to perform their
+intended functions. The project will therefore describe scanner findings
+as <strong>security-relevant capabilities</strong>, <strong>risk
+signals</strong>, or <strong>patterns requiring review</strong>. Terms
+such as <strong>malicious</strong>, <strong>vulnerable</strong>, and
+<strong>exploitable</strong> will be used only when supported by
+additional evidence beyond a static rule match.</p>
+<h1 id="results">Results</h1>
+<h2 id="dataset-processing-results">Dataset Processing Results</h2>
+<p>[TODO: Report artifact counts, unique content SHAs, candidate
+relationships, eligible comparisons, exclusions, and completed
+comparisons.]</p>
+<h2 id="security-pattern-results">Security-Pattern Results</h2>
+<p>[TODO: Report the prevalence of detected rules and categories.]</p>
+<h2 id="introduced-risk-signals">Introduced Risk Signals</h2>
+<p>[TODO: Report how frequently derived artifacts introduced rules or
+categories that were absent from their base artifacts.]</p>
+<h2 id="removed-and-retained-signals">Removed and Retained Signals</h2>
+<p>[TODO: Report how frequently signals were removed, retained, or
+unchanged.]</p>
+<h2 id="results-by-relationship-type">Results by Relationship Type</h2>
+<p>[TODO: Compare meaningful relationship groups when supported by the
+data.]</p>
+<h2 id="validation-results">Validation Results</h2>
+<p>[TODO: Report the results of manual review, including false
+positives, false negatives, ambiguous cases, and relationship
+errors.]</p>
+<h2 id="representative-examples">Representative Examples</h2>
+<p>[TODO: Present safe, non-sensitive examples illustrating important or
+unexpected findings.]</p>
+<h2 id="results-summary">Results Summary</h2>
+<p>[TODO: Summarize the principal findings without interpreting their
+broader meaning.]</p>
+<h1 id="discussion">Discussion</h1>
+<h2 id="interpretation-of-findings">Interpretation of Findings</h2>
+<p>[TODO: Explain what the results suggest about security-relevant
+changes in modified or reused GitSkills.]</p>
+<h2 id="comparison-with-expectations">Comparison With Expectations</h2>
+<p>[TODO: Compare the findings with the expectations stated earlier in
+the report.]</p>
+<h2 id="simpler-and-competing-explanations">Simpler and Competing
+Explanations</h2>
+<p>[TODO: Discuss plausible explanations other than insecure or
+malicious propagation, such as legitimate operational requirements,
+artifact size, shared templates, or scanner bias.]</p>
+<h2 id="security-and-supply-chain-implications">Security and
+Supply-Chain Implications</h2>
+<p>[TODO: Discuss the implications for skill authors, reviewers, tool
+developers, repositories, and users.]</p>
+<h2 id="practical-recommendations">Practical Recommendations</h2>
+<p>[TODO: Present recommendations supported by the findings.]</p>
+<h2 id="unexpected-findings">Unexpected Findings</h2>
+<p>[TODO: Discuss surprising results and possible explanations.]</p>
+<h2 id="interpretation-boundaries">Interpretation Boundaries</h2>
+<p>[TODO: Reinforce what the evidence does and does not establish,
+including limits involving intent, execution, exploitability, causation,
+and provenance.]</p>
+<h1 id="threats-to-validity">Threats to Validity</h1>
+<h2 id="construct-validity">Construct Validity</h2>
+<p>[TODO: Discuss whether the selected rules and categories accurately
+represent the security-relevant behaviors the project intends to
+measure.]</p>
+<h2 id="internal-validity">Internal Validity</h2>
+<p>[TODO: Discuss errors in relationship identification, version
+ordering, content extraction, rule matching, and profile
+comparison.]</p>
+<h2 id="external-validity">External Validity</h2>
+<p>[TODO: Discuss whether findings from the selected dataset generalize
+to other GitSkills, repositories, agent platforms, or time periods.]</p>
+<h2 id="conclusion-validity">Conclusion Validity</h2>
+<p>[TODO: Discuss sample size, sparse categories, repeated content,
+unstable estimates, multiple comparisons, and other factors that could
+affect the conclusions.]</p>
+<h2 id="reproducibility-threats">Reproducibility Threats</h2>
+<p>[TODO: Discuss dependency versions, dataset availability,
+rule-catalog changes, nondeterminism, random seeds, and computational
+requirements.]</p>
+<h2 id="missing-and-incomplete-data">Missing and Incomplete Data</h2>
+<p>[TODO: Explain how unavailable content, incomplete histories,
+unidentifiable relationships, and excluded records may affect the
+results.]</p>
+<h2 id="mitigations">Mitigations</h2>
+<p>[TODO: Summarize the tests, manual validation, versioning,
+documentation, sensitivity analyses, and reporting practices used to
+reduce these threats.]</p>
+<h1 id="related-work-and-references">Related Work and References</h1>
+<h2 id="mining-software-repositories">Mining Software Repositories</h2>
+<p>[TODO: Summarize relevant research involving repository mining,
+artifact evolution, reuse, and software change analysis.]</p>
+<h2 id="software-supply-chain-security">Software Supply-Chain
+Security</h2>
+<p>[TODO: Summarize relevant work involving reused artifacts, dependency
+risk, provenance, and supply-chain propagation.]</p>
+<h2 id="static-security-analysis">Static Security Analysis</h2>
+<p>[TODO: Summarize relevant work involving rule-based scanning, command
+detection, configuration analysis, or security-pattern
+identification.]</p>
+<h2 id="ai-agent-skills-and-instructions">AI-Agent Skills and
+Instructions</h2>
+<p>[TODO: Summarize relevant research or documentation involving
+AI-agent skills, prompt-based tools, agent instructions, and AI-native
+software-engineering artifacts.]</p>
+<h2 id="relationship-to-this-project">Relationship to This Project</h2>
+<p>[TODO: Explain how this project differs from or extends the related
+work.]</p>
+<h2 id="references">References</h2>
+<div id="refs" role="list">
+
+</div>
+<h1 id="conclusion-and-future-work">Conclusion and Future Work</h1>
+<h2 id="conclusion">Conclusion</h2>
+<p>[TODO: Restate the research question, summarize the method, and
+present the most important findings.]</p>
+<h2 id="contributions">Contributions</h2>
+<p>[TODO: Summarize the project’s technical, empirical, and
+methodological contributions.]</p>
+<h2 id="limitations">Limitations</h2>
+<p>[TODO: Briefly acknowledge the limitations most important to
+interpreting the conclusion.]</p>
+<h2 id="future-work">Future Work</h2>
+<p>[TODO: Identify reasonable extensions, such as additional rules,
+improved relationship detection, broader validation, or analysis of
+other datasets.]</p>
+<h2 id="final-takeaway">Final Takeaway</h2>
+<p>[TODO: End with the principal implication for AI-agent skill
+development, review, or security.]</p>
+<h1 id="artifact-appendix">Artifact Appendix</h1>
+<h2 id="repository">Repository</h2>
+<p>[TODO: Provide the repository URL, release tag, commit identifier,
+and access information.]</p>
+<h2 id="project-structure">Project Structure</h2>
+<p>[TODO: Describe the important source, test, data, results, figure,
+documentation, and report directories.]</p>
+<h2 id="environment-and-dependencies">Environment and Dependencies</h2>
+<p>[TODO: List the supported operating environment, language version,
+dependencies, and installation instructions.]</p>
+<h2 id="dataset-availability">Dataset Availability</h2>
+<p>[TODO: Explain how to obtain <code>agent_skills_release.db</code>,
+where it should be placed, and why it is not included in the
+repository.]</p>
+<h2 id="reproduction-commands">Reproduction Commands</h2>
+<p>[TODO: Provide the exact commands required to run tests, extract
+data, execute the scanner, perform comparisons, generate results, and
+build the report.]</p>
+<h2 id="generated-artifacts">Generated Artifacts</h2>
+<p>[TODO: List the primary result tables, figures, logs, and report
+outputs and identify which commands generate them.]</p>
+<h2 id="configuration-and-versioning">Configuration and Versioning</h2>
+<p>[TODO: Document the scanner version, rule-catalog version,
+configuration files, random seeds, and other settings associated with
+the reported results.]</p>
+<h2 id="known-limitations">Known Limitations</h2>
+<p>[TODO: Describe practical limitations affecting installation,
+execution time, storage, hardware requirements, or supported
+inputs.]</p>
+<h2 id="ai-use-disclosure">AI-Use Disclosure</h2>
+<p>[TODO: Summarize how AI tools were used, how generated work was
+reviewed, and where the detailed AI-use log can be found.]</p>
+<h2 id="team-contributions">Team Contributions</h2>
+<p>[TODO: Summarize each team member’s documented technical, research,
+review, and project-management contributions.]</p>
+</body>
+</html>

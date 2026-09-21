@@ -1,0 +1,20 @@
+from: markdown
+standalone: true
+citeproc: true
+
+metadata-file: report/metadata.yaml
+bibliography: report/references.bib
+
+input-files:
+  - report/sections/01-abstract.md
+  - report/sections/02-introduction.md
+  - report/sections/03-research-question.md
+  - report/sections/04-dataset-and-preparation.md
+  - report/sections/05-method-and-implementation.md
+  - report/sections/06-evaluation-and-validation.md
+  - report/sections/07-results.md
+  - report/sections/08-discussion.md
+  - report/sections/09-threats-to-validity.md
+  - report/sections/10-related-work.md
+  - report/sections/11-conclusion.md
+  - report/sections/12-artifact-appendix.md
