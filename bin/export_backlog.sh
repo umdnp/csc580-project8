@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eu
 
 REPO="umdnp/csc580-project8"
 PROJECT_OWNER="umdnp"
