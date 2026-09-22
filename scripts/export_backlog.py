@@ -161,7 +161,9 @@ class GitHubClient:
                 detail = raw
             raise GitHubError(f"GitHub API returned HTTP {exc.code}: {detail}") from exc
         except urllib.error.URLError as exc:
-            raise GitHubError(f"Could not connect to GitHub: {exc.reason}") from exc
+            raise GitHubError(
+                f"Could not connect to GitHub while requesting {url}: {exc.reason}"
+            ) from exc
 
     def graphql(self, query: str, variables: dict[str, Any]) -> dict[str, Any]:
         """Run a GraphQL query and surface GraphQL errors as GitHubError."""
@@ -694,14 +696,27 @@ def validate_parent_links(
 def run() -> None:
     """Load the Project, export repository issues, and write the Markdown file."""
     args = parse_args()
+
+    print("Reading GitHub authentication...", flush=True)
     token = get_token()
     client = GitHubClient(token, args.repo)
 
+    print(f"Connecting to GitHub and verifying repository {args.repo}...", flush=True)
     client.verify_repository()
+    print("Repository access verified.", flush=True)
+
+    print(
+        f"Loading GitHub Project {args.project_owner}/{args.project_number}...",
+        flush=True,
+    )
     project, raw_items = load_project(
         client,
         args.project_owner,
         args.project_number,
+    )
+    print(
+        f"Loaded project '{project['title']}' with {len(raw_items)} project item(s).",
+        flush=True,
     )
 
     issues: list[IssueItem] = []
@@ -726,8 +741,13 @@ def run() -> None:
         if issue:
             issues.append(issue)
 
+    print(
+        f"Checking epic/story relationships for {len(issues)} repository issue(s)...",
+        flush=True,
+    )
     validate_parent_links(client, issues)
 
+    print("Generating Markdown backlog...", flush=True)
     markdown = render_markdown(args.repo, project, issues)
     output_path = os.path.abspath(args.output)
     with open(output_path, "w", encoding="utf-8", newline="\n") as handle:
