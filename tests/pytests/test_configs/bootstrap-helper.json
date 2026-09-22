@@ -1,0 +1,32 @@
+{
+  "introduced": [
+    "external_code_execution"
+  ],
+  "rule_match_count": {
+    "base": 3,
+    "derived": 8,
+    "delta": 5
+  },
+  "rule_deltas": {
+    "CMD-001": {
+      "base": 1,
+      "derived": 2,
+      "delta": 1
+    },
+    "CMD-002": {
+      "base": 0,
+      "derived": 2,
+      "delta": 2
+    },
+    "EXT-001": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    },
+    "EXT-002": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    }
+  }
+}
