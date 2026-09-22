@@ -16,7 +16,9 @@
 
 ## Conclusion Validity
 
-[TODO: Discuss sample size, sparse categories, repeated content, unstable estimates, multiple comparisons, and other factors that could affect the conclusions.]
+Observed security-relevant signals may have simpler or competing explanations that do not imply elevated risk. For example, capabilities such as shell execution, network access, file modification, or use of tools such as curl may occur frequently because they are common requirements of legitimate software-development, automation, deployment, or system-administration workflows. As a result, the presence of one or more security-relevant indicators should not be interpreted by itself as evidence that a skill is malicious or unsafe.
+
+Other factors may also affect the strength of the study's conclusions, including small sample sizes within individual categories, sparse observations, repeated or near-duplicate content, and unstable estimates for uncommon behaviors. Where applicable, results will therefore be interpreted as evidence of patterns or associations rather than proof of security risk.
 
 ## Reproducibility Threats
 

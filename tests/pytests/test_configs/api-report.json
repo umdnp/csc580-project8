@@ -1,0 +1,17 @@
+{
+  "introduced": [
+    "credential_access"
+  ],
+  "rule_match_count": {
+    "base": 3,
+    "derived": 6,
+    "delta": 3
+  },
+  "rule_deltas": {
+    "CRED-001": {
+      "base": 0,
+      "derived": 3,
+      "delta": 3
+    }
+  }
+}
