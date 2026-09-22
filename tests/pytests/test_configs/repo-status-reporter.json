@@ -1,0 +1,28 @@
+{
+  "introduced": [
+    "command_execution",
+    "network_access"
+  ],
+  "rule_match_count": {
+    "base": 0,
+    "derived": 3,
+    "delta": 3
+  },
+  "rule_deltas": {
+    "CMD-001": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    },
+    "NET-001": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    },
+    "NET-002": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "introduced": [
+    "filesystem_access",
+    "system_modification"
+  ],
+  "rule_match_count": {
+    "base": 1,
+    "derived": 3,
+    "delta": 2
+  },
+  "rule_deltas": {
+    "FS-001": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    },
+    "SYS-002": {
+      "base": 0,
+      "derived": 1,
+      "delta": 1
+    }
+  }
+}
