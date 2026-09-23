@@ -76,7 +76,7 @@ description: Uses curl to retrieve documentation
 
 `allowed-tools` will also **not** be used to suppress findings in the skill body. A tool being allowed does not mean every use of that tool is safe. For example, a skill might already use Bash for a harmless command, while a later copy adds a security-sensitive Bash command. Ignoring Bash findings because it appears in `allowed-tools` could cause us to miss the type of change Question 4 is intended to detect.
 
-For the current research question, frontmatter changes will not be analyzed separately. The scanner is focused on security-sensitive changes introduced in the skill body.
+For the current research question, frontmatter changes will not be analyzed separately. The scanner is focused on security-sensitive behavior introduced in the `SKILL.md` body or bundled textual resources associated with the skill.
 
 ## Alternatives Considered
 
