@@ -2,7 +2,7 @@
 
 **Project:** CSC 580 Group Project: Mining AI-Native Software Engineering  
 **Research Focus:** Question 4: Skill Security and Supply-Chain Risk  
-**Repository path:** `data/elicitation/notebook-interview.md`
+**Repository path:** `docs/2.elicitation/notebook-interview.md`
 
 **Team:** Kyle Cantrell, Christian Heiney, Vaisnavii Mohanraj, Jim Prantzalos
 
