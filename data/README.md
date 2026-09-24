@@ -58,157 +58,84 @@ and the
 
 ## Local DuckDB Development Setup
 
-### 1. Install DuckDB
+The project uses the GitSkills SQLite release as the source dataset and builds a separate DuckDB database for local analysis.
 
-Download the DuckDB CLI from:
-
-[DuckDB Installation](https://duckdb.org/install)
-
-DuckDB is distributed as a single executable. Place it in a directory already included in your system `PATH`, or add the directory containing the executable to your `PATH`.
-
-Confirm that DuckDB is available:
+The setup scripts currently expect:
 
 ```text
+/c/data/sqlite/agent_skills_release.db    # downloaded SQLite source
+/c/data/duckdb/agent_skills_release.db    # generated DuckDB database
+```
+
+If you use different locations, update the configuration values at the top of `bin/create_gitskills_db.sh`.
+
+Run the following commands from the repository root.
+
+### 1. Install the DuckDB CLI
+
+In Linux or WSL:
+
+```bash
+curl https://install.duckdb.org | bash
+export PATH="$HOME/.duckdb/cli/latest:$PATH"
+```
+
+Confirm that the CLI is available:
+
+```bash
 duckdb --version
 ```
 
-### 2. Create a Separate Directory for the DuckDB Database
+### 2. Build the DuckDB Database
 
-Assume the downloaded SQLite database is stored here:
-
-```text
-C:\data\sqlite\agent_skills_release.db
-```
-
-The SQLite file should remain in that directory.
-
-Create a different directory for the DuckDB database:
-
-```cmd
-mkdir C:\data\duckdb
-```
-
-Then change into the new directory:
-
-```cmd
-cd /d C:\data\duckdb
-```
-
-At this point, the source SQLite database is still located at:
+Download the GitSkills SQLite database and place it at:
 
 ```text
-C:\data\sqlite\agent_skills_release.db
+/c/data/sqlite/agent_skills_release.db
 ```
 
-and the new DuckDB database will be created separately under:
+Then run:
+
+```bash
+bash bin/create_gitskills_db.sh
+```
+
+The script creates:
 
 ```text
-C:\data\duckdb
+/c/data/duckdb/agent_skills_release.db
 ```
 
-### 3. Create and Start the DuckDB Database
+It imports the GitSkills source tables into DuckDB and adds the local identifiers and relationships used by the project.
 
-From inside `C:\data\duckdb`, run:
+The script will stop if the DuckDB database already exists. Remove the existing DuckDB file first if you intentionally want to rebuild it.
 
-```text
-duckdb -ui agent_skills_release.db
+### 3. Build the Analysis Tables
+
+After the database import completes, create the project analysis tables:
+
+```bash
+duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/create_analysis_tables.sql
 ```
 
-This creates a new DuckDB database at:
+Then populate the derived artifact-grouping fields:
 
-```text
-C:\data\duckdb\agent_skills_release.db
+```bash
+duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/update_artifact_groupings.sql
 ```
 
-The new database will initially be empty. The command also opens DuckDB's browser-based notebook UI, where the remaining SQL commands can be run.
+Run these scripts in this order. The update script prints a validation summary when it completes.
 
-Do **not** run this command against:
-
-```text
-C:\data\sqlite\agent_skills_release.db
-```
-
-That file is the original SQLite database and is only used as the source for the import.
-
-### 4. Enable DuckDB's SQLite Extension
-
-In the DuckDB UI, run:
-
-```sql
-INSTALL sqlite;
-LOAD sqlite;
-```
-
-Confirm that the SQLite extension is available:
-
-```sql
-SELECT *
-FROM duckdb_functions()
-WHERE function_name LIKE '%sqlite%';
-```
-
-### 5. Import the SQLite Tables into DuckDB
-
-Use `sqlite_scan` to read the original SQLite database and create native DuckDB tables.
-
-If your SQLite database is stored somewhere other than `C:/data/sqlite/agent_skills_release.db`, update the path in these commands.
-
-```sql
-CREATE TABLE artifacts AS
-SELECT *
-FROM sqlite_scan('C:/data/sqlite/agent_skills_release.db', 'artifacts');
-
-CREATE TABLE repos AS
-SELECT *
-FROM sqlite_scan('C:/data/sqlite/agent_skills_release.db', 'repos');
-
-CREATE TABLE mining_runs AS
-SELECT *
-FROM sqlite_scan('C:/data/sqlite/agent_skills_release.db', 'mining_runs');
-
-CREATE TABLE artifact_siblings AS
-SELECT *
-FROM sqlite_scan('C:/data/sqlite/agent_skills_release.db', 'artifact_siblings');
-```
-
-Verify that the import completed successfully:
-
-```sql
-SELECT COUNT(*) FROM artifacts;
-```
-
-The DuckDB database is now ready for use by the project notebooks.
+At this point the local DuckDB database is ready for project notebooks and analysis.
 
 ## Configure the Local Database Path
 
-Project notebooks look for the DuckDB database at this default location:
+Project code can use the `GITSKILLS_DB` environment variable to locate the generated DuckDB database.
 
-```text
-C:\data\duckdb\agent_skills_release.db
-```
-
-If your DuckDB database is stored somewhere else, set the `GITSKILLS_DB` environment variable to the full path of your DuckDB database.
-
-### Windows
-
-From Command Prompt:
-
-```cmd
-set GITSKILLS_DB=D:\data\duckdb\agent_skills_release.db
-```
-
-Verify the value:
-
-```cmd
-echo %GITSKILLS_DB%
-```
-
-Start Jupyter, VS Code, or your notebook environment from the same command session so it inherits the environment variable.
-
-### Linux / WSL
+For the default WSL setup:
 
 ```bash
-export GITSKILLS_DB="/path/to/agent_skills_release.db"
+export GITSKILLS_DB="/c/data/duckdb/agent_skills_release.db"
 ```
 
 Verify the value:
@@ -217,7 +144,7 @@ Verify the value:
 echo "$GITSKILLS_DB"
 ```
 
-If `GITSKILLS_DB` is not defined, project notebooks fall back to the default path shown above.
+If the database is stored somewhere else, set `GITSKILLS_DB` to that path before starting the notebook or development environment.
 
 ## Data Dictionary
 
