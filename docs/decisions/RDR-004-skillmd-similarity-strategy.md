@@ -11,122 +11,82 @@
 
 ## Context
 
-Question 4 asks whether modified or reused skills introduce security-sensitive behavior that was not present in an earlier version or source artifact.
+RDR-003 defines a practical candidate population for comparing potentially reused or modified skills. The next problem is deciding when two candidate `SKILL.md` files are similar enough to support a meaningful security comparison.
 
-RDR-001 established that we can infer useful earlier/later relationships from the artifacts available in GitSkills without reconstructing complete repository history. RDR-003 established the candidate groups and the exact-content checks that happen before similarity analysis.
+Matching names or descriptions is useful for finding candidates, but metadata alone does not show that the skill instructions are actually related. Exact hashes solve the opposite case by showing when two files are identical, but they cannot identify modified copies.
 
-The remaining problem is deciding whether two `SKILL.md` files with different content are still similar enough to make a meaningful security comparison. Matching `name` and description is useful for finding candidates, but it does not prove that the files are related. Exact hashes tell us when files are identical, but not when one is a modified version of another.
+The project therefore needs a similarity method that can recognize retained content even when a skill has been reformatted, expanded, or partially rewritten.
 
 ## Decision Drivers
 
 - Do not treat shared metadata as proof that two skills are related.
-- Detect modified skills even when later versions add substantial new content.
-- Keep the similarity method understandable, reproducible, and practical to validate.
-- Avoid unnecessary provenance reconstruction or approximate-search complexity.
-- Preserve meaningful technical content such as commands, URLs, paths, and identifiers.
-- Validate the similarity rules before using them as research evidence.
+- Recognize modified copies that preserve substantial earlier content.
+- Tolerate formatting changes and inserted material.
+- Preserve meaningful technical text such as commands, URLs, paths, and identifiers.
+- Keep the method understandable, reproducible, and practical to validate.
+- Avoid introducing more complex similarity infrastructure unless the simpler approach proves insufficient.
 
-## Decision
+## Evidence
 
-> **For candidate artifacts with different `file_sha` values, compare their `SKILL.md` bodies using token shingles. Use containment as the primary similarity measure and Jaccard as a supporting measure.**
+Exploratory review showed that reused skills can retain most of their original instructions while adding significant new content.
 
-Artifacts reaching this step have already been placed in the same candidate group by RDR-003 because they share the same `name` and normalized description. That tells us they are worth comparing, but not that they are actually related.
-
-### Similarity Comparison
-
-Similarity will be measured using the `SKILL.md` body rather than YAML frontmatter. The goal is to compare the skill instructions themselves, while frontmatter mainly contains metadata and configuration. In addition, `name` and description already participate in candidate grouping, so including them again would artificially increase similarity. Frontmatter is also excluded from behavioral security scanning as documented in RDR-002.
-
-The body will be broken into tokens and then into overlapping **5-token shingles**. A shingle is simply a sequence of five consecutive tokens. This allows formatting differences to have less effect on the comparison while still preserving meaningful text and technical content.
-
-Two similarity measures will be recorded:
-
-- **Directional containment** asks: *How much of the earlier artifact is still present in the later artifact?*
-- **Jaccard similarity** asks: *How similar are the two artifacts overall?*
-
-Containment is the primary signal because a later artifact may keep most of an earlier skill while adding a significant amount of new content. Jaccard provides useful context by showing how much the two complete artifacts overlap.
-
-For example, if an earlier artifact has 100 shingles, a later artifact has 150, and they share 85:
+A symmetric similarity measure by itself can make this kind of expanded copy look less related than it really is. For example, if one artifact contains 100 shingles, another contains 150, and they share 85:
 
 ```text
 containment = 85 / 100 = 0.85
 jaccard     = 85 / 165 = 0.52
 ```
 
-The containment score shows that 85% of the earlier content is still present. The lower Jaccard score shows that the later artifact also contains a meaningful amount of additional content.
+The containment score shows that most of the smaller artifact is still present, while the Jaccard score shows that the larger artifact also contains substantial additional material.
 
-Both measures are useful because either one can be misleading by itself. Jaccard can make a legitimate expanded copy look less similar because the added content increases the union. Containment handles that case well. On the other hand, containment can be high when a relatively short earlier artifact appears inside a much larger later artifact. Jaccard makes that size difference visible and helps identify cases that deserve closer review.
+That distinction matters for Question 4 because newly added material may be where security-sensitive behavior is introduced.
 
-Containment will remain the main similarity signal. Jaccard will be used as supporting evidence during validation. Validation will determine whether Jaccard remains descriptive or becomes part of the final matching rules.
+## Decision
 
-Five-token shingles are the starting point, not a fixed assumption. The final shingle size and similarity threshold will be selected through manual validation.
+> **Use token-shingle similarity for candidate `SKILL.md` files, with containment as the primary measure and Jaccard similarity as supporting evidence.**
 
-### Choosing an Earlier Comparison
+Similarity will be based on the `SKILL.md` body rather than YAML frontmatter. Frontmatter is metadata and is already handled separately under RDR-002.
 
-`first_commit_at` will be used to determine which artifact was observed earlier in the dataset. It provides an ordering for comparison; it does not prove which artifact was the original source.
+Token shingles provide a middle ground between exact matching and more complex semantic methods. They preserve local textual structure while being less sensitive to formatting changes than raw-text comparison.
 
-For each later artifact, we will compare its `SKILL.md` with earlier candidates in the same group. If one or more earlier artifacts pass the validated similarity rules, the one that most closely matches the later artifact will be used as the comparison baseline for security analysis.
+Containment is the primary signal because it answers the question most relevant to reuse: how much of one artifact is retained in another. Jaccard is retained as a supporting measure because it helps show how much the complete artifacts differ overall.
 
-This avoids comparing every later artifact only with the oldest member of the group. For example:
+The initial implementation will evaluate 5-token shingles, with shingle size and similarity thresholds finalized through manual validation rather than treated as fixed assumptions.
 
-```text
-A -> B -> C
+Similarity is evaluated across the same-name candidate population defined in RDR-003, including artifacts whose descriptions differ.
 
-A vs. B = 0.85 containment
-A vs. C = 0.62 containment
-B vs. C = 0.91 containment
-```
+When chronology is available, similarity can support an observed earlier/later comparison. Similarity itself does not prove copying, ancestry, or original authorship.
 
-If `C` were compared only with `A`, it might be rejected as unrelated. Comparing it with `B` shows a much stronger relationship and better captures gradual changes over time.
-
-This still does not prove that `B` is the true historical parent of `C`. It only identifies the best earlier comparison available in the dataset. If two earlier artifacts are similarly good matches, the relationship may need manual review rather than a definitive lineage claim.
-
-### Sibling Resources
-
-Sibling resources are not included in the `SKILL.md` similarity score.
-
-RDR-003 defines sibling-content fingerprints that tell us whether bundled resource content changed. When sibling content differs, those changes are examined separately during security analysis rather than being mixed into the `SKILL.md` similarity calculation.
-
-## Evidence
-
-RDR-003 already narrows the comparison problem before similarity analysis begins. Shared metadata identifies candidate groups, while exact hashes identify unchanged `SKILL.md` content and sibling-content differences.
-
-Similarity analysis is therefore needed only when candidate artifacts have different `SKILL.md` content. For those cases, token shingles provide a direct and interpretable way to measure how much content was retained and how much the files differ overall.
+Sibling resources remain outside the `SKILL.md` similarity score and are evaluated separately using the sibling fingerprints defined in RDR-003.
 
 ## Alternatives Considered
 
 | Alternative | Outcome | Reason |
 | --- | --- | --- |
-| Treat matching `name` and description as sufficient evidence of reuse | Not selected | Shared metadata identifies candidates but does not prove that their contents are related. |
-| Compare every later artifact only with the earliest artifact in the group | Not selected | Gradual changes can leave a later artifact much closer to an intermediate version than to the oldest one. |
-| Reconstruct a complete provenance or clone graph | Not selected | The dataset cannot establish complete historical lineage, and this would expand the project beyond what Question 4 requires. |
-| Use approximate search such as MinHash, LSH, or embeddings | Not selected | Candidate grouping and exact hash checks already reduce the problem enough to use a simpler, exact similarity measure. |
-| Use raw-text or edit-distance similarity | Not selected | Formatting changes and inserted content can make related skills appear more different than they are; token shingles tolerate those changes while preserving local content overlap. |
-| Use a fixed threshold without validation | Not selected | The similarity cutoff must be supported by manual review rather than chosen arbitrarily. |
+| Treat matching metadata as sufficient evidence of reuse | Not selected | Metadata identifies candidates but does not prove that their instructions are related. |
+| Restrict similarity to exact name-and-description groups | Not selected | Reused skills may keep the same name while changing their description. |
+| Use raw text or edit distance | Not selected | Formatting changes and inserted content can make related skills appear more different than they are. |
+| Use Jaccard alone | Not selected | Expanded copies can have strong retained content but a lower overall overlap score. |
+| Use MinHash, LSH, or embeddings initially | Not selected | The candidate population is already narrowed enough to begin with a simpler, interpretable method. |
+| Use a fixed threshold without validation | Not selected | The acceptance threshold must be supported by manual review. |
 
 ## Consequences and Limitations
 
-- Similarity provides evidence that two artifacts are related, but it does not prove direct ancestry or copying.
-- `first_commit_at` is the earliest commit found at the artifact's current path and may not represent the true origin of the content.
-- Grouping by `name` and description can miss related skills whose metadata changed, and it can place unrelated skills with matching metadata in the same group.
-- A later artifact may have more than one reasonable earlier match. Ambiguous cases may require manual review.
-- The shingle size and similarity threshold must be validated before final analysis.
-- Sibling-resource changes are evaluated separately and do not affect the `SKILL.md` similarity score.
-
-These limitations should also be reflected in the project methodology and `THREATS_TO_VALIDITY.md`.
+- Similarity provides evidence that artifacts are related, not proof of copying or lineage.
+- Same-name candidate groups can still contain unrelated artifacts.
+- Related skills whose names changed can still be missed before similarity analysis.
+- Containment can overstate similarity when a short artifact is embedded in a much larger one; Jaccard helps reveal that case.
+- The shingle size and acceptance threshold require validation before final analysis.
+- Sibling-resource changes are considered separately and do not influence the `SKILL.md` similarity score.
 
 ## Follow-up Actions
 
-- Validate the token-shingle approach on a manually reviewed sample.
-- Compare 3-, 5-, and 7-token shingles and select the size that performs best during validation.
-- Select and document the similarity threshold supported by manual review.
-- Record ambiguous matches, false positives, and false negatives for later error analysis.
-- Apply the security scanner to validated earlier/later comparisons.
+- Validate the similarity approach on a manually reviewed sample.
+- Compare 3-, 5-, and 7-token shingles and select an appropriate size.
+- Select and document the similarity threshold.
+- Record false positives, false negatives, and ambiguous matches for error analysis.
+- Use validated relationships as the basis for later security-delta comparisons.
 
 ## Revisit Criteria
 
-Revisit this decision if validation shows that:
-
-- token-shingle similarity cannot reliably distinguish related from unrelated artifacts;
-- the selected threshold produces too many false positives or false negatives;
-- candidate groups contain too many ambiguous earlier matches; or
-- grouping by `name` and description misses a meaningful amount of reuse.
+Revisit this decision if token-shingle similarity does not reliably separate related from unrelated artifacts, validation produces unacceptable error rates, or the candidate volume requires a more scalable similarity method.

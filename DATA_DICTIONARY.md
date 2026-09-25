@@ -27,7 +27,7 @@ The full GitSkills release contains:
 
 GitSkills was collected from public GitHub repositories in July 2026. Every discovered occurrence is retained with its repository and path. Files with identical Git content hashes are grouped together, and one representative occurrence per distinct content is enriched with the full text, parsed front matter, folder composition, repository metadata, and, for a subset, commit history.
 
-> **Important:** The official release is distributed as SQLite and as table-oriented Parquet data. This project imports the source tables into DuckDB and extends them with local surrogate identifiers and derived analysis data.
+> **Project schema:** The source tables are represented in a local DuckDB database with added project identifiers and the derived `artifact_groupings` table.
 
 ## Schema at a Glance
 
@@ -37,11 +37,10 @@ GitSkills was collected from public GitHub repositories in July 2026. Every disc
 | [`artifact_siblings`](#artifact_siblings) | Records files and directories located alongside a representative skill. | `id` |
 | [`repos`](#repos) | Stores metadata for repositories containing discovered skills. | `id` |
 | [`mining_runs`](#mining_runs) | Records collection-run provenance. | `run_id` |
-| [`artifact_groupings`](#artifact_groupings) | Stores the filtered RQ4 comparison population and derived sibling fingerprints. | `id` = `artifacts.id` |
+| [`artifact_groupings`](#artifact_groupings) | Stores the filtered RQ4 comparison population and derived sibling fingerprints. | `id` (artifact-group identifier); `artifact_id` → `artifacts.id` |
 
-The `id` columns on `repos`, `artifacts`, and `artifact_siblings` are project-generated surrogate identifiers. They are not fields from the GitSkills release and should be treated as local identifiers for the current DuckDB build. The original source identifiers and join fields are retained.
+The `id` columns on `repos`, `artifacts`, and `artifact_siblings` are project-generated surrogate row identifiers. `artifact_groupings.id` is also project-generated, but identifies a `name` + normalized-description group and can therefore repeat across member rows. These identifiers are not fields from the GitSkills release and should be treated as local to the current DuckDB build. The original source identifiers and join fields are retained.
 
-> **DuckDB constraint note:** The project database declares no primary keys, foreign keys, `UNIQUE`, `NOT NULL`, or secondary indexes. The surrogate identifiers and relationships described here are not enforced as database constraints.
 
 ## Entity Relationships
 
@@ -54,13 +53,20 @@ repos
 artifacts
   id
    |\
-   | \ 0-or-1 through artifact_groupings.id
+   | \ 0-or-1 through artifact_groupings.artifact_id
    |  v
    | artifact_groupings
+   |   id = artifact-group identifier
    |
    | 1-to-many through artifact_siblings.artifact_id
    v
 artifact_siblings
+
+artifact_groupings.repo_id
+   |
+   | many-to-one
+   v
+repos.id
 
 artifacts.file_sha
    |
@@ -74,8 +80,9 @@ other artifacts rows with the same file_sha
 | From | To | Preferred DuckDB join | Meaning |
 |---|---|---|---|
 | `artifacts` | `repos` | `artifacts.repo_id = repos.id` | Adds repository metadata to a discovered skill occurrence. |
+| `artifact_groupings` | `repos` | `artifact_groupings.repo_id = repos.id` | Adds repository metadata directly to an RQ4 grouping member. |
 | `artifact_siblings` | `artifacts` | `artifact_siblings.artifact_id = artifacts.id` | Associates bundled files/directories with the parent skill occurrence. |
-| `artifact_groupings` | `artifacts` | `artifact_groupings.id = artifacts.id` | Joins an RQ4 grouping row back to the full artifact record. |
+| `artifact_groupings` | `artifacts` | `artifact_groupings.artifact_id = artifacts.id` | Joins an RQ4 grouping member back to the full artifact record. |
 | `artifacts` | `artifacts` | matching `file_sha` | Groups occurrences whose `SKILL.md` files contain exactly the same bytes. |
 | `mining_runs` | other tables | no stored row-level foreign key | Provides collection provenance at the run level. |
 
@@ -107,17 +114,17 @@ GitSkills represents this structure as follows:
 | `assets/` or other resources | Rows in `artifact_siblings`; no dedicated `has_assets` field |
 | Optional front-matter fields such as `license`, `compatibility`, `metadata`, or `allowed-tools` | Not extracted into dedicated GitSkills columns; they may still be present in raw `artifacts.content` |
 
-The Agent Skills specification uses **progressive disclosure**: an agent normally sees a skill's `name` and `description` first, then loads the full `SKILL.md` when the skill is activated, and loads supporting resources only as needed. This makes `description` particularly important when interpreting or analyzing the dataset.
+Under the Agent Skills specification, `description` is important metadata because it describes what the skill does and when it should be used.
 
 ## Common Conventions
 
 | Convention | Meaning |
 |---|---|
 | `VARCHAR` | UTF-8 text. Timestamp values are stored as ISO-8601 UTC strings rather than DuckDB timestamp types. |
-| Integer status fields | Many bookkeeping fields use integer values. Most behave like `0`/`1` flags, but code should not assume every `*_fetched` field is strictly Boolean unless verified. |
+| Integer status fields | Many bookkeeping fields use integer values. Most behave like `0`/`1` flags, but `*_fetched` fields should be treated as status values unless their Boolean meaning is explicitly documented. |
 | Empty / `NULL` enrichment fields | Usually mean the enrichment step was not performed, did not return data, or was not applicable. Check the corresponding status field before interpreting missing values. |
 | `file_sha` / `entry_sha` | Git object hashes used to identify exact contents or repository entries. |
-| Local surrogate identifiers | `id`, `repo_id`, and `artifact_id` are added by the project when building DuckDB. They simplify joins but are not source GitSkills fields. |
+| Local identifiers and relationships | `id`, `repo_id`, and `artifact_id` are added by the project when building DuckDB. In `artifact_groupings`, `id` identifies a derived group while `artifact_id` identifies the member artifact. These are not source GitSkills fields. |
 | Representative skill | The single row for a distinct `file_sha` where `dedup_primary = 1`. Expensive enrichment is attached primarily to representative rows. |
 
 ---
@@ -205,22 +212,7 @@ For each content-hash group:
 - full text, front-matter parsing, folder composition, and related enrichment are attached primarily to the representative;
 - other rows preserve where additional byte-identical copies occurred.
 
-For analyses whose unit is **distinct skill content**:
-
-```sql
-SELECT *
-FROM artifacts
-WHERE dedup_primary = 1;
-```
-
-For measuring **verbatim reuse**:
-
-```sql
-SELECT file_sha, COUNT(*) AS copies
-FROM artifacts
-GROUP BY file_sha
-ORDER BY copies DESC;
-```
+`dedup_primary = 1` identifies the representative occurrence for a distinct `file_sha`; all occurrences remain in `artifacts`.
 
 ---
 
@@ -281,19 +273,6 @@ ORDER BY copies DESC;
 | `pushed_at` | `VARCHAR` | ISO-8601 UTC timestamp of the repository's latest push at collection time. |
 | `metadata_fetched` | `BIGINT` | Bookkeeping flag indicating whether repository metadata was fetched. |
 
-### Typical Join
-
-```sql
-SELECT
-    a.repo_full_name,
-    a.path,
-    a.file_sha,
-    r.language,
-    r.stars,
-    r.is_fork
-FROM artifacts AS a
-JOIN repos AS r ON r.id = a.repo_id;
-```
 
 ---
 
@@ -323,19 +302,28 @@ The full release contains seven collection-run rows. The paper reports that four
 
 ## `artifact_groupings`
 
-**Purpose:** Project-derived working table for RQ4. It materializes the filtered artifact population used for candidate comparisons and stores derived sibling-content fingerprints.
+**Purpose:** Project-derived RQ4 table containing qualifying artifact members, description-based groups within each skill name, and derived sibling-content fingerprints.
 
-**Identifier:** `id`, using the same value as `artifacts.id`
+**Artifact-group identifier:** `id`
 
-Each row corresponds to one artifact. The table includes valid `SKILL.md` artifacts from `canonical` or `skills-dir` locations with usable content, metadata, and `first_commit_at`, and retains only metadata groups containing at least two artifacts. Grouping uses exact `name` plus a normalized description. The grouping step does **not** filter to `dedup_primary = 1`.
+**Artifact relationship:** `artifact_id` → `artifacts.id`
+
+**Repository relationship:** `repo_id` → `repos.id`
+
+Each row corresponds to one qualifying artifact member. A skill `name` is retained only when at least two qualifying artifacts share that exact name. Within an eligible name, each distinct `name` + `normalized_description` combination forms an artifact group. A description-specific group can therefore have `artifact_group_size = 1` as long as the same skill name occurs in at least one other qualifying artifact.
+
+Rows qualify when `frontmatter_valid = 1`, `body_chars > 50`, and `content`, `name`, and `description` are non-null. No restriction is applied to `location_class`, `first_commit_at`, `dedup_primary`, or `filename`.
+
+`first_commit_at` may be `NULL`, so chronological information is not available for every grouping member.
 
 | Column | DuckDB type | Description |
 |---|---|---|
-| `id` | `BIGINT` | Artifact identifier copied from `artifacts.id`. Joins directly back to the full artifact row. |
-| `repo_id` | `BIGINT` | Repository identifier copied from `artifacts.repo_id`. |
-| `name` | `VARCHAR` | Parsed skill name used as part of the grouping key. |
-| `normalized_description` | `VARCHAR` | Description after trimming, lowercasing, and collapsing repeated whitespace. Used with `name` as the grouping key. |
-| `artifact_group_size` | `BIGINT` | Number of filtered artifact occurrences sharing the same `name` and `normalized_description`. |
+| `id` | `BIGINT` | Project-generated artifact-group identifier for an exact `name` + `normalized_description` combination. The same value can appear on multiple member rows. |
+| `artifact_id` | `BIGINT` | Project-generated relationship to `artifacts.id`. Identifies the individual artifact represented by the row. |
+| `repo_id` | `BIGINT` | Repository identifier copied from `artifacts.repo_id`; joins to `repos.id`. |
+| `name` | `VARCHAR` | Parsed skill name. A name must occur in at least two qualifying artifacts to enter this table. |
+| `normalized_description` | `VARCHAR` | Description after trimming, lowercasing, and collapsing repeated whitespace. Used with `name` to define the artifact group. |
+| `artifact_group_size` | `BIGINT` | Number of qualifying artifact occurrences sharing the same exact `name` and `normalized_description`. This can be `1` when the name has other artifacts with different descriptions. |
 | `sibling_file_count` | `BIGINT` | Number of sibling file entries when composition can be characterized reliably. `0` means composition was checked and no sibling files exist; `NULL` means sibling composition is unavailable or incomplete. |
 | `sibling_content_sha` | `VARCHAR` | SHA-256 fingerprint of the sorted multiset of sibling file `entry_sha` values. Paths and directories are excluded. `NULL` means a reliable fingerprint could not be produced; zero sibling files use the SHA-256 of the empty string. |
 
@@ -343,50 +331,25 @@ Each row corresponds to one artifact. The table includes valid `SKILL.md` artifa
 
 Sibling fields are populated only when `artifacts.composition_fetched = 1`, `artifacts.composition_truncated = 0`, and every sibling file has a non-null `entry_sha`.
 
-The fingerprint intentionally ignores filenames, paths, and directory layout. It is used as a low-cost exact-content comparison before similarity and security-delta analysis.
+The fingerprint intentionally ignores filenames, paths, and directory layout, so it reflects sibling file content rather than repository organization.
 
-A changed fingerprint shows that sibling file content differs; it does not by itself establish that the change is security-relevant.
+A changed fingerprint indicates that sibling file content differs; it does not identify which file changed or the meaning of the change.
 
 ---
 
-## Indexes, Constraints, and Query Optimization
+## Keys and Constraints
 
-### Declared DuckDB Constraints
-
-The project build scripts currently define:
-
-- no declared primary keys;
-- no declared foreign keys;
-- no `UNIQUE` constraints;
-- no `NOT NULL` constraints;
-- no secondary indexes.
-
-The project-generated surrogate identifiers are therefore used by convention rather than enforced as keys by DuckDB.
-
-### Project and Source Identifiers
+The DuckDB schema does not enforce primary keys, foreign keys, `UNIQUE`, or `NOT NULL` constraints. The identifiers and relationships below are therefore logical schema relationships.
 
 | Table | Project identifier / relationship | Retained source identifier / relationship |
 |---|---|---|
 | `repos` | `id` | `full_name` |
 | `artifacts` | `id`; `repo_id` → `repos.id` | `(repo_full_name, path)` |
 | `artifact_siblings` | `id`; `artifact_id` → `artifacts.id` | Parent `(repo_full_name, artifact_path)` plus `entry_name` |
-| `artifact_groupings` | `id` = `artifacts.id`; `repo_id` = `artifacts.repo_id` | Derived table; no source counterpart |
+| `artifact_groupings` | `id` = artifact-group identifier; `artifact_id` → `artifacts.id`; `repo_id` → `repos.id` | Derived table; no source counterpart |
 | `mining_runs` | `run_id` | `run_id` |
 
-The generated `id` values are local to a DuckDB build and should not be treated as stable identifiers across independent rebuilds.
-
-### Useful Filtering Strategies
-
-For large analyses:
-
-- use `dedup_primary = 1` when the unit of analysis is **distinct skill content**;
-- use all `artifacts` rows when studying **occurrences, copying, reuse, or repository distribution**;
-- use `artifact_groupings` as the materialized RQ4 candidate-comparison population rather than rebuilding its filters in each query;
-- check `content_fetched` before analyzing `content`;
-- check `composition_fetched = 1` before interpreting composition fields;
-- check `history_fetched = 1` before analyzing commit-history fields;
-- exclude or separately handle `composition_truncated = 1` when complete folder composition is required;
-- join `repos` only when repository-level variables such as language, stars, fork status, license, or repository age are needed.
+Project-generated identifiers are local to a DuckDB build. In `artifact_groupings`, `id` identifies a group and can repeat across member rows; `artifact_id` identifies the member artifact.
 
 ---
 
@@ -395,25 +358,25 @@ For large analyses:
 | Topic | Guidance |
 |---|---|
 | Snapshot | GitSkills is a point-in-time snapshot collected in July 2026. |
-| Local surrogate identifiers | `id`, `repo_id`, and `artifact_id` are project-generated for the local DuckDB database and are not source GitSkills identifiers. |
+| Local identifiers | `id`, `repo_id`, and `artifact_id` are project-generated for the local DuckDB database and are not source GitSkills identifiers. `artifact_groupings.id` is a group identifier and can repeat across member rows. |
 | Search coverage | GitHub code-search limitations mean the dataset is a **lower bound** on the public population. Search indexes default branches only, files under 384 KB, recently active repositories with fewer than 500,000 files, and forks only when more starred than their parent. |
 | Not every match is a modern skill | Search is case-insensitive and retained filename variants such as lowercase `skill.md`, including files that predate the October 2025 Agent Skills format. Use `filename`, `location_class`, `frontmatter_valid`, and date fields to define a stricter analysis population when needed. |
 | Exact reuse | Matching `file_sha` values mean byte-for-byte identical file contents, not merely similar text. |
 | Representative is not provenance | `dedup_primary = 1` identifies the row chosen for enrichment; it does **not** identify the original author or source of copied content. |
 | Historical scope | Commit history follows the file's current path. A renamed file can have earlier history that is not reflected in `first_commit_at` or `commit_count`. |
-| History sampling | Commit history is not available for every artifact. Use `history_fetched` when defining the analysis population. |
+| History sampling | Commit history is not available for every artifact. `history_fetched` indicates whether history enrichment was collected, and history fields may be empty when it was not. |
 | Representative enrichment | Folder composition and history describe only the chosen representative occurrence. Other copies of the same `file_sha` may differ in bundled files or history. |
-| Missing composition | The paper reports missing folder listings for a small number of representatives; check `composition_fetched` before assuming an empty folder. |
+| Missing composition | Folder composition is unavailable for some representatives. `composition_fetched` distinguishes unavailable composition from a known empty folder. |
 | Derived sibling fingerprint | `artifact_groupings.sibling_content_sha` compares sibling file contents only; filenames, paths, and directory layout are intentionally excluded. |
 | Content integrity | `content_sha_ok` records whether fetched content reproduced the expected Git blob hash and identifies content repaired through the blob API. |
 | Symlinks | Some discovered skills are symlinks; their `content` can be the link target path rather than skill instructions. |
-| Missing values | Empty values should not automatically be interpreted as a negative condition. Check the relevant fetch/status field first. |
+| Missing values | Empty values can mean enrichment was unavailable, not performed, or not applicable; related fetch/status fields provide the necessary context. |
 | Repository metrics | `stars`, `forks`, and `pushed_at` are snapshots from collection time, not live GitHub values. |
 | Licensing | Dataset metadata/aggregation is released under CC BY 4.0, but reproduced skill and sibling content remains subject to the originating repository's license. |
 
 ---
 
-## Examples of Common Analysis Units
+## Common Units of Analysis
 
 | Research unit | Recommended selection |
 |---|---|
@@ -424,8 +387,8 @@ For large analyses:
 | Bundled scripts/references/resources | Representative `artifacts` rows with `composition_fetched = 1`, joined to `artifact_siblings` |
 | Commit-history analysis | Rows with `history_fetched = 1` |
 | Parsed front-matter analysis | Representative rows with fetched content; optionally restrict to `frontmatter_valid = 1` |
-| RQ4 candidate comparisons | Rows from `artifact_groupings`, joined to `artifacts` by `id` for source content, hashes, and chronology |
-| Current-spec-oriented population | Apply explicit filters for filename/path/front matter rather than assuming every discovered row is specification-compliant |
+| RQ4 candidate comparisons | Rows from `artifact_groupings`, joined to `artifacts` by `artifact_id` for source content, hashes, and chronology |
+| Current-spec-oriented population | Apply explicit front-matter and other specification-oriented filters rather than assuming every discovered row is specification-compliant; `location_class` is a path classification, not a validity flag |
 
 ---
 
@@ -441,4 +404,4 @@ The field definitions and interpretation notes in this dictionary are based on:
 - **MSR 2027 Mining Challenge:** https://2027.msrconf.org/track/msr-2027-mining-challenge
 - **Dataset archive:** https://doi.org/10.5281/zenodo.21875637
 
-The project's DuckDB build and analysis SQL define the **physical schema used by this project**, including local surrogate identifiers and derived tables. External documentation is used to explain source-field semantics, collection behavior, and Agent Skills concepts. Where a numeric status value is not explicitly defined by the public documentation, this dictionary avoids assigning a meaning that cannot be verified.
+The project's DuckDB schema defines the physical columns, local identifiers, and derived tables documented here. External sources provide the semantics of source fields, collection behavior, and Agent Skills concepts. Where a numeric status value is not explicitly defined by the public documentation, this dictionary does not assign an unsupported meaning.
