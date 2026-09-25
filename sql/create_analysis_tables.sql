@@ -18,9 +18,6 @@
 -- artifact_id links each group member back to artifacts.id.
 -- repo_id links each group member back to repos.id.
 --
--- Artifacts without first_commit_at are excluded because they cannot
--- participate in chronological comparison.
---
 -- sibling_file_count and sibling_content_sha are initialized to NULL
 -- and can be populated later from artifact_siblings.
 
@@ -46,7 +43,6 @@ WITH filtered AS (
       AND a.content IS NOT NULL
       AND a.name IS NOT NULL
       AND a.description IS NOT NULL
-      AND a.first_commit_at IS NOT NULL
 ),
 eligible_names AS (
     SELECT
