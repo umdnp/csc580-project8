@@ -37,8 +37,6 @@ WITH filtered AS (
         ) AS normalized_description
     FROM artifacts AS a
     WHERE a.frontmatter_valid = 1
-      AND a.location_class IN ('canonical', 'skills-dir')
-      AND lower(a.filename) = 'skill.md'
       AND a.body_chars > 50
       AND a.content IS NOT NULL
       AND a.name IS NOT NULL
