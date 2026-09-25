@@ -1,12 +1,13 @@
 -- Update derived sibling metadata for artifact_groupings.
 --
--- artifact_groupings.id uses the same value as artifacts.id.
+-- artifact_groupings.id identifies the name + normalized_description group.
+-- artifact_groupings.artifact_id links each group member to artifacts.id.
 --
 -- For each grouped artifact with a complete sibling composition:
 --   * sibling_file_count = number of sibling entries where entry_type = 'file'
 --   * sibling_content_sha = SHA-256 of the sorted multiset of sibling file entry_sha values
 --
--- Directory entries are excluded.
+-- Directory entries and file paths are excluded from the fingerprint.
 -- Actual sibling file content is not read or hashed.
 --
 -- If composition was not fetched, was truncated, or any sibling file is
@@ -24,10 +25,9 @@ SET
     sibling_file_count = NULL,
     sibling_content_sha = NULL;
 
-
 WITH sibling_stats AS (
     SELECT
-        g.id,
+        g.artifact_id,
         COUNT(*) FILTER (
             WHERE s.entry_type = 'file'
         ) AS sibling_file_count,
@@ -42,22 +42,21 @@ WITH sibling_stats AS (
               AND s.entry_sha IS NOT NULL
         ) AS sibling_sha_list
     FROM artifact_groupings AS g
-    JOIN artifacts AS a ON a.id = g.id
-    LEFT JOIN artifact_siblings AS s ON s.artifact_id = g.id
+    JOIN artifacts AS a ON a.id = g.artifact_id
+    LEFT JOIN artifact_siblings AS s ON s.artifact_id = g.artifact_id
     WHERE a.composition_fetched = 1
       AND a.composition_truncated = 0
-    GROUP BY g.id
+    GROUP BY g.artifact_id
 )
 UPDATE artifact_groupings AS g
 SET
     sibling_file_count = s.sibling_file_count,
     sibling_content_sha = sha256(coalesce(s.sibling_sha_list, ''))
 FROM sibling_stats AS s
-WHERE s.id = g.id
+WHERE s.artifact_id = g.artifact_id
   AND s.sibling_file_count = s.sibling_sha_count;
 
 COMMIT;
-
 
 -- ============================================================
 -- Validation summary
@@ -65,6 +64,7 @@ COMMIT;
 
 SELECT
     COUNT(*) AS artifact_count,
+    COUNT(DISTINCT id) AS artifact_group_count,
     COUNT(*) FILTER (
         WHERE sibling_file_count IS NOT NULL
     ) AS sibling_data_populated,
