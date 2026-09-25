@@ -1,4 +1,4 @@
-# RDR-001: Retain Research Question 4 Using Inferred Version Relationships
+# RDR-001: Retain Research Question 4 Using Inferred Artifact Relationships
 
 | Field | Value |
 | --- | --- |
@@ -15,9 +15,9 @@ The team selected Question 4, **Skill security and supply-chain risk**:
 
 > Do modified or reused skills introduce command execution, file-system access, network access, or other risky behavior that was absent from an earlier version or source artifact?
 
-The required implementation includes a static analyzer or rule-based scanner for security-sensitive behavior and changes across skill versions.
+The required implementation includes a static analyzer or rule-based scanner for security-sensitive behavior and changes across related skill artifacts.
 
-During initial dataset review, we were concerned that GitSkills might not contain enough historical information to answer the question as written. The dataset includes fields such as `commit_count`, `first_commit_at`, and `last_commit_at`, but it does not provide a complete sequence of historical `SKILL.md` contents for every commit.
+During initial dataset review, we were concerned that GitSkills might not contain enough historical information to answer the question as written. The dataset includes commit-history metadata, but it does not provide a complete sequence of historical `SKILL.md` contents for every commit.
 
 Because of this limitation, the team considered revising Question 4 to focus only on security-sensitive behavior present in the available artifact contents. The assignment permits groups to refine a proposed question or substitute an equivalent question if necessary.
 
@@ -30,9 +30,9 @@ Because of this limitation, the team considered revising Question 4 to focus onl
 
 ## Evidence
 
-Exploratory analysis of the full GitSkills database indicates that the dataset contains enough structure to continue investigating reuse and modification without revising the question yet.
+Initial exploratory analysis of the GitSkills database showed enough structure to continue investigating reuse and modification without revising the question.
 
-| Finding | Result |
+| Finding | Initial exploratory result |
 | --- | ---: |
 | Filtered analysis population | 1,146,188 artifacts |
 | Artifacts with commit-history metadata | 346,019 |
@@ -44,24 +44,25 @@ Exploratory analysis of the full GitSkills database indicates that the dataset c
 | Candidate pairs using normalized name + description | ~2.5 million |
 | Reduction in candidate comparison space | 93.72% |
 
-Candidate families also show variation in body size and available commit timestamps. This suggests that some groups may contain modified or redistributed forms of related skills rather than only identical copies.
+These results showed that the dataset contains many repeated or potentially related artifacts, while still providing enough metadata and history to support validation and observed ordering for at least part of the population.
+
+The exact grouping and filtering strategy has since been refined in later RDRs. The results above are retained here because they were the evidence used when this decision was made.
 
 ## Decision
 
-> **Retain Question 4 in its current form for now.**
+> **Retain Question 4 in its current form.**
 
-We will investigate version and reuse relationships using related artifacts present in GitSkills rather than requiring complete per-commit history for every `SKILL.md`.
+We will investigate reuse and modification using related artifacts present in GitSkills rather than requiring complete per-commit history for every `SKILL.md`.
 
-The planned approach is to:
+At a high level, the approach is to:
 
-1. Use normalized skill metadata, such as name and description, to identify candidate families.
-2. Validate candidate relationships using content similarity, file hashes, repository information, and other available metadata.
-3. Where commit-history metadata is available, use fields such as `first_commit_at` to establish an **observed chronological ordering**.
-4. Apply the security scanner to related artifacts and compare detected capabilities such as command execution, file-system access, network access, scripts, and credential-related instructions.
-5. Identify capabilities present in a later observed artifact but absent from an earlier related artifact.
-6. Report the results as observed or inferred evolution unless stronger provenance evidence supports a definitive lineage claim.
+1. Use same-name artifacts as the initial candidate population for possible reuse or modification.
+2. Validate candidate relationships using content similarity and other available metadata.
+3. Where sufficient history is available, establish an observed earlier/later ordering without treating it as proof of original authorship or direct lineage.
+4. Compare validated artifacts for changes in security-sensitive behavior such as command execution, file-system access, network access, scripts, and credential-related instructions.
+5. Report the results as observed or inferred evolution unless stronger evidence supports a more specific lineage claim.
 
-The earliest timestamp in a candidate family will be treated only as the **earliest observed artifact in the dataset**, not automatically as the original source.
+Later RDRs define the detailed grouping, sibling-fingerprint, and similarity strategies used to support this decision.
 
 ## Alternatives Considered
 
@@ -76,28 +77,28 @@ The earliest timestamp in a candidate family will be treated only as the **earli
 This decision preserves the reuse and security-change focus of Question 4, but the results must be interpreted cautiously:
 
 - GitSkills does not provide complete historical content for every commit.
-- Commit-history metadata is available for only part of the analysis population.
-- Similar names and descriptions alone do not establish reuse, ancestry, or lineage.
-- The earliest artifact observed in GitSkills may not be the true origin of a skill.
-- Some candidate relationships may not contain enough temporal information to establish direction.
+- Commit-history metadata is available for only part of the dataset.
+- Similar names, descriptions, or content do not by themselves establish reuse, ancestry, or lineage.
+- The earliest observed artifact may not be the true origin of a skill.
+- Some related artifacts may not contain enough temporal evidence to establish direction.
 - A capability should be described as newly introduced only when the evidence supports a meaningful ordering between related artifacts.
 
 These limitations should also be reflected in the project methodology and `THREATS_TO_VALIDITY.md`.
 
 ## Follow-up Actions
 
-- Define and validate the content-similarity method used to confirm candidate families.
-- Determine how `file_sha`, repository information, and other metadata contribute to relationship classification.
-- Define the evidence required to label artifacts as earlier and later observations.
-- Implement the security-detection rules required by Question 4.
-- Manually validate a sample of inferred relationships and measure how many support chronological comparison.
+- Define and validate the candidate-grouping strategy.
+- Define and validate the similarity method used to confirm related artifacts.
+- Define the evidence needed to support earlier/later comparisons.
+- Implement and validate the security-detection rules required by Question 4.
+- Manually review a sample of inferred relationships and security comparisons.
 
 ## Revisit Criteria
 
-Revisit this decision if later implementation or validation shows that:
+Revisit this decision if later validation shows that:
 
 - candidate relationships cannot be validated reliably;
-- too few validated relationships have enough chronological information for change analysis; or
+- too few validated relationships support meaningful change analysis; or
 - the available metadata cannot support defensible earlier/later comparisons.
 
 If that occurs, the team may refine Question 4 as permitted by the assignment.
