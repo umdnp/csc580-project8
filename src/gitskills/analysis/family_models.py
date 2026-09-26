@@ -1,0 +1,425 @@
+"""Domain models for candidate-family similarity analysis."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class Artifact:
+    """One artifact in an artifact_groupings candidate family."""
+
+    artifact_id: int
+    group_id: int
+    repo_id: int | None
+    name: str
+    normalized_description: str
+    file_sha: str
+    content: str
+    first_commit_at: str | None
+    repo_created_at: str | None
+    sibling_file_count: int | None
+    sibling_content_sha: str | None
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class BundleKey:
+    """Internal identity for a bundle variant.
+
+    Known sibling state is keyed by file SHA plus sibling-content SHA. When the
+    sibling state is unknown, the artifact ID keeps that occurrence separate.
+    """
+
+    file_sha: str
+    sibling_content_sha: str | None
+    unknown_artifact_id: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class SkillVariant:
+    """One distinct SKILL.md content variant, identified by file_sha."""
+
+    file_sha: str
+    content: str
+    artifact_ids: tuple[int, ...]
+    group_ids: tuple[int, ...]
+    representative_artifact_id: int
+    earliest_observed_at: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class BundleVariant:
+    """One distinct known or conservatively separated skill bundle variant."""
+
+    key: BundleKey
+    artifact_ids: tuple[int, ...]
+    group_ids: tuple[int, ...]
+    representative_artifact_id: int
+    earliest_observed_at: str | None
+
+    @property
+    def file_sha(self) -> str:
+        return self.key.file_sha
+
+    @property
+    def sibling_content_sha(self) -> str | None:
+        return self.key.sibling_content_sha
+
+    @property
+    def sibling_state_known(self) -> bool:
+        return self.key.sibling_content_sha is not None
+
+
+@dataclass(frozen=True, slots=True)
+class SimilarityResult:
+    """Exact 5-token-shingle similarity between two skill variants."""
+
+    left_file_sha: str
+    right_file_sha: str
+    left_to_right_containment: float
+    right_to_left_containment: float
+    jaccard: float
+    shared_shingles: int
+    left_shingles: int
+    right_shingles: int
+
+    @property
+    def max_containment(self) -> float:
+        return max(
+            self.left_to_right_containment,
+            self.right_to_left_containment,
+        )
+
+    def containment(self, source_file_sha: str, target_file_sha: str) -> float:
+        """Return directional containment from source to target."""
+
+        if (
+            source_file_sha == self.left_file_sha
+            and target_file_sha == self.right_file_sha
+        ):
+            return self.left_to_right_containment
+
+        if (
+            source_file_sha == self.right_file_sha
+            and target_file_sha == self.left_file_sha
+        ):
+            return self.right_to_left_containment
+
+        raise ValueError("Similarity result does not contain the requested pair")
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "left_file_sha": self.left_file_sha,
+            "right_file_sha": self.right_file_sha,
+            "left_to_right_containment": self.left_to_right_containment,
+            "right_to_left_containment": self.right_to_left_containment,
+            "jaccard": self.jaccard,
+            "shared_shingles": self.shared_shingles,
+            "left_shingles": self.left_shingles,
+            "right_shingles": self.right_shingles,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class SimilarityPolicy:
+    """Configurable exploratory policy for deciding related skill variants.
+
+    RDR-004 requires final thresholds to be selected through validation. These
+    defaults make the exploratory CLI useful now, while keeping every threshold
+    explicit and replaceable.
+    """
+
+    shingle_size: int = 5
+    min_containment: float = 0.80
+    min_jaccard: float = 0.30
+    min_shared_shingles: int = 5
+    direction_containment_margin: float = 0.10
+
+    def __post_init__(self) -> None:
+        if self.shingle_size < 1:
+            raise ValueError("shingle_size must be at least 1")
+
+        for name, value in (
+            ("min_containment", self.min_containment),
+            ("min_jaccard", self.min_jaccard),
+            ("direction_containment_margin", self.direction_containment_margin),
+        ):
+            if not 0.0 <= value <= 1.0:
+                raise ValueError(f"{name} must be between 0 and 1")
+
+        if self.min_shared_shingles < 1:
+            raise ValueError("min_shared_shingles must be at least 1")
+
+    def relates(self, result: SimilarityResult) -> bool:
+        """Return whether a pair meets the current relationship policy."""
+
+        return (
+            result.max_containment >= self.min_containment
+            and result.jaccard >= self.min_jaccard
+            and result.shared_shingles >= self.min_shared_shingles
+        )
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "shingle_size": self.shingle_size,
+            "min_containment": self.min_containment,
+            "min_jaccard": self.min_jaccard,
+            "min_shared_shingles": self.min_shared_shingles,
+            "direction_containment_margin": self.direction_containment_margin,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class EvolutionEdge:
+    """One inferred directional relationship between bundle variants."""
+
+    source: BundleKey
+    target: BundleKey
+    source_artifact_id: int
+    target_artifact_id: int
+    basis: str
+    containment: float
+    jaccard: float
+    shared_shingles: int
+    sibling_changed: bool | None
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "source_artifact_id": self.source_artifact_id,
+            "target_artifact_id": self.target_artifact_id,
+            "basis": self.basis,
+            "containment": self.containment,
+            "jaccard": self.jaccard,
+            "shared_shingles": self.shared_shingles,
+            "sibling_changed": self.sibling_changed,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class AmbiguousRelationship:
+    """A related pair whose direction cannot be inferred defensibly."""
+
+    left: BundleKey
+    right: BundleKey
+    left_artifact_id: int
+    right_artifact_id: int
+    containment_left_to_right: float
+    containment_right_to_left: float
+    jaccard: float
+    shared_shingles: int | None
+    sibling_changed: bool | None
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "left_artifact_id": self.left_artifact_id,
+            "right_artifact_id": self.right_artifact_id,
+            "containment_left_to_right": self.containment_left_to_right,
+            "containment_right_to_left": self.containment_right_to_left,
+            "jaccard": self.jaccard,
+            "shared_shingles": self.shared_shingles,
+            "sibling_changed": self.sibling_changed,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class EvolutionGraph:
+    """Reduced inferred evolution graph for one similarity cluster."""
+
+    bundle_keys: tuple[BundleKey, ...]
+    edges: tuple[EvolutionEdge, ...]
+    ambiguous_relationships: tuple[AmbiguousRelationship, ...]
+    base_candidate_artifact_ids: tuple[int, ...]
+
+    @property
+    def has_single_base(self) -> bool:
+        return len(self.base_candidate_artifact_ids) == 1
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "base_candidate_artifact_ids": list(self.base_candidate_artifact_ids),
+            "edges": [edge.to_dict() for edge in self.edges],
+            "ambiguous_relationships": [
+                relationship.to_dict()
+                for relationship in self.ambiguous_relationships
+            ],
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ClusterAnalysis:
+    """Similarity-derived grouping of related skill variants."""
+
+    number: int
+    file_shas: tuple[str, ...]
+    artifact_ids: tuple[int, ...]
+    bundle_variant_count: int
+    evolution: EvolutionGraph
+
+    @property
+    def skill_variant_count(self) -> int:
+        return len(self.file_shas)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "cluster": self.number,
+            "artifact_ids": list(self.artifact_ids),
+            "skill_variant_count": self.skill_variant_count,
+            "bundle_variant_count": self.bundle_variant_count,
+            "file_shas": list(self.file_shas),
+            "evolution": self.evolution.to_dict(),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ScopeAnalysis:
+    """Analysis for a candidate family or one artifact group."""
+
+    artifact_ids: tuple[int, ...]
+    skill_variant_count: int
+    bundle_variant_count: int
+    clusters: tuple[ClusterAnalysis, ...]
+
+    @property
+    def base_candidate_artifact_ids(self) -> tuple[int, ...]:
+        return tuple(
+            sorted(
+                {
+                    artifact_id
+                    for cluster in self.clusters
+                    for artifact_id in cluster.evolution.base_candidate_artifact_ids
+                }
+            )
+        )
+
+    @property
+    def has_single_base(self) -> bool:
+        return (
+            len(self.clusters) == 1
+            and len(self.base_candidate_artifact_ids) == 1
+        )
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "artifact_ids": list(self.artifact_ids),
+            "skill_variant_count": self.skill_variant_count,
+            "bundle_variant_count": self.bundle_variant_count,
+            "base_candidate_artifact_ids": list(
+                self.base_candidate_artifact_ids
+            ),
+            "clusters": [cluster.to_dict() for cluster in self.clusters],
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactGroupAnalysis:
+    """Similarity analysis restricted to one name + description group."""
+
+    group_id: int
+    normalized_description: str
+    analysis: ScopeAnalysis
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "group_id": self.group_id,
+            "normalized_description": self.normalized_description,
+            **self.analysis.to_dict(),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class FamilyAnalysis:
+    """Complete analysis result for one candidate family."""
+
+    name: str
+    policy: SimilarityPolicy
+    family: ScopeAnalysis
+    groups: tuple[ArtifactGroupAnalysis, ...]
+    similarities: tuple[SimilarityResult, ...]
+    skill_variants: tuple[SkillVariant, ...]
+    bundle_variants: tuple[BundleVariant, ...]
+    artifacts: tuple[Artifact, ...]
+
+    @property
+    def artifact_group_count(self) -> int:
+        return len(self.groups)
+
+    def to_dict(self, *, verbose: bool = False) -> dict[str, object]:
+        output: dict[str, object] = {
+            "name": self.name,
+            "policy": self.policy.to_dict(),
+            "summary": {
+                "artifact_count": len(self.artifacts),
+                "artifact_group_count": self.artifact_group_count,
+                "skill_variant_count": self.family.skill_variant_count,
+                "bundle_variant_count": self.family.bundle_variant_count,
+                "cluster_count": len(self.family.clusters),
+                "base_candidate_artifact_ids": list(
+                    self.family.base_candidate_artifact_ids
+                ),
+            },
+            "family": self.family.to_dict(),
+            "groups": [group.to_dict() for group in self.groups],
+            "skill_variants": [
+                {
+                    "file_sha": variant.file_sha,
+                    "artifact_ids": list(variant.artifact_ids),
+                    "group_ids": list(variant.group_ids),
+                    "representative_artifact_id": variant.representative_artifact_id,
+                    "earliest_observed_at": variant.earliest_observed_at,
+                }
+                for variant in self.skill_variants
+            ],
+            "bundle_variants": [
+                {
+                    "file_sha": variant.file_sha,
+                    "sibling_content_sha": variant.sibling_content_sha,
+                    "sibling_state_known": variant.sibling_state_known,
+                    "artifact_ids": list(variant.artifact_ids),
+                    "group_ids": list(variant.group_ids),
+                    "representative_artifact_id": variant.representative_artifact_id,
+                    "earliest_observed_at": variant.earliest_observed_at,
+                }
+                for variant in self.bundle_variants
+            ],
+            "similarities": self._similarities_to_dict(),
+        }
+
+        if verbose:
+            output["artifacts"] = [
+                {
+                    "artifact_id": artifact.artifact_id,
+                    "group_id": artifact.group_id,
+                    "repo_id": artifact.repo_id,
+                    "file_sha": artifact.file_sha,
+                    "first_commit_at": artifact.first_commit_at,
+                    "repo_created_at": artifact.repo_created_at,
+                    "sibling_file_count": artifact.sibling_file_count,
+                    "sibling_content_sha": artifact.sibling_content_sha,
+                }
+                for artifact in self.artifacts
+            ]
+
+        return output
+
+    def _similarities_to_dict(self) -> list[dict[str, object]]:
+        variants = {variant.file_sha: variant for variant in self.skill_variants}
+        output = []
+
+        for result in self.similarities:
+            left = variants[result.left_file_sha]
+            right = variants[result.right_file_sha]
+            shared_group_ids = sorted(set(left.group_ids) & set(right.group_ids))
+            output.append(
+                {
+                    **result.to_dict(),
+                    "left_artifact_ids": list(left.artifact_ids),
+                    "right_artifact_ids": list(right.artifact_ids),
+                    "left_representative_artifact_id": left.representative_artifact_id,
+                    "right_representative_artifact_id": right.representative_artifact_id,
+                    "shared_group_ids": shared_group_ids,
+                    "same_artifact_group": bool(shared_group_ids),
+                }
+            )
+
+        return output
+
