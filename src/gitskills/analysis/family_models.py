@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+
+from .provenance import DeclaredProvenance
 
 
 class ChangeType(str, Enum):
@@ -31,6 +33,9 @@ class Artifact:
     repo_created_at: str | None
     sibling_file_count: int | None
     sibling_content_sha: str | None
+    repo_full_name: str | None = None
+    path: str | None = None
+    provenance: DeclaredProvenance = field(default_factory=DeclaredProvenance)
 
 
 @dataclass(frozen=True, slots=True)
@@ -204,6 +209,7 @@ class EvolutionEdge:
     shared_shingles: int
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
+    evidence: tuple[str, ...] = ()
 
     @property
     def same_artifact_group(self) -> bool:
@@ -218,6 +224,7 @@ class EvolutionEdge:
             "jaccard": self.jaccard,
             "shared_shingles": self.shared_shingles,
             "change_type": self.change_type.value,
+            "evidence": list(self.evidence),
             "shared_group_ids": list(self.shared_group_ids),
             "same_artifact_group": self.same_artifact_group,
         }
@@ -231,12 +238,14 @@ class AmbiguousRelationship:
     right: BundleKey
     left_artifact_id: int
     right_artifact_id: int
+    basis: str
     containment_left_to_right: float
     containment_right_to_left: float
     jaccard: float
     shared_shingles: int | None
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
+    evidence: tuple[str, ...] = ()
 
     @property
     def same_artifact_group(self) -> bool:
@@ -246,11 +255,13 @@ class AmbiguousRelationship:
         return {
             "left_artifact_id": self.left_artifact_id,
             "right_artifact_id": self.right_artifact_id,
+            "basis": self.basis,
             "containment_left_to_right": self.containment_left_to_right,
             "containment_right_to_left": self.containment_right_to_left,
             "jaccard": self.jaccard,
             "shared_shingles": self.shared_shingles,
             "change_type": self.change_type.value,
+            "evidence": list(self.evidence),
             "shared_group_ids": list(self.shared_group_ids),
             "same_artifact_group": self.same_artifact_group,
         }
@@ -261,63 +272,95 @@ class EvolutionGraph:
     """Reduced inferred evolution graph for one similarity cluster."""
 
     bundle_keys: tuple[BundleKey, ...]
-    edges: tuple[EvolutionEdge, ...]
-    ambiguous_relationships: tuple[AmbiguousRelationship, ...]
-    base_candidate_artifact_ids: tuple[int, ...]
+    directed_edges: tuple[EvolutionEdge, ...]
+    ambiguous_edges: tuple[AmbiguousRelationship, ...]
+    root_candidate_artifact_ids: tuple[int, ...]
 
     @property
-    def has_single_base(self) -> bool:
-        return len(self.base_candidate_artifact_ids) == 1
+    def has_single_root(self) -> bool:
+        return len(self.root_candidate_artifact_ids) == 1
 
     @property
     def change_counts(self) -> dict[ChangeType, int]:
-        """Count inferred evolution edges by change type."""
+        """Count directed edges by change type."""
 
         counts = {change_type: 0 for change_type in ChangeType}
-        for edge in self.edges:
+        for edge in self.directed_edges:
             counts[edge.change_type] += 1
         return counts
 
     @property
+    def within_group_directed_edge_count(self) -> int:
+        return sum(edge.same_artifact_group for edge in self.directed_edges)
+
+    @property
+    def across_group_directed_edge_count(self) -> int:
+        return len(self.directed_edges) - self.within_group_directed_edge_count
+
+    @property
+    def within_group_ambiguous_edge_count(self) -> int:
+        return sum(edge.same_artifact_group for edge in self.ambiguous_edges)
+
+    @property
+    def across_group_ambiguous_edge_count(self) -> int:
+        return len(self.ambiguous_edges) - self.within_group_ambiguous_edge_count
+
+    # Compatibility aliases for notebooks or code written against the earlier model.
+    @property
+    def edges(self) -> tuple[EvolutionEdge, ...]:
+        return self.directed_edges
+
+    @property
+    def ambiguous_relationships(self) -> tuple[AmbiguousRelationship, ...]:
+        return self.ambiguous_edges
+
+    @property
+    def base_candidate_artifact_ids(self) -> tuple[int, ...]:
+        return self.root_candidate_artifact_ids
+
+    @property
+    def has_single_base(self) -> bool:
+        return self.has_single_root
+
+    @property
     def within_group_edge_count(self) -> int:
-        return sum(edge.same_artifact_group for edge in self.edges)
+        return self.within_group_directed_edge_count
 
     @property
     def across_group_edge_count(self) -> int:
-        return len(self.edges) - self.within_group_edge_count
+        return self.across_group_directed_edge_count
 
     @property
     def within_group_ambiguous_count(self) -> int:
-        return sum(
-            relationship.same_artifact_group
-            for relationship in self.ambiguous_relationships
-        )
+        return self.within_group_ambiguous_edge_count
 
     @property
     def across_group_ambiguous_count(self) -> int:
-        return (
-            len(self.ambiguous_relationships)
-            - self.within_group_ambiguous_count
-        )
+        return self.across_group_ambiguous_edge_count
 
     def to_dict(self) -> dict[str, object]:
         return {
-            "base_candidate_artifact_ids": list(self.base_candidate_artifact_ids),
-            "evolution_relationship_count": len(self.edges),
-            "within_group_evolution_count": self.within_group_edge_count,
-            "across_group_evolution_count": self.across_group_edge_count,
-            "ambiguous_relationship_count": len(self.ambiguous_relationships),
-            "within_group_ambiguous_count": self.within_group_ambiguous_count,
-            "across_group_ambiguous_count": self.across_group_ambiguous_count,
+            "root_candidate_artifact_ids": list(self.root_candidate_artifact_ids),
+            "directed_edge_count": len(self.directed_edges),
+            "within_group_directed_edge_count": (
+                self.within_group_directed_edge_count
+            ),
+            "across_group_directed_edge_count": (
+                self.across_group_directed_edge_count
+            ),
+            "ambiguous_edge_count": len(self.ambiguous_edges),
+            "within_group_ambiguous_edge_count": (
+                self.within_group_ambiguous_edge_count
+            ),
+            "across_group_ambiguous_edge_count": (
+                self.across_group_ambiguous_edge_count
+            ),
             "change_counts": {
                 change_type.value: count
                 for change_type, count in self.change_counts.items()
             },
-            "edges": [edge.to_dict() for edge in self.edges],
-            "ambiguous_relationships": [
-                relationship.to_dict()
-                for relationship in self.ambiguous_relationships
-            ],
+            "directed_edges": [edge.to_dict() for edge in self.directed_edges],
+            "ambiguous_edges": [edge.to_dict() for edge in self.ambiguous_edges],
         }
 
 
@@ -356,49 +399,34 @@ class ScopeAnalysis:
     clusters: tuple[ClusterAnalysis, ...]
 
     @property
-    def base_candidate_artifact_ids(self) -> tuple[int, ...]:
-        """Return family base candidates only when the family has one cluster."""
-
-        if len(self.clusters) != 1:
-            return ()
-        return self.clusters[0].evolution.base_candidate_artifact_ids
+    def directed_edge_count(self) -> int:
+        return sum(len(cluster.evolution.directed_edges) for cluster in self.clusters)
 
     @property
-    def has_single_base(self) -> bool:
-        return len(self.base_candidate_artifact_ids) == 1
+    def ambiguous_edge_count(self) -> int:
+        return sum(len(cluster.evolution.ambiguous_edges) for cluster in self.clusters)
 
     @property
-    def evolution_relationship_count(self) -> int:
-        return sum(len(cluster.evolution.edges) for cluster in self.clusters)
-
-    @property
-    def ambiguous_relationship_count(self) -> int:
+    def within_group_directed_edge_count(self) -> int:
         return sum(
-            len(cluster.evolution.ambiguous_relationships)
+            cluster.evolution.within_group_directed_edge_count
             for cluster in self.clusters
         )
 
     @property
-    def within_group_evolution_count(self) -> int:
+    def across_group_directed_edge_count(self) -> int:
+        return self.directed_edge_count - self.within_group_directed_edge_count
+
+    @property
+    def within_group_ambiguous_edge_count(self) -> int:
         return sum(
-            cluster.evolution.within_group_edge_count
+            cluster.evolution.within_group_ambiguous_edge_count
             for cluster in self.clusters
         )
 
     @property
-    def across_group_evolution_count(self) -> int:
-        return self.evolution_relationship_count - self.within_group_evolution_count
-
-    @property
-    def within_group_ambiguous_count(self) -> int:
-        return sum(
-            cluster.evolution.within_group_ambiguous_count
-            for cluster in self.clusters
-        )
-
-    @property
-    def across_group_ambiguous_count(self) -> int:
-        return self.ambiguous_relationship_count - self.within_group_ambiguous_count
+    def across_group_ambiguous_edge_count(self) -> int:
+        return self.ambiguous_edge_count - self.within_group_ambiguous_edge_count
 
     @property
     def change_counts(self) -> dict[ChangeType, int]:
@@ -408,20 +436,60 @@ class ScopeAnalysis:
                 counts[change_type] += count
         return counts
 
+    # Compatibility aliases for code written against the earlier terminology.
+    @property
+    def base_candidate_artifact_ids(self) -> tuple[int, ...]:
+        if len(self.clusters) != 1:
+            return ()
+        return self.clusters[0].evolution.root_candidate_artifact_ids
+
+    @property
+    def has_single_base(self) -> bool:
+        return len(self.base_candidate_artifact_ids) == 1
+
+    @property
+    def evolution_relationship_count(self) -> int:
+        return self.directed_edge_count
+
+    @property
+    def ambiguous_relationship_count(self) -> int:
+        return self.ambiguous_edge_count
+
+    @property
+    def within_group_evolution_count(self) -> int:
+        return self.within_group_directed_edge_count
+
+    @property
+    def across_group_evolution_count(self) -> int:
+        return self.across_group_directed_edge_count
+
+    @property
+    def within_group_ambiguous_count(self) -> int:
+        return self.within_group_ambiguous_edge_count
+
+    @property
+    def across_group_ambiguous_count(self) -> int:
+        return self.across_group_ambiguous_edge_count
+
     def to_dict(self) -> dict[str, object]:
         return {
             "artifact_ids": list(self.artifact_ids),
             "skill_variant_count": self.skill_variant_count,
             "bundle_variant_count": self.bundle_variant_count,
-            "base_candidate_artifact_ids": list(
-                self.base_candidate_artifact_ids
+            "directed_edge_count": self.directed_edge_count,
+            "within_group_directed_edge_count": (
+                self.within_group_directed_edge_count
             ),
-            "evolution_relationship_count": self.evolution_relationship_count,
-            "within_group_evolution_count": self.within_group_evolution_count,
-            "across_group_evolution_count": self.across_group_evolution_count,
-            "ambiguous_relationship_count": self.ambiguous_relationship_count,
-            "within_group_ambiguous_count": self.within_group_ambiguous_count,
-            "across_group_ambiguous_count": self.across_group_ambiguous_count,
+            "across_group_directed_edge_count": (
+                self.across_group_directed_edge_count
+            ),
+            "ambiguous_edge_count": self.ambiguous_edge_count,
+            "within_group_ambiguous_edge_count": (
+                self.within_group_ambiguous_edge_count
+            ),
+            "across_group_ambiguous_edge_count": (
+                self.across_group_ambiguous_edge_count
+            ),
             "change_counts": {
                 change_type.value: count
                 for change_type, count in self.change_counts.items()
@@ -502,9 +570,6 @@ class FamilyAnalysis:
                 "skill_variant_count": self.family.skill_variant_count,
                 "bundle_variant_count": self.family.bundle_variant_count,
                 "cluster_count": len(self.family.clusters),
-                "base_candidate_artifact_ids": list(
-                    self.family.base_candidate_artifact_ids
-                ),
                 "related_skill_pair_count": len(self.related_similarities),
                 "within_group_related_pair_count": (
                     self.within_group_related_pair_count
@@ -512,23 +577,19 @@ class FamilyAnalysis:
                 "across_group_related_pair_count": (
                     self.across_group_related_pair_count
                 ),
-                "evolution_relationship_count": (
-                    self.family.evolution_relationship_count
+                "directed_edge_count": self.family.directed_edge_count,
+                "within_group_directed_edge_count": (
+                    self.family.within_group_directed_edge_count
                 ),
-                "within_group_evolution_count": (
-                    self.family.within_group_evolution_count
+                "across_group_directed_edge_count": (
+                    self.family.across_group_directed_edge_count
                 ),
-                "across_group_evolution_count": (
-                    self.family.across_group_evolution_count
+                "ambiguous_edge_count": self.family.ambiguous_edge_count,
+                "within_group_ambiguous_edge_count": (
+                    self.family.within_group_ambiguous_edge_count
                 ),
-                "ambiguous_relationship_count": (
-                    self.family.ambiguous_relationship_count
-                ),
-                "within_group_ambiguous_count": (
-                    self.family.within_group_ambiguous_count
-                ),
-                "across_group_ambiguous_count": (
-                    self.family.across_group_ambiguous_count
+                "across_group_ambiguous_edge_count": (
+                    self.family.across_group_ambiguous_edge_count
                 ),
                 "change_counts": {
                     change_type.value: count
@@ -559,6 +620,14 @@ class FamilyAnalysis:
                 }
                 for variant in self.bundle_variants
             ],
+            "provenance": [
+                {
+                    "artifact_id": artifact.artifact_id,
+                    **artifact.provenance.to_dict(),
+                }
+                for artifact in self.artifacts
+                if artifact.provenance.has_values()
+            ],
             "similarities": self._similarities_to_dict(),
         }
 
@@ -568,7 +637,10 @@ class FamilyAnalysis:
                     "artifact_id": artifact.artifact_id,
                     "group_id": artifact.group_id,
                     "repo_id": artifact.repo_id,
+                    "repo_full_name": artifact.repo_full_name,
+                    "path": artifact.path,
                     "file_sha": artifact.file_sha,
+                    "provenance": artifact.provenance.to_dict(),
                     "first_commit_at": artifact.first_commit_at,
                     "repo_created_at": artifact.repo_created_at,
                     "sibling_file_count": artifact.sibling_file_count,

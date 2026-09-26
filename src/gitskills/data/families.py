@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from gitskills.analysis.family_models import Artifact
+from gitskills.analysis.provenance import extract_declared_provenance
 
 _FAMILY_SQL = """
               SELECT g.id         AS group_id,
@@ -16,6 +17,8 @@ _FAMILY_SQL = """
                      g.sibling_content_sha,
                      a.file_sha,
                      a.content,
+                     a.repo_full_name,
+                     a.path,
                      a.first_commit_at,
                      r.created_at AS repo_created_at
               FROM artifact_groupings AS g
@@ -74,6 +77,8 @@ class DuckDBFamilyRepository:
             sibling_content_sha,
             file_sha,
             content,
+            repo_full_name,
+            path,
             first_commit_at,
             repo_created_at,
         ) = row
@@ -83,6 +88,8 @@ class DuckDBFamilyRepository:
         if content is None:
             raise ValueError(f"Artifact {artifact_id} has no content")
 
+        content_text = str(content)
+
         return Artifact(
             artifact_id=int(artifact_id),
             group_id=int(group_id),
@@ -90,7 +97,7 @@ class DuckDBFamilyRepository:
             name=str(name),
             normalized_description=str(normalized_description),
             file_sha=str(file_sha),
-            content=str(content),
+            content=content_text,
             first_commit_at=(
                 str(first_commit_at) if first_commit_at is not None else None
             ),
@@ -107,4 +114,9 @@ class DuckDBFamilyRepository:
                 if sibling_content_sha is not None
                 else None
             ),
+            repo_full_name=(
+                str(repo_full_name) if repo_full_name is not None else None
+            ),
+            path=str(path) if path is not None else None,
+            provenance=extract_declared_provenance(content_text),
         )
