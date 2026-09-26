@@ -28,7 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze SKILL.md similarity, clusters, base candidates, and "
+            "Analyze SKILL.md similarity, clusters, root candidates, and "
             "inferred evolution for one GitSkills candidate family."
         )
     )
@@ -77,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Show artifact IDs, qualifying similarities, and ambiguous relationships.",
+        help="Show artifact IDs, qualifying similarities, and ambiguous edge details.",
     )
     parser.add_argument(
         "--json",
@@ -153,18 +153,10 @@ def _print_report(result: FamilyAnalysis, *, verbose: bool) -> None:
     print("Policy status:    exploratory; validate thresholds before final analysis")
     print()
 
-    if len(family.clusters) == 1:
-        if family.has_single_base:
-            print(f"Family base candidate: {family.base_candidate_artifact_ids[0]}")
-        else:
-            candidates = _format_ids(family.base_candidate_artifact_ids)
-            print(f"Family base candidate: ambiguous [{candidates}]")
-        print()
-
     _print_relationship_summary(result)
     print()
 
-    _print_change_summary(family)
+    _print_edge_summary(family)
     print()
 
     print("Family clusters")
@@ -190,23 +182,26 @@ def _print_report(result: FamilyAnalysis, *, verbose: bool) -> None:
 
 
 def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
-    bases = cluster.evolution.base_candidate_artifact_ids
-    base = str(bases[0]) if len(bases) == 1 else f"ambiguous [{_format_ids(bases)}]"
+    roots = cluster.evolution.root_candidate_artifact_ids
 
     print(
         f"  Cluster {cluster.number}: "
         f"artifacts={len(cluster.artifact_ids)}, "
         f"skills={cluster.skill_variant_count}, "
-        f"bundles={cluster.bundle_variant_count}, "
-        f"base={base}"
+        f"bundles={cluster.bundle_variant_count}"
     )
+
+    if len(roots) == 1:
+        print(f"    Root candidate: {roots[0]}")
+    else:
+        print(f"    Root candidates: [{_format_ids(roots)}]")
 
     if verbose:
         print(f"    artifact_ids: {_format_ids(cluster.artifact_ids)}")
 
-    if cluster.evolution.edges:
-        print("    Evolution:")
-        for edge in cluster.evolution.edges:
+    if cluster.evolution.directed_edges:
+        print("    Directed edges:")
+        for edge in cluster.evolution.directed_edges:
             scope = "within-group" if edge.same_artifact_group else "across-groups"
             scope_text = f" scope={scope}" if verbose else ""
             print(
@@ -217,29 +212,31 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                 f"basis={edge.basis}"
                 f"{scope_text}"
             )
+    else:
+        print("    Directed edges: 0")
 
-    ambiguous_count = len(cluster.evolution.ambiguous_relationships)
+    ambiguous_count = len(cluster.evolution.ambiguous_edges)
     if ambiguous_count:
         print(
-            "    Related, direction unknown: "
-            f"{ambiguous_count} "
-            f"(within groups={cluster.evolution.within_group_ambiguous_count}, "
-            f"across groups={cluster.evolution.across_group_ambiguous_count})"
+            f"    Ambiguous edges: {ambiguous_count} "
+            f"(within groups={cluster.evolution.within_group_ambiguous_edge_count}, "
+            f"across groups={cluster.evolution.across_group_ambiguous_edge_count})"
         )
-
-    if verbose and cluster.evolution.ambiguous_relationships:
-        print("    Ambiguous relationships:")
-        for relationship in cluster.evolution.ambiguous_relationships:
-            scope = "within-group" if relationship.same_artifact_group else "across-groups"
-            print(
-                f"      {relationship.left_artifact_id} <-> "
-                f"{relationship.right_artifact_id} "
-                f"containment={relationship.containment_left_to_right:.3f}/"
-                f"{relationship.containment_right_to_left:.3f} "
-                f"jaccard={relationship.jaccard:.3f} "
-                f"change={relationship.change_type.value} "
-                f"scope={scope}"
-            )
+        if verbose:
+            for edge in cluster.evolution.ambiguous_edges:
+                scope = "within-group" if edge.same_artifact_group else "across-groups"
+                print(
+                    f"      {edge.left_artifact_id} <-> "
+                    f"{edge.right_artifact_id} "
+                    f"change={edge.change_type.value} "
+                    f"containment={edge.containment_left_to_right:.3f}/"
+                    f"{edge.containment_right_to_left:.3f} "
+                    f"jaccard={edge.jaccard:.3f} "
+                    f"basis={edge.basis} "
+                    f"scope={scope}"
+                )
+    else:
+        print("    Ambiguous edges: 0")
 
 
 def _print_qualifying_similarities(result: FamilyAnalysis) -> None:
@@ -287,20 +284,19 @@ def _print_relationship_summary(result: FamilyAnalysis) -> None:
     print(f"  Across artifact groups: {result.across_group_related_pair_count}")
 
 
-def _print_change_summary(family: ScopeAnalysis) -> None:
+def _print_edge_summary(family: ScopeAnalysis) -> None:
     counts = family.change_counts
-    print(f"Directed evolution relationships: {family.evolution_relationship_count}")
+    print(f"Directed edges: {family.directed_edge_count}")
     print(f"  Skill only:         {counts[ChangeType.SKILL_ONLY]}")
     print(f"  Siblings only:      {counts[ChangeType.SIBLINGS_ONLY]}")
     print(f"  Skill + siblings:   {counts[ChangeType.SKILL_AND_SIBLINGS]}")
     print(f"  Equivalent:         {counts[ChangeType.EQUIVALENT]}")
     print(f"  Unknown:            {counts[ChangeType.UNKNOWN]}")
-    print(f"  Within artifact groups: {family.within_group_evolution_count}")
-    print(f"  Across artifact groups: {family.across_group_evolution_count}")
-    print(f"Related, direction unknown: {family.ambiguous_relationship_count}")
-    print(f"  Within artifact groups: {family.within_group_ambiguous_count}")
-    print(f"  Across artifact groups: {family.across_group_ambiguous_count}")
-
+    print(f"  Within artifact groups: {family.within_group_directed_edge_count}")
+    print(f"  Across artifact groups: {family.across_group_directed_edge_count}")
+    print(f"Ambiguous edges: {family.ambiguous_edge_count}")
+    print(f"  Within artifact groups: {family.within_group_ambiguous_edge_count}")
+    print(f"  Across artifact groups: {family.across_group_ambiguous_edge_count}")
 
 
 if __name__ == "__main__":

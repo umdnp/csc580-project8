@@ -360,9 +360,9 @@ def _build_evolution_graph(
     if not bundles:
         return EvolutionGraph(
             bundle_keys=(),
-            edges=(),
-            ambiguous_relationships=(),
-            base_candidate_artifact_ids=(),
+            directed_edges=(),
+            ambiguous_edges=(),
+            root_candidate_artifact_ids=(),
         )
 
     directed_candidates: list[_DirectedCandidate] = []
@@ -398,7 +398,7 @@ def _build_evolution_graph(
 
     return EvolutionGraph(
         bundle_keys=tuple(bundle.key for bundle in bundles),
-        edges=tuple(
+        directed_edges=tuple(
             EvolutionEdge(
                 source=edge.source.key,
                 target=edge.target.key,
@@ -419,7 +419,7 @@ def _build_evolution_graph(
                 ),
             )
         ),
-        ambiguous_relationships=tuple(
+        ambiguous_edges=tuple(
             sorted(
                 ambiguous,
                 key=lambda relationship: (
@@ -428,7 +428,7 @@ def _build_evolution_graph(
                 ),
             )
         ),
-        base_candidate_artifact_ids=tuple(
+        root_candidate_artifact_ids=tuple(
             bundle.representative_artifact_id for bundle in roots
         ),
     )
@@ -449,6 +449,7 @@ def _bundle_relationship(
             right=right.key,
             left_artifact_id=left.representative_artifact_id,
             right_artifact_id=right.representative_artifact_id,
+            basis="similarity-only",
             containment_left_to_right=1.0,
             containment_right_to_left=1.0,
             jaccard=1.0,
@@ -473,6 +474,7 @@ def _bundle_relationship(
             right=right.key,
             left_artifact_id=left.representative_artifact_id,
             right_artifact_id=right.representative_artifact_id,
+            basis="similarity-only",
             containment_left_to_right=result.containment(
                 left.file_sha,
                 right.file_sha,
