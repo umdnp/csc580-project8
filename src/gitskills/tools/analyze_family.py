@@ -153,11 +153,15 @@ def _print_report(result: FamilyAnalysis, *, verbose: bool) -> None:
     print("Policy status:    exploratory; validate thresholds before final analysis")
     print()
 
-    if family.has_single_base:
-        print(f"Family base candidate: {family.base_candidate_artifact_ids[0]}")
-    else:
-        candidates = _format_ids(family.base_candidate_artifact_ids)
-        print(f"Family base candidate: ambiguous [{candidates}]")
+    if len(family.clusters) == 1:
+        if family.has_single_base:
+            print(f"Family base candidate: {family.base_candidate_artifact_ids[0]}")
+        else:
+            candidates = _format_ids(family.base_candidate_artifact_ids)
+            print(f"Family base candidate: ambiguous [{candidates}]")
+        print()
+
+    _print_relationship_summary(result)
     print()
 
     _print_change_summary(family)
@@ -170,22 +174,16 @@ def _print_report(result: FamilyAnalysis, *, verbose: bool) -> None:
     print()
     print("Artifact groups")
     for group in result.groups:
-        analysis = group.analysis
-        base = (
-            str(analysis.base_candidate_artifact_ids[0])
-            if analysis.has_single_base
-            else f"ambiguous [{_format_ids(analysis.base_candidate_artifact_ids)}]"
-        )
+        clusters = ", ".join(str(number) for number in group.family_cluster_numbers)
         print(
             f"  Group {group.group_id}: "
-            f"artifacts={len(analysis.artifact_ids)}, "
-            f"skills={analysis.skill_variant_count}, "
-            f"bundles={analysis.bundle_variant_count}, "
-            f"clusters={len(analysis.clusters)}, "
-            f"base={base}"
+            f"artifacts={len(group.artifact_ids)}, "
+            f"skills={group.skill_variant_count}, "
+            f"bundles={group.bundle_variant_count}, "
+            f"family_clusters=[{clusters}]"
         )
         if verbose:
-            print(f"    artifact_ids: {_format_ids(analysis.artifact_ids)}")
+            print(f"    artifact_ids: {_format_ids(group.artifact_ids)}")
 
     if verbose:
         _print_qualifying_similarities(result)
@@ -209,38 +207,49 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
     if cluster.evolution.edges:
         print("    Evolution:")
         for edge in cluster.evolution.edges:
+            scope = "within-group" if edge.same_artifact_group else "across-groups"
+            scope_text = f" scope={scope}" if verbose else ""
             print(
                 f"      {edge.source_artifact_id} -> {edge.target_artifact_id} "
                 f"change={edge.change_type.value} "
                 f"containment={edge.containment:.3f} "
                 f"jaccard={edge.jaccard:.3f} "
                 f"basis={edge.basis}"
+                f"{scope_text}"
             )
+
+    ambiguous_count = len(cluster.evolution.ambiguous_relationships)
+    if ambiguous_count:
+        print(
+            "    Related, direction unknown: "
+            f"{ambiguous_count} "
+            f"(within groups={cluster.evolution.within_group_ambiguous_count}, "
+            f"across groups={cluster.evolution.across_group_ambiguous_count})"
+        )
 
     if verbose and cluster.evolution.ambiguous_relationships:
         print("    Ambiguous relationships:")
         for relationship in cluster.evolution.ambiguous_relationships:
+            scope = "within-group" if relationship.same_artifact_group else "across-groups"
             print(
                 f"      {relationship.left_artifact_id} <-> "
                 f"{relationship.right_artifact_id} "
                 f"containment={relationship.containment_left_to_right:.3f}/"
                 f"{relationship.containment_right_to_left:.3f} "
                 f"jaccard={relationship.jaccard:.3f} "
-                f"change={relationship.change_type.value}"
+                f"change={relationship.change_type.value} "
+                f"scope={scope}"
             )
 
 
 def _print_qualifying_similarities(result: FamilyAnalysis) -> None:
+    variants = {variant.file_sha: variant for variant in result.skill_variants}
     representative = {
-        variant.file_sha: variant.representative_artifact_id
-        for variant in result.skill_variants
+        file_sha: variant.representative_artifact_id
+        for file_sha, variant in variants.items()
     }
 
-    qualifying = [
-        similarity
-        for similarity in result.similarities
-        if result.policy.relates(similarity)
-    ]
+    qualifying = list(result.related_similarities)
     if not qualifying:
         return
 
@@ -249,13 +258,21 @@ def _print_qualifying_similarities(result: FamilyAnalysis) -> None:
     for similarity in qualifying:
         left_id = representative[similarity.left_file_sha]
         right_id = representative[similarity.right_file_sha]
+        left_variant = variants[similarity.left_file_sha]
+        right_variant = variants[similarity.right_file_sha]
+        scope = (
+            "within-group"
+            if set(left_variant.group_ids) & set(right_variant.group_ids)
+            else "across-groups"
+        )
         print(
             f"  {left_id} <-> {right_id}: "
             f"containment="
             f"{similarity.left_to_right_containment:.3f}/"
             f"{similarity.right_to_left_containment:.3f}, "
             f"jaccard={similarity.jaccard:.3f}, "
-            f"shared={similarity.shared_shingles}"
+            f"shared={similarity.shared_shingles}, "
+            f"scope={scope}"
         )
 
 
@@ -263,16 +280,27 @@ def _format_ids(values: tuple[int, ...]) -> str:
     return ", ".join(str(value) for value in values)
 
 
+def _print_relationship_summary(result: FamilyAnalysis) -> None:
+    total = len(result.related_similarities)
+    print(f"Related skill pairs: {total}")
+    print(f"  Within artifact groups: {result.within_group_related_pair_count}")
+    print(f"  Across artifact groups: {result.across_group_related_pair_count}")
+
+
 def _print_change_summary(family: ScopeAnalysis) -> None:
     counts = family.change_counts
-    print(f"Evolution relationships: {family.evolution_relationship_count}")
+    print(f"Directed evolution relationships: {family.evolution_relationship_count}")
     print(f"  Skill only:         {counts[ChangeType.SKILL_ONLY]}")
     print(f"  Siblings only:      {counts[ChangeType.SIBLINGS_ONLY]}")
     print(f"  Skill + siblings:   {counts[ChangeType.SKILL_AND_SIBLINGS]}")
     print(f"  Equivalent:         {counts[ChangeType.EQUIVALENT]}")
     print(f"  Unknown:            {counts[ChangeType.UNKNOWN]}")
-    if family.ambiguous_relationship_count:
-        print(f"Ambiguous relationships: {family.ambiguous_relationship_count}")
+    print(f"  Within artifact groups: {family.within_group_evolution_count}")
+    print(f"  Across artifact groups: {family.across_group_evolution_count}")
+    print(f"Related, direction unknown: {family.ambiguous_relationship_count}")
+    print(f"  Within artifact groups: {family.within_group_ambiguous_count}")
+    print(f"  Across artifact groups: {family.across_group_ambiguous_count}")
+
 
 
 if __name__ == "__main__":

@@ -48,60 +48,46 @@ class FamilyAnalyzer:
         if len(names) != 1:
             raise ValueError("Candidate family must contain exactly one skill name")
 
-        family_variants = _build_skill_variants(artifact_tuple)
-        family_bundles = _build_bundle_variants(artifact_tuple)
+        skill_variants = _build_skill_variants(artifact_tuple)
+        bundle_variants = _build_bundle_variants(artifact_tuple)
         similarities = compare_skill_variants(
-            family_variants,
+            skill_variants,
             shingle_size=self._policy.shingle_size,
         )
         similarity_index = _SimilarityIndex(similarities)
 
-        family_scope = self._analyze_scope(
+        family_scope = self._analyze_family_scope(
             artifact_tuple,
             similarity_index,
-            skill_variants=family_variants,
-            bundle_variants=family_bundles,
+            skill_variants,
+            bundle_variants,
         )
-
-        group_analyses = []
-        by_group: dict[int, list[Artifact]] = defaultdict(list)
-        for artifact in artifact_tuple:
-            by_group[artifact.group_id].append(artifact)
-
-        for group_id in sorted(by_group):
-            group_artifacts = tuple(by_group[group_id])
-            group_analyses.append(
-                ArtifactGroupAnalysis(
-                    group_id=group_id,
-                    normalized_description=group_artifacts[0].normalized_description,
-                    analysis=self._analyze_scope(
-                        group_artifacts,
-                        similarity_index,
-                    ),
-                )
-            )
+        group_analyses = _build_group_analyses(
+            artifact_tuple,
+            skill_variants,
+            bundle_variants,
+            family_scope.clusters,
+        )
 
         return FamilyAnalysis(
             name=artifact_tuple[0].name,
             policy=self._policy,
             family=family_scope,
-            groups=tuple(group_analyses),
+            groups=group_analyses,
             similarities=similarities,
-            skill_variants=family_variants,
-            bundle_variants=family_bundles,
+            skill_variants=skill_variants,
+            bundle_variants=bundle_variants,
             artifacts=artifact_tuple,
         )
 
-    def _analyze_scope(
+    def _analyze_family_scope(
         self,
         artifacts: tuple[Artifact, ...],
         similarity_index: "_SimilarityIndex",
-        *,
-        skill_variants: tuple[SkillVariant, ...] | None = None,
-        bundle_variants: tuple[BundleVariant, ...] | None = None,
+        skill_variants: tuple[SkillVariant, ...],
+        bundle_variants: tuple[BundleVariant, ...],
     ) -> ScopeAnalysis:
-        skill_variants = skill_variants or _build_skill_variants(artifacts)
-        bundle_variants = bundle_variants or _build_bundle_variants(artifacts)
+        """Build family-wide clusters and evolution graphs once."""
 
         components = _skill_variant_components(
             skill_variants,
@@ -121,13 +107,7 @@ class FamilyAnalyzer:
                 for bundle in bundle_variants
                 if bundle.file_sha in file_shas
             )
-            cluster_inputs.append(
-                (
-                    file_shas,
-                    cluster_artifacts,
-                    cluster_bundles,
-                )
-            )
+            cluster_inputs.append((file_shas, cluster_artifacts, cluster_bundles))
 
         cluster_inputs.sort(key=_cluster_sort_key)
 
@@ -168,6 +148,7 @@ class _DirectedCandidate:
     jaccard: float
     shared_shingles: int
     change_type: ChangeType
+    shared_group_ids: tuple[int, ...]
 
 
 class _SimilarityIndex:
@@ -181,6 +162,55 @@ class _SimilarityIndex:
         if left_file_sha == right_file_sha:
             return None
         return self._results.get(frozenset((left_file_sha, right_file_sha)))
+
+
+def _build_group_analyses(
+    artifacts: tuple[Artifact, ...],
+    skill_variants: tuple[SkillVariant, ...],
+    bundle_variants: tuple[BundleVariant, ...],
+    clusters: tuple[ClusterAnalysis, ...],
+) -> tuple[ArtifactGroupAnalysis, ...]:
+    """Summarize database artifact groups without reclustering them."""
+
+    by_group: dict[int, list[Artifact]] = defaultdict(list)
+    for artifact in artifacts:
+        by_group[artifact.group_id].append(artifact)
+
+    cluster_by_artifact = {
+        artifact_id: cluster.number
+        for cluster in clusters
+        for artifact_id in cluster.artifact_ids
+    }
+
+    summaries = []
+    for group_id in sorted(by_group):
+        members = tuple(sorted(by_group[group_id], key=lambda item: item.artifact_id))
+        artifact_ids = {member.artifact_id for member in members}
+        file_shas = {member.file_sha for member in members}
+
+        group_bundle_count = sum(
+            bool(artifact_ids & set(bundle.artifact_ids))
+            for bundle in bundle_variants
+        )
+        family_cluster_numbers = tuple(
+            sorted({cluster_by_artifact[artifact_id] for artifact_id in artifact_ids})
+        )
+
+        summaries.append(
+            ArtifactGroupAnalysis(
+                group_id=group_id,
+                normalized_description=members[0].normalized_description,
+                artifact_ids=tuple(sorted(artifact_ids)),
+                skill_variant_count=sum(
+                    variant.file_sha in file_shas
+                    for variant in skill_variants
+                ),
+                bundle_variant_count=group_bundle_count,
+                family_cluster_numbers=family_cluster_numbers,
+            )
+        )
+
+    return tuple(summaries)
 
 
 def _build_skill_variants(artifacts: tuple[Artifact, ...]) -> tuple[SkillVariant, ...]:
@@ -231,7 +261,14 @@ def _build_bundle_variants(artifacts: tuple[Artifact, ...]) -> tuple[BundleVaria
         by_key[key].append(artifact)
 
     variants = []
-    for key, members in sorted(by_key.items(), key=lambda item: item[0]):
+    for key, members in sorted(
+        by_key.items(),
+        key=lambda item: (
+            item[0].file_sha,
+            item[0].sibling_content_sha or "",
+            item[0].unknown_artifact_id or -1,
+        ),
+    ):
         members.sort(key=lambda artifact: artifact.artifact_id)
         representative = _representative_artifact(members)
         variants.append(
@@ -372,6 +409,7 @@ def _build_evolution_graph(
                 jaccard=edge.jaccard,
                 shared_shingles=edge.shared_shingles,
                 change_type=edge.change_type,
+                shared_group_ids=edge.shared_group_ids,
             )
             for edge in sorted(
                 selected,
@@ -403,6 +441,7 @@ def _bundle_relationship(
     policy: SimilarityPolicy,
 ) -> _DirectedCandidate | AmbiguousRelationship | None:
     sibling_changed = _sibling_changed(left, right)
+    shared_group_ids = tuple(sorted(set(left.group_ids) & set(right.group_ids)))
 
     if left.file_sha == right.file_sha:
         return AmbiguousRelationship(
@@ -420,6 +459,7 @@ def _bundle_relationship(
                 result=None,
                 sibling_changed=sibling_changed,
             ),
+            shared_group_ids=shared_group_ids,
         )
 
     result = similarity_index.get(left.file_sha, right.file_sha)
@@ -449,6 +489,7 @@ def _bundle_relationship(
                 result=result,
                 sibling_changed=sibling_changed,
             ),
+            shared_group_ids=shared_group_ids,
         )
 
     source, target, basis = direction
@@ -465,6 +506,7 @@ def _bundle_relationship(
             result=result,
             sibling_changed=sibling_changed,
         ),
+        shared_group_ids=shared_group_ids,
     )
 
 
@@ -565,17 +607,27 @@ def _select_predecessor_edges(
 
 
 def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
+    """Prefer chronology-supported and temporally closest predecessors."""
+
     source_date = _parse_timestamp(candidate.source.earliest_observed_at)
-    source_recency = (
-        -source_date.timestamp()
-        if source_date is not None
-        else float("inf")
-    )
+    target_date = _parse_timestamp(candidate.target.earliest_observed_at)
+
+    chronology_rank = 0 if candidate.basis == "chronology" else 1
+    if (
+        candidate.basis == "chronology"
+        and source_date is not None
+        and target_date is not None
+    ):
+        time_gap = (target_date - source_date).total_seconds()
+    else:
+        time_gap = float("inf")
+
     return (
+        chronology_rank,
+        time_gap,
         -candidate.containment,
         -candidate.jaccard,
         -candidate.shared_shingles,
-        source_recency,
         candidate.source.representative_artifact_id,
     )
 
