@@ -134,11 +134,13 @@ An introduced capability means that at least one rule in that capability categor
 
 ### Purpose
 
-`analyze_family` performs similarity and evolution analysis for one GitSkills **candidate family**. A candidate family consists of qualifying artifacts with the same exact skill `name` in `artifact_groupings`.
+`analyze_family` performs family-wide similarity and inferred-evolution analysis for one GitSkills **candidate family**. A candidate family consists of qualifying artifacts with the same exact skill `name` in `artifact_groupings`.
 
-The tool analyzes relationships among the artifacts in that family. It does **not** run the security scanner and does not report command, network, filesystem, credential, or other risk-rule findings.
+The tool compares `SKILL.md` body content across the entire candidate family, forms similarity clusters, identifies plausible directed evolution relationships when the evidence supports direction, and preserves related-but-undirected pairs when direction is ambiguous.
 
-Its purpose is to identify plausible relationships that can later be used to decide which artifacts should be compared by the security-analysis stage.
+Artifact groups (`name + normalized_description`) are retained as contextual metadata. They do not limit similarity comparison or create separate local clusters.
+
+`analyze_family` does **not** run the security scanner and does not report command, network, filesystem, credential, or other risk-rule findings.
 
 ### Synopsis
 
@@ -168,7 +170,7 @@ analyze_family busybox-on-windows
 | `--min-jaccard FLOAT` | `0.30` | Minimum Jaccard similarity required for two skill variants to be considered related. |
 | `--min-shared-shingles N` | `5` | Minimum number of shared shingles required for two skill variants to be considered related. |
 | `--direction-margin FLOAT` | `0.10` | Minimum difference between the two directional-containment values required to infer direction when chronology does not distinguish the variants. |
-| `--verbose` | Off | Show artifact IDs, qualifying pairwise similarities, and ambiguous evolution relationships. |
+| `--verbose` | Off | Show artifact IDs, qualifying similarities, group scope, and ambiguous relationships. |
 | `--json` | Off | Emit structured JSON instead of the human-readable report. Can be combined with `--verbose`. |
 | `-h`, `--help` | — | Show command help and exit. |
 
@@ -182,7 +184,13 @@ The database can be supplied explicitly:
 analyze_family busybox-on-windows --db /path/to/gitskills.duckdb
 ```
 
-Or through the project environment variable:
+On Windows PowerShell, a native Windows path can be used:
+
+```powershell
+analyze_family busybox-on-windows --db C:/data/duckdb/agent_skills_release.db
+```
+
+Or use the project environment variable:
 
 ```bash
 export GITSKILLS_DB=/path/to/gitskills.duckdb
@@ -197,17 +205,19 @@ For the requested candidate family, `analyze_family`:
 
 1. Loads every matching row from `artifact_groupings` and joins it to the associated artifact and repository metadata.
 2. Identifies **artifact groups**, where each group represents one exact `name + normalized_description` combination.
-3. Identifies **skill variants**, where each distinct `file_sha` represents distinct `SKILL.md` content.
+3. Identifies **skill variants**, where each distinct `file_sha` represents distinct raw `SKILL.md` content.
 4. Identifies **bundle variants**, using the skill variant together with its sibling-content state.
-5. Masks YAML front matter and tokenizes the `SKILL.md` body.
-6. Builds contiguous token shingles, using 5-token shingles by default.
-7. Compares every distinct pair of skill variants once.
-8. Calculates directional containment, Jaccard similarity, and shared-shingle counts.
-9. Applies the configured similarity policy to identify related skill variants.
-10. Forms similarity **clusters** from related skill variants.
-11. Infers plausible evolution direction where the available evidence supports it.
-12. Classifies each inferred evolution relationship by whether the skill, sibling resources, or both differ.
-13. Reports cluster roots as base candidates and summarizes the inferred evolution graph.
+5. Masks top-of-file YAML front matter before similarity analysis.
+6. Tokenizes the remaining `SKILL.md` body in a way that ignores whitespace differences and normalizes token case.
+7. Builds contiguous token shingles, using 5-token shingles by default.
+8. Compares every distinct pair of skill variants across the **entire candidate family** once, regardless of artifact-group membership.
+9. Calculates directional containment, Jaccard similarity, and shared-shingle counts.
+10. Applies the configured similarity policy to identify related skill variants.
+11. Forms family-wide similarity **clusters** from those relationships.
+12. Infers direction between related bundle variants when chronology or directional containment provides enough evidence.
+13. Reduces directed candidates so each target receives at most one selected predecessor and cycles are avoided.
+14. Classifies selected evolution relationships by whether the skill, sibling resources, or both differ.
+15. Reports cluster roots as base candidates and preserves related pairs whose direction remains ambiguous.
 
 ### Artifacts, Skill Variants, and Bundle Variants
 
@@ -217,12 +227,25 @@ The analysis uses three distinct concepts:
 An individual artifact represented by an `artifact_id`.
 
 **Skill variant**  
-A distinct `SKILL.md` content variant, identified by `file_sha`. Multiple artifacts with the same `file_sha` share the same skill variant, so their skill text is tokenized and compared only once.
+A distinct raw `SKILL.md` content variant, identified by `file_sha`. Multiple artifacts with the same `file_sha` share the same skill variant, so their skill text is tokenized and compared only once.
 
 **Bundle variant**  
 A skill variant together with its known sibling-content state. When `sibling_content_sha` is available, artifacts with the same `file_sha` and the same `sibling_content_sha` are treated as the same bundle variant. When sibling state is unknown, the artifact remains separate rather than being collapsed with another unknown artifact.
 
-This allows the analysis to avoid repeated SKILL.md comparisons while still preserving differences in the resources bundled with a skill.
+This avoids repeated `SKILL.md` comparisons while preserving differences in resources bundled with otherwise identical skills.
+
+### Artifact Groups
+
+An artifact group is the project-defined `name + normalized_description` grouping represented by `artifact_groupings.id`.
+
+Artifact groups provide context for interpreting relationships but **do not constrain similarity analysis**. Two artifacts from different artifact groups can still be placed in the same family-wide cluster when their skill bodies satisfy the similarity policy.
+
+The report therefore distinguishes:
+
+- related pairs **within artifact groups**; and
+- related pairs **across artifact groups**.
+
+Each artifact-group summary lists the family-wide cluster numbers containing its artifacts. The tool does not calculate separate local clusters or local base candidates for each artifact group.
 
 ### Similarity Measures
 
@@ -234,7 +257,7 @@ For two skill variants, the tool calculates:
 shared shingles / shingles in the source variant
 ```
 
-Because containment is directional, `A -> B` containment can differ from `B -> A` containment. High `A -> B` containment can indicate that most of A is preserved inside a larger B.
+Because containment is directional, `A -> B` containment can differ from `B -> A` containment. High `A -> B` containment can indicate that most of A is preserved inside B.
 
 **Jaccard similarity**
 
@@ -242,7 +265,7 @@ Because containment is directional, `A -> B` containment can differ from `B -> A
 shared shingles / all unique shingles across both variants
 ```
 
-Jaccard is symmetric and reflects overall similarity between the two shingle sets.
+Jaccard is symmetric and reflects overall overlap between the two shingle sets.
 
 **Shared shingles**
 
@@ -258,27 +281,63 @@ shared shingles             >= --min-shared-shingles
 
 The raw measures are retained independently of the threshold policy so the policy can be changed during validation.
 
+### Similarity Preprocessing
+
+Similarity is computed on the `SKILL.md` **body**, not YAML front matter. Top-of-file front matter is masked before tokenization so metadata differences do not influence body similarity.
+
+Whitespace differences do not affect the token sequence used for shingling. Token matching is also case-insensitive.
+
+A similarity score of `1.0` therefore means equivalent under the analyzer's body-token/shingle representation; it does not necessarily mean the raw files are byte-for-byte identical.
+
 ### Clusters
 
-A cluster is a similarity-derived grouping of related skill variants.
+A cluster is a family-wide similarity-derived grouping of related skill variants.
 
-Two variants are connected when they satisfy the configured similarity policy. Connected variants are placed in the same cluster, including cases where the relationship is transitive. For example, if A is related to B and B is related to C, all three can belong to the same cluster even if A and C do not independently satisfy the threshold.
+Two skill variants are connected when they satisfy the configured similarity policy. Connected variants are placed in the same cluster, including transitive cases. For example, if A is related to B and B is related to C, all three can belong to the same cluster even if A and C do not independently satisfy the threshold.
 
-Clusters are numbered deterministically as `Cluster 1`, `Cluster 2`, and so on.
+Clusters are numbered deterministically. Larger clusters sort first; observed chronology and artifact ID provide stable tie breakers.
+
+Cluster membership establishes relatedness through the similarity graph. It does not mean every pair of members is directly related.
 
 ### Evolution and Base Candidates
 
-Within each cluster, the analyzer attempts to infer plausible directional relationships between bundle variants.
+Within each family-wide cluster, the analyzer attempts to infer plausible directional relationships between bundle variants.
 
 Direction is inferred in the following order:
 
-1. If both variants have usable and different `first_commit_at` values, the earlier observed variant is treated as the source for that relationship.
+1. If both variants have usable and different earliest observed `first_commit_at` values, the earlier observed variant is treated as the source for that relationship.
 2. If chronology does not distinguish them, directional containment can be used when the difference between the two containment values is at least `--direction-margin`.
-3. If neither method establishes direction, the relationship remains ambiguous.
+3. If neither method establishes direction, the relationship remains related but directionally ambiguous.
 
-The analyzer reduces directed candidates so that a bundle variant receives at most one selected predecessor and avoids creating cycles. Cluster members with no selected incoming edge are reported as base candidates.
+When multiple directed candidates can precede the same target, predecessor selection prefers:
 
-The resulting graph is an **inferred** evolution model, not proof of repository ancestry or authorship. `first_commit_at` represents the earliest commit observed for a file at its current path and may not capture its true origin.
+1. chronology-supported candidates;
+2. the temporally closest earlier candidate when chronology is available;
+3. stronger directional containment;
+4. stronger Jaccard similarity;
+5. more shared shingles; and
+6. a stable artifact-ID tie breaker.
+
+The selected graph allows at most one predecessor per target and avoids cycles. Bundle variants with no selected incoming edge are reported as base candidates.
+
+A family-level base candidate is printed only when the candidate family contains exactly one cluster. When multiple clusters exist, each cluster reports its own base candidate or ambiguous base candidates.
+
+The graph is an **inferred** evolution model, not proof of repository ancestry or authorship. `first_commit_at` represents the earliest commit observed for a file at its current path and may not capture its true origin. `repo.created_at` is not used to infer direction.
+
+### Related Pairs and Directional Ambiguity
+
+The report separates three ideas:
+
+**Related skill pairs**  
+All skill-variant pairs that satisfy the similarity policy.
+
+**Directed evolution relationships**  
+The reduced set of selected predecessor relationships for which direction can be inferred.
+
+**Related, direction unknown**  
+Qualifying related bundle-variant pairs for which chronology and containment do not provide enough evidence to infer direction.
+
+Ambiguous relationships are intentionally preserved rather than forced into an evolution direction. They can establish that related variants differ, but they should not be interpreted as evidence that one variant introduced a change into the other.
 
 ### Default Output
 
@@ -289,42 +348,55 @@ The default report is intentionally compact. It includes:
 - artifact-group count;
 - skill-variant count;
 - bundle-variant count;
-- cluster count;
+- family-wide cluster count;
 - active similarity policy;
-- family base candidate or candidates;
-- evolution-relationship counts by change type;
-- cluster summaries and inferred evolution edges;
-- artifact-group summaries.
-
-The evolution-relationship counts summarize only the **selected inferred evolution edges**, not every possible pairwise similarity comparison.
+- family base candidate only when the family has one cluster;
+- related skill-pair counts, split into within-group and across-group pairs;
+- directed evolution counts and change types;
+- ambiguous relationship counts, split into within-group and across-group pairs;
+- cluster summaries and selected evolution edges; and
+- artifact-group summaries mapped to family-wide cluster numbers.
 
 Example structure:
 
 ```text
 Candidate family: busybox-on-windows
-Artifacts:        87
-Artifact groups:  12
-Skill variants:   19
-Bundle variants:  24
+Artifacts:        26
+Artifact groups:  6
+Skill variants:   26
+Bundle variants:  26
 Clusters:         3
+Policy:           5-token shingles, containment >= 0.80, Jaccard >= 0.30, shared >= 5
+Policy status:    exploratory; validate thresholds before final analysis
 
-Family base candidate: 48192
+Related skill pairs: 119
+  Within artifact groups: 87
+  Across artifact groups: 32
 
-Evolution relationships: 17
-  Skill only:         4
-  Siblings only:      3
-  Skill + siblings:   7
-  Equivalent:         2
-  Unknown:            1
+Directed evolution relationships: 17
+  Skill only:         8
+  Siblings only:      1
+  Skill + siblings:   5
+  Equivalent:         3
+  Unknown:            0
+  Within artifact groups: 12
+  Across artifact groups: 5
+Related, direction unknown: 102
+  Within artifact groups: 75
+  Across artifact groups: 27
 
 Family clusters
-  Cluster 1: artifacts=72, skills=14, bundles=18, base=48192
+  Cluster 1: artifacts=23, skills=23, bundles=23, base=ambiguous [571389, 572392]
     Evolution:
-      48192 -> 51201 change=skill+siblings containment=0.942 jaccard=0.811 basis=chronology
-      51201 -> 61344 change=skill-only containment=0.915 jaccard=0.873 basis=chronology
+      571909 -> 624960 change=skill+siblings containment=1.000 jaccard=0.916 basis=chronology
+    Related, direction unknown: 98 (within groups=73, across groups=25)
+
+Artifact groups
+  Group 141815: artifacts=1, skills=1, bundles=1, family_clusters=[1]
+  Group 311222: artifacts=1, skills=1, bundles=1, family_clusters=[1]
 ```
 
-Artifact IDs are used as the primary human-readable identifiers so specific records can be retrieved easily from DuckDB for manual validation.
+The numeric counts in this example are illustrative. Artifact IDs are used as the primary human-readable identifiers so specific records can be retrieved easily from DuckDB for manual validation.
 
 ### Verbose Output
 
@@ -338,11 +410,13 @@ In addition to the normal report, verbose output includes:
 
 - artifact IDs for each cluster;
 - artifact IDs for each artifact group;
-- qualifying skill-variant similarities;
+- every qualifying skill-variant similarity;
 - directional containment in both directions;
 - Jaccard similarity;
 - shared-shingle counts;
-- ambiguous evolution relationships, including their change type.
+- whether a relationship is within one artifact group or across artifact groups;
+- selected evolution-edge scope; and
+- ambiguous relationships with their change type and scope.
 
 ### JSON Output
 
@@ -352,9 +426,9 @@ Use `--json` for a structured result suitable for notebooks, scripts, or saved a
 analyze_family busybox-on-windows --json
 ```
 
-The JSON representation includes family-level change counts and a `change_type` value on inferred evolution edges. Ambiguous relationships also include their change type.
+The JSON representation includes family-wide cluster results, artifact-group-to-cluster mappings, related-pair counts, within/across-group counts, change counts, selected evolution edges, ambiguous relationships, and their `change_type` and group-scope metadata.
 
-Combine it with `--verbose` for the expanded structured representation:
+Combine it with `--verbose` for the expanded structured representation, including artifacts, skill variants, bundle variants, and the full pairwise similarity results:
 
 ```bash
 analyze_family busybox-on-windows --json --verbose
@@ -396,7 +470,7 @@ analyze_family busybox-on-windows --direction-margin 0.20
 
 ### Change Types
 
-Each inferred evolution edge is classified by how its two bundle variants differ:
+Each selected evolution edge and each ambiguous related bundle pair is classified by how its variants differ:
 
 | Change type | Meaning |
 |---|---|
@@ -408,7 +482,7 @@ Each inferred evolution edge is classified by how its two bundle variants differ
 
 Two skill variants are considered **equivalent under the similarity representation** when they have the same `file_sha`, or when both directional containment values and Jaccard similarity are exactly `1.0`. This does not necessarily mean the raw `SKILL.md` files are byte-for-byte identical; differences removed by preprocessing or token/shingle representation may still exist.
 
-Change types describe structural differences between related variants only. `analyze_family` does not scan the skill or sibling contents for security-sensitive behavior.
+Change types describe structural differences between related variants only. `analyze_family` does not scan skill or sibling contents for security-sensitive behavior.
 
 ### Exit Status
 
@@ -423,8 +497,13 @@ Change types describe structural differences between related variants only. `ana
 - `NAME` is matched exactly against `artifact_groupings.name`.
 - The database is opened read-only.
 - Similarity is computed on the `SKILL.md` body rather than YAML front matter.
+- Whitespace differences are ignored by tokenization for similarity analysis.
 - Skill variants are compared once per distinct `file_sha` to avoid redundant work.
-- Bundle differences are retained even when the `SKILL.md` content is identical or equivalent under the similarity representation.
+- Similarity comparison is family-wide; artifact-group boundaries do not restrict which skill variants can be related.
+- Artifact groups are metadata mapped onto family-wide clusters; they do not have independent local clusters or local base candidates.
+- Bundle differences are retained even when `SKILL.md` content is identical or equivalent under the similarity representation.
+- Related-pair counts cover all qualifying skill-variant pairs, while evolution counts cover only selected directed edges.
+- Ambiguous relationships are preserved separately from directed evolution edges.
 - Change-type summaries are based on selected inferred evolution edges, not the full pairwise similarity matrix.
 - `repo.created_at` may be loaded as supporting metadata, but it is not used to infer evolution direction.
 - The current threshold defaults are exploratory and should not be treated as validated research thresholds.
