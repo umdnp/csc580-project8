@@ -35,3 +35,4 @@ dev = [
 
 [project.scripts]
 scan_diff = "gitskills.tools.scan_diff:main"
+analyze_family = "gitskills.tools.analyze_family:main"
