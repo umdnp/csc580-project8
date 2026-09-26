@@ -11,8 +11,10 @@ from typing import Sequence
 
 from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import (
+    ChangeType,
     ClusterAnalysis,
     FamilyAnalysis,
+    ScopeAnalysis,
     SimilarityPolicy,
 )
 from gitskills.data.families import DuckDBFamilyRepository
@@ -158,6 +160,9 @@ def _print_report(result: FamilyAnalysis, *, verbose: bool) -> None:
         print(f"Family base candidate: ambiguous [{candidates}]")
     print()
 
+    _print_change_summary(family)
+    print()
+
     print("Family clusters")
     for cluster in family.clusters:
         _print_cluster(cluster, verbose=verbose)
@@ -204,12 +209,11 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
     if cluster.evolution.edges:
         print("    Evolution:")
         for edge in cluster.evolution.edges:
-            sibling = _sibling_label(edge.sibling_changed)
             print(
                 f"      {edge.source_artifact_id} -> {edge.target_artifact_id} "
+                f"change={edge.change_type.value} "
                 f"containment={edge.containment:.3f} "
                 f"jaccard={edge.jaccard:.3f} "
-                f"siblings={sibling} "
                 f"basis={edge.basis}"
             )
 
@@ -222,7 +226,7 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                 f"containment={relationship.containment_left_to_right:.3f}/"
                 f"{relationship.containment_right_to_left:.3f} "
                 f"jaccard={relationship.jaccard:.3f} "
-                f"siblings={_sibling_label(relationship.sibling_changed)}"
+                f"change={relationship.change_type.value}"
             )
 
 
@@ -259,10 +263,16 @@ def _format_ids(values: tuple[int, ...]) -> str:
     return ", ".join(str(value) for value in values)
 
 
-def _sibling_label(changed: bool | None) -> str:
-    if changed is None:
-        return "unknown"
-    return "changed" if changed else "same"
+def _print_change_summary(family: ScopeAnalysis) -> None:
+    counts = family.change_counts
+    print(f"Evolution relationships: {family.evolution_relationship_count}")
+    print(f"  Skill only:         {counts[ChangeType.SKILL_ONLY]}")
+    print(f"  Siblings only:      {counts[ChangeType.SIBLINGS_ONLY]}")
+    print(f"  Skill + siblings:   {counts[ChangeType.SKILL_AND_SIBLINGS]}")
+    print(f"  Equivalent:         {counts[ChangeType.EQUIVALENT]}")
+    print(f"  Unknown:            {counts[ChangeType.UNKNOWN]}")
+    if family.ambiguous_relationship_count:
+        print(f"Ambiguous relationships: {family.ambiguous_relationship_count}")
 
 
 if __name__ == "__main__":

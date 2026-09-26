@@ -6,28 +6,25 @@ from pathlib import Path
 
 from gitskills.analysis.family_models import Artifact
 
-
 _FAMILY_SQL = """
-SELECT
-    g.id AS group_id,
-    g.artifact_id,
-    g.repo_id,
-    g.name,
-    g.normalized_description,
-    g.sibling_file_count,
-    g.sibling_content_sha,
-    a.file_sha,
-    a.content,
-    a.first_commit_at,
-    r.created_at AS repo_created_at
-FROM artifact_groupings AS g
-JOIN artifacts AS a ON a.id = g.artifact_id
-LEFT JOIN repos AS r ON r.id = g.repo_id
-WHERE g.name = ?
-ORDER BY
-    g.id,
-    g.artifact_id
-"""
+              SELECT g.id         AS group_id,
+                     g.artifact_id,
+                     g.repo_id,
+                     g.name,
+                     g.normalized_description,
+                     g.sibling_file_count,
+                     g.sibling_content_sha,
+                     a.file_sha,
+                     a.content,
+                     a.first_commit_at,
+                     r.created_at AS repo_created_at
+              FROM artifact_groupings AS g
+                       JOIN artifacts AS a ON a.id = g.artifact_id
+                       LEFT JOIN repos AS r ON r.id = g.repo_id
+              WHERE g.name = ?
+              ORDER BY g.id,
+                       g.artifact_id \
+              """
 
 
 class DuckDBFamilyRepository:
@@ -46,11 +43,18 @@ class DuckDBFamilyRepository:
         try:
             import duckdb
         except ImportError as exc:  # pragma: no cover - environment failure
+            raise RuntimeError(f"duckdb import failed: {exc}") from exc
+
+        if not self._database.exists():
+            raise RuntimeError(f"Database not found: {self._database}")
+
+        try:
+            connection = duckdb.connect(str(self._database), read_only=True)
+        except Exception as exc:
             raise RuntimeError(
-                "duckdb is required to load candidate families"
+                f"Failed to connect to database {self._database}: {exc}"
             ) from exc
 
-        connection = duckdb.connect(str(self._database), read_only=True)
         try:
             rows = connection.execute(_FAMILY_SQL, [name]).fetchall()
         finally:
