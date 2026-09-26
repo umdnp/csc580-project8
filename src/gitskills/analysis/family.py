@@ -24,6 +24,11 @@ from .family_models import (
     SimilarityResult,
     SkillVariant,
 )
+from .provenance import (
+    PROVENANCE_FIELDS,
+    normalize_repo_reference,
+    skill_path_matches,
+)
 from .similarity import compare_skill_variants
 
 
@@ -50,6 +55,10 @@ class FamilyAnalyzer:
 
         skill_variants = _build_skill_variants(artifact_tuple)
         bundle_variants = _build_bundle_variants(artifact_tuple)
+        declared_sources = _build_declared_source_index(
+            artifact_tuple,
+            bundle_variants,
+        )
         similarities = compare_skill_variants(
             skill_variants,
             shingle_size=self._policy.shingle_size,
@@ -61,6 +70,7 @@ class FamilyAnalyzer:
             similarity_index,
             skill_variants,
             bundle_variants,
+            declared_sources,
         )
         group_analyses = _build_group_analyses(
             artifact_tuple,
@@ -86,6 +96,7 @@ class FamilyAnalyzer:
         similarity_index: "_SimilarityIndex",
         skill_variants: tuple[SkillVariant, ...],
         bundle_variants: tuple[BundleVariant, ...],
+        declared_sources: "_DeclaredSourceIndex",
     ) -> ScopeAnalysis:
         """Build family-wide clusters and evolution graphs once."""
 
@@ -123,6 +134,7 @@ class FamilyAnalyzer:
                     cluster_bundles,
                     similarity_index,
                     self._policy,
+                    declared_sources,
                 ),
             )
             for index, (file_shas, cluster_artifacts, cluster_bundles) in enumerate(
@@ -149,6 +161,29 @@ class _DirectedCandidate:
     shared_shingles: int
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
+    evidence: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class _DeclaredSourceDecision:
+    source: BundleVariant | None
+    target: BundleVariant | None
+    evidence: tuple[str, ...]
+    conflict: bool = False
+
+
+class _DeclaredSourceIndex:
+    def __init__(
+        self,
+        links: dict[BundleKey, dict[BundleKey, tuple[str, ...]]],
+    ) -> None:
+        self._links = links
+
+    def sources_for(self, target: BundleKey) -> dict[BundleKey, tuple[str, ...]]:
+        return self._links.get(target, {})
+
+    def evidence(self, source: BundleKey, target: BundleKey) -> tuple[str, ...]:
+        return self._links.get(target, {}).get(source, ())
 
 
 class _SimilarityIndex:
@@ -212,6 +247,141 @@ def _build_group_analyses(
 
     return tuple(summaries)
 
+
+
+def _build_declared_source_index(
+    artifacts: tuple[Artifact, ...],
+    bundles: tuple[BundleVariant, ...],
+) -> _DeclaredSourceIndex:
+    """Resolve conservative frontmatter source declarations within the family."""
+
+    artifact_to_bundle = {
+        artifact_id: bundle.key
+        for bundle in bundles
+        for artifact_id in bundle.artifact_ids
+    }
+    links: dict[BundleKey, dict[BundleKey, set[str]]] = defaultdict(
+        lambda: defaultdict(set)
+    )
+
+    for target in artifacts:
+        target_bundle = artifact_to_bundle[target.artifact_id]
+        resolutions = _resolve_artifact_declared_sources(target, artifacts)
+        for source_artifact_id, evidence in resolutions.items():
+            source_bundle = artifact_to_bundle[source_artifact_id]
+            if source_bundle == target_bundle:
+                continue
+            links[target_bundle][source_bundle].update(evidence)
+
+    normalized = {
+        target: {
+            source: _ordered_evidence(evidence)
+            for source, evidence in sources.items()
+        }
+        for target, sources in links.items()
+    }
+    return _DeclaredSourceIndex(normalized)
+
+
+def _resolve_artifact_declared_sources(
+    target: Artifact,
+    artifacts: tuple[Artifact, ...],
+) -> dict[int, set[str]]:
+    provenance = target.provenance
+    candidates = tuple(
+        artifact
+        for artifact in artifacts
+        if artifact.artifact_id != target.artifact_id
+    )
+    resolved: dict[int, set[str]] = defaultdict(set)
+
+    repo_fields = {
+        "source_repo": normalize_repo_reference(provenance.source_repo),
+        "upstream_source": normalize_repo_reference(provenance.upstream_source),
+    }
+    repo_hints = {value for value in repo_fields.values() if value is not None}
+
+    for field_name in ("derived_from", "upstream_skill"):
+        value = getattr(provenance, field_name)
+        if not value:
+            continue
+
+        source = _resolve_declared_skill_path(
+            target,
+            value,
+            candidates,
+            repo_hints,
+        )
+        if source is None:
+            continue
+
+        resolved[source.artifact_id].add(field_name)
+        for repo_field, repo_name in repo_fields.items():
+            if (
+                repo_name is not None
+                and repo_name == normalize_repo_reference(source.repo_full_name)
+            ):
+                resolved[source.artifact_id].add(repo_field)
+
+    for field_name, repo_name in repo_fields.items():
+        if (
+            repo_name is None
+            or repo_name == normalize_repo_reference(target.repo_full_name)
+        ):
+            continue
+
+        repo_candidates = tuple(
+            artifact
+            for artifact in candidates
+            if normalize_repo_reference(artifact.repo_full_name) == repo_name
+        )
+        if len(repo_candidates) == 1:
+            resolved[repo_candidates[0].artifact_id].add(field_name)
+
+    return dict(resolved)
+
+
+def _resolve_declared_skill_path(
+    target: Artifact,
+    declared_path: str,
+    candidates: tuple[Artifact, ...],
+    repo_hints: set[str],
+) -> Artifact | None:
+    matches = tuple(
+        artifact
+        for artifact in candidates
+        if skill_path_matches(declared_path, artifact.path)
+    )
+    if not matches:
+        return None
+
+    hinted = tuple(
+        artifact
+        for artifact in matches
+        if normalize_repo_reference(artifact.repo_full_name) in repo_hints
+    )
+    if len(hinted) == 1:
+        return hinted[0]
+
+    same_repo = tuple(
+        artifact
+        for artifact in matches
+        if target.repo_full_name is not None
+        and normalize_repo_reference(artifact.repo_full_name)
+        == normalize_repo_reference(target.repo_full_name)
+    )
+    if len(same_repo) == 1:
+        return same_repo[0]
+
+    if len(matches) == 1:
+        return matches[0]
+
+    return None
+
+
+def _ordered_evidence(values: Iterable[str]) -> tuple[str, ...]:
+    present = set(values)
+    return tuple(field for field in PROVENANCE_FIELDS if field in present)
 
 def _build_skill_variants(artifacts: tuple[Artifact, ...]) -> tuple[SkillVariant, ...]:
     by_sha: dict[str, list[Artifact]] = defaultdict(list)
@@ -356,6 +526,7 @@ def _build_evolution_graph(
     bundles: tuple[BundleVariant, ...],
     similarity_index: _SimilarityIndex,
     policy: SimilarityPolicy,
+    declared_sources: _DeclaredSourceIndex,
 ) -> EvolutionGraph:
     if not bundles:
         return EvolutionGraph(
@@ -367,6 +538,7 @@ def _build_evolution_graph(
 
     directed_candidates: list[_DirectedCandidate] = []
     ambiguous: list[AmbiguousRelationship] = []
+    cluster_bundle_keys = frozenset(bundle.key for bundle in bundles)
 
     for left, right in combinations(bundles, 2):
         relation = _bundle_relationship(
@@ -374,6 +546,8 @@ def _build_evolution_graph(
             right,
             similarity_index,
             policy,
+            declared_sources,
+            cluster_bundle_keys,
         )
         if relation is None:
             continue
@@ -410,6 +584,7 @@ def _build_evolution_graph(
                 shared_shingles=edge.shared_shingles,
                 change_type=edge.change_type,
                 shared_group_ids=edge.shared_group_ids,
+                evidence=edge.evidence,
             )
             for edge in sorted(
                 selected,
@@ -439,17 +614,48 @@ def _bundle_relationship(
     right: BundleVariant,
     similarity_index: _SimilarityIndex,
     policy: SimilarityPolicy,
+    declared_sources: _DeclaredSourceIndex,
+    cluster_bundle_keys: frozenset[BundleKey],
 ) -> _DirectedCandidate | AmbiguousRelationship | None:
     sibling_changed = _sibling_changed(left, right)
     shared_group_ids = tuple(sorted(set(left.group_ids) & set(right.group_ids)))
 
     if left.file_sha == right.file_sha:
+        provenance = _infer_declared_source_direction(
+            left,
+            right,
+            declared_sources,
+            cluster_bundle_keys,
+        )
+        if provenance is not None and not provenance.conflict:
+            assert provenance.source is not None and provenance.target is not None
+            return _DirectedCandidate(
+                source=provenance.source,
+                target=provenance.target,
+                basis="declared-source",
+                containment=1.0,
+                jaccard=1.0,
+                shared_shingles=0,
+                change_type=_classify_change(
+                    provenance.source,
+                    provenance.target,
+                    result=None,
+                    sibling_changed=sibling_changed,
+                ),
+                shared_group_ids=shared_group_ids,
+                evidence=provenance.evidence,
+            )
+
         return AmbiguousRelationship(
             left=left.key,
             right=right.key,
             left_artifact_id=left.representative_artifact_id,
             right_artifact_id=right.representative_artifact_id,
-            basis="similarity-only",
+            basis=(
+                "provenance-conflict"
+                if provenance is not None and provenance.conflict
+                else "similarity-only"
+            ),
             containment_left_to_right=1.0,
             containment_right_to_left=1.0,
             jaccard=1.0,
@@ -461,13 +667,54 @@ def _bundle_relationship(
                 sibling_changed=sibling_changed,
             ),
             shared_group_ids=shared_group_ids,
+            evidence=provenance.evidence if provenance is not None else (),
         )
 
     result = similarity_index.get(left.file_sha, right.file_sha)
     if result is None or not policy.relates(result):
         return None
 
-    direction = _infer_direction(left, right, result, policy)
+    provenance = _infer_declared_source_direction(
+        left,
+        right,
+        declared_sources,
+        cluster_bundle_keys,
+    )
+    if provenance is not None and provenance.conflict:
+        return AmbiguousRelationship(
+            left=left.key,
+            right=right.key,
+            left_artifact_id=left.representative_artifact_id,
+            right_artifact_id=right.representative_artifact_id,
+            basis="provenance-conflict",
+            containment_left_to_right=result.containment(
+                left.file_sha,
+                right.file_sha,
+            ),
+            containment_right_to_left=result.containment(
+                right.file_sha,
+                left.file_sha,
+            ),
+            jaccard=result.jaccard,
+            shared_shingles=result.shared_shingles,
+            change_type=_classify_change(
+                left,
+                right,
+                result=result,
+                sibling_changed=sibling_changed,
+            ),
+            shared_group_ids=shared_group_ids,
+            evidence=provenance.evidence,
+        )
+
+    if provenance is not None:
+        assert provenance.source is not None and provenance.target is not None
+        direction = (provenance.source, provenance.target, "declared-source")
+        evidence = provenance.evidence
+    else:
+        direction = _infer_direction(left, right, result, policy)
+        evidence = ()
+
     if direction is None:
         return AmbiguousRelationship(
             left=left.key,
@@ -509,8 +756,59 @@ def _bundle_relationship(
             sibling_changed=sibling_changed,
         ),
         shared_group_ids=shared_group_ids,
+        evidence=evidence,
     )
 
+
+def _infer_declared_source_direction(
+    left: BundleVariant,
+    right: BundleVariant,
+    declared_sources: _DeclaredSourceIndex,
+    cluster_bundle_keys: frozenset[BundleKey],
+) -> _DeclaredSourceDecision | None:
+    left_sources = {
+        key: evidence
+        for key, evidence in declared_sources.sources_for(left.key).items()
+        if key in cluster_bundle_keys
+    }
+    right_sources = {
+        key: evidence
+        for key, evidence in declared_sources.sources_for(right.key).items()
+        if key in cluster_bundle_keys
+    }
+
+    left_declares_right = right.key in left_sources
+    right_declares_left = left.key in right_sources
+
+    left_conflict = left_declares_right and len(left_sources) > 1
+    right_conflict = right_declares_left and len(right_sources) > 1
+
+    if (left_declares_right and right_declares_left) or left_conflict or right_conflict:
+        evidence = _ordered_evidence(
+            (*left_sources.get(right.key, ()), *right_sources.get(left.key, ()))
+        )
+        return _DeclaredSourceDecision(
+            source=None,
+            target=None,
+            evidence=evidence,
+            conflict=True,
+        )
+
+    if right_declares_left:
+        return _DeclaredSourceDecision(
+            source=left,
+            target=right,
+            evidence=right_sources[left.key],
+        )
+
+    if left_declares_right:
+        return _DeclaredSourceDecision(
+            source=right,
+            target=left,
+            evidence=left_sources[right.key],
+        )
+
+    return None
 
 def _classify_change(
     left: BundleVariant,
@@ -614,7 +912,11 @@ def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
     source_date = _parse_timestamp(candidate.source.earliest_observed_at)
     target_date = _parse_timestamp(candidate.target.earliest_observed_at)
 
-    chronology_rank = 0 if candidate.basis == "chronology" else 1
+    basis_rank = {
+        "declared-source": 0,
+        "chronology": 1,
+        "containment": 2,
+    }.get(candidate.basis, 3)
     if (
         candidate.basis == "chronology"
         and source_date is not None
@@ -625,7 +927,8 @@ def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
         time_gap = float("inf")
 
     return (
-        chronology_rank,
+        basis_rank,
+        -len(candidate.evidence),
         time_gap,
         -candidate.containment,
         -candidate.jaccard,

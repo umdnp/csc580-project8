@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+
+from .provenance import DeclaredProvenance
 
 
 class ChangeType(str, Enum):
@@ -31,6 +33,9 @@ class Artifact:
     repo_created_at: str | None
     sibling_file_count: int | None
     sibling_content_sha: str | None
+    repo_full_name: str | None = None
+    path: str | None = None
+    provenance: DeclaredProvenance = field(default_factory=DeclaredProvenance)
 
 
 @dataclass(frozen=True, slots=True)
@@ -204,6 +209,7 @@ class EvolutionEdge:
     shared_shingles: int
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
+    evidence: tuple[str, ...] = ()
 
     @property
     def same_artifact_group(self) -> bool:
@@ -218,6 +224,7 @@ class EvolutionEdge:
             "jaccard": self.jaccard,
             "shared_shingles": self.shared_shingles,
             "change_type": self.change_type.value,
+            "evidence": list(self.evidence),
             "shared_group_ids": list(self.shared_group_ids),
             "same_artifact_group": self.same_artifact_group,
         }
@@ -238,6 +245,7 @@ class AmbiguousRelationship:
     shared_shingles: int | None
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
+    evidence: tuple[str, ...] = ()
 
     @property
     def same_artifact_group(self) -> bool:
@@ -253,6 +261,7 @@ class AmbiguousRelationship:
             "jaccard": self.jaccard,
             "shared_shingles": self.shared_shingles,
             "change_type": self.change_type.value,
+            "evidence": list(self.evidence),
             "shared_group_ids": list(self.shared_group_ids),
             "same_artifact_group": self.same_artifact_group,
         }
@@ -611,6 +620,14 @@ class FamilyAnalysis:
                 }
                 for variant in self.bundle_variants
             ],
+            "provenance": [
+                {
+                    "artifact_id": artifact.artifact_id,
+                    **artifact.provenance.to_dict(),
+                }
+                for artifact in self.artifacts
+                if artifact.provenance.has_values()
+            ],
             "similarities": self._similarities_to_dict(),
         }
 
@@ -620,7 +637,10 @@ class FamilyAnalysis:
                     "artifact_id": artifact.artifact_id,
                     "group_id": artifact.group_id,
                     "repo_id": artifact.repo_id,
+                    "repo_full_name": artifact.repo_full_name,
+                    "path": artifact.path,
                     "file_sha": artifact.file_sha,
+                    "provenance": artifact.provenance.to_dict(),
                     "first_commit_at": artifact.first_commit_at,
                     "repo_created_at": artifact.repo_created_at,
                     "sibling_file_count": artifact.sibling_file_count,

@@ -204,12 +204,18 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
         for edge in cluster.evolution.directed_edges:
             scope = "within-group" if edge.same_artifact_group else "across-groups"
             scope_text = f" scope={scope}" if verbose else ""
+            evidence_text = (
+                f" evidence={','.join(edge.evidence)}"
+                if verbose and edge.evidence
+                else ""
+            )
             print(
                 f"      {edge.source_artifact_id} -> {edge.target_artifact_id} "
                 f"change={edge.change_type.value} "
                 f"containment={edge.containment:.3f} "
                 f"jaccard={edge.jaccard:.3f} "
                 f"basis={edge.basis}"
+                f"{evidence_text}"
                 f"{scope_text}"
             )
     else:
@@ -225,6 +231,11 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
         if verbose:
             for edge in cluster.evolution.ambiguous_edges:
                 scope = "within-group" if edge.same_artifact_group else "across-groups"
+                evidence_text = (
+                    f" evidence={','.join(edge.evidence)}"
+                    if edge.evidence
+                    else ""
+                )
                 print(
                     f"      {edge.left_artifact_id} <-> "
                     f"{edge.right_artifact_id} "
@@ -232,7 +243,8 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                     f"containment={edge.containment_left_to_right:.3f}/"
                     f"{edge.containment_right_to_left:.3f} "
                     f"jaccard={edge.jaccard:.3f} "
-                    f"basis={edge.basis} "
+                    f"basis={edge.basis}"
+                    f"{evidence_text} "
                     f"scope={scope}"
                 )
     else:
