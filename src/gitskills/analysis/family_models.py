@@ -3,6 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
+
+
+class ChangeType(str, Enum):
+    """How the endpoints of an inferred relationship differ."""
+
+    SKILL_ONLY = "skill-only"
+    SIBLINGS_ONLY = "siblings-only"
+    SKILL_AND_SIBLINGS = "skill+siblings"
+    EQUIVALENT = "equivalent"
+    UNKNOWN = "unknown"
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +99,16 @@ class SimilarityResult:
         return max(
             self.left_to_right_containment,
             self.right_to_left_containment,
+        )
+
+    @property
+    def equivalent(self) -> bool:
+        """Return whether both variants have the same shingle-set representation."""
+
+        return (
+            self.left_to_right_containment == 1.0
+            and self.right_to_left_containment == 1.0
+            and self.jaccard == 1.0
         )
 
     def containment(self, source_file_sha: str, target_file_sha: str) -> float:
@@ -181,7 +202,7 @@ class EvolutionEdge:
     containment: float
     jaccard: float
     shared_shingles: int
-    sibling_changed: bool | None
+    change_type: ChangeType
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -191,7 +212,7 @@ class EvolutionEdge:
             "containment": self.containment,
             "jaccard": self.jaccard,
             "shared_shingles": self.shared_shingles,
-            "sibling_changed": self.sibling_changed,
+            "change_type": self.change_type.value,
         }
 
 
@@ -207,7 +228,7 @@ class AmbiguousRelationship:
     containment_right_to_left: float
     jaccard: float
     shared_shingles: int | None
-    sibling_changed: bool | None
+    change_type: ChangeType
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -217,7 +238,7 @@ class AmbiguousRelationship:
             "containment_right_to_left": self.containment_right_to_left,
             "jaccard": self.jaccard,
             "shared_shingles": self.shared_shingles,
-            "sibling_changed": self.sibling_changed,
+            "change_type": self.change_type.value,
         }
 
 
@@ -234,9 +255,23 @@ class EvolutionGraph:
     def has_single_base(self) -> bool:
         return len(self.base_candidate_artifact_ids) == 1
 
+    @property
+    def change_counts(self) -> dict[ChangeType, int]:
+        """Count inferred evolution edges by change type."""
+
+        counts = {change_type: 0 for change_type in ChangeType}
+        for edge in self.edges:
+            counts[edge.change_type] += 1
+        return counts
+
     def to_dict(self) -> dict[str, object]:
         return {
             "base_candidate_artifact_ids": list(self.base_candidate_artifact_ids),
+            "evolution_relationship_count": len(self.edges),
+            "change_counts": {
+                change_type.value: count
+                for change_type, count in self.change_counts.items()
+            },
             "edges": [edge.to_dict() for edge in self.edges],
             "ambiguous_relationships": [
                 relationship.to_dict()
@@ -298,6 +333,25 @@ class ScopeAnalysis:
             and len(self.base_candidate_artifact_ids) == 1
         )
 
+    @property
+    def evolution_relationship_count(self) -> int:
+        return sum(len(cluster.evolution.edges) for cluster in self.clusters)
+
+    @property
+    def ambiguous_relationship_count(self) -> int:
+        return sum(
+            len(cluster.evolution.ambiguous_relationships)
+            for cluster in self.clusters
+        )
+
+    @property
+    def change_counts(self) -> dict[ChangeType, int]:
+        counts = {change_type: 0 for change_type in ChangeType}
+        for cluster in self.clusters:
+            for change_type, count in cluster.evolution.change_counts.items():
+                counts[change_type] += count
+        return counts
+
     def to_dict(self) -> dict[str, object]:
         return {
             "artifact_ids": list(self.artifact_ids),
@@ -306,6 +360,12 @@ class ScopeAnalysis:
             "base_candidate_artifact_ids": list(
                 self.base_candidate_artifact_ids
             ),
+            "evolution_relationship_count": self.evolution_relationship_count,
+            "ambiguous_relationship_count": self.ambiguous_relationship_count,
+            "change_counts": {
+                change_type.value: count
+                for change_type, count in self.change_counts.items()
+            },
             "clusters": [cluster.to_dict() for cluster in self.clusters],
         }
 
@@ -356,6 +416,16 @@ class FamilyAnalysis:
                 "base_candidate_artifact_ids": list(
                     self.family.base_candidate_artifact_ids
                 ),
+                "evolution_relationship_count": (
+                    self.family.evolution_relationship_count
+                ),
+                "ambiguous_relationship_count": (
+                    self.family.ambiguous_relationship_count
+                ),
+                "change_counts": {
+                    change_type.value: count
+                    for change_type, count in self.family.change_counts.items()
+                },
             },
             "family": self.family.to_dict(),
             "groups": [group.to_dict() for group in self.groups],

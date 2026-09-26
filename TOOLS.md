@@ -206,7 +206,8 @@ For the requested candidate family, `analyze_family`:
 9. Applies the configured similarity policy to identify related skill variants.
 10. Forms similarity **clusters** from related skill variants.
 11. Infers plausible evolution direction where the available evidence supports it.
-12. Reports cluster roots as base candidates and summarizes the inferred evolution graph.
+12. Classifies each inferred evolution relationship by whether the skill, sibling resources, or both differ.
+13. Reports cluster roots as base candidates and summarizes the inferred evolution graph.
 
 ### Artifacts, Skill Variants, and Bundle Variants
 
@@ -291,8 +292,11 @@ The default report is intentionally compact. It includes:
 - cluster count;
 - active similarity policy;
 - family base candidate or candidates;
+- evolution-relationship counts by change type;
 - cluster summaries and inferred evolution edges;
 - artifact-group summaries.
+
+The evolution-relationship counts summarize only the **selected inferred evolution edges**, not every possible pairwise similarity comparison.
 
 Example structure:
 
@@ -306,11 +310,18 @@ Clusters:         3
 
 Family base candidate: 48192
 
+Evolution relationships: 17
+  Skill only:         4
+  Siblings only:      3
+  Skill + siblings:   7
+  Equivalent:         2
+  Unknown:            1
+
 Family clusters
   Cluster 1: artifacts=72, skills=14, bundles=18, base=48192
     Evolution:
-      48192 -> 51201 containment=0.942 jaccard=0.811 siblings=changed basis=chronology
-      51201 -> 61344 containment=0.915 jaccard=0.873 siblings=same basis=chronology
+      48192 -> 51201 change=skill+siblings containment=0.942 jaccard=0.811 basis=chronology
+      51201 -> 61344 change=skill-only containment=0.915 jaccard=0.873 basis=chronology
 ```
 
 Artifact IDs are used as the primary human-readable identifiers so specific records can be retrieved easily from DuckDB for manual validation.
@@ -331,7 +342,7 @@ In addition to the normal report, verbose output includes:
 - directional containment in both directions;
 - Jaccard similarity;
 - shared-shingle counts;
-- ambiguous evolution relationships.
+- ambiguous evolution relationships, including their change type.
 
 ### JSON Output
 
@@ -340,6 +351,8 @@ Use `--json` for a structured result suitable for notebooks, scripts, or saved a
 ```bash
 analyze_family busybox-on-windows --json
 ```
+
+The JSON representation includes family-level change counts and a `change_type` value on inferred evolution edges. Ambiguous relationships also include their change type.
 
 Combine it with `--verbose` for the expanded structured representation:
 
@@ -381,17 +394,21 @@ Require a larger containment difference before using containment to infer direct
 analyze_family busybox-on-windows --direction-margin 0.20
 ```
 
-### Sibling-State Labels
+### Change Types
 
-Evolution edges and ambiguous relationships can report sibling state as:
+Each inferred evolution edge is classified by how its two bundle variants differ:
 
-| Label | Meaning |
+| Change type | Meaning |
 |---|---|
-| `same` | Both bundle variants have known sibling fingerprints and the fingerprints match. |
-| `changed` | Both bundle variants have known sibling fingerprints and the fingerprints differ. |
-| `unknown` | At least one bundle variant does not have a known sibling fingerprint. |
+| `skill-only` | The skill variants differ, but both bundle variants have known matching sibling-content fingerprints. |
+| `siblings-only` | The skill variants are equivalent under the analyzer's similarity representation, but both bundle variants have known different sibling-content fingerprints. |
+| `skill+siblings` | The skill variants differ and both bundle variants have known different sibling-content fingerprints. |
+| `equivalent` | The skill variants are equivalent under the analyzer's similarity representation and both bundle variants have known matching sibling-content fingerprints. |
+| `unknown` | At least one bundle variant does not have a known sibling-content fingerprint, so the sibling change state cannot be determined. |
 
-These labels describe bundled-resource content state only. `analyze_family` does not scan sibling files for security-sensitive behavior.
+Two skill variants are considered **equivalent under the similarity representation** when they have the same `file_sha`, or when both directional containment values and Jaccard similarity are exactly `1.0`. This does not necessarily mean the raw `SKILL.md` files are byte-for-byte identical; differences removed by preprocessing or token/shingle representation may still exist.
+
+Change types describe structural differences between related variants only. `analyze_family` does not scan the skill or sibling contents for security-sensitive behavior.
 
 ### Exit Status
 
@@ -407,7 +424,8 @@ These labels describe bundled-resource content state only. `analyze_family` does
 - The database is opened read-only.
 - Similarity is computed on the `SKILL.md` body rather than YAML front matter.
 - Skill variants are compared once per distinct `file_sha` to avoid redundant work.
-- Bundle differences are retained even when the `SKILL.md` content is identical.
+- Bundle differences are retained even when the `SKILL.md` content is identical or equivalent under the similarity representation.
+- Change-type summaries are based on selected inferred evolution edges, not the full pairwise similarity matrix.
 - `repo.created_at` may be loaded as supporting metadata, but it is not used to infer evolution direction.
 - The current threshold defaults are exploratory and should not be treated as validated research thresholds.
 - The inferred evolution graph identifies plausible comparison paths for later analysis; it does not run the project's security scanner.

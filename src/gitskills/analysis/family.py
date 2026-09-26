@@ -14,6 +14,7 @@ from .family_models import (
     ArtifactGroupAnalysis,
     BundleKey,
     BundleVariant,
+    ChangeType,
     ClusterAnalysis,
     EvolutionEdge,
     EvolutionGraph,
@@ -166,7 +167,7 @@ class _DirectedCandidate:
     containment: float
     jaccard: float
     shared_shingles: int
-    sibling_changed: bool | None
+    change_type: ChangeType
 
 
 class _SimilarityIndex:
@@ -370,7 +371,7 @@ def _build_evolution_graph(
                 containment=edge.containment,
                 jaccard=edge.jaccard,
                 shared_shingles=edge.shared_shingles,
-                sibling_changed=edge.sibling_changed,
+                change_type=edge.change_type,
             )
             for edge in sorted(
                 selected,
@@ -413,7 +414,12 @@ def _bundle_relationship(
             containment_right_to_left=1.0,
             jaccard=1.0,
             shared_shingles=None,
-            sibling_changed=sibling_changed,
+            change_type=_classify_change(
+                left,
+                right,
+                result=None,
+                sibling_changed=sibling_changed,
+            ),
         )
 
     result = similarity_index.get(left.file_sha, right.file_sha)
@@ -437,7 +443,12 @@ def _bundle_relationship(
             ),
             jaccard=result.jaccard,
             shared_shingles=result.shared_shingles,
-            sibling_changed=sibling_changed,
+            change_type=_classify_change(
+                left,
+                right,
+                result=result,
+                sibling_changed=sibling_changed,
+            ),
         )
 
     source, target, basis = direction
@@ -448,7 +459,43 @@ def _bundle_relationship(
         containment=result.containment(source.file_sha, target.file_sha),
         jaccard=result.jaccard,
         shared_shingles=result.shared_shingles,
-        sibling_changed=sibling_changed,
+        change_type=_classify_change(
+            source,
+            target,
+            result=result,
+            sibling_changed=sibling_changed,
+        ),
+    )
+
+
+def _classify_change(
+    left: BundleVariant,
+    right: BundleVariant,
+    *,
+    result: SimilarityResult | None,
+    sibling_changed: bool | None,
+) -> ChangeType:
+    """Classify how two related bundle variants differ."""
+
+    if sibling_changed is None:
+        return ChangeType.UNKNOWN
+
+    skill_equivalent = (
+        left.file_sha == right.file_sha
+        or (result is not None and result.equivalent)
+    )
+
+    if skill_equivalent:
+        return (
+            ChangeType.SIBLINGS_ONLY
+            if sibling_changed
+            else ChangeType.EQUIVALENT
+        )
+
+    return (
+        ChangeType.SKILL_AND_SIBLINGS
+        if sibling_changed
+        else ChangeType.SKILL_ONLY
     )
 
 
