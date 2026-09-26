@@ -112,6 +112,16 @@ The script will stop if the DuckDB database already exists. Remove the existing 
 
 ### 3. Build the Analysis Tables
 
+After the DuckDB database import completes, rebuild the project-derived analysis
+and sample tables by running:
+
+```bash
+duckdb -bail /c/data/duckdb/agent_skills_release.db    < sql/rebuild_project_tables.sql
+
+#### 3.1 Manually Build the Analysis Tables
+
+The analysis tables can be built manually, but require sequential ordering. Follow the below steps in order to build each table manually.
+
 After the database import completes, create the project analysis tables:
 
 ```bash
@@ -122,6 +132,11 @@ Then populate the derived artifact-grouping fields:
 
 ```bash
 duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/update_artifact_groupings.sql
+```
+Then populate the sprint1 sample for analyzer testing:
+
+```bash
+duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/create_sprint1_sample.sql
 ```
 
 Run these scripts in this order. The update script prints a validation summary when it completes.
