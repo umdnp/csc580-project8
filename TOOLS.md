@@ -207,17 +207,18 @@ For the requested candidate family, `analyze_family`:
 2. Identifies **artifact groups**, where each group represents one exact `name + normalized_description` combination.
 3. Identifies **skill variants**, where each distinct `file_sha` represents distinct raw `SKILL.md` content.
 4. Identifies **bundle variants**, using the skill variant together with its sibling-content state.
-5. Masks top-of-file YAML front matter before similarity analysis.
-6. Tokenizes the remaining `SKILL.md` body in a way that ignores whitespace differences and normalizes token case.
-7. Builds contiguous token shingles, using 5-token shingles by default.
-8. Compares every distinct pair of skill variants across the **entire candidate family** once, regardless of artifact-group membership.
-9. Calculates directional containment, Jaccard similarity, and shared-shingle counts.
-10. Applies the configured similarity policy to identify related skill variants.
-11. Forms family-wide similarity **clusters** from those relationships.
-12. Infers direction between related bundle variants when chronology or directional containment provides enough evidence.
-13. Reduces directed candidates so each target receives at most one selected predecessor and cycles are avoided.
-14. Classifies selected directed and ambiguous edges by whether the skill, sibling resources, or both differ.
-15. Reports bundle variants with no selected incoming edge as root candidates and preserves related pairs whose direction remains ambiguous.
+5. Extracts the top-level frontmatter fields `derived_from`, `upstream_skill`, `source_repo`, and `upstream_source` as optional provenance evidence. These fields do not participate in similarity scoring.
+6. Masks top-of-file YAML front matter before similarity analysis.
+7. Tokenizes the remaining `SKILL.md` body in a way that ignores whitespace differences and normalizes token case.
+8. Builds contiguous token shingles, using 5-token shingles by default.
+9. Compares every distinct pair of skill variants across the **entire candidate family** once, regardless of artifact-group membership.
+10. Calculates directional containment, Jaccard similarity, and shared-shingle counts.
+11. Applies the configured similarity policy to identify related skill variants.
+12. Forms family-wide similarity **clusters** from those relationships.
+13. Infers direction between already-related bundle variants using explicit declared provenance first, then chronology, then directional containment.
+14. Reduces directed candidates so each target receives at most one selected predecessor and cycles are avoided.
+15. Classifies selected directed and ambiguous edges by whether the skill, sibling resources, or both differ.
+16. Reports bundle variants with no selected incoming edge as root candidates and preserves related pairs whose direction remains ambiguous.
 
 ### Artifacts, Skill Variants, and Bundle Variants
 
@@ -285,6 +286,8 @@ The raw measures are retained independently of the threshold policy so the polic
 
 Similarity is computed on the `SKILL.md` **body**, not YAML front matter. Top-of-file front matter is masked before tokenization so metadata differences do not influence body similarity.
 
+The analyzer may separately inspect the selected provenance fields `derived_from`, `upstream_skill`, `source_repo`, and `upstream_source` to help infer direction between variants that are already related. Those values never contribute tokens, shingles, containment, Jaccard similarity, or cluster membership.
+
 Whitespace differences do not affect the token sequence used for shingling. Token matching is also case-insensitive.
 
 A similarity score of `1.0` therefore means equivalent under the analyzer's body-token/shingle representation; it does not necessarily mean the raw files are byte-for-byte identical.
@@ -298,6 +301,35 @@ Two skill variants are connected when they satisfy the configured similarity pol
 Clusters are numbered deterministically. Larger clusters sort first; observed chronology and artifact ID provide stable tie breakers.
 
 Cluster membership establishes relatedness through the similarity graph. It does not mean every pair of members is directly related.
+
+### Declared Provenance
+
+`analyze_family` inspects four top-level YAML frontmatter fields as optional provenance evidence:
+
+- `derived_from`
+- `upstream_skill`
+- `source_repo`
+- `upstream_source`
+
+This is separate from similarity analysis. Frontmatter remains excluded from body similarity and cannot by itself cause two skill variants to enter the same cluster. Provenance is considered only after body similarity has already established a related pair.
+
+`derived_from` and `upstream_skill` are treated as the strongest declarations when their values can be matched conservatively to another artifact path in the candidate family. `source_repo` and `upstream_source` can corroborate that match when they identify the same repository. A repository field can establish a source on its own only when it clearly identifies a unique source artifact in a different repository; generic values such as `community` are not treated as artifact references.
+
+Path matching is exact after simple normalization, such as treating `skills/foo` and `skills/foo/SKILL.md` as the same skill path. The analyzer does not perform fuzzy provenance matching or parse arbitrary prose for ancestry.
+
+If explicit provenance declarations conflict, the analyzer does not guess. The affected relationship remains ambiguous and can be reported with `basis=provenance-conflict`.
+
+A successfully resolved relationship is reported compactly by default:
+
+```text
+2733595 -> 2811614 change=skill+siblings containment=... jaccard=... basis=declared-source
+```
+
+With `--verbose`, the edge also identifies which fields supported that direction:
+
+```text
+evidence=derived_from,upstream_skill,source_repo
+```
 
 ### Evolution Graph and Root Candidates
 
@@ -321,18 +353,20 @@ The variants are related, but the available evidence does not establish which di
 
 Direction is inferred in the following order:
 
-1. If both variants have usable and different earliest observed `first_commit_at` values, the earlier observed variant is treated as the source for that relationship.
-2. If chronology does not distinguish them, directional containment can be used when the difference between the two containment values is at least `--direction-margin`.
-3. If neither method establishes direction, the relationship remains an ambiguous edge with `basis=similarity-only`.
+1. If an already-related variant explicitly and unambiguously declares another family artifact as its source through the supported provenance fields, the relationship is directed with `basis=declared-source`.
+2. Otherwise, if both variants have usable and different earliest observed `first_commit_at` values, the earlier observed variant is treated as the source with `basis=chronology`.
+3. If chronology does not distinguish them, directional containment can be used when the difference between the two containment values is at least `--direction-margin`, producing `basis=containment`.
+4. If none of those methods establishes direction, the relationship remains an ambiguous edge with `basis=similarity-only`. Conflicting explicit provenance remains ambiguous with `basis=provenance-conflict`.
 
 When multiple directed candidates can precede the same target, predecessor selection prefers:
 
-1. chronology-supported candidates;
-2. the temporally closest earlier candidate when chronology is available;
-3. stronger directional containment;
-4. stronger Jaccard similarity;
-5. more shared shingles; and
-6. a stable artifact-ID tie breaker.
+1. declared-source candidates;
+2. chronology-supported candidates;
+3. the temporally closest earlier candidate when chronology is available;
+4. stronger directional containment;
+5. stronger Jaccard similarity;
+6. more shared shingles; and
+7. a stable artifact-ID tie breaker.
 
 The selected directed graph allows at most one predecessor per target and avoids cycles. Bundle variants with no selected incoming directed edge are reported as **root candidates**. A root candidate is not a verified source or original artifact; it only means that the analyzer cannot establish a defensible incoming directed edge for that variant.
 
@@ -351,11 +385,11 @@ All skill-variant pairs that satisfy the similarity policy.
 The reduced set of selected predecessor relationships for which direction can be inferred. These are shown as `A -> B`.
 
 **Ambiguous edges**  
-Qualifying related bundle-variant pairs for which chronology and containment do not provide enough evidence to infer direction. These are shown as `A <-> B`.
+Qualifying related bundle-variant pairs for which declared provenance, chronology, and containment do not provide enough evidence to infer direction. These are shown as `A <-> B`.
 
 Ambiguous edges are intentionally preserved rather than forced into a direction. They can establish that related variants differ, but they should not be interpreted as evidence that one variant introduced a change into the other.
 
-For directed edges, `basis` records why direction was selected, currently `chronology` or `containment`. Ambiguous edges use `basis=similarity-only`.
+For directed edges, `basis` records why direction was selected: `declared-source`, `chronology`, or `containment`. Normal ambiguous edges use `basis=similarity-only`; conflicting explicit provenance uses `basis=provenance-conflict`.
 
 ### Default Output
 
@@ -437,8 +471,9 @@ In addition to the normal report, verbose output includes:
 - Jaccard similarity;
 - shared-shingle counts;
 - whether a relationship is within one artifact group or across artifact groups;
-- selected directed-edge scope and inference basis; and
-- ambiguous edges shown as `A <-> B`, including both containment directions, change type, `basis=similarity-only`, and scope.
+- selected directed-edge scope and inference basis;
+- `evidence=` for declared-source edges, listing the provenance fields that actually supported the direction, for example `evidence=derived_from,upstream_skill`; and
+- ambiguous edges shown as `A <-> B`, including both containment directions, change type, basis, provenance-conflict evidence when applicable, and scope.
 
 ### JSON Output
 
@@ -448,7 +483,7 @@ Use `--json` for a structured result suitable for notebooks, scripts, or saved a
 analyze_family busybox-on-windows --json
 ```
 
-The JSON representation includes family-wide cluster results, artifact-group-to-cluster mappings, related-pair counts, root candidates, directed edges, ambiguous edges, within/across-group counts, change counts, edge basis, `change_type`, and group-scope metadata.
+The JSON representation includes family-wide cluster results, artifact-group-to-cluster mappings, related-pair counts, root candidates, directed edges, ambiguous edges, within/across-group counts, change counts, edge basis, edge evidence, `change_type`, group-scope metadata, and the extracted provenance fields for artifacts that declare them.
 
 Combine it with `--verbose` for the expanded structured representation, including artifacts, skill variants, bundle variants, and the full pairwise similarity results:
 
@@ -519,6 +554,7 @@ Change types describe structural differences between related variants only. `ana
 - `NAME` is matched exactly against `artifact_groupings.name`.
 - The database is opened read-only.
 - Similarity is computed on the `SKILL.md` body rather than YAML front matter.
+- The selected provenance fields are used only to help direct already-related variants; they do not affect similarity scores or cluster membership.
 - Whitespace differences are ignored by tokenization for similarity analysis.
 - Skill variants are compared once per distinct `file_sha` to avoid redundant work.
 - Similarity comparison is family-wide; artifact-group boundaries do not restrict which skill variants can be related.
