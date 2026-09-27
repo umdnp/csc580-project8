@@ -228,3 +228,5 @@ scripts/output/
 data/*.db
 data/**/*.db
 
+# Ignore any local copies of output reports for analyze_family_diffs
+work/*
