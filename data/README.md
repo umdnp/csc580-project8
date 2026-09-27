@@ -149,3 +149,14 @@ If the database is stored somewhere else, set `GITSKILLS_DB` to that path before
 ## Data Dictionary
 
 For descriptions of the GitSkills tables and columns, see the project [Data Dictionary](../DATA_DICTIONARY.md).
+
+### 4. Sprint 1 Sample Population
+
+Sprint 1 uses a frozen sample population for development and validation of the analysis pipeline.
+
+After completing step 3, run the follow command to generate the frozen Sprint 1 sample view:
+
+```bash
+duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/generate_sprint1_sample.sql
+```
+Reference RDR-006 and sample_population_query_rationale for more information.
