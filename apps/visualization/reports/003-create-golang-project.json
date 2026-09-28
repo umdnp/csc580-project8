@@ -31,27 +31,6 @@
     }
   },
   "family": {
-    "artifact_ids": [
-      1970318,
-      2244377,
-      2386167,
-      2386173
-    ],
-    "skill_variant_count": 4,
-    "bundle_variant_count": 4,
-    "directed_edge_count": 1,
-    "within_group_directed_edge_count": 1,
-    "across_group_directed_edge_count": 0,
-    "ambiguous_edge_count": 3,
-    "within_group_ambiguous_edge_count": 1,
-    "across_group_ambiguous_edge_count": 2,
-    "change_counts": {
-      "skill-only": 1,
-      "siblings-only": 0,
-      "skill+siblings": 0,
-      "equivalent": 0,
-      "unknown": 0
-    },
     "clusters": [
       {
         "cluster": 1,
@@ -61,33 +40,12 @@
           2386167,
           2386173
         ],
-        "skill_variant_count": 4,
-        "bundle_variant_count": 4,
-        "file_shas": [
-          "2941934ac0db60b9a3888ee9da82396ef063af07",
-          "348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
-          "4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
-          "cc5c501649ef678b79dc30b98c62462981ea1b4f"
-        ],
         "evolution": {
           "root_candidate_artifact_ids": [
             1970318,
             2386167,
             2386173
           ],
-          "directed_edge_count": 1,
-          "within_group_directed_edge_count": 1,
-          "across_group_directed_edge_count": 0,
-          "ambiguous_edge_count": 3,
-          "within_group_ambiguous_edge_count": 1,
-          "across_group_ambiguous_edge_count": 2,
-          "change_counts": {
-            "skill-only": 1,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          },
           "directed_edges": [
             {
               "source_artifact_id": 1970318,
@@ -151,133 +109,5 @@
       }
     ]
   },
-  "groups": [
-    {
-      "group_id": 485589,
-      "normalized_description": "scaffolds the initial boilerplate structure for a go (golang) cli or library project following the standard tooling and layout defined in agentme-edr-102. activate this skill when the user asks to create, scaffold, or initialize a new go project, cli binary, or go module. ",
-      "artifact_ids": [
-        2386173
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        1
-      ]
-    },
-    {
-      "group_id": 603780,
-      "normalized_description": "scaffolds the initial boilerplate structure for a go (golang) cli or library project following the standard tooling and layout defined in agentme-edr-010. activate this skill when the user asks to create, scaffold, or initialize a new go project, cli binary, or go module. ",
-      "artifact_ids": [
-        1970318,
-        2244377,
-        2386167
-      ],
-      "skill_variant_count": 3,
-      "bundle_variant_count": 3,
-      "family_cluster_numbers": [
-        1
-      ]
-    }
-  ],
-  "skill_variants": [
-    {
-      "file_sha": "2941934ac0db60b9a3888ee9da82396ef063af07",
-      "artifact_ids": [
-        1970318
-      ],
-      "group_ids": [
-        603780
-      ],
-      "representative_artifact_id": 1970318,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
-      "artifact_ids": [
-        2244377
-      ],
-      "group_ids": [
-        603780
-      ],
-      "representative_artifact_id": 2244377,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
-      "artifact_ids": [
-        2386173
-      ],
-      "group_ids": [
-        485589
-      ],
-      "representative_artifact_id": 2386173,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "cc5c501649ef678b79dc30b98c62462981ea1b4f",
-      "artifact_ids": [
-        2386167
-      ],
-      "group_ids": [
-        603780
-      ],
-      "representative_artifact_id": 2386167,
-      "earliest_observed_at": null
-    }
-  ],
-  "bundle_variants": [
-    {
-      "file_sha": "2941934ac0db60b9a3888ee9da82396ef063af07",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        1970318
-      ],
-      "group_ids": [
-        603780
-      ],
-      "representative_artifact_id": 1970318,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2244377
-      ],
-      "group_ids": [
-        603780
-      ],
-      "representative_artifact_id": 2244377,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2386173
-      ],
-      "group_ids": [
-        485589
-      ],
-      "representative_artifact_id": 2386173,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "cc5c501649ef678b79dc30b98c62462981ea1b4f",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2386167
-      ],
-      "group_ids": [
-        603780
-      ],
-      "representative_artifact_id": 2386167,
-      "earliest_observed_at": null
-    }
-  ],
-  "provenance": []
+  "chronology_proxies": []
 }

@@ -31,49 +31,6 @@
     }
   },
   "family": {
-    "artifact_ids": [
-      571389,
-      571909,
-      572392,
-      580239,
-      588553,
-      620659,
-      623742,
-      624960,
-      637359,
-      648200,
-      697917,
-      701823,
-      704724,
-      733887,
-      739192,
-      753188,
-      757286,
-      759629,
-      763919,
-      767452,
-      786882,
-      801451,
-      852973,
-      2733595,
-      2811614,
-      3648115
-    ],
-    "skill_variant_count": 26,
-    "bundle_variant_count": 26,
-    "directed_edge_count": 21,
-    "within_group_directed_edge_count": 18,
-    "across_group_directed_edge_count": 3,
-    "ambiguous_edge_count": 79,
-    "within_group_ambiguous_edge_count": 55,
-    "across_group_ambiguous_edge_count": 24,
-    "change_counts": {
-      "skill-only": 12,
-      "siblings-only": 1,
-      "skill+siblings": 8,
-      "equivalent": 0,
-      "unknown": 0
-    },
     "clusters": [
       {
         "cluster": 1,
@@ -102,52 +59,12 @@
           852973,
           3648115
         ],
-        "skill_variant_count": 23,
-        "bundle_variant_count": 23,
-        "file_shas": [
-          "08ef86628e4cebe9be85043dea33fd1748e80ffb",
-          "1c5e8b965ab94e787e8c494e20b2abbeaa403cc2",
-          "1f66c915bb6833d16c8079d0d014d126df7e08de",
-          "212ee382307c8b9e62e8838929dd1791531741b0",
-          "3c35649917700bcaa09c4914c9c2bd7306fff0fd",
-          "4b4768b6c18910c5d159fada8c592fc889b89273",
-          "4ee62dd08f7f502c4f971cb81e25107ecfe64589",
-          "57c8a55b17f5c6e5d7b44653cddabd49ac9d5271",
-          "66e1c79167f3bd92ad6c05259a587826a278bf03",
-          "695e55e9191701b05041126004ad5873471af369",
-          "6ce0cce09ae8844a53efff3b548cd0e8533f22af",
-          "772d81fd9ff46f05cb6d9d4594fbaffced89fba5",
-          "815f4f54b8a75af493f8392e5ebd3ce822dab9a4",
-          "81f17cbdb4690524d2b5a78ef43a9688ec905b8b",
-          "8882b1810f0b33de6ce5e6d421cb88984f03d50e",
-          "8b7ae510057b92a7199bbb9e4e8ea50cde220c25",
-          "974eddde02362cd2bcfc85c965ec1911b472a6a2",
-          "9fab8c4f8ba67f2d31afcf3002e0b3800864ecb2",
-          "a2049d574c24ab116d9f4b32518557f5b5d92fb9",
-          "b0ea425c7fec16d5a6907d7f94a50ef24c76a08b",
-          "d84d08016d042dc557c297ff1852e4988450d00a",
-          "dee019d9688fdd7c1ed35ef3578015e16babf217",
-          "edd2ab5265804d77af6f80b031c271e43828b049"
-        ],
         "evolution": {
           "root_candidate_artifact_ids": [
             571389,
             572392,
             580239
           ],
-          "directed_edge_count": 20,
-          "within_group_directed_edge_count": 17,
-          "across_group_directed_edge_count": 3,
-          "ambiguous_edge_count": 79,
-          "within_group_ambiguous_edge_count": 55,
-          "across_group_ambiguous_edge_count": 24,
-          "change_counts": {
-            "skill-only": 12,
-            "siblings-only": 1,
-            "skill+siblings": 7,
-            "equivalent": 0,
-            "unknown": 0
-          },
           "directed_edges": [
             {
               "source_artifact_id": 571389,
@@ -1777,29 +1694,10 @@
           2733595,
           2811614
         ],
-        "skill_variant_count": 2,
-        "bundle_variant_count": 2,
-        "file_shas": [
-          "09dccf16338e21f0de5ff69f7beb715d95bc5a3e",
-          "c76b94608e394fdb2b136dcfb8b6e1f9aab39c39"
-        ],
         "evolution": {
           "root_candidate_artifact_ids": [
             2733595
           ],
-          "directed_edge_count": 1,
-          "within_group_directed_edge_count": 1,
-          "across_group_directed_edge_count": 0,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 1,
-            "equivalent": 0,
-            "unknown": 0
-          },
           "directed_edges": [
             {
               "source_artifact_id": 2733595,
@@ -1828,770 +1726,76 @@
         "artifact_ids": [
           588553
         ],
-        "skill_variant_count": 1,
-        "bundle_variant_count": 1,
-        "file_shas": [
-          "0ed119a25b84d0aea37c1ba6306b84cf0acae093"
-        ],
         "evolution": {
           "root_candidate_artifact_ids": [
             588553
           ],
-          "directed_edge_count": 0,
-          "within_group_directed_edge_count": 0,
-          "across_group_directed_edge_count": 0,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          },
           "directed_edges": [],
           "ambiguous_edges": []
         }
       }
     ]
   },
-  "groups": [
+  "chronology_proxies": [
     {
-      "group_id": 141815,
-      "normalized_description": "use \u2014",
-      "artifact_ids": [
-        3648115
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        1
-      ]
+      "artifact_id": 571389,
+      "effective_chronology": "2026-02-13T10:02:41Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 580239
     },
     {
-      "group_id": 304566,
-      "normalized_description": "busybox-on-windows workflow skill. use this skill when the user needs how to use a win32 build of busybox to run many of the standard unix command line tools on windows and the operator should preserve the upstream workflow, copied support files, and provenance before merging or handing off.",
-      "artifact_ids": [
-        2733595,
-        2811614
-      ],
-      "skill_variant_count": 2,
-      "bundle_variant_count": 2,
-      "family_cluster_numbers": [
-        2
-      ]
+      "artifact_id": 572392,
+      "effective_chronology": "2026-02-13T10:02:41Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 580239
     },
     {
-      "group_id": 311222,
-      "normalized_description": "how to use a win32 build of busybox to run many of the standard unix command line tools on windows. use when you need help with busybox on windows.",
-      "artifact_ids": [
-        786882
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        1
-      ]
+      "artifact_id": 620659,
+      "effective_chronology": "2026-03-07T16:50:20Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 624960
     },
     {
-      "group_id": 353754,
-      "normalized_description": "how to use a win32 build of busybox to run many of the standard unix command line tools on windows.",
-      "artifact_ids": [
-        571389,
-        571909,
-        572392,
-        580239,
-        620659,
-        623742,
-        624960,
-        637359,
-        648200,
-        697917,
-        701823,
-        704724,
-        733887,
-        739192,
-        753188,
-        757286,
-        759629,
-        763919,
-        767452,
-        801451
-      ],
-      "skill_variant_count": 20,
-      "bundle_variant_count": 20,
-      "family_cluster_numbers": [
-        1
-      ]
+      "artifact_id": 648200,
+      "effective_chronology": "2026-03-07T16:50:20Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 624960
     },
     {
-      "group_id": 374342,
-      "normalized_description": "always use this when the request matches busybox on windows: how to use a win32 build of busybox to run many of the standard unix command line tools on windows.",
-      "artifact_ids": [
-        852973
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        1
-      ]
+      "artifact_id": 701823,
+      "effective_chronology": "2026-03-07T16:50:20Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 624960
     },
     {
-      "group_id": 621553,
-      "normalized_description": "como usar um build win32 do busybox para executar muitas das ferramentas de linha de comando unix padr\u00e3o no windows.",
-      "artifact_ids": [
-        588553
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        3
-      ]
-    }
-  ],
-  "skill_variants": [
-    {
-      "file_sha": "08ef86628e4cebe9be85043dea33fd1748e80ffb",
-      "artifact_ids": [
-        801451
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 801451,
-      "earliest_observed_at": null
+      "artifact_id": 757286,
+      "effective_chronology": "2026-05-31T04:46:04Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 753188
     },
     {
-      "file_sha": "09dccf16338e21f0de5ff69f7beb715d95bc5a3e",
-      "artifact_ids": [
-        2733595
-      ],
-      "group_ids": [
-        304566
-      ],
-      "representative_artifact_id": 2733595,
-      "earliest_observed_at": null
+      "artifact_id": 759629,
+      "effective_chronology": "2026-05-31T04:46:04Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 753188
     },
     {
-      "file_sha": "0ed119a25b84d0aea37c1ba6306b84cf0acae093",
-      "artifact_ids": [
-        588553
-      ],
-      "group_ids": [
-        621553
-      ],
-      "representative_artifact_id": 588553,
-      "earliest_observed_at": null
+      "artifact_id": 767452,
+      "effective_chronology": "2026-05-31T04:46:04Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 753188
     },
     {
-      "file_sha": "1c5e8b965ab94e787e8c494e20b2abbeaa403cc2",
-      "artifact_ids": [
-        786882
-      ],
-      "group_ids": [
-        311222
-      ],
-      "representative_artifact_id": 786882,
-      "earliest_observed_at": null
+      "artifact_id": 786882,
+      "effective_chronology": "2026-05-31T04:46:04Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 753188
     },
     {
-      "file_sha": "1f66c915bb6833d16c8079d0d014d126df7e08de",
-      "artifact_ids": [
-        571389
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 571389,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "212ee382307c8b9e62e8838929dd1791531741b0",
-      "artifact_ids": [
-        3648115
-      ],
-      "group_ids": [
-        141815
-      ],
-      "representative_artifact_id": 3648115,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "3c35649917700bcaa09c4914c9c2bd7306fff0fd",
-      "artifact_ids": [
-        767452
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 767452,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "4b4768b6c18910c5d159fada8c592fc889b89273",
-      "artifact_ids": [
-        759629
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 759629,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "4ee62dd08f7f502c4f971cb81e25107ecfe64589",
-      "artifact_ids": [
-        623742
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 623742,
-      "earliest_observed_at": "2026-04-28T05:33:50Z"
-    },
-    {
-      "file_sha": "57c8a55b17f5c6e5d7b44653cddabd49ac9d5271",
-      "artifact_ids": [
-        733887
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 733887,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "66e1c79167f3bd92ad6c05259a587826a278bf03",
-      "artifact_ids": [
-        620659
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 620659,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "695e55e9191701b05041126004ad5873471af369",
-      "artifact_ids": [
-        624960
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 624960,
-      "earliest_observed_at": "2026-03-07T16:50:20Z"
-    },
-    {
-      "file_sha": "6ce0cce09ae8844a53efff3b548cd0e8533f22af",
-      "artifact_ids": [
-        572392
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 572392,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "772d81fd9ff46f05cb6d9d4594fbaffced89fba5",
-      "artifact_ids": [
-        753188
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 753188,
-      "earliest_observed_at": "2026-05-31T04:46:04Z"
-    },
-    {
-      "file_sha": "815f4f54b8a75af493f8392e5ebd3ce822dab9a4",
-      "artifact_ids": [
-        648200
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 648200,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "81f17cbdb4690524d2b5a78ef43a9688ec905b8b",
-      "artifact_ids": [
-        571909
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 571909,
-      "earliest_observed_at": "2026-02-17T12:23:56Z"
-    },
-    {
-      "file_sha": "8882b1810f0b33de6ce5e6d421cb88984f03d50e",
-      "artifact_ids": [
-        739192
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 739192,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "8b7ae510057b92a7199bbb9e4e8ea50cde220c25",
-      "artifact_ids": [
-        580239
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 580239,
-      "earliest_observed_at": "2026-02-13T10:02:41Z"
-    },
-    {
-      "file_sha": "974eddde02362cd2bcfc85c965ec1911b472a6a2",
-      "artifact_ids": [
-        757286
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 757286,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "9fab8c4f8ba67f2d31afcf3002e0b3800864ecb2",
-      "artifact_ids": [
-        763919
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 763919,
-      "earliest_observed_at": "2026-06-30T07:00:18Z"
-    },
-    {
-      "file_sha": "a2049d574c24ab116d9f4b32518557f5b5d92fb9",
-      "artifact_ids": [
-        701823
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 701823,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "b0ea425c7fec16d5a6907d7f94a50ef24c76a08b",
-      "artifact_ids": [
-        637359
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 637359,
-      "earliest_observed_at": "2026-03-25T19:59:41Z"
-    },
-    {
-      "file_sha": "c76b94608e394fdb2b136dcfb8b6e1f9aab39c39",
-      "artifact_ids": [
-        2811614
-      ],
-      "group_ids": [
-        304566
-      ],
-      "representative_artifact_id": 2811614,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "d84d08016d042dc557c297ff1852e4988450d00a",
-      "artifact_ids": [
-        704724
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 704724,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "dee019d9688fdd7c1ed35ef3578015e16babf217",
-      "artifact_ids": [
-        697917
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 697917,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "edd2ab5265804d77af6f80b031c271e43828b049",
-      "artifact_ids": [
-        852973
-      ],
-      "group_ids": [
-        374342
-      ],
-      "representative_artifact_id": 852973,
-      "earliest_observed_at": null
-    }
-  ],
-  "bundle_variants": [
-    {
-      "file_sha": "08ef86628e4cebe9be85043dea33fd1748e80ffb",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        801451
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 801451,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "09dccf16338e21f0de5ff69f7beb715d95bc5a3e",
-      "sibling_content_sha": "b31494092542e8d05891b36547f98b7956f7c1c62516ee5a5c89b951a2fd89c1",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2733595
-      ],
-      "group_ids": [
-        304566
-      ],
-      "representative_artifact_id": 2733595,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "0ed119a25b84d0aea37c1ba6306b84cf0acae093",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        588553
-      ],
-      "group_ids": [
-        621553
-      ],
-      "representative_artifact_id": 588553,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "1c5e8b965ab94e787e8c494e20b2abbeaa403cc2",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        786882
-      ],
-      "group_ids": [
-        311222
-      ],
-      "representative_artifact_id": 786882,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "1f66c915bb6833d16c8079d0d014d126df7e08de",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        571389
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 571389,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "212ee382307c8b9e62e8838929dd1791531741b0",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        3648115
-      ],
-      "group_ids": [
-        141815
-      ],
-      "representative_artifact_id": 3648115,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "3c35649917700bcaa09c4914c9c2bd7306fff0fd",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        767452
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 767452,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "4b4768b6c18910c5d159fada8c592fc889b89273",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        759629
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 759629,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "4ee62dd08f7f502c4f971cb81e25107ecfe64589",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        623742
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 623742,
-      "earliest_observed_at": "2026-04-28T05:33:50Z"
-    },
-    {
-      "file_sha": "57c8a55b17f5c6e5d7b44653cddabd49ac9d5271",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        733887
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 733887,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "66e1c79167f3bd92ad6c05259a587826a278bf03",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        620659
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 620659,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "695e55e9191701b05041126004ad5873471af369",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        624960
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 624960,
-      "earliest_observed_at": "2026-03-07T16:50:20Z"
-    },
-    {
-      "file_sha": "6ce0cce09ae8844a53efff3b548cd0e8533f22af",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        572392
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 572392,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "772d81fd9ff46f05cb6d9d4594fbaffced89fba5",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        753188
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 753188,
-      "earliest_observed_at": "2026-05-31T04:46:04Z"
-    },
-    {
-      "file_sha": "815f4f54b8a75af493f8392e5ebd3ce822dab9a4",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        648200
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 648200,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "81f17cbdb4690524d2b5a78ef43a9688ec905b8b",
-      "sibling_content_sha": "9a551e0839adec62bf191712022af0374f04097327231c4b945376b0283de7bd",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        571909
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 571909,
-      "earliest_observed_at": "2026-02-17T12:23:56Z"
-    },
-    {
-      "file_sha": "8882b1810f0b33de6ce5e6d421cb88984f03d50e",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        739192
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 739192,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "8b7ae510057b92a7199bbb9e4e8ea50cde220c25",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        580239
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 580239,
-      "earliest_observed_at": "2026-02-13T10:02:41Z"
-    },
-    {
-      "file_sha": "974eddde02362cd2bcfc85c965ec1911b472a6a2",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        757286
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 757286,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "9fab8c4f8ba67f2d31afcf3002e0b3800864ecb2",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        763919
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 763919,
-      "earliest_observed_at": "2026-06-30T07:00:18Z"
-    },
-    {
-      "file_sha": "a2049d574c24ab116d9f4b32518557f5b5d92fb9",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        701823
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 701823,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "b0ea425c7fec16d5a6907d7f94a50ef24c76a08b",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        637359
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 637359,
-      "earliest_observed_at": "2026-03-25T19:59:41Z"
-    },
-    {
-      "file_sha": "c76b94608e394fdb2b136dcfb8b6e1f9aab39c39",
-      "sibling_content_sha": "8dd96b9e1e2840c714e65499b3d6cb9ae40cdbffe41300fc5d3e17027777f41b",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2811614
-      ],
-      "group_ids": [
-        304566
-      ],
-      "representative_artifact_id": 2811614,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "d84d08016d042dc557c297ff1852e4988450d00a",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        704724
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 704724,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "dee019d9688fdd7c1ed35ef3578015e16babf217",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        697917
-      ],
-      "group_ids": [
-        353754
-      ],
-      "representative_artifact_id": 697917,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "edd2ab5265804d77af6f80b031c271e43828b049",
-      "sibling_content_sha": "4bbc194c0af681f54c7138bfc2869d5da0ae5265f03b5819829db420494b8ca8",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        852973
-      ],
-      "group_ids": [
-        374342
-      ],
-      "representative_artifact_id": 852973,
-      "earliest_observed_at": null
-    }
-  ],
-  "provenance": [
-    {
-      "artifact_id": 2811614,
-      "derived_from": "skills/busybox-on-windows",
-      "upstream_skill": "skills/busybox-on-windows",
-      "source_repo": "diegosouzapw/awesome-omni-skills",
-      "upstream_source": "community"
-    },
-    {
-      "artifact_id": 3648115,
-      "derived_from": null,
-      "upstream_skill": null,
-      "source_repo": "antigravity-awesome-skills",
-      "upstream_source": null
+      "artifact_id": 801451,
+      "effective_chronology": "2026-05-31T04:46:04Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 753188
     }
   ]
 }

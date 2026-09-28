@@ -31,27 +31,6 @@
     }
   },
   "family": {
-    "artifact_ids": [
-      2498630,
-      2696303,
-      2723114,
-      3076631
-    ],
-    "skill_variant_count": 4,
-    "bundle_variant_count": 4,
-    "directed_edge_count": 2,
-    "within_group_directed_edge_count": 1,
-    "across_group_directed_edge_count": 1,
-    "ambiguous_edge_count": 0,
-    "within_group_ambiguous_edge_count": 0,
-    "across_group_ambiguous_edge_count": 0,
-    "change_counts": {
-      "skill-only": 0,
-      "siblings-only": 0,
-      "skill+siblings": 0,
-      "equivalent": 0,
-      "unknown": 2
-    },
     "clusters": [
       {
         "cluster": 1,
@@ -60,30 +39,10 @@
           2723114,
           3076631
         ],
-        "skill_variant_count": 3,
-        "bundle_variant_count": 3,
-        "file_shas": [
-          "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
-          "676a02971f9b8575506f6d628150f35dd3936f09",
-          "dc438bccc86934026118a6bf27980698d5789456"
-        ],
         "evolution": {
           "root_candidate_artifact_ids": [
             2696303
           ],
-          "directed_edge_count": 2,
-          "within_group_directed_edge_count": 1,
-          "across_group_directed_edge_count": 1,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 2
-          },
           "directed_edges": [
             {
               "source_artifact_id": 2696303,
@@ -124,172 +83,15 @@
         "artifact_ids": [
           2498630
         ],
-        "skill_variant_count": 1,
-        "bundle_variant_count": 1,
-        "file_shas": [
-          "c6949d376537f3d07c306268572d98265a0fff88"
-        ],
         "evolution": {
           "root_candidate_artifact_ids": [
             2498630
           ],
-          "directed_edge_count": 0,
-          "within_group_directed_edge_count": 0,
-          "across_group_directed_edge_count": 0,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          },
           "directed_edges": [],
           "ambiguous_edges": []
         }
       }
     ]
   },
-  "groups": [
-    {
-      "group_id": 250589,
-      "normalized_description": "onekey app defi integration for earn, borrow, staking, portfolio actions, vault/lending protocols, transactions, history, routing, and risk display.",
-      "artifact_ids": [
-        2498630
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        2
-      ]
-    },
-    {
-      "group_id": 360715,
-      "normalized_description": "guide for integrating new defi modules or protocols (staking, lending, earn, borrow) into onekey.",
-      "artifact_ids": [
-        2696303
-      ],
-      "skill_variant_count": 1,
-      "bundle_variant_count": 1,
-      "family_cluster_numbers": [
-        1
-      ]
-    },
-    {
-      "group_id": 423459,
-      "normalized_description": "interactive guide for integrating new defi modules or protocols into onekey. use when adding new defi features like staking protocols, lending markets, or entirely new defi modules. triggers on defi, protocol, integration, earn, borrow, staking, lending, supply, borrow, withdraw, repay, claim, new module, pendle, aave, compound.",
-      "artifact_ids": [
-        2723114,
-        3076631
-      ],
-      "skill_variant_count": 2,
-      "bundle_variant_count": 2,
-      "family_cluster_numbers": [
-        1
-      ]
-    }
-  ],
-  "skill_variants": [
-    {
-      "file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
-      "artifact_ids": [
-        2723114
-      ],
-      "group_ids": [
-        423459
-      ],
-      "representative_artifact_id": 2723114,
-      "earliest_observed_at": "2026-06-03T07:00:18Z"
-    },
-    {
-      "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
-      "artifact_ids": [
-        2696303
-      ],
-      "group_ids": [
-        360715
-      ],
-      "representative_artifact_id": 2696303,
-      "earliest_observed_at": "2026-04-15T21:39:25Z"
-    },
-    {
-      "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
-      "artifact_ids": [
-        2498630
-      ],
-      "group_ids": [
-        250589
-      ],
-      "representative_artifact_id": 2498630,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
-      "artifact_ids": [
-        3076631
-      ],
-      "group_ids": [
-        423459
-      ],
-      "representative_artifact_id": 3076631,
-      "earliest_observed_at": "2026-05-01T00:13:08Z"
-    }
-  ],
-  "bundle_variants": [
-    {
-      "file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
-      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2723114
-      ],
-      "group_ids": [
-        423459
-      ],
-      "representative_artifact_id": 2723114,
-      "earliest_observed_at": "2026-06-03T07:00:18Z"
-    },
-    {
-      "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
-      "sibling_content_sha": "05c4cf576dc7bbc733b2aeb31c70f0d628b70c346ae2fd7da7c5f64dd6cabcd2",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2696303
-      ],
-      "group_ids": [
-        360715
-      ],
-      "representative_artifact_id": 2696303,
-      "earliest_observed_at": "2026-04-15T21:39:25Z"
-    },
-    {
-      "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
-      "sibling_content_sha": "b6f86e95318c8321d4cd970045ef78f469cc55ff6821df86bb0b3de003bd9ba0",
-      "sibling_state_known": true,
-      "artifact_ids": [
-        2498630
-      ],
-      "group_ids": [
-        250589
-      ],
-      "representative_artifact_id": 2498630,
-      "earliest_observed_at": null
-    },
-    {
-      "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
-      "sibling_content_sha": null,
-      "sibling_state_known": false,
-      "artifact_ids": [
-        3076631
-      ],
-      "group_ids": [
-        423459
-      ],
-      "representative_artifact_id": 3076631,
-      "earliest_observed_at": "2026-05-01T00:13:08Z"
-    }
-  ],
-  "provenance": []
+  "chronology_proxies": []
 }
