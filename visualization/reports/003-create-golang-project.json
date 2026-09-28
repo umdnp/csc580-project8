@@ -1,0 +1,118 @@
+{
+  "candidate_family": "003-create-golang-project",
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "active_rules": [
+    {
+      "rule_id": "CMD-001",
+      "category": "command_execution",
+      "description": "Shell command block detected"
+    },
+    {
+      "rule_id": "CMD-002",
+      "category": "command_execution",
+      "description": "Command invocation detected"
+    },
+    {
+      "rule_id": "CRED-001",
+      "category": "credential_access",
+      "description": "Credential or secret reference detected"
+    },
+    {
+      "rule_id": "CRED-002",
+      "category": "credential_access",
+      "description": "Credential file reference detected"
+    },
+    {
+      "rule_id": "EXT-001",
+      "category": "external_code_execution",
+      "description": "Downloaded content is piped to a shell interpreter"
+    },
+    {
+      "rule_id": "EXT-002",
+      "category": "external_code_execution",
+      "description": "External package installation detected"
+    },
+    {
+      "rule_id": "FS-001",
+      "category": "filesystem_access",
+      "description": "File-system command detected"
+    },
+    {
+      "rule_id": "FS-002",
+      "category": "filesystem_access",
+      "description": "File-writing API detected"
+    },
+    {
+      "rule_id": "NET-001",
+      "category": "network_access",
+      "description": "HTTP or HTTPS URL detected"
+    },
+    {
+      "rule_id": "NET-002",
+      "category": "network_access",
+      "description": "Network client usage detected"
+    },
+    {
+      "rule_id": "SYS-001",
+      "category": "system_modification",
+      "description": "Privilege-elevation command detected"
+    },
+    {
+      "rule_id": "SYS-002",
+      "category": "system_modification",
+      "description": "System modification command detected"
+    }
+  ],
+  "summary": {
+    "pairs_analyzed": 1,
+    "pairs_flagged": 1,
+    "pairs_incomplete": 0,
+    "ambiguous_edges_skipped": 3,
+    "clusters_analyzed": 1
+  },
+  "clusters": [
+    {
+      "cluster": 1,
+      "pairs_analyzed": 1,
+      "pairs_flagged": 1,
+      "pairs_incomplete": 0,
+      "flagged_pairs": [
+        {
+          "source_artifact_id": 1970318,
+          "destination_artifact_id": 2244377,
+          "direction_basis": "containment",
+          "change_type": "skill-only",
+          "flagged_rules": [
+            {
+              "rule_id": "FS-001",
+              "category": "filesystem_access",
+              "description": "File-system command detected",
+              "surface": "skill",
+              "source": 4,
+              "destination": 7,
+              "delta": 3,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 2244377
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "incomplete_pairs": []
+    }
+  ]
+}

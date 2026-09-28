@@ -1,0 +1,216 @@
+{
+  "candidate_family": "busybox-on-windows",
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "active_rules": [
+    {
+      "rule_id": "CMD-001",
+      "category": "command_execution",
+      "description": "Shell command block detected"
+    },
+    {
+      "rule_id": "CMD-002",
+      "category": "command_execution",
+      "description": "Command invocation detected"
+    },
+    {
+      "rule_id": "CRED-001",
+      "category": "credential_access",
+      "description": "Credential or secret reference detected"
+    },
+    {
+      "rule_id": "CRED-002",
+      "category": "credential_access",
+      "description": "Credential file reference detected"
+    },
+    {
+      "rule_id": "EXT-001",
+      "category": "external_code_execution",
+      "description": "Downloaded content is piped to a shell interpreter"
+    },
+    {
+      "rule_id": "EXT-002",
+      "category": "external_code_execution",
+      "description": "External package installation detected"
+    },
+    {
+      "rule_id": "FS-001",
+      "category": "filesystem_access",
+      "description": "File-system command detected"
+    },
+    {
+      "rule_id": "FS-002",
+      "category": "filesystem_access",
+      "description": "File-writing API detected"
+    },
+    {
+      "rule_id": "NET-001",
+      "category": "network_access",
+      "description": "HTTP or HTTPS URL detected"
+    },
+    {
+      "rule_id": "NET-002",
+      "category": "network_access",
+      "description": "Network client usage detected"
+    },
+    {
+      "rule_id": "SYS-001",
+      "category": "system_modification",
+      "description": "Privilege-elevation command detected"
+    },
+    {
+      "rule_id": "SYS-002",
+      "category": "system_modification",
+      "description": "System modification command detected"
+    }
+  ],
+  "summary": {
+    "pairs_analyzed": 18,
+    "pairs_flagged": 3,
+    "pairs_incomplete": 0,
+    "ambiguous_edges_skipped": 101,
+    "clusters_analyzed": 2
+  },
+  "clusters": [
+    {
+      "cluster": 1,
+      "pairs_analyzed": 17,
+      "pairs_flagged": 2,
+      "pairs_incomplete": 0,
+      "flagged_pairs": [
+        {
+          "source_artifact_id": 571389,
+          "destination_artifact_id": 697917,
+          "direction_basis": "containment",
+          "change_type": "skill-only",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 6,
+              "destination": 7,
+              "delta": 1,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 697917
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_artifact_id": 580239,
+          "destination_artifact_id": 571909,
+          "direction_basis": "chronology",
+          "change_type": "siblings-only",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 109901,
+                  "entry_name": ".openskills.json"
+                }
+              ]
+            }
+          ],
+          "sibling_scan": {
+            "source_files": 0,
+            "destination_files": 1,
+            "new_or_changed_destination_ids": [
+              109901
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false
+          }
+        }
+      ],
+      "incomplete_pairs": []
+    },
+    {
+      "cluster": 2,
+      "pairs_analyzed": 1,
+      "pairs_flagged": 1,
+      "pairs_incomplete": 0,
+      "flagged_pairs": [
+        {
+          "source_artifact_id": 2733595,
+          "destination_artifact_id": 2811614,
+          "direction_basis": "declared-source",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 2,
+              "destination": 2,
+              "delta": 0,
+              "newly_present": false,
+              "reasons": [
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5107971,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5107972,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            }
+          ],
+          "sibling_scan": {
+            "source_files": 2,
+            "destination_files": 4,
+            "new_or_changed_destination_ids": [
+              5107969,
+              5107970,
+              5107971,
+              5107972
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false
+          }
+        }
+      ],
+      "incomplete_pairs": []
+    }
+  ]
+}
