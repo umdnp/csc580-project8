@@ -93,7 +93,9 @@
               "jaccard": 0.7445432497978981,
               "shared_shingles": 921,
               "change_type": "unknown",
-              "evidence": [],
+              "evidence": [
+                "first_commit_at"
+              ],
               "shared_group_ids": [],
               "same_artifact_group": false
             },
@@ -105,7 +107,9 @@
               "jaccard": 0.7445432497978981,
               "shared_shingles": 921,
               "change_type": "unknown",
-              "evidence": [],
+              "evidence": [
+                "first_commit_at"
+              ],
               "shared_group_ids": [
                 423459
               ],
@@ -287,129 +291,5 @@
       "earliest_observed_at": "2026-05-01T00:13:08Z"
     }
   ],
-  "provenance": [],
-  "similarities": [
-    {
-      "left_file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
-      "right_file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 1.0,
-      "jaccard": 1.0,
-      "shared_shingles": 921,
-      "left_shingles": 921,
-      "right_shingles": 921,
-      "left_artifact_ids": [
-        2723114
-      ],
-      "right_artifact_ids": [
-        2696303
-      ],
-      "left_representative_artifact_id": 2723114,
-      "right_representative_artifact_id": 2696303,
-      "shared_group_ids": [],
-      "same_artifact_group": false
-    },
-    {
-      "left_file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
-      "right_file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
-      "left_to_right_containment": 0.0,
-      "right_to_left_containment": 0.0,
-      "jaccard": 0.0,
-      "shared_shingles": 0,
-      "left_shingles": 921,
-      "right_shingles": 1104,
-      "left_artifact_ids": [
-        2723114
-      ],
-      "right_artifact_ids": [
-        2498630
-      ],
-      "left_representative_artifact_id": 2723114,
-      "right_representative_artifact_id": 2498630,
-      "shared_group_ids": [],
-      "same_artifact_group": false
-    },
-    {
-      "left_file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
-      "right_file_sha": "dc438bccc86934026118a6bf27980698d5789456",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 0.7445432497978981,
-      "jaccard": 0.7445432497978981,
-      "shared_shingles": 921,
-      "left_shingles": 921,
-      "right_shingles": 1237,
-      "left_artifact_ids": [
-        2723114
-      ],
-      "right_artifact_ids": [
-        3076631
-      ],
-      "left_representative_artifact_id": 2723114,
-      "right_representative_artifact_id": 3076631,
-      "shared_group_ids": [
-        423459
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
-      "right_file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
-      "left_to_right_containment": 0.0,
-      "right_to_left_containment": 0.0,
-      "jaccard": 0.0,
-      "shared_shingles": 0,
-      "left_shingles": 921,
-      "right_shingles": 1104,
-      "left_artifact_ids": [
-        2696303
-      ],
-      "right_artifact_ids": [
-        2498630
-      ],
-      "left_representative_artifact_id": 2696303,
-      "right_representative_artifact_id": 2498630,
-      "shared_group_ids": [],
-      "same_artifact_group": false
-    },
-    {
-      "left_file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
-      "right_file_sha": "dc438bccc86934026118a6bf27980698d5789456",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 0.7445432497978981,
-      "jaccard": 0.7445432497978981,
-      "shared_shingles": 921,
-      "left_shingles": 921,
-      "right_shingles": 1237,
-      "left_artifact_ids": [
-        2696303
-      ],
-      "right_artifact_ids": [
-        3076631
-      ],
-      "left_representative_artifact_id": 2696303,
-      "right_representative_artifact_id": 3076631,
-      "shared_group_ids": [],
-      "same_artifact_group": false
-    },
-    {
-      "left_file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
-      "right_file_sha": "dc438bccc86934026118a6bf27980698d5789456",
-      "left_to_right_containment": 0.0,
-      "right_to_left_containment": 0.0,
-      "jaccard": 0.0,
-      "shared_shingles": 0,
-      "left_shingles": 1104,
-      "right_shingles": 1237,
-      "left_artifact_ids": [
-        2498630
-      ],
-      "right_artifact_ids": [
-        3076631
-      ],
-      "left_representative_artifact_id": 2498630,
-      "right_representative_artifact_id": 3076631,
-      "shared_group_ids": [],
-      "same_artifact_group": false
-    }
-  ]
+  "provenance": []
 }
