@@ -118,18 +118,13 @@ def _is_analyze_family_report(raw: object) -> bool:
     if not isinstance(raw, dict):
         return False
 
-    required_collections = {
-        "groups": list,
-        "skill_variants": list,
-        "bundle_variants": list,
-        "provenance": list,
-    }
     if not isinstance(raw.get("name"), str) or not raw["name"].strip():
         return False
     if not isinstance(raw.get("policy"), dict) or not isinstance(raw.get("summary"), dict):
         return False
-    if any(not isinstance(raw.get(key), expected) for key, expected in required_collections.items()):
-        return False
+    for key in ("groups", "skill_variants", "bundle_variants", "provenance", "chronology_proxies"):
+        if key in raw and not isinstance(raw.get(key), list):
+            return False
 
     summary = raw["summary"]
     for key in ("artifact_count", "cluster_count", "directed_edge_count", "ambiguous_edge_count"):
@@ -139,7 +134,9 @@ def _is_analyze_family_report(raw: object) -> bool:
     family = raw.get("family")
     if not isinstance(family, dict):
         return False
-    if not isinstance(family.get("artifact_ids"), list) or not isinstance(family.get("clusters"), list):
+    if not isinstance(family.get("clusters"), list):
+        return False
+    if "artifact_ids" in family and not isinstance(family.get("artifact_ids"), list):
         return False
 
     for cluster in family["clusters"]:
@@ -248,6 +245,19 @@ def _family_artifact_metadata(raw: dict) -> dict[int, dict]:
             metadata[int(artifact_id)]["declared_provenance"] = {
                 key: value for key, value in provenance.items() if key != "artifact_id"
             }
+
+    for proxy in raw.get("chronology_proxies") or []:
+        artifact_id = proxy.get("artifact_id")
+        if artifact_id is not None:
+            metadata[int(artifact_id)].update(
+                {
+                    "effective_chronology": proxy.get("effective_chronology"),
+                    "chronology_basis": proxy.get("chronology_basis"),
+                    "chronology_source_artifact_id": proxy.get(
+                        "chronology_source_artifact_id"
+                    ),
+                }
+            )
 
     for artifact in raw.get("artifacts") or []:
         artifact_id = artifact.get("artifact_id")
@@ -509,6 +519,53 @@ def fetch_artifact_records(
                 # Keep artifact metadata usable even when repository metadata is
                 # unavailable. The UI will display Repo created as Unknown.
                 pass
+
+        # Grouping metadata is stored separately from artifacts. Load it lazily
+        # so compact analyze_family reports do not need to repeat this data.
+        try:
+            grouping_cursor = connection.execute(
+                "SELECT * FROM artifact_groupings LIMIT 0"
+            )
+            grouping_columns = {column[0] for column in grouping_cursor.description}
+            grouping_fields = [
+                field
+                for field in (
+                    "id",
+                    "artifact_id",
+                    "sibling_file_count",
+                    "sibling_content_sha",
+                )
+                if field in grouping_columns
+            ]
+            if {"id", "artifact_id"}.issubset(grouping_fields):
+                grouping_quoted = ", ".join(f'"{field}"' for field in grouping_fields)
+                grouping_placeholders = ", ".join("?" for _ in ids)
+                grouping_rows = connection.execute(
+                    f"SELECT {grouping_quoted} FROM artifact_groupings "
+                    f"WHERE artifact_id IN ({grouping_placeholders})",
+                    list(ids),
+                ).fetchall()
+                for row in grouping_rows:
+                    grouping = {
+                        field: _json_value(value)
+                        for field, value in zip(grouping_fields, row)
+                    }
+                    artifact_id = int(grouping["artifact_id"])
+                    record = records.get(artifact_id)
+                    if record is None:
+                        continue
+                    record["group_id"] = grouping.get("id")
+                    if "sibling_file_count" in grouping:
+                        record["sibling_file_count"] = grouping.get(
+                            "sibling_file_count"
+                        )
+                    if "sibling_content_sha" in grouping:
+                        record["sibling_content_sha"] = grouping.get(
+                            "sibling_content_sha"
+                        )
+        except Exception:
+            # Older databases may not contain the project-derived grouping table.
+            pass
 
         return records
     except DatabaseAccessError:

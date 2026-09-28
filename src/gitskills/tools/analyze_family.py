@@ -134,9 +134,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     payload = result.to_dict(verbose=args.verbose)
 
+    output_path = None
     if output_dir is not None:
         try:
-            _output.write_json(output_dir, args.name, payload)
+            output_path = _output.write_json(output_dir, args.name, payload)
         except _output.OutputError as exc:
             print(exc, file=sys.stderr)
             return 1
@@ -145,6 +146,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
     else:
         _print_report(result, verbose=args.verbose)
+        if output_path is not None:
+            print()
+            suffix = " (verbose)" if args.verbose else ""
+            print(f"JSON report:      {output_path.resolve()}{suffix}")
 
     return 0
 

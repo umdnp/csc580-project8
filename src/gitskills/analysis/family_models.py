@@ -213,6 +213,24 @@ class ChronologyEvidence:
 
 
 @dataclass(frozen=True, slots=True)
+class ArtifactChronologyProxy:
+    """Equivalent-peer chronology available to one undated artifact."""
+
+    artifact_id: int
+    effective_chronology: str
+    chronology_basis: str
+    chronology_source_artifact_id: int
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "artifact_id": self.artifact_id,
+            "effective_chronology": self.effective_chronology,
+            "chronology_basis": self.chronology_basis,
+            "chronology_source_artifact_id": self.chronology_source_artifact_id,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class EvolutionEdge:
     """One inferred directional relationship between bundle variants."""
 
@@ -365,9 +383,16 @@ class EvolutionGraph:
     def across_group_ambiguous_count(self) -> int:
         return self.across_group_ambiguous_edge_count
 
-    def to_dict(self) -> dict[str, object]:
-        return {
+    def to_dict(self, *, compact: bool = False) -> dict[str, object]:
+        output: dict[str, object] = {
             "root_candidate_artifact_ids": list(self.root_candidate_artifact_ids),
+            "directed_edges": [edge.to_dict() for edge in self.directed_edges],
+            "ambiguous_edges": [edge.to_dict() for edge in self.ambiguous_edges],
+        }
+        if compact:
+            return output
+
+        output.update({
             "directed_edge_count": len(self.directed_edges),
             "within_group_directed_edge_count": (
                 self.within_group_directed_edge_count
@@ -386,9 +411,8 @@ class EvolutionGraph:
                 change_type.value: count
                 for change_type, count in self.change_counts.items()
             },
-            "directed_edges": [edge.to_dict() for edge in self.directed_edges],
-            "ambiguous_edges": [edge.to_dict() for edge in self.ambiguous_edges],
-        }
+        })
+        return output
 
 
 @dataclass(frozen=True, slots=True)
@@ -405,15 +429,21 @@ class ClusterAnalysis:
     def skill_variant_count(self) -> int:
         return len(self.file_shas)
 
-    def to_dict(self) -> dict[str, object]:
-        return {
+    def to_dict(self, *, compact: bool = False) -> dict[str, object]:
+        output: dict[str, object] = {
             "cluster": self.number,
             "artifact_ids": list(self.artifact_ids),
+            "evolution": self.evolution.to_dict(compact=compact),
+        }
+        if compact:
+            return output
+
+        output.update({
             "skill_variant_count": self.skill_variant_count,
             "bundle_variant_count": self.bundle_variant_count,
             "file_shas": list(self.file_shas),
-            "evolution": self.evolution.to_dict(),
-        }
+        })
+        return output
 
 
 @dataclass(frozen=True, slots=True)
@@ -498,7 +528,14 @@ class ScopeAnalysis:
     def across_group_ambiguous_count(self) -> int:
         return self.across_group_ambiguous_edge_count
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self, *, compact: bool = False) -> dict[str, object]:
+        if compact:
+            return {
+                "clusters": [
+                    cluster.to_dict(compact=True) for cluster in self.clusters
+                ]
+            }
+
         return {
             "artifact_ids": list(self.artifact_ids),
             "skill_variant_count": self.skill_variant_count,
@@ -559,6 +596,7 @@ class FamilyAnalysis:
     skill_variants: tuple[SkillVariant, ...]
     bundle_variants: tuple[BundleVariant, ...]
     artifacts: tuple[Artifact, ...]
+    chronology_proxies: tuple[ArtifactChronologyProxy, ...] = ()
 
     @property
     def artifact_group_count(self) -> int:
@@ -623,9 +661,15 @@ class FamilyAnalysis:
                     for change_type, count in self.family.change_counts.items()
                 },
             },
-            "family": self.family.to_dict(),
-            "groups": [group.to_dict() for group in self.groups],
-            "skill_variants": [
+            "family": self.family.to_dict(compact=not verbose),
+            "chronology_proxies": [
+                proxy.to_dict() for proxy in self.chronology_proxies
+            ],
+        }
+
+        if verbose:
+            output["groups"] = [group.to_dict() for group in self.groups]
+            output["skill_variants"] = [
                 {
                     "file_sha": variant.file_sha,
                     "artifact_ids": list(variant.artifact_ids),
@@ -634,8 +678,8 @@ class FamilyAnalysis:
                     "earliest_observed_at": variant.earliest_observed_at,
                 }
                 for variant in self.skill_variants
-            ],
-            "bundle_variants": [
+            ]
+            output["bundle_variants"] = [
                 {
                     "file_sha": variant.file_sha,
                     "sibling_content_sha": variant.sibling_content_sha,
@@ -646,18 +690,15 @@ class FamilyAnalysis:
                     "earliest_observed_at": variant.earliest_observed_at,
                 }
                 for variant in self.bundle_variants
-            ],
-            "provenance": [
+            ]
+            output["provenance"] = [
                 {
                     "artifact_id": artifact.artifact_id,
                     **artifact.provenance.to_dict(),
                 }
                 for artifact in self.artifacts
                 if artifact.provenance.has_values()
-            ],
-        }
-
-        if verbose:
+            ]
             output["similarities"] = self._similarities_to_dict()
             output["artifacts"] = [
                 {

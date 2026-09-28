@@ -11,6 +11,7 @@ from typing import Iterable
 from .family_models import (
     AmbiguousRelationship,
     Artifact,
+    ArtifactChronologyProxy,
     ArtifactGroupAnalysis,
     BundleKey,
     BundleVariant,
@@ -65,6 +66,10 @@ class FamilyAnalyzer:
             shingle_size=self._policy.shingle_size,
         )
         similarity_index = _SimilarityIndex(similarities)
+        effective_chronology = _build_effective_chronology(
+            bundle_variants,
+            similarity_index,
+        )
 
         family_scope = self._analyze_family_scope(
             artifact_tuple,
@@ -72,6 +77,7 @@ class FamilyAnalyzer:
             skill_variants,
             bundle_variants,
             declared_sources,
+            effective_chronology,
         )
         group_analyses = _build_group_analyses(
             artifact_tuple,
@@ -89,6 +95,11 @@ class FamilyAnalyzer:
             skill_variants=skill_variants,
             bundle_variants=bundle_variants,
             artifacts=artifact_tuple,
+            chronology_proxies=_build_artifact_chronology_proxies(
+                artifact_tuple,
+                bundle_variants,
+                effective_chronology,
+            ),
         )
 
     def _analyze_family_scope(
@@ -98,6 +109,7 @@ class FamilyAnalyzer:
         skill_variants: tuple[SkillVariant, ...],
         bundle_variants: tuple[BundleVariant, ...],
         declared_sources: "_DeclaredSourceIndex",
+        effective_chronology: dict[BundleKey, "_ChronologyPoint"],
     ) -> ScopeAnalysis:
         """Build family-wide clusters and evolution graphs once."""
 
@@ -136,6 +148,7 @@ class FamilyAnalyzer:
                     similarity_index,
                     self._policy,
                     declared_sources,
+                    effective_chronology,
                 ),
             )
             for index, (file_shas, cluster_artifacts, cluster_bundles) in enumerate(
@@ -570,6 +583,7 @@ def _build_evolution_graph(
     similarity_index: _SimilarityIndex,
     policy: SimilarityPolicy,
     declared_sources: _DeclaredSourceIndex,
+    effective_chronology: dict[BundleKey, _ChronologyPoint],
 ) -> EvolutionGraph:
     if not bundles:
         return EvolutionGraph(
@@ -582,10 +596,6 @@ def _build_evolution_graph(
     directed_candidates: list[_DirectedCandidate] = []
     ambiguous: list[AmbiguousRelationship] = []
     cluster_bundle_keys = frozenset(bundle.key for bundle in bundles)
-    effective_chronology = _build_effective_chronology(
-        bundles,
-        similarity_index,
-    )
 
     for left, right in combinations(bundles, 2):
         relation = _bundle_relationship(
@@ -956,6 +966,40 @@ def _build_effective_chronology(
                 )
 
     return chronology
+
+
+def _build_artifact_chronology_proxies(
+    artifacts: tuple[Artifact, ...],
+    bundles: tuple[BundleVariant, ...],
+    effective_chronology: dict[BundleKey, _ChronologyPoint],
+) -> tuple[ArtifactChronologyProxy, ...]:
+    """Expose equivalent-state chronology only for artifacts lacking their own date."""
+
+    by_id = {artifact.artifact_id: artifact for artifact in artifacts}
+    proxies: list[ArtifactChronologyProxy] = []
+
+    for bundle in bundles:
+        chronology = effective_chronology.get(bundle.key)
+        if chronology is None:
+            continue
+
+        for artifact_id in bundle.artifact_ids:
+            artifact = by_id[artifact_id]
+            if _parse_timestamp(artifact.first_commit_at) is not None:
+                continue
+            if chronology.source_artifact_id == artifact_id:
+                continue
+
+            proxies.append(
+                ArtifactChronologyProxy(
+                    artifact_id=artifact_id,
+                    effective_chronology=chronology.observed_text,
+                    chronology_basis="equivalent-peer",
+                    chronology_source_artifact_id=chronology.source_artifact_id,
+                )
+            )
+
+    return tuple(sorted(proxies, key=lambda proxy: proxy.artifact_id))
 
 
 def _equivalent_bundle_state(

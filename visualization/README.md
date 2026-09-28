@@ -30,13 +30,19 @@ loaded successfully. Malformed JSON, `scan_family` output, older prototype forma
 and unrelated JSON files are ignored.
 
 `analyze_family` reports contain the family clusters, directed evolution edges,
-peer relationships, and root candidates used by the graph. The default JSON omits
-the full pairwise similarity matrix to keep visualization reports smaller; pass
-`--verbose` only when that diagnostic detail is needed. For example:
+peer relationships, root candidates, and any equivalent-peer chronology needed by
+the graph. The default JSON is intentionally compact: diagnostic artifact/group
+metadata, variant listings, provenance details, and the full pairwise similarity
+matrix are written only with `--verbose`. For example:
 
 ```sh
 analyze_family busybox-on-windows --json --output visualization/reports
 ```
+
+When `--output` is used without `--json`, the command prints the exact JSON path.
+Verbose reports are marked with `(verbose)`; the default compact report is unmarked.
+Remember that `--output reports` from the repository root writes to `./reports/`;
+the viewer reads only `visualization/reports/`.
 
 The graph is built from the selected report. The viewer does not recalculate family
 ancestry from DuckDB.
@@ -123,18 +129,19 @@ file, its pane says `No such file for this artifact.` while the existing side sh
 its contents and the addition/removal highlighting.
 
 The metadata display uses **Artifact Sibling Count**, computed from the same filtered
-`artifact_siblings` rows used by the sibling dropdown. When direction relies on an
-equivalent peer's observed chronology, the relationship panel also shows the
-effective chronology, its `equivalent-peer` basis, and the artifact that supplied
-that date. Comparison panels always show
-**Repo created**, **Commit history**, **First commit**, **Last commit**, and **Commit count**;
-missing values are displayed as `Unknown` instead of being hidden. `Repo created` comes from
-the `repos` table, and **Commit history** reports whether artifact history was fetched. Dates
-are displayed as `YYYY-MM-DD`. Relationship panels surface the relationship type, basis, and
-direction evidence recorded by `analyze_family`. Normalized description is omitted from
-artifact comparison metadata because the human-readable description is already shown, and
-filename is omitted because the full path already includes it. The older `Has scripts` and
-`Has references` fields are not displayed.
+`artifact_siblings` rows used by the sibling dropdown. Commit-history fields are shown
+only when commit chronology is actually available. If an artifact has no usable commit
+chronology, the panel instead shows **Effective chronology**, **Chronology basis**, and
+**Chronology source** from an equivalent peer when available. If no equivalent peer can
+supply chronology, those proxy fields show `Unknown`. `Repo created` remains separate
+repository context and is shown when available. When direction relies on an equivalent
+peer's observed chronology, the relationship panel also shows the same supporting proxy
+evidence. Dates are displayed as `YYYY-MM-DD`. Relationship panels surface the
+relationship type, basis, and direction evidence recorded by `analyze_family`.
+Normalized description is omitted from artifact comparison metadata because the
+human-readable description is already shown, and filename is omitted because the full
+path already includes it. The older `Has scripts` and `Has references` fields are not
+displayed.
 
 Useful artifact identifiers and Base -> Derived IDs have copy buttons. Long metadata
 values are constrained to scrollable areas so they do not overwhelm the detail panel.

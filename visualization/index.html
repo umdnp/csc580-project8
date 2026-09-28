@@ -668,6 +668,7 @@ function basisText(basis) {
     'chronology': 'Chronology',
     'repo-created-boundary': 'Repository creation boundary',
     'equivalent-peer-chronology': 'Equivalent-peer chronology',
+    'equivalent-peer': 'Equivalent peer',
     'declared-source': 'Declared source',
     'equivalent-state': 'Equivalent state',
     'similarity-only': 'Similarity only',
@@ -940,14 +941,29 @@ async function copyText(text, button) {
 const PRIMARY_FIELDS = [
   ['id','Artifact ID'],['name','Name'],['description','Description'],
   ['repo_full_name','Repository'],['path','Path'],['repo_created_at','Repo created'],
-  ['history_fetched','Commit history'],['first_commit_at','First commit'],['last_commit_at','Last commit'],
-  ['commit_count','Commit count'],['artifact_sibling_count','Artifact Sibling Count'],['file_sha','File SHA'],
+  ['artifact_sibling_count','Artifact Sibling Count'],['file_sha','File SHA'],
   ['body_chars','Body characters'],['location_class','Location class'],['group_id','Artifact group']
 ];
 
-const ALWAYS_VISIBLE_ARTIFACT_FIELDS = new Set([
-  'repo_created_at', 'history_fetched', 'first_commit_at', 'last_commit_at', 'commit_count'
-]);
+const COMMIT_FIELDS = [
+  ['history_fetched','Commit history'],['first_commit_at','First commit'],
+  ['last_commit_at','Last commit'],['commit_count','Commit count']
+];
+
+function historyWasFetched(value) {
+  return value === true
+    || value === 1
+    || String(value).toLowerCase() === 'true'
+    || String(value) === '1';
+}
+
+function hasCommitChronology(artifact) {
+  if (!artifact) return false;
+  return historyWasFetched(artifact.history_fetched)
+    || artifact.first_commit_at !== null && artifact.first_commit_at !== undefined && artifact.first_commit_at !== ''
+    || artifact.last_commit_at !== null && artifact.last_commit_at !== undefined && artifact.last_commit_at !== ''
+    || artifact.commit_count !== null && artifact.commit_count !== undefined && artifact.commit_count !== '';
+}
 
 function artifactBox(title, artifact) {
   const box = document.createElement('section'); box.className = 'meta-box';
@@ -966,14 +982,39 @@ function artifactBox(title, artifact) {
   const shown = new Set();
   for (const [key, label] of PRIMARY_FIELDS) {
     const value = artifact ? artifact[key] : null;
-    if (ALWAYS_VISIBLE_ARTIFACT_FIELDS.has(key) || (value !== undefined && value !== null)) {
+    if (value !== undefined && value !== null && value !== '') {
       addKv(dl, label, artifactFieldText(key, value));
       shown.add(key);
     }
   }
+
+  if (hasCommitChronology(artifact)) {
+    for (const [key, label] of COMMIT_FIELDS) {
+      const value = artifact ? artifact[key] : null;
+      if (key === 'history_fetched' && !historyWasFetched(value)) {
+        shown.add(key);
+        continue;
+      }
+      if (value !== undefined && value !== null && value !== '') {
+        addKv(dl, label, artifactFieldText(key, value));
+      }
+      shown.add(key);
+    }
+  } else {
+    addKv(dl, 'Effective chronology', dateText(artifact?.effective_chronology));
+    addKv(dl, 'Chronology basis', artifact?.chronology_basis ? basisText(artifact.chronology_basis) : 'Unknown');
+    addKv(dl, 'Chronology source', artifact?.chronology_source_artifact_id ? `Artifact ${artifact.chronology_source_artifact_id}` : 'Unknown');
+    shown.add('effective_chronology');
+    shown.add('chronology_basis');
+    shown.add('chronology_source_artifact_id');
+    for (const [key] of COMMIT_FIELDS) shown.add(key);
+  }
   box.append(dl);
 
-  const hiddenMetadata = new Set(['normalized_description', 'filename']);
+  const hiddenMetadata = new Set([
+    'normalized_description', 'filename', 'effective_chronology',
+    'chronology_basis', 'chronology_source_artifact_id'
+  ]);
   const extras = Object.entries(artifact || {}).filter(([key, value]) => !shown.has(key) && key !== 'id' && !hiddenMetadata.has(key) && value !== null && value !== undefined && value !== '');
   if (extras.length) {
     const details = document.createElement('details'); details.className = 'metadata';

@@ -54,6 +54,14 @@ class ViewerTests(unittest.TestCase):
                 "directed_edge_count": 2,
                 "ambiguous_edge_count": 1,
             },
+            "chronology_proxies": [
+                {
+                    "artifact_id": 40,
+                    "effective_chronology": "2026-03-01",
+                    "chronology_basis": "equivalent-peer",
+                    "chronology_source_artifact_id": 30,
+                }
+            ],
             "family": {
                 "artifact_ids": [10, 20, 30, 40],
                 "clusters": [
@@ -168,6 +176,35 @@ class ViewerTests(unittest.TestCase):
         )
         self.assertEqual((graph["ambiguous"][0]["left"], graph["ambiguous"][0]["right"]), (20, 30))
         self.assertEqual(graph["roots"], [10, 30])
+
+    def test_compact_report_without_diagnostic_collections_is_valid(self):
+        compact = {
+            key: value
+            for key, value in self.raw.items()
+            if key not in {"groups", "skill_variants", "bundle_variants", "provenance"}
+        }
+        compact["family"] = {
+            "clusters": compact["family"]["clusters"],
+        }
+        self.write("compact.json", compact)
+        server._cached_key = server._cached_report = None
+
+        response = self.client.get("/api/reports/compact.json/summary")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["name"], "example-family")
+
+    def test_chronology_proxy_is_merged_into_artifact_details(self):
+        records = {40: {"id": 40, "name": "proxy-derived", "history_fetched": 0}}
+        with (
+            patch.object(server, "fetch_artifact_records", return_value=records),
+            patch.object(server, "fetch_sibling_records", return_value=[]),
+            patch.object(server, "database_health", return_value=self.healthy_status()),
+        ):
+            result = self.client.get("/api/reports/example.json/artifacts/40/details").json()
+
+        self.assertEqual(result["artifact"]["effective_chronology"], "2026-03-01")
+        self.assertEqual(result["artifact"]["chronology_basis"], "equivalent-peer")
+        self.assertEqual(result["artifact"]["chronology_source_artifact_id"], 30)
 
     def test_compare_to_lists_parent_first_then_ambiguous_peer(self):
         records = {
@@ -378,6 +415,16 @@ class ViewerTests(unittest.TestCase):
                     self.rows = []
                 elif "SELECT id, created_at FROM repos WHERE id IN" in sql:
                     self.rows = [(7, "2024-11-18 13:14:15")]
+                elif sql == "SELECT * FROM artifact_groupings LIMIT 0":
+                    self.description = [
+                        ("id",),
+                        ("artifact_id",),
+                        ("sibling_file_count",),
+                        ("sibling_content_sha",),
+                    ]
+                    self.rows = []
+                elif "FROM artifact_groupings WHERE artifact_id IN" in sql:
+                    self.rows = [(99, 20, 0, "empty-sha")]
                 else:
                     raise AssertionError(f"Unexpected SQL: {sql}")
                 return self
@@ -401,6 +448,9 @@ class ViewerTests(unittest.TestCase):
         self.assertIsNone(records[20]["last_commit_at"])
         self.assertIsNone(records[20]["commit_count"])
         self.assertEqual(records[20]["repo_created_at"], "2024-11-18 13:14:15")
+        self.assertEqual(records[20]["group_id"], 99)
+        self.assertEqual(records[20]["sibling_file_count"], 0)
+        self.assertEqual(records[20]["sibling_content_sha"], "empty-sha")
 
     def test_artifact_content_endpoint(self):
         artifact_record = {
