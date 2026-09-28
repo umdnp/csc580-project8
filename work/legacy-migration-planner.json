@@ -1,0 +1,197 @@
+{
+  "name": "legacy-migration-planner",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "artifact_count": 5,
+  "cluster_count": 1,
+  "comparison_count": 3,
+  "notes": [
+    "Relationships are inferred using exploratory thresholds.",
+    "Scanner changes do not by themselves establish increased risk.",
+    "Only SKILL.md content is scanned; sibling files are not compared.",
+    "Ambiguous relationships are listed without directional scanning."
+  ],
+  "comparisons": [
+    {
+      "cluster": 1,
+      "base": {
+        "artifact_id": 2044216
+      },
+      "derived": {
+        "artifact_id": 3306314
+      },
+      "relationship": {
+        "source_artifact_id": 2044216,
+        "target_artifact_id": 3306314,
+        "basis": "containment",
+        "containment": 0.9718706047819972,
+        "jaccard": 0.4031505250875146,
+        "shared_shingles": 691,
+        "change_type": "skill+siblings",
+        "evidence": [],
+        "shared_group_ids": [],
+        "same_artifact_group": false
+      },
+      "scan_diff": {
+        "introduced": {
+          "command_execution": false,
+          "network_access": true,
+          "filesystem_access": false,
+          "credential_access": false,
+          "external_code_execution": false,
+          "system_modification": false
+        },
+        "rule_match_count": {
+          "base": 1,
+          "derived": 3,
+          "delta": 2
+        },
+        "rule_deltas": {
+          "NET-001": {
+            "base": 0,
+            "derived": 1,
+            "delta": 1
+          },
+          "SYS-002": {
+            "base": 1,
+            "derived": 2,
+            "delta": 1
+          }
+        }
+      }
+    },
+    {
+      "cluster": 1,
+      "base": {
+        "artifact_id": 2090132
+      },
+      "derived": {
+        "artifact_id": 2093346
+      },
+      "relationship": {
+        "source_artifact_id": 2090132,
+        "target_artifact_id": 2093346,
+        "basis": "chronology",
+        "containment": 1.0,
+        "jaccard": 1.0,
+        "shared_shingles": 711,
+        "change_type": "siblings-only",
+        "evidence": [],
+        "shared_group_ids": [
+          377450
+        ],
+        "same_artifact_group": true
+      },
+      "scan_diff": {
+        "introduced": {
+          "command_execution": false,
+          "network_access": false,
+          "filesystem_access": false,
+          "credential_access": false,
+          "external_code_execution": false,
+          "system_modification": false
+        },
+        "rule_match_count": {
+          "base": 1,
+          "derived": 1,
+          "delta": 0
+        },
+        "rule_deltas": {}
+      }
+    },
+    {
+      "cluster": 1,
+      "base": {
+        "artifact_id": 3306314
+      },
+      "derived": {
+        "artifact_id": 3335142
+      },
+      "relationship": {
+        "source_artifact_id": 3306314,
+        "target_artifact_id": 3335142,
+        "basis": "declared-source",
+        "containment": 0.9852420306965761,
+        "jaccard": 0.9737456242707118,
+        "shared_shingles": 1669,
+        "change_type": "skill+siblings",
+        "evidence": [
+          "derived_from",
+          "upstream_skill",
+          "source_repo"
+        ],
+        "shared_group_ids": [
+          192462
+        ],
+        "same_artifact_group": true
+      },
+      "scan_diff": {
+        "introduced": {
+          "command_execution": false,
+          "network_access": false,
+          "filesystem_access": false,
+          "credential_access": false,
+          "external_code_execution": false,
+          "system_modification": false
+        },
+        "rule_match_count": {
+          "base": 3,
+          "derived": 3,
+          "delta": 0
+        },
+        "rule_deltas": {}
+      }
+    }
+  ],
+  "ambiguous_relationships": [
+    {
+      "cluster": 1,
+      "left": {
+        "artifact_id": 2044216
+      },
+      "right": {
+        "artifact_id": 2090132
+      },
+      "relationship": {
+        "left_artifact_id": 2044216,
+        "right_artifact_id": 2090132,
+        "basis": "similarity-only",
+        "containment_left_to_right": 1.0,
+        "containment_right_to_left": 1.0,
+        "jaccard": 1.0,
+        "shared_shingles": 711,
+        "change_type": "siblings-only",
+        "evidence": [],
+        "shared_group_ids": [],
+        "same_artifact_group": false
+      }
+    },
+    {
+      "cluster": 1,
+      "left": {
+        "artifact_id": 2044216
+      },
+      "right": {
+        "artifact_id": 2093346
+      },
+      "relationship": {
+        "left_artifact_id": 2044216,
+        "right_artifact_id": 2093346,
+        "basis": "similarity-only",
+        "containment_left_to_right": 1.0,
+        "containment_right_to_left": 1.0,
+        "jaccard": 1.0,
+        "shared_shingles": 711,
+        "change_type": "equivalent",
+        "evidence": [],
+        "shared_group_ids": [],
+        "same_artifact_group": false
+      }
+    }
+  ]
+}
