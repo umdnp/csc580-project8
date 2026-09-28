@@ -12,7 +12,7 @@ from .models import AnalysisResult, RiskProfile
 
 
 class SkillAnalyzer:
-    """Analyzes skill text and produces a security capability profile."""
+    """Analyzes text and produces a security capability profile."""
 
     def __init__(self, rules: Iterable[Rule] | None = None) -> None:
         self._rules = tuple(DEFAULT_RULES if rules is None else rules)
@@ -24,10 +24,19 @@ class SkillAnalyzer:
 
         return self._rules
 
-    def scan(self, text: str) -> AnalysisResult:
-        """Analyze artifact text and return its profile and rule matches."""
+    def scan(
+        self,
+        text: str,
+        *,
+        exclude_frontmatter: bool = True,
+    ) -> AnalysisResult:
+        """Analyze text and return its profile and rule matches.
 
-        scan_text = mask_frontmatter(text)
+        SKILL.md scans exclude YAML frontmatter by default. Callers scanning
+        non-skill resources, such as sibling scripts, can disable that behavior.
+        """
+
+        scan_text = mask_frontmatter(text) if exclude_frontmatter else text
         rule_matches = tuple(
             rule_match
             for rule in self._rules
