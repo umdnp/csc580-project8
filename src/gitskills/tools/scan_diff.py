@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Sequence
@@ -16,6 +17,7 @@ from gitskills.analysis.models import (
     RiskCategory,
     RuleMatch,
 )
+from . import _output
 
 
 LOGGER = logging.getLogger("gitskills.scan_diff")
@@ -46,6 +48,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Include source profiles and individual rule matches.",
     )
+    _output.add_argument(parser)
     return parser
 
 
@@ -54,6 +57,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+    try:
+        output_dir = _output.prepare_directory(args.output)
+    except _output.OutputError as exc:
+        print(exc, file=sys.stderr)
+        return 2
 
     try:
         base_text = _read_text(args.base)
@@ -69,12 +78,38 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     _log_rule_changes(comparison, verbose=args.verbose)
 
-    print(json.dumps(comparison.to_dict(verbose=args.verbose), indent=2))
+    payload = comparison.to_dict(verbose=args.verbose)
+    if output_dir is not None:
+        try:
+            _output.write_json(
+                output_dir,
+                _output_file_stem(args.derived),
+                payload,
+            )
+        except _output.OutputError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+
+    print(json.dumps(payload, indent=2))
     return 0
 
 
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8-sig")
+
+
+def _output_file_stem(derived: Path) -> str:
+    if derived.name.lower() == "skill.md":
+        stem = derived.resolve(strict=False).parent.name
+    else:
+        stem = derived.stem
+
+    if not stem:
+        raise _output.OutputError(
+            f"Unable to derive an output file name from: {derived}"
+        )
+
+    return stem
 
 
 def _log_rule_changes(
