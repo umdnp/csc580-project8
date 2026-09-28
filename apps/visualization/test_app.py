@@ -8,11 +8,11 @@ import unittest
 import sys
 from types import SimpleNamespace
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
-server = importlib.import_module("visualization.app")
+server = importlib.import_module("apps.visualization.app")
 
 
 class ViewerTests(unittest.TestCase):
@@ -21,6 +21,8 @@ class ViewerTests(unittest.TestCase):
         self.directory = Path(self.temp.name).resolve()
         self.old_directory = server.REPORT_DIR
         self.old_db = os.environ.get(server.DB_ENV)
+        self.old_db_override = server._database_path_override
+        server.configure_database_path(None)
         server.REPORT_DIR = self.directory
         server._cached_key = server._cached_report = None
         self.client = TestClient(server.app)
@@ -35,6 +37,7 @@ class ViewerTests(unittest.TestCase):
             os.environ.pop(server.DB_ENV, None)
         else:
             os.environ[server.DB_ENV] = self.old_db
+        server._database_path_override = self.old_db_override
         self.temp.cleanup()
 
     @staticmethod
@@ -78,14 +81,21 @@ class ViewerTests(unittest.TestCase):
                                 {
                                     "source_artifact_id": 20,
                                     "target_artifact_id": 40,
-                                    "basis": "chronology",
+                                    "basis": "equivalent-peer-chronology",
                                     "containment": 0.88,
                                     "jaccard": 0.61,
                                     "shared_shingles": 31,
                                     "change_type": "skill+siblings",
-                                    "evidence": ["first_commit_at"],
+                                    "evidence": ["first_commit_at", "equivalent-peer"],
                                     "shared_group_ids": [],
                                     "same_artifact_group": False,
+                                    "chronology": {
+                                        "target": {
+                                            "effective_chronology": "2026-03-01",
+                                            "chronology_basis": "equivalent-peer",
+                                            "chronology_source_artifact_id": 30,
+                                        }
+                                    },
                                 },
                             ],
                             "ambiguous_edges": [
@@ -126,7 +136,6 @@ class ViewerTests(unittest.TestCase):
                 {"file_sha": "bbb", "sibling_content_sha": "s2", "sibling_state_known": True, "artifact_ids": [20], "representative_artifact_id": 20, "earliest_observed_at": "2026-02-01"},
             ],
             "provenance": [],
-            "similarities": [],
         }
 
     @staticmethod
@@ -154,6 +163,12 @@ class ViewerTests(unittest.TestCase):
         graph = self.client.get("/api/reports/example.json/clusters/1").json()
         self.assertEqual({node["id"] for node in graph["nodes"]}, {10, 20, 30, 40})
         self.assertEqual((graph["edges"][0]["source"], graph["edges"][0]["target"]), (10, 20))
+        chronology_edge = next(edge for edge in graph["edges"] if edge["target"] == 40)
+        self.assertEqual(chronology_edge["basis"], "equivalent-peer-chronology")
+        self.assertEqual(
+            chronology_edge["chronology"]["target"]["chronology_source_artifact_id"],
+            30,
+        )
         self.assertEqual((graph["ambiguous"][0]["left"], graph["ambiguous"][0]["right"]), (20, 30))
         self.assertEqual(graph["roots"], [10, 30])
 
@@ -178,6 +193,7 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in result["comparisons"]], [10, 30])
         self.assertEqual([item["kind"] for item in result["comparisons"]], ["parent", "ambiguous"])
         self.assertEqual(result["comparisons"][0]["label"], "Artifact 10 (parent)")
+        self.assertEqual(result["comparisons"][1]["label"], "Artifact 30 (equivalent)")
         self.assertEqual(result["comparison"]["id"], 10)
         self.assertEqual(result["relationship"]["basis"], "containment")
         self.assertEqual(result["artifact"]["artifact_sibling_count"], 1)
@@ -336,6 +352,59 @@ class ViewerTests(unittest.TestCase):
         self.assertIn("content IS NOT NULL", connection.sql)
         self.assertEqual(connection.parameters, [20])
 
+
+    def test_fetch_artifact_records_adds_history_and_repo_created_metadata(self):
+        db_path = self.directory / "artifacts.db"
+        db_path.touch()
+
+        class FakeConnection:
+            def __init__(self):
+                self.description = []
+                self.rows = []
+
+            def execute(self, sql, parameters=None):
+                if sql == "SELECT * FROM artifacts LIMIT 0":
+                    self.description = [
+                        ("id",),
+                        ("repo_id",),
+                        ("name",),
+                        ("history_fetched",),
+                        ("first_commit_at",),
+                        ("last_commit_at",),
+                        ("commit_count",),
+                    ]
+                    self.rows = []
+                elif "FROM artifacts WHERE id IN" in sql:
+                    self.rows = [(20, 7, "derived", 0, None, None, None)]
+                elif sql == "SELECT * FROM repos LIMIT 0":
+                    self.description = [("id",), ("created_at",)]
+                    self.rows = []
+                elif "SELECT id, created_at FROM repos WHERE id IN" in sql:
+                    self.rows = [(7, "2024-11-18 13:14:15")]
+                else:
+                    raise AssertionError(f"Unexpected SQL: {sql}")
+                return self
+
+            def fetchall(self):
+                return self.rows
+
+            def close(self):
+                pass
+
+        connection = FakeConnection()
+        fake_duckdb = SimpleNamespace(connect=lambda *_args, **_kwargs: connection)
+        with (
+            patch.object(server, "database_path", return_value=db_path),
+            patch.dict(sys.modules, {"duckdb": fake_duckdb}),
+        ):
+            records = server.fetch_artifact_records([20])
+
+        self.assertEqual(records[20]["history_fetched"], 0)
+        self.assertIsNone(records[20]["first_commit_at"])
+        self.assertIsNone(records[20]["last_commit_at"])
+        self.assertIsNone(records[20]["commit_count"])
+        self.assertEqual(records[20]["repo_created_at"], "2024-11-18 13:14:15")
+
     def test_artifact_content_endpoint(self):
         artifact_record = {
             20: {
@@ -350,6 +419,30 @@ class ViewerTests(unittest.TestCase):
             artifact = self.client.get("/api/reports/example.json/artifacts/20/content")
         self.assertEqual(artifact.status_code, 200)
         self.assertEqual(artifact.json()["content"], "# Derived\nHello\n")
+
+    def test_compact_analyze_family_report_is_listed_and_loads_proxy_chronology(self):
+        payload = self.family_report()
+        for key in ("groups", "skill_variants", "bundle_variants", "provenance"):
+            payload.pop(key, None)
+        payload["family"].pop("artifact_ids", None)
+        payload["chronology_proxies"] = [
+            {
+                "artifact_id": 20,
+                "effective_chronology": "2026-01-15T09:30:00+00:00",
+                "chronology_basis": "equivalent-peer",
+                "chronology_source_artifact_id": 10,
+            }
+        ]
+        self.write("compact.json", payload)
+
+        listing = self.client.get("/api/reports").json()["reports"]
+        self.assertIn("compact.json", listing)
+
+        index = server.build_index(payload)
+        proxy = index["artifact_meta"][20]
+        self.assertEqual(proxy["effective_chronology"], "2026-01-15T09:30:00+00:00")
+        self.assertEqual(proxy["chronology_basis"], "equivalent-peer")
+        self.assertEqual(proxy["chronology_source_artifact_id"], 10)
 
     def test_non_analyze_family_reports_are_rejected_and_hidden_from_listing(self):
         legacy = {"name": "legacy", "artifact_count": 2, "cluster_count": 1, "comparisons": []}
@@ -409,14 +502,57 @@ class ViewerTests(unittest.TestCase):
         self.assertIsNone(result["error"])
         self.assertEqual(
             connection.queries,
-            ["SELECT 1 FROM artifacts LIMIT 1", "SELECT 1 FROM artifact_siblings LIMIT 1"],
+            [
+                "SELECT 1 FROM artifacts LIMIT 1",
+                "SELECT 1 FROM artifact_siblings LIMIT 1",
+                "SELECT 1 FROM repos LIMIT 1",
+            ],
         )
 
-    def test_database_path_prefers_environment_variable(self):
+    def test_database_path_precedence_is_environment_then_cli_then_default(self):
         os.environ.pop(server.DB_ENV, None)
+        server.configure_database_path(None)
         self.assertEqual(str(server.database_path()), server.DEFAULT_DB_PATH)
-        os.environ[server.DB_ENV] = "/tmp/custom.db"
-        self.assertEqual(server.database_path(), Path("/tmp/custom.db"))
+        self.assertEqual(server.database_source(), "default")
+
+        server.configure_database_path("/tmp/command-line.db")
+        self.assertEqual(server.database_path(), Path("/tmp/command-line.db"))
+        self.assertEqual(server.database_source(), "--db")
+
+        os.environ[server.DB_ENV] = "/tmp/environment.db"
+        self.assertEqual(server.database_path(), Path("/tmp/environment.db"))
+        self.assertEqual(server.database_source(), server.DB_ENV)
+
+        server.configure_database_path(None)
+        self.assertEqual(server.database_path(), Path("/tmp/environment.db"))
+
+    def test_main_accepts_db_host_and_port_arguments(self):
+        fake_uvicorn = SimpleNamespace(run=Mock())
+        with (
+            patch.dict(os.environ, {}, clear=False),
+            patch.dict(sys.modules, {"uvicorn": fake_uvicorn}),
+        ):
+            os.environ.pop(server.DB_ENV, None)
+            server.main(["--db", "/tmp/cli.db", "--host", "127.0.0.2", "--port", "8123"])
+            self.assertEqual(server.database_path(), Path("/tmp/cli.db"))
+
+        fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.2", port=8123)
+
+    def test_environment_overrides_main_db_argument(self):
+        fake_uvicorn = SimpleNamespace(run=Mock())
+        with (
+            patch.dict(os.environ, {server.DB_ENV: "/tmp/environment.db"}),
+            patch.dict(sys.modules, {"uvicorn": fake_uvicorn}),
+        ):
+            server.main(["--db", "/tmp/cli.db"])
+            self.assertEqual(server.database_path(), Path("/tmp/environment.db"))
+            self.assertEqual(server.database_source(), server.DB_ENV)
+
+        fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.1", port=8000)
+
+    def test_package_exports_fastapi_app(self):
+        package = importlib.import_module("apps.visualization")
+        self.assertIs(package.app, server.app)
 
     def test_cache_file_change_path_restrictions_and_home(self):
         server.load_report("example.json")

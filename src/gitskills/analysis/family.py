@@ -11,10 +11,12 @@ from typing import Iterable
 from .family_models import (
     AmbiguousRelationship,
     Artifact,
+    ArtifactChronologyProxy,
     ArtifactGroupAnalysis,
     BundleKey,
     BundleVariant,
     ChangeType,
+    ChronologyEvidence,
     ClusterAnalysis,
     EvolutionEdge,
     EvolutionGraph,
@@ -64,6 +66,10 @@ class FamilyAnalyzer:
             shingle_size=self._policy.shingle_size,
         )
         similarity_index = _SimilarityIndex(similarities)
+        effective_chronology = _build_effective_chronology(
+            bundle_variants,
+            similarity_index,
+        )
 
         family_scope = self._analyze_family_scope(
             artifact_tuple,
@@ -71,6 +77,7 @@ class FamilyAnalyzer:
             skill_variants,
             bundle_variants,
             declared_sources,
+            effective_chronology,
         )
         group_analyses = _build_group_analyses(
             artifact_tuple,
@@ -88,6 +95,11 @@ class FamilyAnalyzer:
             skill_variants=skill_variants,
             bundle_variants=bundle_variants,
             artifacts=artifact_tuple,
+            chronology_proxies=_build_artifact_chronology_proxies(
+                artifact_tuple,
+                bundle_variants,
+                effective_chronology,
+            ),
         )
 
     def _analyze_family_scope(
@@ -97,6 +109,7 @@ class FamilyAnalyzer:
         skill_variants: tuple[SkillVariant, ...],
         bundle_variants: tuple[BundleVariant, ...],
         declared_sources: "_DeclaredSourceIndex",
+        effective_chronology: dict[BundleKey, "_ChronologyPoint"],
     ) -> ScopeAnalysis:
         """Build family-wide clusters and evolution graphs once."""
 
@@ -135,6 +148,7 @@ class FamilyAnalyzer:
                     similarity_index,
                     self._policy,
                     declared_sources,
+                    effective_chronology,
                 ),
             )
             for index, (file_shas, cluster_artifacts, cluster_bundles) in enumerate(
@@ -152,6 +166,31 @@ class FamilyAnalyzer:
 
 
 @dataclass(frozen=True, slots=True)
+class _ChronologyPoint:
+    observed_at: datetime
+    observed_text: str
+    basis: str
+    source_artifact_id: int
+
+    def to_evidence(self) -> ChronologyEvidence:
+        return ChronologyEvidence(
+            effective_chronology=self.observed_text,
+            chronology_basis=self.basis,
+            chronology_source_artifact_id=self.source_artifact_id,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _DirectionDecision:
+    source: BundleVariant
+    target: BundleVariant
+    basis: str
+    evidence: tuple[str, ...] = ()
+    source_chronology: _ChronologyPoint | None = None
+    target_chronology: _ChronologyPoint | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class _DirectedCandidate:
     source: BundleVariant
     target: BundleVariant
@@ -162,6 +201,8 @@ class _DirectedCandidate:
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
     evidence: tuple[str, ...] = ()
+    source_chronology: _ChronologyPoint | None = None
+    target_chronology: _ChronologyPoint | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -441,6 +482,20 @@ def _build_bundle_variants(artifacts: tuple[Artifact, ...]) -> tuple[BundleVaria
     ):
         members.sort(key=lambda artifact: artifact.artifact_id)
         representative = _representative_artifact(members)
+        repo_created = [
+            (_parse_timestamp(member.repo_created_at), member.repo_created_at)
+            for member in members
+        ]
+        known_repo_created = [
+            (parsed, raw) for parsed, raw in repo_created if parsed is not None
+        ]
+        repo_created_lower_bound_at = None
+        if len(known_repo_created) == len(members):
+            repo_created_lower_bound_at = min(
+                known_repo_created,
+                key=lambda item: item[0],
+            )[1]
+
         variants.append(
             BundleVariant(
                 key=key,
@@ -448,7 +503,7 @@ def _build_bundle_variants(artifacts: tuple[Artifact, ...]) -> tuple[BundleVaria
                 group_ids=tuple(sorted({member.group_id for member in members})),
                 representative_artifact_id=representative.artifact_id,
                 earliest_observed_at=representative.first_commit_at,
-                earliest_repo_created_at=_earliest_repo_created_at(members),
+                repo_created_lower_bound_at=repo_created_lower_bound_at,
             )
         )
 
@@ -551,6 +606,7 @@ def _build_evolution_graph(
     similarity_index: _SimilarityIndex,
     policy: SimilarityPolicy,
     declared_sources: _DeclaredSourceIndex,
+    effective_chronology: dict[BundleKey, _ChronologyPoint],
 ) -> EvolutionGraph:
     if not bundles:
         return EvolutionGraph(
@@ -572,6 +628,7 @@ def _build_evolution_graph(
             policy,
             declared_sources,
             cluster_bundle_keys,
+            effective_chronology,
         )
         if relation is None:
             continue
@@ -609,6 +666,18 @@ def _build_evolution_graph(
                 change_type=edge.change_type,
                 shared_group_ids=edge.shared_group_ids,
                 evidence=edge.evidence,
+                source_chronology=(
+                    edge.source_chronology.to_evidence()
+                    if edge.source_chronology is not None
+                    and edge.source_chronology.basis == "equivalent-peer"
+                    else None
+                ),
+                target_chronology=(
+                    edge.target_chronology.to_evidence()
+                    if edge.target_chronology is not None
+                    and edge.target_chronology.basis == "equivalent-peer"
+                    else None
+                ),
             )
             for edge in sorted(
                 selected,
@@ -640,87 +709,29 @@ def _bundle_relationship(
     policy: SimilarityPolicy,
     declared_sources: _DeclaredSourceIndex,
     cluster_bundle_keys: frozenset[BundleKey],
+    effective_chronology: dict[BundleKey, _ChronologyPoint],
 ) -> _DirectedCandidate | AmbiguousRelationship | None:
     sibling_changed = _sibling_changed(left, right)
     shared_group_ids = tuple(sorted(set(left.group_ids) & set(right.group_ids)))
 
-    if left.file_sha == right.file_sha:
-        provenance = _infer_declared_source_direction(
-            left,
-            right,
-            declared_sources,
-            cluster_bundle_keys,
-        )
-        if provenance is not None and provenance.conflict:
-            return AmbiguousRelationship(
-                left=left.key,
-                right=right.key,
-                left_artifact_id=left.representative_artifact_id,
-                right_artifact_id=right.representative_artifact_id,
-                basis="provenance-conflict",
-                containment_left_to_right=1.0,
-                containment_right_to_left=1.0,
-                jaccard=1.0,
-                shared_shingles=None,
-                change_type=_classify_change(
-                    left,
-                    right,
-                    result=None,
-                    sibling_changed=sibling_changed,
-                ),
-                shared_group_ids=shared_group_ids,
-                evidence=provenance.evidence,
-            )
+    result = None
+    if left.file_sha != right.file_sha:
+        result = similarity_index.get(left.file_sha, right.file_sha)
+        if result is None or not policy.relates(result):
+            return None
 
-        if provenance is not None:
-            assert provenance.source is not None and provenance.target is not None
-            direction = (provenance.source, provenance.target, "declared-source")
-            evidence = provenance.evidence
-        else:
-            direction = _infer_chronological_direction(left, right)
-            evidence = ()
-
-        if direction is not None:
-            source, target, basis = direction
-            return _DirectedCandidate(
-                source=source,
-                target=target,
-                basis=basis,
-                containment=1.0,
-                jaccard=1.0,
-                shared_shingles=0,
-                change_type=_classify_change(
-                    source,
-                    target,
-                    result=None,
-                    sibling_changed=sibling_changed,
-                ),
-                shared_group_ids=shared_group_ids,
-                evidence=evidence,
-            )
-
-        return AmbiguousRelationship(
-            left=left.key,
-            right=right.key,
-            left_artifact_id=left.representative_artifact_id,
-            right_artifact_id=right.representative_artifact_id,
-            basis="same-content-direction-unknown",
-            containment_left_to_right=1.0,
-            containment_right_to_left=1.0,
-            jaccard=1.0,
-            shared_shingles=None,
-            change_type=_classify_change(
-                left,
-                right,
-                result=None,
-                sibling_changed=sibling_changed,
-            ),
-            shared_group_ids=shared_group_ids,
-        )
-
-    result = similarity_index.get(left.file_sha, right.file_sha)
-    if result is None or not policy.relates(result):
-        return None
+    left_to_right = (
+        1.0
+        if result is None
+        else result.containment(left.file_sha, right.file_sha)
+    )
+    right_to_left = (
+        1.0
+        if result is None
+        else result.containment(right.file_sha, left.file_sha)
+    )
+    jaccard = 1.0 if result is None else result.jaccard
+    shared_shingles = 0 if result is None else result.shared_shingles
 
     provenance = _infer_declared_source_direction(
         left,
@@ -735,16 +746,10 @@ def _bundle_relationship(
             left_artifact_id=left.representative_artifact_id,
             right_artifact_id=right.representative_artifact_id,
             basis="provenance-conflict",
-            containment_left_to_right=result.containment(
-                left.file_sha,
-                right.file_sha,
-            ),
-            containment_right_to_left=result.containment(
-                right.file_sha,
-                left.file_sha,
-            ),
-            jaccard=result.jaccard,
-            shared_shingles=result.shared_shingles,
+            containment_left_to_right=left_to_right,
+            containment_right_to_left=right_to_left,
+            jaccard=jaccard,
+            shared_shingles=None if result is None else shared_shingles,
             change_type=_classify_change(
                 left,
                 right,
@@ -755,13 +760,31 @@ def _bundle_relationship(
             evidence=provenance.evidence,
         )
 
+    change_type = _classify_change(
+        left,
+        right,
+        result=result,
+        sibling_changed=sibling_changed,
+    )
+
     if provenance is not None:
         assert provenance.source is not None and provenance.target is not None
-        direction = (provenance.source, provenance.target, "declared-source")
-        evidence = provenance.evidence
+        direction = _DirectionDecision(
+            source=provenance.source,
+            target=provenance.target,
+            basis="declared-source",
+            evidence=provenance.evidence,
+        )
+    elif change_type is ChangeType.EQUIVALENT:
+        direction = None
     else:
-        direction = _infer_direction(left, right, result, policy)
-        evidence = ()
+        direction = _infer_direction(
+            left,
+            right,
+            result,
+            policy,
+            effective_chronology,
+        )
 
     if direction is None:
         return AmbiguousRelationship(
@@ -769,34 +792,37 @@ def _bundle_relationship(
             right=right.key,
             left_artifact_id=left.representative_artifact_id,
             right_artifact_id=right.representative_artifact_id,
-            basis="similarity-only",
-            containment_left_to_right=result.containment(
-                left.file_sha,
-                right.file_sha,
+            basis=(
+                "equivalent-state"
+                if change_type is ChangeType.EQUIVALENT
+                else (
+                    "same-content-direction-unknown"
+                    if result is None
+                    else "similarity-only"
+                )
             ),
-            containment_right_to_left=result.containment(
-                right.file_sha,
-                left.file_sha,
-            ),
-            jaccard=result.jaccard,
-            shared_shingles=result.shared_shingles,
-            change_type=_classify_change(
-                left,
-                right,
-                result=result,
-                sibling_changed=sibling_changed,
-            ),
+            containment_left_to_right=left_to_right,
+            containment_right_to_left=right_to_left,
+            jaccard=jaccard,
+            shared_shingles=None if result is None else shared_shingles,
+            change_type=change_type,
             shared_group_ids=shared_group_ids,
         )
 
-    source, target, basis = direction
+    source = direction.source
+    target = direction.target
+    containment = (
+        1.0
+        if result is None
+        else result.containment(source.file_sha, target.file_sha)
+    )
     return _DirectedCandidate(
         source=source,
         target=target,
-        basis=basis,
-        containment=result.containment(source.file_sha, target.file_sha),
-        jaccard=result.jaccard,
-        shared_shingles=result.shared_shingles,
+        basis=direction.basis,
+        containment=containment,
+        jaccard=jaccard,
+        shared_shingles=shared_shingles,
         change_type=_classify_change(
             source,
             target,
@@ -804,7 +830,9 @@ def _bundle_relationship(
             sibling_changed=sibling_changed,
         ),
         shared_group_ids=shared_group_ids,
-        evidence=evidence,
+        evidence=direction.evidence,
+        source_chronology=direction.source_chronology,
+        target_chronology=direction.target_chronology,
     )
 
 
@@ -889,19 +917,187 @@ def _classify_change(
     )
 
 
-def _infer_chronological_direction(
+def _build_effective_chronology(
+    bundles: tuple[BundleVariant, ...],
+    similarity_index: _SimilarityIndex,
+) -> dict[BundleKey, _ChronologyPoint]:
+    """Use the earliest observed equivalent bundle state as supporting chronology."""
+
+    adjacency = {bundle.key: set() for bundle in bundles}
+    by_key = {bundle.key: bundle for bundle in bundles}
+
+    for left, right in combinations(bundles, 2):
+        if not _equivalent_bundle_state(left, right, similarity_index):
+            continue
+        adjacency[left.key].add(right.key)
+        adjacency[right.key].add(left.key)
+
+    chronology: dict[BundleKey, _ChronologyPoint] = {}
+    unseen = set(adjacency)
+    while unseen:
+        start_key = min(
+            unseen,
+            key=lambda key: by_key[key].representative_artifact_id,
+        )
+        stack = [start_key]
+        component: list[BundleVariant] = []
+        visited: set[BundleKey] = set()
+
+        while stack:
+            current = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            unseen.discard(current)
+            component.append(by_key[current])
+            stack.extend(adjacency[current] - visited)
+
+        observed = []
+        for bundle in component:
+            parsed = _parse_timestamp(bundle.earliest_observed_at)
+            if parsed is not None and bundle.earliest_observed_at is not None:
+                observed.append(
+                    (
+                        parsed,
+                        bundle.representative_artifact_id,
+                        bundle.earliest_observed_at,
+                    )
+                )
+
+        if not observed:
+            continue
+
+        earliest_date, earliest_artifact_id, earliest_text = min(
+            observed,
+            key=lambda item: (item[0], item[1]),
+        )
+        for bundle in component:
+            own_date = _parse_timestamp(bundle.earliest_observed_at)
+            if own_date is not None and own_date == earliest_date:
+                chronology[bundle.key] = _ChronologyPoint(
+                    observed_at=own_date,
+                    observed_text=bundle.earliest_observed_at or earliest_text,
+                    basis="direct",
+                    source_artifact_id=bundle.representative_artifact_id,
+                )
+            else:
+                chronology[bundle.key] = _ChronologyPoint(
+                    observed_at=earliest_date,
+                    observed_text=earliest_text,
+                    basis="equivalent-peer",
+                    source_artifact_id=earliest_artifact_id,
+                )
+
+    return chronology
+
+
+def _build_artifact_chronology_proxies(
+    artifacts: tuple[Artifact, ...],
+    bundles: tuple[BundleVariant, ...],
+    effective_chronology: dict[BundleKey, _ChronologyPoint],
+) -> tuple[ArtifactChronologyProxy, ...]:
+    """Expose equivalent-state chronology only for artifacts lacking their own date."""
+
+    by_id = {artifact.artifact_id: artifact for artifact in artifacts}
+    proxies: list[ArtifactChronologyProxy] = []
+
+    for bundle in bundles:
+        chronology = effective_chronology.get(bundle.key)
+        if chronology is None:
+            continue
+
+        for artifact_id in bundle.artifact_ids:
+            artifact = by_id[artifact_id]
+            if _parse_timestamp(artifact.first_commit_at) is not None:
+                continue
+            if chronology.source_artifact_id == artifact_id:
+                continue
+
+            proxies.append(
+                ArtifactChronologyProxy(
+                    artifact_id=artifact_id,
+                    effective_chronology=chronology.observed_text,
+                    chronology_basis="equivalent-peer",
+                    chronology_source_artifact_id=chronology.source_artifact_id,
+                )
+            )
+
+    return tuple(sorted(proxies, key=lambda proxy: proxy.artifact_id))
+
+
+def _equivalent_bundle_state(
     left: BundleVariant,
     right: BundleVariant,
-) -> tuple[BundleVariant, BundleVariant, str] | None:
-    """Infer observed direction from file history or repository age boundaries."""
+    similarity_index: _SimilarityIndex,
+) -> bool:
+    """Return whether bundles represent the same known behavior-bearing state."""
 
-    left_date = _parse_timestamp(left.earliest_observed_at)
-    right_date = _parse_timestamp(right.earliest_observed_at)
+    if not left.sibling_state_known or not right.sibling_state_known:
+        return False
+    if left.sibling_content_sha != right.sibling_content_sha:
+        return False
+    if left.file_sha == right.file_sha:
+        return True
 
-    if left_date is not None and right_date is not None and left_date != right_date:
-        if left_date < right_date:
-            return left, right, "chronology"
-        return right, left, "chronology"
+    result = similarity_index.get(left.file_sha, right.file_sha)
+    return result is not None and result.equivalent
+
+
+def _infer_direction(
+    left: BundleVariant,
+    right: BundleVariant,
+    result: SimilarityResult | None,
+    policy: SimilarityPolicy,
+    effective_chronology: dict[BundleKey, _ChronologyPoint],
+) -> _DirectionDecision | None:
+    left_chronology = effective_chronology.get(left.key)
+    right_chronology = effective_chronology.get(right.key)
+
+    if (
+        left_chronology is not None
+        and right_chronology is not None
+        and left_chronology.observed_at != right_chronology.observed_at
+    ):
+        basis = (
+            "chronology"
+            if left_chronology.basis == "direct"
+            and right_chronology.basis == "direct"
+            else "equivalent-peer-chronology"
+        )
+        evidence = (
+            ("first_commit_at",)
+            if basis == "chronology"
+            else ("first_commit_at", "equivalent-peer")
+        )
+        if left_chronology.observed_at < right_chronology.observed_at:
+            return _DirectionDecision(
+                source=left,
+                target=right,
+                basis=basis,
+                evidence=evidence,
+                source_chronology=left_chronology,
+                target_chronology=right_chronology,
+            )
+        return _DirectionDecision(
+            source=right,
+            target=left,
+            basis=basis,
+            evidence=evidence,
+            source_chronology=right_chronology,
+            target_chronology=left_chronology,
+        )
+
+    boundary = _infer_repo_created_boundary(
+        left,
+        right,
+        left_chronology,
+        right_chronology,
+    )
+    if boundary is not None:
+        return boundary
+
+    if result is None:
+        return None
 
     left_repo_date = _parse_timestamp(left.earliest_repo_created_at)
     right_repo_date = _parse_timestamp(right.earliest_repo_created_at)
@@ -939,8 +1135,75 @@ def _infer_direction(
         return None
 
     if difference > 0:
-        return left, right, "containment"
-    return right, left, "containment"
+        return _DirectionDecision(
+            source=left,
+            target=right,
+            basis="containment",
+        )
+    return _DirectionDecision(
+        source=right,
+        target=left,
+        basis="containment",
+    )
+
+
+def _infer_repo_created_boundary(
+    left: BundleVariant,
+    right: BundleVariant,
+    left_chronology: _ChronologyPoint | None,
+    right_chronology: _ChronologyPoint | None,
+) -> _DirectionDecision | None:
+    """Use repository creation only as a conservative lower-bound check."""
+
+    left_repo_bound = _parse_timestamp(left.repo_created_lower_bound_at)
+    right_repo_bound = _parse_timestamp(right.repo_created_lower_bound_at)
+
+    left_before_right = (
+        left_chronology is not None
+        and right_repo_bound is not None
+        and left_chronology.observed_at < right_repo_bound
+    )
+    right_before_left = (
+        right_chronology is not None
+        and left_repo_bound is not None
+        and right_chronology.observed_at < left_repo_bound
+    )
+
+    if left_before_right == right_before_left:
+        return None
+
+    if left_before_right:
+        evidence = ["repo_created_at"]
+        if left_chronology is not None:
+            evidence.append(
+                "equivalent-peer"
+                if left_chronology.basis == "equivalent-peer"
+                else "first_commit_at"
+            )
+        return _DirectionDecision(
+            source=left,
+            target=right,
+            basis="repo-created-boundary",
+            evidence=tuple(evidence),
+            source_chronology=left_chronology,
+            target_chronology=right_chronology,
+        )
+
+    evidence = ["repo_created_at"]
+    if right_chronology is not None:
+        evidence.append(
+            "equivalent-peer"
+            if right_chronology.basis == "equivalent-peer"
+            else "first_commit_at"
+        )
+    return _DirectionDecision(
+        source=right,
+        target=left,
+        basis="repo-created-boundary",
+        evidence=tuple(evidence),
+        source_chronology=right_chronology,
+        target_chronology=left_chronology,
+    )
 
 
 def _sibling_changed(
@@ -985,17 +1248,26 @@ def _select_predecessor_edges(
 def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
     """Prefer chronology-supported and temporally closest predecessors."""
 
-    source_date = _parse_timestamp(candidate.source.earliest_observed_at)
-    target_date = _parse_timestamp(candidate.target.earliest_observed_at)
+    source_date = (
+        candidate.source_chronology.observed_at
+        if candidate.source_chronology is not None
+        else None
+    )
+    target_date = (
+        candidate.target_chronology.observed_at
+        if candidate.target_chronology is not None
+        else None
+    )
 
     basis_rank = {
         "declared-source": 0,
         "chronology": 1,
-        "repo-created-boundary": 2,
-        "containment": 3,
-    }.get(candidate.basis, 4)
+        "equivalent-peer-chronology": 2,
+        "repo-created-boundary": 3,
+        "containment": 4,
+    }.get(candidate.basis, 5)
     if (
-        candidate.basis == "chronology"
+        candidate.basis in {"chronology", "equivalent-peer-chronology"}
         and source_date is not None
         and target_date is not None
     ):

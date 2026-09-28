@@ -1,0 +1,113 @@
+{
+  "name": "003-create-golang-project",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 2,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 1,
+    "related_skill_pair_count": 4,
+    "within_group_related_pair_count": 2,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 3,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 2,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1970318,
+          2244377,
+          2386167,
+          2386173
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1970318,
+            2386167,
+            2386173
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1970318,
+              "target_artifact_id": 2244377,
+              "basis": "containment",
+              "containment": 0.8401639344262295,
+              "jaccard": 0.6237322515212982,
+              "shared_shingles": 615,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                603780
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2244377,
+              "right_artifact_id": 2386167,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8826237054085155,
+              "containment_right_to_left": 0.8220793140407289,
+              "jaccard": 0.7410628019323672,
+              "shared_shingles": 767,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                603780
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2244377,
+              "right_artifact_id": 2386173,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8757192174913694,
+              "containment_right_to_left": 0.8156484458735263,
+              "jaccard": 0.7310278578290106,
+              "shared_shingles": 761,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 2386173,
+              "right_artifact_id": 2386167,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9796355841371919,
+              "containment_right_to_left": 0.9796355841371919,
+              "jaccard": 0.9600840336134454,
+              "shared_shingles": 914,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": []
+}
