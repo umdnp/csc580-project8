@@ -52,7 +52,7 @@ If `GITSKILLS_DB` is set, its value overrides the default. DuckDB is opened read
 The active database path and health are shown at the bottom of the viewer.
 
 The browser polls `/api/health` every 30 seconds. The health check opens DuckDB
-read-only and verifies that the `artifacts` and `artifact_siblings` tables are
+read-only and verifies that the `artifacts`, `artifact_siblings`, and `repos` tables are
 accessible. If access is lost, the viewer opens a compact centered warning dialog.
 If the user closes that dialog while DuckDB is still unavailable, the next 30-second
 health check opens it again. The dialog closes automatically if a later health check
@@ -122,9 +122,14 @@ file, its pane says `No such file for this artifact.` while the existing side sh
 its contents and the addition/removal highlighting.
 
 The metadata display uses **Artifact Sibling Count**, computed from the same filtered
-`artifact_siblings` rows used by the sibling dropdown. Normalized description is omitted
-from artifact comparison metadata because the human-readable description is already shown,
-and filename is omitted because the full path already includes it. The older `Has scripts` and
+`artifact_siblings` rows used by the sibling dropdown. Comparison panels always show
+**Repo created**, **Commit history**, **First commit**, **Last commit**, and **Commit count**;
+missing values are displayed as `Unknown` instead of being hidden. `Repo created` comes from
+the `repos` table, and **Commit history** reports whether artifact history was fetched. Dates
+are displayed as `YYYY-MM-DD`. Relationship panels surface the relationship type, basis, and
+direction evidence recorded by `analyze_family`. Normalized description is omitted from
+artifact comparison metadata because the human-readable description is already shown, and
+filename is omitted because the full path already includes it. The older `Has scripts` and
 `Has references` fields are not displayed.
 
 Useful artifact identifiers and Base -> Derived IDs have copy buttons. Long metadata

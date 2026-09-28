@@ -336,6 +336,59 @@ class ViewerTests(unittest.TestCase):
         self.assertIn("content IS NOT NULL", connection.sql)
         self.assertEqual(connection.parameters, [20])
 
+
+    def test_fetch_artifact_records_adds_history_and_repo_created_metadata(self):
+        db_path = self.directory / "artifacts.db"
+        db_path.touch()
+
+        class FakeConnection:
+            def __init__(self):
+                self.description = []
+                self.rows = []
+
+            def execute(self, sql, parameters=None):
+                if sql == "SELECT * FROM artifacts LIMIT 0":
+                    self.description = [
+                        ("id",),
+                        ("repo_id",),
+                        ("name",),
+                        ("history_fetched",),
+                        ("first_commit_at",),
+                        ("last_commit_at",),
+                        ("commit_count",),
+                    ]
+                    self.rows = []
+                elif "FROM artifacts WHERE id IN" in sql:
+                    self.rows = [(20, 7, "derived", 0, None, None, None)]
+                elif sql == "SELECT * FROM repos LIMIT 0":
+                    self.description = [("id",), ("created_at",)]
+                    self.rows = []
+                elif "SELECT id, created_at FROM repos WHERE id IN" in sql:
+                    self.rows = [(7, "2024-11-18 13:14:15")]
+                else:
+                    raise AssertionError(f"Unexpected SQL: {sql}")
+                return self
+
+            def fetchall(self):
+                return self.rows
+
+            def close(self):
+                pass
+
+        connection = FakeConnection()
+        fake_duckdb = SimpleNamespace(connect=lambda *_args, **_kwargs: connection)
+        with (
+            patch.object(server, "database_path", return_value=db_path),
+            patch.dict(sys.modules, {"duckdb": fake_duckdb}),
+        ):
+            records = server.fetch_artifact_records([20])
+
+        self.assertEqual(records[20]["history_fetched"], 0)
+        self.assertIsNone(records[20]["first_commit_at"])
+        self.assertIsNone(records[20]["last_commit_at"])
+        self.assertIsNone(records[20]["commit_count"])
+        self.assertEqual(records[20]["repo_created_at"], "2024-11-18 13:14:15")
+
     def test_artifact_content_endpoint(self):
         artifact_record = {
             20: {
@@ -409,7 +462,11 @@ class ViewerTests(unittest.TestCase):
         self.assertIsNone(result["error"])
         self.assertEqual(
             connection.queries,
-            ["SELECT 1 FROM artifacts LIMIT 1", "SELECT 1 FROM artifact_siblings LIMIT 1"],
+            [
+                "SELECT 1 FROM artifacts LIMIT 1",
+                "SELECT 1 FROM artifact_siblings LIMIT 1",
+                "SELECT 1 FROM repos LIMIT 1",
+            ],
         )
 
     def test_database_path_prefers_environment_variable(self):

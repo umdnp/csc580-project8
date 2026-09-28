@@ -795,6 +795,33 @@ function valueText(value) {
   return String(value);
 }
 
+function dateText(value) {
+  if (value === null || value === undefined || value === '') return 'Unknown';
+  const text = String(value);
+  const match = text.match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : text;
+}
+
+function commitHistoryText(value) {
+  if (value === null || value === undefined || value === '') return 'Unknown';
+  if (value === true || value === 1 || String(value).toLowerCase() === 'true' || String(value) === '1') return 'Available';
+  if (value === false || value === 0 || String(value).toLowerCase() === 'false' || String(value) === '0') return 'Not fetched';
+  return String(value);
+}
+
+function artifactFieldText(key, value) {
+  if (key === 'repo_created_at' || key === 'first_commit_at' || key === 'last_commit_at') return dateText(value);
+  if (key === 'history_fetched') return commitHistoryText(value);
+  if (key === 'commit_count' && (value === null || value === undefined || value === '')) return 'Unknown';
+  return value;
+}
+
+function evidenceText(value) {
+  if (Array.isArray(value) && !value.length) return 'None recorded';
+  if (value === null || value === undefined || value === '') return 'None recorded';
+  return value;
+}
+
 function addKv(container, label, value) {
   const dt = document.createElement('dt'); dt.textContent = label;
   const dd = document.createElement('dd'); dd.textContent = valueText(value);
@@ -817,10 +844,15 @@ async function copyText(text, button) {
 
 const PRIMARY_FIELDS = [
   ['id','Artifact ID'],['name','Name'],['description','Description'],
-  ['repo_full_name','Repository'],['path','Path'],['first_commit_at','First commit'],['last_commit_at','Last commit'],
+  ['repo_full_name','Repository'],['path','Path'],['repo_created_at','Repo created'],
+  ['history_fetched','Commit history'],['first_commit_at','First commit'],['last_commit_at','Last commit'],
   ['commit_count','Commit count'],['artifact_sibling_count','Artifact Sibling Count'],['file_sha','File SHA'],
   ['body_chars','Body characters'],['location_class','Location class'],['group_id','Artifact group']
 ];
+
+const ALWAYS_VISIBLE_ARTIFACT_FIELDS = new Set([
+  'repo_created_at', 'history_fetched', 'first_commit_at', 'last_commit_at', 'commit_count'
+]);
 
 function artifactBox(title, artifact) {
   const box = document.createElement('section'); box.className = 'meta-box';
@@ -838,7 +870,11 @@ function artifactBox(title, artifact) {
   const dl = document.createElement('dl'); dl.className = 'kv';
   const shown = new Set();
   for (const [key, label] of PRIMARY_FIELDS) {
-    if (artifact && artifact[key] !== undefined && artifact[key] !== null) { addKv(dl, label, artifact[key]); shown.add(key); }
+    const value = artifact ? artifact[key] : null;
+    if (ALWAYS_VISIBLE_ARTIFACT_FIELDS.has(key) || (value !== undefined && value !== null)) {
+      addKv(dl, label, artifactFieldText(key, value));
+      shown.add(key);
+    }
   }
   box.append(dl);
 
@@ -860,8 +896,10 @@ function relationshipBox(relationship, base, derived) {
   const copies = document.createElement('div'); copies.className = 'copy-actions';
   const copyPair = document.createElement('button'); copyPair.textContent = 'Copy Base → Derived IDs'; copyPair.onclick = () => copyText(`${relationship.source} → ${relationship.target}`, copyPair); copies.append(copyPair); box.append(copies);
   const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', 'Directed parent → child');
   addKv(dl, 'Base → derived', `${relationship.source} → ${relationship.target}`);
   addKv(dl, 'Basis', relationship.basis);
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
   addKv(dl, 'Change type', relationship.change_type);
   addKv(dl, 'Containment', relationship.containment === null || relationship.containment === undefined ? null : Number(relationship.containment).toFixed(4));
   addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
@@ -875,7 +913,6 @@ function relationshipBox(relationship, base, derived) {
   const extra = document.createElement('dl'); extra.className = 'kv';
   addKv(extra, 'Same artifact group', relationship.same_artifact_group);
   addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
-  addKv(extra, 'Direction evidence', relationship.evidence);
   details.append(summary, extra); box.append(details);
   return box;
 }
@@ -884,8 +921,10 @@ function ambiguousRelationshipBox(relationship, compareArtifact, selectedArtifac
   const box = document.createElement('section'); box.className = 'meta-box relationship';
   const heading = document.createElement('h3'); heading.textContent = 'Ambiguous comparison'; box.append(heading);
   const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', 'Ambiguous');
   addKv(dl, 'Artifacts', `${compareArtifact.id} ↔ ${selectedArtifact.id}`);
   addKv(dl, 'Basis', relationship.basis);
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
   addKv(dl, 'Change type', relationship.change_type);
   addKv(dl, 'Containment left → right', relationship.containment_left_to_right === null || relationship.containment_left_to_right === undefined ? null : Number(relationship.containment_left_to_right).toFixed(4));
   addKv(dl, 'Containment right → left', relationship.containment_right_to_left === null || relationship.containment_right_to_left === undefined ? null : Number(relationship.containment_right_to_left).toFixed(4));
@@ -900,7 +939,6 @@ function ambiguousRelationshipBox(relationship, compareArtifact, selectedArtifac
   const extra = document.createElement('dl'); extra.className = 'kv';
   addKv(extra, 'Same artifact group', relationship.same_artifact_group);
   addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
-  addKv(extra, 'Evidence', relationship.evidence);
   details.append(summary, extra); box.append(details);
   return box;
 }

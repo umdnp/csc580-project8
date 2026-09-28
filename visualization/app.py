@@ -34,7 +34,7 @@ REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
 DB_ENV = "GITSKILLS_DB"
 
-app = FastAPI(title="Skill relationship explorer", version="0.4.0")
+app = FastAPI(title="Skill relationship explorer", version="0.4.1")
 _lock = Lock()
 _cached_key: tuple[Path, int, int] | None = None
 _cached_report: dict | None = None
@@ -79,6 +79,7 @@ def database_health() -> dict:
         connection = duckdb.connect(str(database_path()), read_only=True)
         connection.execute("SELECT 1 FROM artifacts LIMIT 1").fetchone()
         connection.execute("SELECT 1 FROM artifact_siblings LIMIT 1").fetchone()
+        connection.execute("SELECT 1 FROM repos LIMIT 1").fetchone()
     except Exception as exc:  # pragma: no cover - depends on external DB state
         return {**status, "available": False, "error": str(exc)}
     finally:
@@ -415,6 +416,7 @@ _ARTIFACT_FIELDS = (
     "description",
     "body_chars",
     "dedup_primary",
+    "history_fetched",
     "first_commit_at",
     "last_commit_at",
     "commit_count",
@@ -469,18 +471,52 @@ def fetch_artifact_records(
         placeholders = ", ".join("?" for _ in ids)
         query = f"SELECT {quoted} FROM artifacts WHERE id IN ({placeholders})"
         rows = connection.execute(query, list(ids)).fetchall()
+
+        records = {}
+        for row in rows:
+            record = {field: _json_value(value) for field, value in zip(fields, row)}
+            records[int(record["id"])] = record
+
+        # Repository creation time is useful context for ancestry, but it is
+        # repository-level metadata rather than an artifact field. Treat it as
+        # optional so older/incomplete databases still return artifact details.
+        repo_ids = sorted(
+            {
+                int(record["repo_id"])
+                for record in records.values()
+                if record.get("repo_id") is not None
+            }
+        )
+        if repo_ids:
+            try:
+                repo_cursor = connection.execute("SELECT * FROM repos LIMIT 0")
+                repo_columns = {column[0] for column in repo_cursor.description}
+                if {"id", "created_at"}.issubset(repo_columns):
+                    repo_placeholders = ", ".join("?" for _ in repo_ids)
+                    repo_rows = connection.execute(
+                        f"SELECT id, created_at FROM repos WHERE id IN ({repo_placeholders})",
+                        repo_ids,
+                    ).fetchall()
+                    repo_created = {
+                        int(repo_id): _json_value(created_at)
+                        for repo_id, created_at in repo_rows
+                    }
+                    for record in records.values():
+                        repo_id = record.get("repo_id")
+                        if repo_id is not None:
+                            record["repo_created_at"] = repo_created.get(int(repo_id))
+            except Exception:
+                # Keep artifact metadata usable even when repository metadata is
+                # unavailable. The UI will display Repo created as Unknown.
+                pass
+
+        return records
     except DatabaseAccessError:
         raise
     except Exception as exc:  # pragma: no cover - depends on external DB state
         raise DatabaseAccessError(f"Unable to query artifacts table: {exc}") from exc
     finally:
         connection.close()
-
-    records = {}
-    for row in rows:
-        record = {field: _json_value(value) for field, value in zip(fields, row)}
-        records[int(record["id"])] = record
-    return records
 
 
 def fetch_sibling_records(
