@@ -16,8 +16,8 @@
   --orange:light-dark(#9b5b13,#eeba74);
   --purple:light-dark(#7951a8,#c3a5ee);
   --green:light-dark(#347a47,#76cf8d);
-  --gray:light-dark(#7d8792,#88929d);
-  --gold:light-dark(#8a6b00,#e5c64d);
+  --gray:light-dark(#9aa4ae,#7d8792);
+  --equivalent:light-dark(#4f5b66,#5f6b78);
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
@@ -40,19 +40,17 @@ label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .line{display:inline-block;width:25px;border-top:2px solid var(--blue);vertical-align:middle;margin-right:6px}
 .chrono{border-color:var(--orange);border-top-style:dashed}
 .declared{border-color:var(--purple)}
-.equivalent-line{border-color:var(--gray)}
-.ambiguous-line{border-color:var(--gold);border-top-style:dotted}
+.ambiguous-line{border-color:var(--gray);border-top-style:dotted}
 .dot{display:inline-block;width:12px;height:12px;border:2px solid var(--fg);border-radius:50%;vertical-align:-1px;margin-right:5px;background:var(--bg)}
 .dot.selected{background:var(--blue)}
 .dot.parent{background:var(--purple)}
 .dot.child{background:var(--green)}
-.dot.peer{background:var(--gray)}
+.dot.equivalent-peer{background:var(--equivalent)}
 #graph{display:block;width:100%;height:560px;border:1px solid var(--border);touch-action:none;background:var(--panel)}
 .edge{fill:none;stroke:var(--blue);stroke-width:1.4}
 .edge.chronology{stroke:var(--orange);stroke-dasharray:5 3}
 .edge.declared-source{stroke:var(--purple)}
-.edge.equivalent{stroke:var(--gray);stroke-width:1.7}
-.edge.ambiguous{stroke:var(--gold);stroke-dasharray:2 5;stroke-width:1.7}
+.edge.ambiguous{stroke:var(--gray);stroke-dasharray:2 5;stroke-width:1.5}
 .edge.connected{stroke-width:2.8}
 .node{fill:var(--bg);stroke:var(--fg);stroke-width:1.5}
 .node.root{stroke-width:2.8}
@@ -60,6 +58,7 @@ label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .node.parent{fill:var(--purple);stroke-width:2.3}
 .node.child{fill:var(--green);stroke-width:2.3}
 .node.undirected-peer{fill:var(--gray);stroke-width:2}
+.node.equivalent-peer{fill:var(--equivalent);stroke-width:2.3}
 .compare-hover-ring{fill:none;stroke:#e53935;stroke-width:3;opacity:0;pointer-events:none;vector-effect:non-scaling-stroke}
 .compare-hover-ring.active{opacity:1}
 svg text{fill:var(--fg);font:13px system-ui}
@@ -163,14 +162,13 @@ th{background:var(--panel)}
   <span><i class="line"></i>Containment →</span>
   <span><i class="line chrono"></i>Chronology →</span>
   <span><i class="line declared"></i>Declared →</span>
-  <span><i class="line equivalent-line"></i>Equivalent</span>
   <span><i class="line ambiguous-line"></i>Unknown dir.</span>
   <span><i class="dot selected"></i>Selected</span>
   <span><i class="dot parent"></i>Parent</span>
   <span><i class="dot child"></i>Child</span>
-  <span><i class="dot peer"></i>Peer</span>
+  <span><i class="dot equivalent-peer"></i>Equivalent peer</span>
 </div>
-<p class="muted">Directed arrows are inferred parent → child, not proof of copying. Undirected links are shown only when they touch the selected artifact.</p>
+<p class="muted">Arrows show inferred earlier → later. Gray dotted lines mean direction unknown; dark nodes mark equivalent peers.</p>
 <div class="actions">
   <button id="fit">Fit visible family</button>
   <button id="focus">Focus selected</button>
@@ -178,7 +176,7 @@ th{background:var(--panel)}
   <button id="minus" aria-label="Zoom out">−</button>
   <span id="visible" class="muted"></span>
 </div>
-<svg id="graph" role="img" aria-label="Interactive inferred parent-child graph. Ambiguous relationships are shown only for the selected artifact."><defs></defs><g id="marks"></g></svg>
+<svg id="graph" role="img" aria-label="Interactive inferred parent-child graph. Peer relationships are shown for the selected artifact."><defs></defs><g id="marks"></g></svg>
 
 <section class="card" aria-label="Selected artifact details">
   <div id="selection-panels" class="selection-panels" hidden>
@@ -214,7 +212,7 @@ th{background:var(--panel)}
   </div>
   <div id="detail-content"></div>
   <h3>Directed connections</h3><div id="neighbors"></div>
-  <h3 id="ambiguous-heading">Undirected relationships</h3><div id="ambiguous-neighbors"></div>
+  <h3 id="ambiguous-heading">Peer relationships</h3><div id="ambiguous-neighbors"></div>
   <p id="edge-detail" aria-live="polite"></p>
 </section>
 <p id="limitations" class="muted"></p>
@@ -470,7 +468,7 @@ function renderReportSummary() {
     stat('Candidate family', meta.name),
     stat('Artifacts', meta.total.toLocaleString()),
     stat('Directed relationships', meta.directed.toLocaleString()),
-    stat('Undirected relationships', meta.ambiguous.toLocaleString()),
+    stat('Peer relationships', meta.ambiguous.toLocaleString()),
     stat('Clusters', meta.clustersTotal.toLocaleString())
   );
   holder.hidden = false;
@@ -486,9 +484,9 @@ async function loadReport() {
     meta = result;
     saveReport($('#report').value);
     renderReportSummary();
-    meta.clusters.forEach(cluster => $('#cluster').add(new Option(`Cluster ${cluster.id} · ${cluster.n} artifacts · ${cluster.e} directed · ${cluster.a} ambiguous`, cluster.id)));
+    meta.clusters.forEach(cluster => $('#cluster').add(new Option(`Cluster ${cluster.id} · ${cluster.n} artifacts · ${cluster.e} directed · ${cluster.a} peers`, cluster.id)));
     const unlisted = Math.max(0, meta.total - meta.referenced);
-    $('#limitations').textContent = `${meta.referenced.toLocaleString()} artifact IDs are drawable from this report${unlisted ? `; ${unlisted.toLocaleString()} reported artifacts do not have IDs in the family structure` : ''}. Horizontal position represents inferred steps, not elapsed time. Undirected relationships are contextual: only those touching the selected artifact are drawn. Artifact metadata, file content, sibling files, search, diffs, and scans query DuckDB only when requested.`;
+    $('#limitations').textContent = `${meta.referenced.toLocaleString()} artifact IDs are drawable from this report${unlisted ? `; ${unlisted.toLocaleString()} reported artifacts do not have IDs in the family structure` : ''}. Horizontal position represents inferred steps, not elapsed time. Peer relationships are contextual: only peers of the selected artifact are shown. Artifact metadata, file content, sibling files, search, diffs, and scans query DuckDB only when requested.`;
     if (!meta.clusters.length) {
       msg('This report has no family clusters to draw.');
       return;
@@ -743,12 +741,21 @@ function draw({view='preserve'} = {}) {
   marks.replaceChildren();
   const selectedParents = new Set((parents.get(selected) || []).map(edge => edge.source));
   const selectedChildren = new Set((children.get(selected) || []).map(edge => edge.target));
-  const undirectedPeers = new Set(ambiguous.map(edge => edge.left === selected ? edge.right : edge.left));
+  const equivalentPeers = new Set(
+    ambiguous
+      .filter(edge => relationshipStatus(edge) === 'equivalent')
+      .map(edge => edge.left === selected ? edge.right : edge.left)
+  );
+  const undirectedPeers = new Set(
+    ambiguous
+      .filter(edge => relationshipStatus(edge) !== 'equivalent')
+      .map(edge => edge.left === selected ? edge.right : edge.left)
+  );
 
   for (const edge of ambiguous) {
+    if (relationshipStatus(edge) === 'equivalent') continue;
     const a = pos.get(edge.left), b = pos.get(edge.right);
-    const style = relationshipStatus(edge) === 'equivalent' ? 'equivalent' : 'ambiguous';
-    const path = svgEl('path', {d: `M${a.x},${a.y}L${b.x},${b.y}`, class: `edge ${style} connected`});
+    const path = svgEl('path', {d: `M${a.x},${a.y}L${b.x},${b.y}`, class: 'edge ambiguous connected'});
     const title = svgEl('title'); title.textContent = undirectedText(edge); path.append(title);
     path.onclick = () => $('#edge-detail').textContent = undirectedText(edge);
     marks.append(path);
@@ -780,6 +787,7 @@ function draw({view='preserve'} = {}) {
     if (id === selected) classes.push('selected');
     else if (selectedParents.has(id)) classes.push('parent');
     else if (selectedChildren.has(id)) classes.push('child');
+    else if (equivalentPeers.has(id)) classes.push('equivalent-peer');
     else if (undirectedPeers.has(id)) classes.push('undirected-peer');
     const circle = svgEl('circle', {cx: point.x, cy: point.y, r: id === selected ? 9 : 7, class: classes.join(' ')});
     const text = svgEl('text', {x: point.x+13, y: point.y-10}); text.textContent = id;
