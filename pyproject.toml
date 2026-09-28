@@ -14,11 +14,13 @@ readme = "README.md"
 
 dependencies = [
     "duckdb",
+    "fastapi>=0.141.1",
     "ipykernel>=7.3.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.3",
     "pandas",
     "seaborn>=0.13.2",
+    "uvicorn>=0.54.0",
 ]
 
 [build-system]
@@ -27,6 +29,7 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]
 
