@@ -199,6 +199,29 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(result["artifact"]["artifact_sibling_count"], 1)
         self.assertEqual(result["compare_artifact"]["artifact_sibling_count"], 0)
 
+    def test_related_peer_remains_available_when_also_in_directed_lineage_component(self):
+        _, cluster = server._cluster_for_artifact(server.load_report("example.json"), 20)
+        cluster["edges"].append(
+            {
+                "source": 10,
+                "target": 30,
+                "basis": "containment",
+                "containment": 0.89,
+                "jaccard": 0.70,
+                "shared_shingles": 38,
+                "change_type": "skill-only",
+                "evidence": [],
+                "shared_group_ids": [],
+                "same_artifact_group": False,
+            }
+        )
+
+        candidates = server._comparison_candidates(cluster, 20)
+
+        self.assertEqual([item["id"] for item in candidates], [10, 30])
+        self.assertEqual([item["kind"] for item in candidates], ["parent", "ambiguous"])
+        self.assertEqual(candidates[1]["label"], "Artifact 30 (equivalent)")
+
     def test_ambiguous_root_can_be_selected_as_compare_target(self):
         records = {
             20: {"id": 20, "name": "peer"},
