@@ -16,8 +16,9 @@
   --orange:light-dark(#9b5b13,#eeba74);
   --purple:light-dark(#7951a8,#c3a5ee);
   --green:light-dark(#347a47,#76cf8d);
-  --gray:light-dark(#9aa4ae,#7d8792);
-  --equivalent:light-dark(#4f5b66,#5f6b78);
+  --peer-line:light-dark(#b7c0c8,#a5afb9);
+  --related-peer:light-dark(#aab4be,#7f8b97);
+  --equivalent-peer:light-dark(#4f5b66,#536170);
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
@@ -40,25 +41,26 @@ label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .line{display:inline-block;width:25px;border-top:2px solid var(--blue);vertical-align:middle;margin-right:6px}
 .chrono{border-color:var(--orange);border-top-style:dashed}
 .declared{border-color:var(--purple)}
-.ambiguous-line{border-color:var(--gray);border-top-style:dotted}
+.ambiguous-line{border-color:var(--peer-line);border-top-style:dotted}
 .dot{display:inline-block;width:12px;height:12px;border:2px solid var(--fg);border-radius:50%;vertical-align:-1px;margin-right:5px;background:var(--bg)}
 .dot.selected{background:var(--blue)}
 .dot.parent{background:var(--purple)}
 .dot.child{background:var(--green)}
-.dot.equivalent-peer{background:var(--equivalent)}
+.dot.related-peer{background:var(--related-peer)}
+.dot.equivalent-peer{background:var(--equivalent-peer)}
 #graph{display:block;width:100%;height:560px;border:1px solid var(--border);touch-action:none;background:var(--panel)}
 .edge{fill:none;stroke:var(--blue);stroke-width:1.4}
 .edge.chronology{stroke:var(--orange);stroke-dasharray:5 3}
 .edge.declared-source{stroke:var(--purple)}
-.edge.ambiguous{stroke:var(--gray);stroke-dasharray:2 5;stroke-width:1.5}
+.edge.ambiguous{stroke:var(--peer-line);stroke-dasharray:2 5;stroke-width:1.5}
 .edge.connected{stroke-width:2.8}
 .node{fill:var(--bg);stroke:var(--fg);stroke-width:1.5}
 .node.root{stroke-width:2.8}
 .node.selected{fill:var(--blue);stroke-width:3}
 .node.parent{fill:var(--purple);stroke-width:2.3}
 .node.child{fill:var(--green);stroke-width:2.3}
-.node.undirected-peer{fill:var(--gray);stroke-width:2}
-.node.equivalent-peer{fill:var(--equivalent);stroke-width:2.3}
+.node.undirected-peer{fill:var(--related-peer);stroke-width:2}
+.node.equivalent-peer{fill:var(--equivalent-peer);stroke-width:2.3}
 .compare-hover-ring{fill:none;stroke:#e53935;stroke-width:3;opacity:0;pointer-events:none;vector-effect:non-scaling-stroke}
 .compare-hover-ring.active{opacity:1}
 svg text{fill:var(--fg);font:13px system-ui}
@@ -162,13 +164,14 @@ th{background:var(--panel)}
   <span><i class="line"></i>Containment →</span>
   <span><i class="line chrono"></i>Chronology →</span>
   <span><i class="line declared"></i>Declared →</span>
-  <span><i class="line ambiguous-line"></i>Unknown dir.</span>
+  <span><i class="line ambiguous-line"></i>No direction</span>
   <span><i class="dot selected"></i>Selected</span>
   <span><i class="dot parent"></i>Parent</span>
   <span><i class="dot child"></i>Child</span>
+  <span><i class="dot related-peer"></i>Related peer</span>
   <span><i class="dot equivalent-peer"></i>Equivalent peer</span>
 </div>
-<p class="muted">Arrows show inferred earlier → later. Gray dotted lines mean direction unknown; dark nodes mark equivalent peers.</p>
+<p class="muted">Arrowheads show inferred earlier → later; gray peer lines have no direction. Node color distinguishes peer type.</p>
 <div class="actions">
   <button id="fit">Fit visible family</button>
   <button id="focus">Focus selected</button>
@@ -401,6 +404,20 @@ function resetCompareDropdown() {
   setCompareHover(null);
 }
 
+function comparisonLabel(item) {
+  const peers = ambiguousByNode.get(selected) || [];
+  const edge = peers.find(edge => {
+    const peer = Number(edge.left) === Number(selected) ? edge.right : edge.left;
+    return Number(peer) === Number(item.id);
+  });
+  if (!edge) return item.label;
+
+  const type = relationshipStatus(edge) === 'equivalent' ? 'equivalent' : 'related';
+  const base = String(item.label || `Artifact ${item.id}`)
+    .replace(/\s*\((?:ambiguous|equivalent|related)\)\s*$/i, '');
+  return `${base} (${type})`;
+}
+
 function renderCompareDropdown(comparisons, comparison) {
   const toggle = $('#compare-toggle');
   const menu = $('#compare-menu');
@@ -416,7 +433,7 @@ function renderCompareDropdown(comparisons, comparison) {
 
   toggle.disabled = false;
   const current = comparisons.find(item => Number(item.id) === Number(comparison?.id)) || comparisons[0];
-  toggle.textContent = current.label;
+  toggle.textContent = comparisonLabel(current);
 
   for (const item of comparisons) {
     const option = document.createElement('button');
@@ -424,13 +441,13 @@ function renderCompareDropdown(comparisons, comparison) {
     option.className = 'compare-option';
     option.setAttribute('role', 'option');
     option.setAttribute('aria-selected', String(Number(item.id) === Number(current.id)));
-    option.textContent = item.label;
+    option.textContent = comparisonLabel(item);
     option.addEventListener('mouseenter', () => setCompareHover(item.id));
     option.addEventListener('mouseleave', () => setCompareHover(null));
     option.addEventListener('focus', () => setCompareHover(item.id));
     option.addEventListener('blur', () => setCompareHover(null));
     option.addEventListener('click', () => {
-      toggle.textContent = item.label;
+      toggle.textContent = comparisonLabel(item);
       closeCompareMenu();
       loadDetails(Number(item.id));
     });
