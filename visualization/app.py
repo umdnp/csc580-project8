@@ -1,15 +1,16 @@
 """Local explorer for analyze_family candidate-family JSON reports.
 
 From the repository root:
-    python -m uvicorn visualization.app:app --host 127.0.0.1 --port 8000
+    python -m visualization.app --db C:/data/duckdb/agent_skills_release.db
 
 Reports are always read from visualization/reports. Artifact metadata and content
-come from $GITSKILLS_DB when it is set, otherwise from the default project DB.
+use $GITSKILLS_DB when set, then --db when provided, then the default project DB path.
 The application opens DuckDB read-only and never executes artifact content.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -34,21 +35,56 @@ REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
 DB_ENV = "GITSKILLS_DB"
 
-app = FastAPI(title="Skill relationship explorer", version="0.5.0")
+app = FastAPI(title="Skill relationship explorer", version="0.5.1")
 _lock = Lock()
 _cached_key: tuple[Path, int, int] | None = None
 _cached_report: dict | None = None
+_database_path_override: Path | None = None
 
 
 class DatabaseAccessError(RuntimeError):
     """Raised when artifact data cannot be read from DuckDB."""
 
 
+def configure_database_path(value: str | Path | None) -> None:
+    """Set or clear the command-line DuckDB path fallback."""
+
+    global _database_path_override
+    _database_path_override = Path(value).expanduser() if value else None
+
+
 def database_path() -> Path:
     """Return the configured GitSkills DuckDB path."""
 
     value = os.getenv(DB_ENV)
-    return Path(value).expanduser() if value else Path(DEFAULT_DB_PATH)
+    if value:
+        return Path(value).expanduser()
+    if _database_path_override is not None:
+        return _database_path_override
+    return Path(DEFAULT_DB_PATH)
+
+
+def database_source() -> str:
+    """Return the configuration source used for the active database path."""
+
+    if os.getenv(DB_ENV):
+        return DB_ENV
+    if _database_path_override is not None:
+        return "--db"
+    return "default"
+
+
+
+
+def database_source_label() -> str:
+    """Return a human-readable label for the active database configuration source."""
+
+    source = database_source()
+    if source == "--db":
+        return "--db"
+    if source == DB_ENV:
+        return f"${DB_ENV}"
+    return "default path"
 
 
 def database_status() -> dict:
@@ -57,7 +93,7 @@ def database_status() -> dict:
     path = database_path()
     return {
         "path": str(path),
-        "source": DB_ENV if os.getenv(DB_ENV) else "default",
+        "source": database_source(),
         "exists": path.exists(),
     }
 
@@ -118,13 +154,18 @@ def _is_analyze_family_report(raw: object) -> bool:
     if not isinstance(raw, dict):
         return False
 
+    required_collections = {
+        "groups": list,
+        "skill_variants": list,
+        "bundle_variants": list,
+        "provenance": list,
+    }
     if not isinstance(raw.get("name"), str) or not raw["name"].strip():
         return False
     if not isinstance(raw.get("policy"), dict) or not isinstance(raw.get("summary"), dict):
         return False
-    for key in ("groups", "skill_variants", "bundle_variants", "provenance", "chronology_proxies"):
-        if key in raw and not isinstance(raw.get(key), list):
-            return False
+    if any(not isinstance(raw.get(key), expected) for key, expected in required_collections.items()):
+        return False
 
     summary = raw["summary"]
     for key in ("artifact_count", "cluster_count", "directed_edge_count", "ambiguous_edge_count"):
@@ -134,9 +175,7 @@ def _is_analyze_family_report(raw: object) -> bool:
     family = raw.get("family")
     if not isinstance(family, dict):
         return False
-    if not isinstance(family.get("clusters"), list):
-        return False
-    if "artifact_ids" in family and not isinstance(family.get("artifact_ids"), list):
+    if not isinstance(family.get("artifact_ids"), list) or not isinstance(family.get("clusters"), list):
         return False
 
     for cluster in family["clusters"]:
@@ -245,19 +284,6 @@ def _family_artifact_metadata(raw: dict) -> dict[int, dict]:
             metadata[int(artifact_id)]["declared_provenance"] = {
                 key: value for key, value in provenance.items() if key != "artifact_id"
             }
-
-    for proxy in raw.get("chronology_proxies") or []:
-        artifact_id = proxy.get("artifact_id")
-        if artifact_id is not None:
-            metadata[int(artifact_id)].update(
-                {
-                    "effective_chronology": proxy.get("effective_chronology"),
-                    "chronology_basis": proxy.get("chronology_basis"),
-                    "chronology_source_artifact_id": proxy.get(
-                        "chronology_source_artifact_id"
-                    ),
-                }
-            )
 
     for artifact in raw.get("artifacts") or []:
         artifact_id = artifact.get("artifact_id")
@@ -454,7 +480,7 @@ def fetch_artifact_records(
 
     database = database_path()
     if not database.exists():
-        source = f"${DB_ENV}" if os.getenv(DB_ENV) else "default path"
+        source = database_source_label()
         raise DatabaseAccessError(f"DuckDB database not found at {database} ({source}).")
 
     try:
@@ -520,53 +546,6 @@ def fetch_artifact_records(
                 # unavailable. The UI will display Repo created as Unknown.
                 pass
 
-        # Grouping metadata is stored separately from artifacts. Load it lazily
-        # so compact analyze_family reports do not need to repeat this data.
-        try:
-            grouping_cursor = connection.execute(
-                "SELECT * FROM artifact_groupings LIMIT 0"
-            )
-            grouping_columns = {column[0] for column in grouping_cursor.description}
-            grouping_fields = [
-                field
-                for field in (
-                    "id",
-                    "artifact_id",
-                    "sibling_file_count",
-                    "sibling_content_sha",
-                )
-                if field in grouping_columns
-            ]
-            if {"id", "artifact_id"}.issubset(grouping_fields):
-                grouping_quoted = ", ".join(f'"{field}"' for field in grouping_fields)
-                grouping_placeholders = ", ".join("?" for _ in ids)
-                grouping_rows = connection.execute(
-                    f"SELECT {grouping_quoted} FROM artifact_groupings "
-                    f"WHERE artifact_id IN ({grouping_placeholders})",
-                    list(ids),
-                ).fetchall()
-                for row in grouping_rows:
-                    grouping = {
-                        field: _json_value(value)
-                        for field, value in zip(grouping_fields, row)
-                    }
-                    artifact_id = int(grouping["artifact_id"])
-                    record = records.get(artifact_id)
-                    if record is None:
-                        continue
-                    record["group_id"] = grouping.get("id")
-                    if "sibling_file_count" in grouping:
-                        record["sibling_file_count"] = grouping.get(
-                            "sibling_file_count"
-                        )
-                    if "sibling_content_sha" in grouping:
-                        record["sibling_content_sha"] = grouping.get(
-                            "sibling_content_sha"
-                        )
-        except Exception:
-            # Older databases may not contain the project-derived grouping table.
-            pass
-
         return records
     except DatabaseAccessError:
         raise
@@ -586,7 +565,7 @@ def fetch_sibling_records(
 
     database = database_path()
     if not database.exists():
-        source = f"${DB_ENV}" if os.getenv(DB_ENV) else "default path"
+        source = database_source_label()
         raise DatabaseAccessError(f"DuckDB database not found at {database} ({source}).")
 
     try:
@@ -653,7 +632,7 @@ def search_artifact_records(report: dict, query_text: str, limit: int = 25) -> l
 
     database = database_path()
     if not database.exists():
-        source = f"${DB_ENV}" if os.getenv(DB_ENV) else "default path"
+        source = database_source_label()
         raise DatabaseAccessError(f"DuckDB database not found at {database} ({source}).")
 
     try:
@@ -1215,3 +1194,34 @@ def scan_diff(filename: str, base_id: int, derived_id: int):
         "relationship": relationship,
         "scan_diff": payload,
     }
+
+def build_argument_parser() -> argparse.ArgumentParser:
+    """Build command-line options for the local visualization server."""
+
+    parser = argparse.ArgumentParser(description="Run the local skill relationship explorer.")
+    parser.add_argument(
+        "--db",
+        metavar="PATH",
+        help=(
+            "GitSkills DuckDB path used when $GITSKILLS_DB is not set. "
+            f"Falls back to {DEFAULT_DB_PATH} when neither is provided."
+        ),
+    )
+    parser.add_argument("--host", default="127.0.0.1", help="Server host (default: 127.0.0.1).")
+    parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000).")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Run the visualization server with command-line database configuration."""
+
+    args = build_argument_parser().parse_args(argv)
+    configure_database_path(args.db)
+
+    import uvicorn
+
+    uvicorn.run(app, host=args.host, port=args.port)
+
+
+if __name__ == "__main__":
+    main()

@@ -8,7 +8,7 @@ import unittest
 import sys
 from types import SimpleNamespace
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
@@ -21,6 +21,8 @@ class ViewerTests(unittest.TestCase):
         self.directory = Path(self.temp.name).resolve()
         self.old_directory = server.REPORT_DIR
         self.old_db = os.environ.get(server.DB_ENV)
+        self.old_db_override = server._database_path_override
+        server.configure_database_path(None)
         server.REPORT_DIR = self.directory
         server._cached_key = server._cached_report = None
         self.client = TestClient(server.app)
@@ -35,6 +37,7 @@ class ViewerTests(unittest.TestCase):
             os.environ.pop(server.DB_ENV, None)
         else:
             os.environ[server.DB_ENV] = self.old_db
+        server._database_path_override = self.old_db_override
         self.temp.cleanup()
 
     @staticmethod
@@ -54,14 +57,6 @@ class ViewerTests(unittest.TestCase):
                 "directed_edge_count": 2,
                 "ambiguous_edge_count": 1,
             },
-            "chronology_proxies": [
-                {
-                    "artifact_id": 40,
-                    "effective_chronology": "2026-03-01",
-                    "chronology_basis": "equivalent-peer",
-                    "chronology_source_artifact_id": 30,
-                }
-            ],
             "family": {
                 "artifact_ids": [10, 20, 30, 40],
                 "clusters": [
@@ -176,35 +171,6 @@ class ViewerTests(unittest.TestCase):
         )
         self.assertEqual((graph["ambiguous"][0]["left"], graph["ambiguous"][0]["right"]), (20, 30))
         self.assertEqual(graph["roots"], [10, 30])
-
-    def test_compact_report_without_diagnostic_collections_is_valid(self):
-        compact = {
-            key: value
-            for key, value in self.raw.items()
-            if key not in {"groups", "skill_variants", "bundle_variants", "provenance"}
-        }
-        compact["family"] = {
-            "clusters": compact["family"]["clusters"],
-        }
-        self.write("compact.json", compact)
-        server._cached_key = server._cached_report = None
-
-        response = self.client.get("/api/reports/compact.json/summary")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["name"], "example-family")
-
-    def test_chronology_proxy_is_merged_into_artifact_details(self):
-        records = {40: {"id": 40, "name": "proxy-derived", "history_fetched": 0}}
-        with (
-            patch.object(server, "fetch_artifact_records", return_value=records),
-            patch.object(server, "fetch_sibling_records", return_value=[]),
-            patch.object(server, "database_health", return_value=self.healthy_status()),
-        ):
-            result = self.client.get("/api/reports/example.json/artifacts/40/details").json()
-
-        self.assertEqual(result["artifact"]["effective_chronology"], "2026-03-01")
-        self.assertEqual(result["artifact"]["chronology_basis"], "equivalent-peer")
-        self.assertEqual(result["artifact"]["chronology_source_artifact_id"], 30)
 
     def test_compare_to_lists_parent_first_then_ambiguous_peer(self):
         records = {
@@ -415,16 +381,6 @@ class ViewerTests(unittest.TestCase):
                     self.rows = []
                 elif "SELECT id, created_at FROM repos WHERE id IN" in sql:
                     self.rows = [(7, "2024-11-18 13:14:15")]
-                elif sql == "SELECT * FROM artifact_groupings LIMIT 0":
-                    self.description = [
-                        ("id",),
-                        ("artifact_id",),
-                        ("sibling_file_count",),
-                        ("sibling_content_sha",),
-                    ]
-                    self.rows = []
-                elif "FROM artifact_groupings WHERE artifact_id IN" in sql:
-                    self.rows = [(99, 20, 0, "empty-sha")]
                 else:
                     raise AssertionError(f"Unexpected SQL: {sql}")
                 return self
@@ -448,9 +404,6 @@ class ViewerTests(unittest.TestCase):
         self.assertIsNone(records[20]["last_commit_at"])
         self.assertIsNone(records[20]["commit_count"])
         self.assertEqual(records[20]["repo_created_at"], "2024-11-18 13:14:15")
-        self.assertEqual(records[20]["group_id"], 99)
-        self.assertEqual(records[20]["sibling_file_count"], 0)
-        self.assertEqual(records[20]["sibling_content_sha"], "empty-sha")
 
     def test_artifact_content_endpoint(self):
         artifact_record = {
@@ -532,11 +485,46 @@ class ViewerTests(unittest.TestCase):
             ],
         )
 
-    def test_database_path_prefers_environment_variable(self):
+    def test_database_path_precedence_is_environment_then_cli_then_default(self):
         os.environ.pop(server.DB_ENV, None)
+        server.configure_database_path(None)
         self.assertEqual(str(server.database_path()), server.DEFAULT_DB_PATH)
-        os.environ[server.DB_ENV] = "/tmp/custom.db"
-        self.assertEqual(server.database_path(), Path("/tmp/custom.db"))
+        self.assertEqual(server.database_source(), "default")
+
+        server.configure_database_path("/tmp/command-line.db")
+        self.assertEqual(server.database_path(), Path("/tmp/command-line.db"))
+        self.assertEqual(server.database_source(), "--db")
+
+        os.environ[server.DB_ENV] = "/tmp/environment.db"
+        self.assertEqual(server.database_path(), Path("/tmp/environment.db"))
+        self.assertEqual(server.database_source(), server.DB_ENV)
+
+        server.configure_database_path(None)
+        self.assertEqual(server.database_path(), Path("/tmp/environment.db"))
+
+    def test_main_accepts_db_host_and_port_arguments(self):
+        fake_uvicorn = SimpleNamespace(run=Mock())
+        with (
+            patch.dict(os.environ, {}, clear=False),
+            patch.dict(sys.modules, {"uvicorn": fake_uvicorn}),
+        ):
+            os.environ.pop(server.DB_ENV, None)
+            server.main(["--db", "/tmp/cli.db", "--host", "127.0.0.2", "--port", "8123"])
+            self.assertEqual(server.database_path(), Path("/tmp/cli.db"))
+
+        fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.2", port=8123)
+
+    def test_environment_overrides_main_db_argument(self):
+        fake_uvicorn = SimpleNamespace(run=Mock())
+        with (
+            patch.dict(os.environ, {server.DB_ENV: "/tmp/environment.db"}),
+            patch.dict(sys.modules, {"uvicorn": fake_uvicorn}),
+        ):
+            server.main(["--db", "/tmp/cli.db"])
+            self.assertEqual(server.database_path(), Path("/tmp/environment.db"))
+            self.assertEqual(server.database_source(), server.DB_ENV)
+
+        fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.1", port=8000)
 
     def test_cache_file_change_path_restrictions_and_home(self):
         server.load_report("example.json")
