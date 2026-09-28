@@ -17,19 +17,13 @@ from gitskills.analysis.family_risk_models import (
     FindingSource,
     FlaggedPair,
     FlaggedRule,
-    IncompletePair,
     ScanSurface,
     SiblingScanSummary,
 )
 from gitskills.analysis.models import RiskCategory, RuleMatch
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
-from gitskills.tools._output import (
-    OutputError,
-    add_output_argument,
-    prepare_output_directory,
-    write_json_output,
-)
+from . import _output
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -100,7 +94,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Emit structured JSON instead of the human-readable report.",
     )
-    add_output_argument(parser)
+    _output.add_argument(parser)
     return parser
 
 
@@ -110,8 +104,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     try:
-        output_dir = prepare_output_directory(args.output)
-    except OutputError as exc:
+        output_dir = _output.prepare_directory(args.output)
+    except _output.OutputError as exc:
         print(exc, file=sys.stderr)
         return 2
 
@@ -152,8 +146,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if output_dir is not None:
         try:
-            write_json_output(output_dir, args.name, payload)
-        except OutputError as exc:
+            _output.write_json(output_dir, args.name, payload)
+        except _output.OutputError as exc:
             print(exc, file=sys.stderr)
             return 1
 

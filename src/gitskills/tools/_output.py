@@ -1,4 +1,4 @@
-"""Shared helpers for writing tool JSON output."""
+"""Shared helpers for tool JSON output."""
 
 from __future__ import annotations
 
@@ -12,11 +12,11 @@ DEFAULT_OUTPUT_DIR = Path("output")
 
 
 class OutputError(RuntimeError):
-    """Raised when a tool cannot prepare or write its output."""
+    """Raised when output cannot be prepared or written."""
 
 
-def add_output_argument(parser: argparse.ArgumentParser) -> None:
-    """Add the shared optional output-directory argument to a parser."""
+def add_argument(parser: argparse.ArgumentParser) -> None:
+    """Add the optional output-directory argument."""
 
     parser.add_argument(
         "--output",
@@ -31,7 +31,7 @@ def add_output_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def prepare_output_directory(output: Path | None) -> Path | None:
+def prepare_directory(output: Path | None) -> Path | None:
     """Create and validate the requested output directory."""
 
     if output is None:
@@ -54,7 +54,7 @@ def prepare_output_directory(output: Path | None) -> Path | None:
     return output
 
 
-def write_json_output(
+def write_json(
     output_dir: Path,
     file_stem: str,
     payload: Any,
@@ -62,6 +62,7 @@ def write_json_output(
     """Write a JSON payload to <output_dir>/<file_stem>.json."""
 
     output_path = output_dir / f"{file_stem}.json"
+
     try:
         output_path.write_text(
             json.dumps(payload, indent=2) + "\n",
@@ -73,21 +74,3 @@ def write_json_output(
         ) from exc
 
     return output_path
-
-
-def scan_diff_file_stem(derived: Path) -> str:
-    """Derive the scan_diff output file stem from the derived artifact path."""
-
-    if derived.name.lower() == "skill.md":
-        # Resolve without requiring the path to exist so a relative SKILL.md
-        # still maps to the actual containing directory name.
-        stem = derived.resolve(strict=False).parent.name
-    else:
-        stem = derived.stem
-
-    if not stem:
-        raise OutputError(
-            f"Unable to derive an output file name from: {derived}"
-        )
-
-    return stem
