@@ -24,6 +24,12 @@ from gitskills.analysis.family_risk_models import (
 from gitskills.analysis.models import RiskCategory, RuleMatch
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
+from gitskills.tools._output import (
+    OutputError,
+    add_output_argument,
+    prepare_output_directory,
+    write_json_output,
+)
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -94,6 +100,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Emit structured JSON instead of the human-readable report.",
     )
+    add_output_argument(parser)
     return parser
 
 
@@ -101,6 +108,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run candidate-family security review."""
 
     args = build_parser().parse_args(argv)
+
+    try:
+        output_dir = prepare_output_directory(args.output)
+    except OutputError as exc:
+        print(exc, file=sys.stderr)
+        return 2
+
     database = args.db or _database_from_environment()
 
     if database is None:
@@ -134,8 +148,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Unable to scan candidate family: {exc}", file=sys.stderr)
         return 1
 
+    payload = result.to_dict(verbose=args.verbose)
+
+    if output_dir is not None:
+        try:
+            write_json_output(output_dir, args.name, payload)
+        except OutputError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+
     if args.json:
-        print(json.dumps(result.to_dict(verbose=args.verbose), indent=2))
+        print(json.dumps(payload, indent=2))
     else:
         _print_report(result, verbose=args.verbose)
 

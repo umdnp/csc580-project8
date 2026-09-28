@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Sequence
@@ -15,6 +16,13 @@ from gitskills.analysis.models import (
     AnalysisComparison,
     RiskCategory,
     RuleMatch,
+)
+from gitskills.tools._output import (
+    OutputError,
+    add_output_argument,
+    prepare_output_directory,
+    scan_diff_file_stem,
+    write_json_output,
 )
 
 
@@ -46,6 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Include source profiles and individual rule matches.",
     )
+    add_output_argument(parser)
     return parser
 
 
@@ -54,6 +63,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+    try:
+        output_dir = prepare_output_directory(args.output)
+    except OutputError as exc:
+        print(exc, file=sys.stderr)
+        return 2
 
     try:
         base_text = _read_text(args.base)
@@ -69,7 +84,19 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     _log_rule_changes(comparison, verbose=args.verbose)
 
-    print(json.dumps(comparison.to_dict(verbose=args.verbose), indent=2))
+    payload = comparison.to_dict(verbose=args.verbose)
+    if output_dir is not None:
+        try:
+            write_json_output(
+                output_dir,
+                scan_diff_file_stem(args.derived),
+                payload,
+            )
+        except OutputError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+
+    print(json.dumps(payload, indent=2))
     return 0
 
 
