@@ -72,6 +72,7 @@ class BundleVariant:
     group_ids: tuple[int, ...]
     representative_artifact_id: int
     earliest_observed_at: str | None
+    repo_created_lower_bound_at: str | None = None
 
     @property
     def file_sha(self) -> str:
@@ -196,6 +197,22 @@ class SimilarityPolicy:
 
 
 @dataclass(frozen=True, slots=True)
+class ChronologyEvidence:
+    """Effective chronology used to support an inferred direction."""
+
+    effective_chronology: str
+    chronology_basis: str
+    chronology_source_artifact_id: int
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "effective_chronology": self.effective_chronology,
+            "chronology_basis": self.chronology_basis,
+            "chronology_source_artifact_id": self.chronology_source_artifact_id,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class EvolutionEdge:
     """One inferred directional relationship between bundle variants."""
 
@@ -210,13 +227,15 @@ class EvolutionEdge:
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
     evidence: tuple[str, ...] = ()
+    source_chronology: ChronologyEvidence | None = None
+    target_chronology: ChronologyEvidence | None = None
 
     @property
     def same_artifact_group(self) -> bool:
         return bool(self.shared_group_ids)
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        output: dict[str, object] = {
             "source_artifact_id": self.source_artifact_id,
             "target_artifact_id": self.target_artifact_id,
             "basis": self.basis,
@@ -228,6 +247,14 @@ class EvolutionEdge:
             "shared_group_ids": list(self.shared_group_ids),
             "same_artifact_group": self.same_artifact_group,
         }
+        chronology = {}
+        if self.source_chronology is not None:
+            chronology["source"] = self.source_chronology.to_dict()
+        if self.target_chronology is not None:
+            chronology["target"] = self.target_chronology.to_dict()
+        if chronology:
+            output["chronology"] = chronology
+        return output
 
 
 @dataclass(frozen=True, slots=True)
@@ -628,10 +655,10 @@ class FamilyAnalysis:
                 for artifact in self.artifacts
                 if artifact.provenance.has_values()
             ],
-            "similarities": self._similarities_to_dict(),
         }
 
         if verbose:
+            output["similarities"] = self._similarities_to_dict()
             output["artifacts"] = [
                 {
                     "artifact_id": artifact.artifact_id,

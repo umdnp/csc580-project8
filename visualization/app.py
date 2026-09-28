@@ -34,7 +34,7 @@ REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
 DB_ENV = "GITSKILLS_DB"
 
-app = FastAPI(title="Skill relationship explorer", version="0.4.1")
+app = FastAPI(title="Skill relationship explorer", version="0.5.0")
 _lock = Lock()
 _cached_key: tuple[Path, int, int] | None = None
 _cached_report: dict | None = None
@@ -123,7 +123,6 @@ def _is_analyze_family_report(raw: object) -> bool:
         "skill_variants": list,
         "bundle_variants": list,
         "provenance": list,
-        "similarities": list,
     }
     if not isinstance(raw.get("name"), str) or not raw["name"].strip():
         return False
@@ -186,6 +185,7 @@ def _normalize_directed_edge(edge: dict) -> dict:
         "evidence": list(edge.get("evidence") or []),
         "shared_group_ids": list(edge.get("shared_group_ids") or []),
         "same_artifact_group": bool(edge.get("same_artifact_group", False)),
+        "chronology": edge.get("chronology") or None,
     }
 
 
@@ -718,7 +718,7 @@ def _ambiguous_for(cluster: dict, artifact_id: int) -> list[dict]:
 
 
 def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
-    """Return parent comparisons first, then unresolved ambiguous peers."""
+    """Return parent comparisons first, then undirected peer relationships."""
 
     parents = _parents(cluster, artifact_id)
 
@@ -750,11 +750,16 @@ def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
         peer = edge["right"] if edge["left"] == artifact_id else edge["left"]
         if peer in lineage_peers:
             continue
+        peer_type = (
+            "equivalent"
+            if edge.get("change_type") == "equivalent"
+            else "related"
+        )
         candidates.append(
             {
                 "id": peer,
                 "kind": "ambiguous",
-                "label": f"Artifact {peer} (ambiguous)",
+                "label": f"Artifact {peer} ({peer_type})",
                 "relationship": edge,
             }
         )
@@ -780,7 +785,7 @@ def _directed_relationship(report: dict, source: int, target: int) -> dict:
     raise HTTPException(
         400,
         "The selected pair is not a directed parent-child relationship in this report. "
-        "Ambiguous relationships cannot be diffed or scanned.",
+        "Peer relationships cannot be scanned without a direction.",
     )
 
 

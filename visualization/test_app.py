@@ -78,14 +78,21 @@ class ViewerTests(unittest.TestCase):
                                 {
                                     "source_artifact_id": 20,
                                     "target_artifact_id": 40,
-                                    "basis": "chronology",
+                                    "basis": "equivalent-peer-chronology",
                                     "containment": 0.88,
                                     "jaccard": 0.61,
                                     "shared_shingles": 31,
                                     "change_type": "skill+siblings",
-                                    "evidence": ["first_commit_at"],
+                                    "evidence": ["first_commit_at", "equivalent-peer"],
                                     "shared_group_ids": [],
                                     "same_artifact_group": False,
+                                    "chronology": {
+                                        "target": {
+                                            "effective_chronology": "2026-03-01",
+                                            "chronology_basis": "equivalent-peer",
+                                            "chronology_source_artifact_id": 30,
+                                        }
+                                    },
                                 },
                             ],
                             "ambiguous_edges": [
@@ -126,7 +133,6 @@ class ViewerTests(unittest.TestCase):
                 {"file_sha": "bbb", "sibling_content_sha": "s2", "sibling_state_known": True, "artifact_ids": [20], "representative_artifact_id": 20, "earliest_observed_at": "2026-02-01"},
             ],
             "provenance": [],
-            "similarities": [],
         }
 
     @staticmethod
@@ -154,6 +160,12 @@ class ViewerTests(unittest.TestCase):
         graph = self.client.get("/api/reports/example.json/clusters/1").json()
         self.assertEqual({node["id"] for node in graph["nodes"]}, {10, 20, 30, 40})
         self.assertEqual((graph["edges"][0]["source"], graph["edges"][0]["target"]), (10, 20))
+        chronology_edge = next(edge for edge in graph["edges"] if edge["target"] == 40)
+        self.assertEqual(chronology_edge["basis"], "equivalent-peer-chronology")
+        self.assertEqual(
+            chronology_edge["chronology"]["target"]["chronology_source_artifact_id"],
+            30,
+        )
         self.assertEqual((graph["ambiguous"][0]["left"], graph["ambiguous"][0]["right"]), (20, 30))
         self.assertEqual(graph["roots"], [10, 30])
 
@@ -178,6 +190,7 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual([item["id"] for item in result["comparisons"]], [10, 30])
         self.assertEqual([item["kind"] for item in result["comparisons"]], ["parent", "ambiguous"])
         self.assertEqual(result["comparisons"][0]["label"], "Artifact 10 (parent)")
+        self.assertEqual(result["comparisons"][1]["label"], "Artifact 30 (equivalent)")
         self.assertEqual(result["comparison"]["id"], 10)
         self.assertEqual(result["relationship"]["basis"], "containment")
         self.assertEqual(result["artifact"]["artifact_sibling_count"], 1)

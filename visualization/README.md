@@ -30,11 +30,12 @@ loaded successfully. Malformed JSON, `scan_family` output, older prototype forma
 and unrelated JSON files are ignored.
 
 `analyze_family` reports contain the family clusters, directed evolution edges,
-ambiguous relationships, similarity metrics, and root candidates used by the graph.
-For example:
+peer relationships, and root candidates used by the graph. The default JSON omits
+the full pairwise similarity matrix to keep visualization reports smaller; pass
+`--verbose` only when that diagnostic detail is needed. For example:
 
 ```sh
-analyze_family busybox-on-windows --json --verbose --output visualization/reports
+analyze_family busybox-on-windows --json --output visualization/reports
 ```
 
 The graph is built from the selected report. The viewer does not recalculate family
@@ -73,11 +74,11 @@ NOT NULL`. Directory entries and files whose content was not stored are excluded
 
 ## Graph behavior
 
-Directed ancestry edges are always shown for the current view. Ambiguous edges are
-contextual: only ambiguous relationships connected to the selected artifact are
-drawn. Selecting another node replaces those ambiguous edges with that node's
-ambiguous relationships. This keeps large families readable without discarding the
-uncertainty recorded in the report.
+Directed ancestry edges are always shown for the current view. Peer relationships are
+contextual: only peers connected to the selected artifact are shown. Related peers
+with unknown direction use a gray dotted line; equivalent peers are identified by
+node color without an additional line. Selecting another node updates those peer
+relationships.
 
 The **View** dropdown uses **Direct relationships** for the selected artifact's
 immediate relationships and **Direct and indirect relationships** for the broader
@@ -96,9 +97,9 @@ Selecting an artifact opens a three-panel action area:
   lines and provides **View content**. The candidate-family name is not repeated here
   because it is already shown in the report summary above the graph.
 - **Compare To** lists directed parent artifact(s) first and labels them `(parent)`.
-  Unresolved ambiguous peers are listed afterward and labeled `(ambiguous)`. A peer
+  Peer comparisons are listed afterward as `(equivalent)` or `(related)`. A peer
   that already has a directed lineage relationship to the selected artifact is not
-  repeated as ambiguous.
+  repeated.
 - **Artifact Siblings** lists the selected artifact's content-bearing file siblings by
   `entry_name`. Database IDs are not displayed. **View content** opens the
   selected sibling file even when there is no comparison target. If none exist, the
@@ -122,7 +123,10 @@ file, its pane says `No such file for this artifact.` while the existing side sh
 its contents and the addition/removal highlighting.
 
 The metadata display uses **Artifact Sibling Count**, computed from the same filtered
-`artifact_siblings` rows used by the sibling dropdown. Comparison panels always show
+`artifact_siblings` rows used by the sibling dropdown. When direction relies on an
+equivalent peer's observed chronology, the relationship panel also shows the
+effective chronology, its `equivalent-peer` basis, and the artifact that supplied
+that date. Comparison panels always show
 **Repo created**, **Commit history**, **First commit**, **Last commit**, and **Commit count**;
 missing values are displayed as `Unknown` instead of being hidden. `Repo created` comes from
 the `repos` table, and **Commit history** reports whether artifact history was fetched. Dates

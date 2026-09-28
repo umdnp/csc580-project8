@@ -78,7 +78,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Show artifact IDs, qualifying similarities, and ambiguous edge details.",
+        help=(
+            "Show artifact metadata, the full pairwise similarity matrix, and "
+            "detailed relationship evidence."
+        ),
     )
     parser.add_argument(
         "--json",
@@ -235,6 +238,20 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                 f"{evidence_text}"
                 f"{scope_text}"
             )
+            if verbose:
+                for side, chronology in (
+                    ("source", edge.source_chronology),
+                    ("target", edge.target_chronology),
+                ):
+                    if chronology is None:
+                        continue
+                    print(
+                        f"        {side} effective_chronology="
+                        f"{chronology.effective_chronology} "
+                        f"chronology_basis={chronology.chronology_basis} "
+                        f"chronology_source=artifact "
+                        f"{chronology.chronology_source_artifact_id}"
+                    )
     else:
         print("    Directed edges: 0")
 

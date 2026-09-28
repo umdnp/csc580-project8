@@ -18,7 +18,7 @@
   --green:light-dark(#347a47,#76cf8d);
   --peer-line:light-dark(#b7c0c8,#a5afb9);
   --related-peer:light-dark(#aab4be,#7f8b97);
-  --equivalent-peer:light-dark(#252a2f,#343b43);
+  --equivalent-peer:light-dark(#14181c,#46515c);
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
@@ -667,16 +667,27 @@ function basisText(basis) {
     'containment': 'Containment',
     'chronology': 'Chronology',
     'repo-created-boundary': 'Repository creation boundary',
+    'equivalent-peer-chronology': 'Equivalent-peer chronology',
     'declared-source': 'Declared source',
+    'equivalent-state': 'Equivalent state',
     'similarity-only': 'Similarity only',
     'same-content-direction-unknown': 'Same content',
     'provenance-conflict': 'Conflicting provenance',
   })[basis] || basis || 'Unknown';
 }
 
+function inheritedChronology(edge) {
+  return Object.entries(edge.chronology || {})
+    .filter(([, value]) => value?.chronology_basis === 'equivalent-peer');
+}
+
 function edgeText(edge) {
   const evidence = edge.evidence?.length ? ` · evidence ${edge.evidence.join(', ')}` : '';
-  return `${edge.source} → ${edge.target} · ${basisText(edge.basis)} · containment ${number(edge.containment)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}${evidence}`;
+  const inherited = inheritedChronology(edge);
+  const chronology = inherited.length
+    ? ` · effective chronology ${inherited.map(([, value]) => `${dateText(value.effective_chronology)} via artifact ${value.chronology_source_artifact_id}`).join('; ')}`
+    : '';
+  return `${edge.source} → ${edge.target} · ${basisText(edge.basis)} · containment ${number(edge.containment)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}${evidence}${chronology}`;
 }
 
 function undirectedText(edge) {
@@ -780,7 +791,7 @@ function draw({view='preserve'} = {}) {
 
   for (const edge of directed) {
     const a = pos.get(edge.source), b = pos.get(edge.target);
-    const basis = edge.basis === 'declared-source' ? 'declared-source' : (['chronology','repo-created-boundary'].includes(edge.basis) ? 'chronology' : 'containment');
+    const basis = edge.basis === 'declared-source' ? 'declared-source' : (['chronology','equivalent-peer-chronology','repo-created-boundary'].includes(edge.basis) ? 'chronology' : 'containment');
     const connected = edge.source === selected || edge.target === selected;
     const path = svgEl('path', {
       d: `M${a.x+9},${a.y}C${(a.x+b.x)/2},${a.y} ${(a.x+b.x)/2},${b.y} ${b.x-10},${b.y}`,
@@ -974,6 +985,20 @@ function artifactBox(title, artifact) {
   return box;
 }
 
+function addInheritedChronology(dl, relationship) {
+  const inherited = inheritedChronology(relationship);
+  if (!inherited.length) return;
+
+  for (const [side, value] of inherited) {
+    const prefix = inherited.length > 1
+      ? (side === 'source' ? 'Base ' : 'Derived ')
+      : '';
+    addKv(dl, `${prefix}Effective chronology`, dateText(value.effective_chronology));
+    addKv(dl, `${prefix}Chronology basis`, 'Equivalent peer');
+    addKv(dl, `${prefix}Chronology source`, `Artifact ${value.chronology_source_artifact_id}`);
+  }
+}
+
 function relationshipBox(relationship, base, derived) {
   const box = document.createElement('section'); box.className = 'meta-box relationship';
   const equivalent = relationship.change_type === 'equivalent';
@@ -985,6 +1010,7 @@ function relationshipBox(relationship, base, derived) {
   addKv(dl, equivalent ? 'Direction' : 'Base → derived', `${relationship.source} → ${relationship.target}`);
   addKv(dl, 'Basis', basisText(relationship.basis));
   addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
+  addInheritedChronology(dl, relationship);
   addKv(dl, 'Change type', relationship.change_type);
   addKv(dl, 'Containment', relationship.containment === null || relationship.containment === undefined ? null : Number(relationship.containment).toFixed(4));
   addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
