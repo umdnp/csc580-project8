@@ -1,0 +1,419 @@
+{
+  "name": "1k-defi-module-integration",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 3,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 2,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 2
+    }
+  },
+  "family": {
+    "artifact_ids": [
+      2498630,
+      2696303,
+      2723114,
+      3076631
+    ],
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 2
+    },
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2696303,
+          2723114,
+          3076631
+        ],
+        "skill_variant_count": 3,
+        "bundle_variant_count": 3,
+        "file_shas": [
+          "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+          "676a02971f9b8575506f6d628150f35dd3936f09",
+          "dc438bccc86934026118a6bf27980698d5789456"
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2696303
+          ],
+          "directed_edge_count": 2,
+          "within_group_directed_edge_count": 1,
+          "across_group_directed_edge_count": 1,
+          "ambiguous_edge_count": 0,
+          "within_group_ambiguous_edge_count": 0,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 0,
+            "siblings-only": 0,
+            "skill+siblings": 0,
+            "equivalent": 0,
+            "unknown": 2
+          },
+          "directed_edges": [
+            {
+              "source_artifact_id": 2696303,
+              "target_artifact_id": 3076631,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 0.7445432497978981,
+              "shared_shingles": 921,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3076631,
+              "target_artifact_id": 2723114,
+              "basis": "chronology",
+              "containment": 0.7445432497978981,
+              "jaccard": 0.7445432497978981,
+              "shared_shingles": 921,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                423459
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2498630
+        ],
+        "skill_variant_count": 1,
+        "bundle_variant_count": 1,
+        "file_shas": [
+          "c6949d376537f3d07c306268572d98265a0fff88"
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2498630
+          ],
+          "directed_edge_count": 0,
+          "within_group_directed_edge_count": 0,
+          "across_group_directed_edge_count": 0,
+          "ambiguous_edge_count": 0,
+          "within_group_ambiguous_edge_count": 0,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 0,
+            "siblings-only": 0,
+            "skill+siblings": 0,
+            "equivalent": 0,
+            "unknown": 0
+          },
+          "directed_edges": [],
+          "ambiguous_edges": []
+        }
+      }
+    ]
+  },
+  "groups": [
+    {
+      "group_id": 250589,
+      "normalized_description": "onekey app defi integration for earn, borrow, staking, portfolio actions, vault/lending protocols, transactions, history, routing, and risk display.",
+      "artifact_ids": [
+        2498630
+      ],
+      "skill_variant_count": 1,
+      "bundle_variant_count": 1,
+      "family_cluster_numbers": [
+        2
+      ]
+    },
+    {
+      "group_id": 360715,
+      "normalized_description": "guide for integrating new defi modules or protocols (staking, lending, earn, borrow) into onekey.",
+      "artifact_ids": [
+        2696303
+      ],
+      "skill_variant_count": 1,
+      "bundle_variant_count": 1,
+      "family_cluster_numbers": [
+        1
+      ]
+    },
+    {
+      "group_id": 423459,
+      "normalized_description": "interactive guide for integrating new defi modules or protocols into onekey. use when adding new defi features like staking protocols, lending markets, or entirely new defi modules. triggers on defi, protocol, integration, earn, borrow, staking, lending, supply, borrow, withdraw, repay, claim, new module, pendle, aave, compound.",
+      "artifact_ids": [
+        2723114,
+        3076631
+      ],
+      "skill_variant_count": 2,
+      "bundle_variant_count": 2,
+      "family_cluster_numbers": [
+        1
+      ]
+    }
+  ],
+  "skill_variants": [
+    {
+      "file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+      "artifact_ids": [
+        2723114
+      ],
+      "group_ids": [
+        423459
+      ],
+      "representative_artifact_id": 2723114,
+      "earliest_observed_at": "2026-06-03T07:00:18Z"
+    },
+    {
+      "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+      "artifact_ids": [
+        2696303
+      ],
+      "group_ids": [
+        360715
+      ],
+      "representative_artifact_id": 2696303,
+      "earliest_observed_at": "2026-04-15T21:39:25Z"
+    },
+    {
+      "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+      "artifact_ids": [
+        2498630
+      ],
+      "group_ids": [
+        250589
+      ],
+      "representative_artifact_id": 2498630,
+      "earliest_observed_at": null
+    },
+    {
+      "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+      "artifact_ids": [
+        3076631
+      ],
+      "group_ids": [
+        423459
+      ],
+      "representative_artifact_id": 3076631,
+      "earliest_observed_at": "2026-05-01T00:13:08Z"
+    }
+  ],
+  "bundle_variants": [
+    {
+      "file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sibling_state_known": true,
+      "artifact_ids": [
+        2723114
+      ],
+      "group_ids": [
+        423459
+      ],
+      "representative_artifact_id": 2723114,
+      "earliest_observed_at": "2026-06-03T07:00:18Z",
+      "earliest_repo_created_at": "2026-06-03T06:59:05Z"
+    },
+    {
+      "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+      "sibling_content_sha": "05c4cf576dc7bbc733b2aeb31c70f0d628b70c346ae2fd7da7c5f64dd6cabcd2",
+      "sibling_state_known": true,
+      "artifact_ids": [
+        2696303
+      ],
+      "group_ids": [
+        360715
+      ],
+      "representative_artifact_id": 2696303,
+      "earliest_observed_at": "2026-04-15T21:39:25Z",
+      "earliest_repo_created_at": "2026-04-15T21:55:27Z"
+    },
+    {
+      "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+      "sibling_content_sha": "b6f86e95318c8321d4cd970045ef78f469cc55ff6821df86bb0b3de003bd9ba0",
+      "sibling_state_known": true,
+      "artifact_ids": [
+        2498630
+      ],
+      "group_ids": [
+        250589
+      ],
+      "representative_artifact_id": 2498630,
+      "earliest_observed_at": null,
+      "earliest_repo_created_at": "2021-11-22T14:54:51Z"
+    },
+    {
+      "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+      "sibling_content_sha": null,
+      "sibling_state_known": false,
+      "artifact_ids": [
+        3076631
+      ],
+      "group_ids": [
+        423459
+      ],
+      "representative_artifact_id": 3076631,
+      "earliest_observed_at": "2026-05-01T00:13:08Z",
+      "earliest_repo_created_at": "2026-01-21T06:17:51Z"
+    }
+  ],
+  "provenance": [],
+  "similarities": [
+    {
+      "left_file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+      "right_file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 1.0,
+      "jaccard": 1.0,
+      "shared_shingles": 921,
+      "left_shingles": 921,
+      "right_shingles": 921,
+      "left_artifact_ids": [
+        2723114
+      ],
+      "right_artifact_ids": [
+        2696303
+      ],
+      "left_representative_artifact_id": 2723114,
+      "right_representative_artifact_id": 2696303,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+      "right_file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+      "left_to_right_containment": 0.0,
+      "right_to_left_containment": 0.0,
+      "jaccard": 0.0,
+      "shared_shingles": 0,
+      "left_shingles": 921,
+      "right_shingles": 1104,
+      "left_artifact_ids": [
+        2723114
+      ],
+      "right_artifact_ids": [
+        2498630
+      ],
+      "left_representative_artifact_id": 2723114,
+      "right_representative_artifact_id": 2498630,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+      "right_file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 0.7445432497978981,
+      "jaccard": 0.7445432497978981,
+      "shared_shingles": 921,
+      "left_shingles": 921,
+      "right_shingles": 1237,
+      "left_artifact_ids": [
+        2723114
+      ],
+      "right_artifact_ids": [
+        3076631
+      ],
+      "left_representative_artifact_id": 2723114,
+      "right_representative_artifact_id": 3076631,
+      "shared_group_ids": [
+        423459
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+      "right_file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+      "left_to_right_containment": 0.0,
+      "right_to_left_containment": 0.0,
+      "jaccard": 0.0,
+      "shared_shingles": 0,
+      "left_shingles": 921,
+      "right_shingles": 1104,
+      "left_artifact_ids": [
+        2696303
+      ],
+      "right_artifact_ids": [
+        2498630
+      ],
+      "left_representative_artifact_id": 2696303,
+      "right_representative_artifact_id": 2498630,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+      "right_file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 0.7445432497978981,
+      "jaccard": 0.7445432497978981,
+      "shared_shingles": 921,
+      "left_shingles": 921,
+      "right_shingles": 1237,
+      "left_artifact_ids": [
+        2696303
+      ],
+      "right_artifact_ids": [
+        3076631
+      ],
+      "left_representative_artifact_id": 2696303,
+      "right_representative_artifact_id": 3076631,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+      "right_file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+      "left_to_right_containment": 0.0,
+      "right_to_left_containment": 0.0,
+      "jaccard": 0.0,
+      "shared_shingles": 0,
+      "left_shingles": 1104,
+      "right_shingles": 1237,
+      "left_artifact_ids": [
+        2498630
+      ],
+      "right_artifact_ids": [
+        3076631
+      ],
+      "left_representative_artifact_id": 2498630,
+      "right_representative_artifact_id": 3076631,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    }
+  ]
+}
