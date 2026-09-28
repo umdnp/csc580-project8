@@ -777,24 +777,10 @@ def _ambiguous_for(cluster: dict, artifact_id: int) -> list[dict]:
 
 
 def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
-    """Return parent comparisons first, then undirected peer relationships."""
+    """Return parent comparisons first, then directly recorded peer relationships."""
 
     parents = _parents(cluster, artifact_id)
-
-    lineage_peers: set[int] = set()
-    queue = [artifact_id]
-    while queue:
-        current = queue.pop()
-        for edge in _parents(cluster, current):
-            peer = edge["source"]
-            if peer not in lineage_peers and peer != artifact_id:
-                lineage_peers.add(peer)
-                queue.append(peer)
-        for edge in _children(cluster, current):
-            peer = edge["target"]
-            if peer not in lineage_peers and peer != artifact_id:
-                lineage_peers.add(peer)
-                queue.append(peer)
+    parent_ids = {edge["source"] for edge in parents}
 
     candidates = [
         {
@@ -807,7 +793,7 @@ def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
     ]
     for edge in _ambiguous_for(cluster, artifact_id):
         peer = edge["right"] if edge["left"] == artifact_id else edge["left"]
-        if peer in lineage_peers:
+        if peer in parent_ids:
             continue
         peer_type = (
             "equivalent"
