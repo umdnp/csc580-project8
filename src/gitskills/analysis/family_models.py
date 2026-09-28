@@ -72,6 +72,7 @@ class BundleVariant:
     group_ids: tuple[int, ...]
     representative_artifact_id: int
     earliest_observed_at: str | None
+    earliest_repo_created_at: str | None
 
     @property
     def file_sha(self) -> str:
@@ -617,6 +618,7 @@ class FamilyAnalysis:
                     "group_ids": list(variant.group_ids),
                     "representative_artifact_id": variant.representative_artifact_id,
                     "earliest_observed_at": variant.earliest_observed_at,
+                    "earliest_repo_created_at": variant.earliest_repo_created_at,
                 }
                 for variant in self.bundle_variants
             ],

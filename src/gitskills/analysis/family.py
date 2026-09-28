@@ -448,10 +448,34 @@ def _build_bundle_variants(artifacts: tuple[Artifact, ...]) -> tuple[BundleVaria
                 group_ids=tuple(sorted({member.group_id for member in members})),
                 representative_artifact_id=representative.artifact_id,
                 earliest_observed_at=representative.first_commit_at,
+                earliest_repo_created_at=_earliest_repo_created_at(members),
             )
         )
 
     return tuple(variants)
+
+
+def _earliest_repo_created_at(artifacts: Iterable[Artifact]) -> str | None:
+    """Return the earliest repository creation time when all members have one.
+
+    Bundle variants can represent the same content in several repositories. A
+    repository-creation boundary is safe only when every occurrence has a valid
+    repository creation timestamp; otherwise an older unknown repository could
+    invalidate the inference.
+    """
+
+    members = tuple(artifacts)
+    parsed = [
+        (_parse_timestamp(artifact.repo_created_at), artifact.repo_created_at)
+        for artifact in members
+    ]
+    if any(timestamp is None for timestamp, _ in parsed):
+        return None
+
+    return min(
+        parsed,
+        key=lambda item: item[0],
+    )[1]
 
 
 def _representative_artifact(artifacts: Iterable[Artifact]) -> Artifact:
@@ -627,18 +651,20 @@ def _bundle_relationship(
             declared_sources,
             cluster_bundle_keys,
         )
-        if provenance is not None and not provenance.conflict:
-            assert provenance.source is not None and provenance.target is not None
-            return _DirectedCandidate(
-                source=provenance.source,
-                target=provenance.target,
-                basis="declared-source",
-                containment=1.0,
+        if provenance is not None and provenance.conflict:
+            return AmbiguousRelationship(
+                left=left.key,
+                right=right.key,
+                left_artifact_id=left.representative_artifact_id,
+                right_artifact_id=right.representative_artifact_id,
+                basis="provenance-conflict",
+                containment_left_to_right=1.0,
+                containment_right_to_left=1.0,
                 jaccard=1.0,
-                shared_shingles=0,
+                shared_shingles=None,
                 change_type=_classify_change(
-                    provenance.source,
-                    provenance.target,
+                    left,
+                    right,
                     result=None,
                     sibling_changed=sibling_changed,
                 ),
@@ -646,16 +672,39 @@ def _bundle_relationship(
                 evidence=provenance.evidence,
             )
 
+        if provenance is not None:
+            assert provenance.source is not None and provenance.target is not None
+            direction = (provenance.source, provenance.target, "declared-source")
+            evidence = provenance.evidence
+        else:
+            direction = _infer_chronological_direction(left, right)
+            evidence = ()
+
+        if direction is not None:
+            source, target, basis = direction
+            return _DirectedCandidate(
+                source=source,
+                target=target,
+                basis=basis,
+                containment=1.0,
+                jaccard=1.0,
+                shared_shingles=0,
+                change_type=_classify_change(
+                    source,
+                    target,
+                    result=None,
+                    sibling_changed=sibling_changed,
+                ),
+                shared_group_ids=shared_group_ids,
+                evidence=evidence,
+            )
+
         return AmbiguousRelationship(
             left=left.key,
             right=right.key,
             left_artifact_id=left.representative_artifact_id,
             right_artifact_id=right.representative_artifact_id,
-            basis=(
-                "provenance-conflict"
-                if provenance is not None and provenance.conflict
-                else "similarity-only"
-            ),
+            basis="same-content-direction-unknown",
             containment_left_to_right=1.0,
             containment_right_to_left=1.0,
             jaccard=1.0,
@@ -667,7 +716,6 @@ def _bundle_relationship(
                 sibling_changed=sibling_changed,
             ),
             shared_group_ids=shared_group_ids,
-            evidence=provenance.evidence if provenance is not None else (),
         )
 
     result = similarity_index.get(left.file_sha, right.file_sha)
@@ -841,12 +889,12 @@ def _classify_change(
     )
 
 
-def _infer_direction(
+def _infer_chronological_direction(
     left: BundleVariant,
     right: BundleVariant,
-    result: SimilarityResult,
-    policy: SimilarityPolicy,
 ) -> tuple[BundleVariant, BundleVariant, str] | None:
+    """Infer observed direction from file history or repository age boundaries."""
+
     left_date = _parse_timestamp(left.earliest_observed_at)
     right_date = _parse_timestamp(right.earliest_observed_at)
 
@@ -854,6 +902,34 @@ def _infer_direction(
         if left_date < right_date:
             return left, right, "chronology"
         return right, left, "chronology"
+
+    left_repo_date = _parse_timestamp(left.earliest_repo_created_at)
+    right_repo_date = _parse_timestamp(right.earliest_repo_created_at)
+
+    # A known file observation predating every repository that contains the other
+    # bundle variant establishes observed order even when that variant lacks file
+    # history. Repository age is used only as a hard lower bound, never as a
+    # replacement for first_commit_at.
+    if left_date is not None and right_repo_date is not None:
+        if left_date < right_repo_date:
+            return left, right, "repo-created-boundary"
+
+    if right_date is not None and left_repo_date is not None:
+        if right_date < left_repo_date:
+            return right, left, "repo-created-boundary"
+
+    return None
+
+
+def _infer_direction(
+    left: BundleVariant,
+    right: BundleVariant,
+    result: SimilarityResult,
+    policy: SimilarityPolicy,
+) -> tuple[BundleVariant, BundleVariant, str] | None:
+    chronological = _infer_chronological_direction(left, right)
+    if chronological is not None:
+        return chronological
 
     left_to_right = result.containment(left.file_sha, right.file_sha)
     right_to_left = result.containment(right.file_sha, left.file_sha)
@@ -915,14 +991,22 @@ def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
     basis_rank = {
         "declared-source": 0,
         "chronology": 1,
-        "containment": 2,
-    }.get(candidate.basis, 3)
+        "repo-created-boundary": 2,
+        "containment": 3,
+    }.get(candidate.basis, 4)
     if (
         candidate.basis == "chronology"
         and source_date is not None
         and target_date is not None
     ):
         time_gap = (target_date - source_date).total_seconds()
+    elif candidate.basis == "repo-created-boundary" and source_date is not None:
+        target_repo_date = _parse_timestamp(candidate.target.earliest_repo_created_at)
+        time_gap = (
+            (target_repo_date - source_date).total_seconds()
+            if target_repo_date is not None
+            else float("inf")
+        )
     else:
         time_gap = float("inf")
 
