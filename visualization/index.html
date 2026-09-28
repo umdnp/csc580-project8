@@ -18,7 +18,7 @@
   --green:light-dark(#347a47,#76cf8d);
   --peer-line:light-dark(#b7c0c8,#a5afb9);
   --related-peer:light-dark(#aab4be,#7f8b97);
-  --equivalent-peer:light-dark(#4f5b66,#536170);
+  --equivalent-peer:light-dark(#252a2f,#343b43);
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
@@ -166,8 +166,8 @@ th{background:var(--panel)}
   <span><i class="line declared"></i>Declared →</span>
   <span><i class="line ambiguous-line"></i>No direction</span>
   <span><i class="dot selected"></i>Selected</span>
-  <span><i class="dot parent"></i>Parent</span>
-  <span><i class="dot child"></i>Child</span>
+  <span><i class="dot parent"></i>Parent candidate</span>
+  <span><i class="dot child"></i>Derived candidate</span>
   <span><i class="dot related-peer"></i>Related peer</span>
   <span><i class="dot equivalent-peer"></i>Equivalent peer</span>
 </div>
@@ -179,7 +179,7 @@ th{background:var(--panel)}
   <button id="minus" aria-label="Zoom out">−</button>
   <span id="visible" class="muted"></span>
 </div>
-<svg id="graph" role="img" aria-label="Interactive inferred parent-child graph. Peer relationships are shown for the selected artifact."><defs></defs><g id="marks"></g></svg>
+<svg id="graph" role="img" aria-label="Interactive inferred relationship graph. Peer relationships are shown for the selected artifact."><defs></defs><g id="marks"></g></svg>
 
 <section class="card" aria-label="Selected artifact details">
   <div id="selection-panels" class="selection-panels" hidden>
@@ -795,7 +795,14 @@ function draw({view='preserve'} = {}) {
   for (const [id, point] of pos) {
     const group = svgEl('g');
     const title = svgEl('title');
-    title.textContent = `Artifact ${id}${nodes.get(id)?.root ? ' · root candidate' : ''}`;
+    const roles = [];
+    if (id === selected) roles.push('selected');
+    if (nodes.get(id)?.root) roles.push('root candidate');
+    if (selectedParents.has(id)) roles.push('parent candidate');
+    if (selectedChildren.has(id)) roles.push('derived candidate');
+    if (equivalentPeers.has(id)) roles.push('equivalent peer');
+    else if (undirectedPeers.has(id)) roles.push('related peer');
+    title.textContent = `Artifact ${id}${roles.length ? ` · ${roles.join(' · ')}` : ''}`;
     group.dataset.artifactId = id;
     const hit = svgEl('circle', {cx: point.x, cy: point.y, r: 18, fill: 'transparent'});
     const hoverRing = svgEl('circle', {cx: point.x, cy: point.y, r: 14, class: `compare-hover-ring${id === hoveredCompareArtifactId ? ' active' : ''}`, 'data-artifact-id': id});
@@ -838,7 +845,7 @@ function draw({view='preserve'} = {}) {
 
 function renderNeighborButtons(ps, cs, ambiguous) {
   const holder = $('#neighbors'); holder.replaceChildren();
-  for (const [label, list, field] of [['Parent', ps, 'source'], ['Child', cs, 'target']]) {
+  for (const [label, list, field] of [['Parent candidate', ps, 'source'], ['Derived candidate', cs, 'target']]) {
     for (const edge of list) {
       const button = document.createElement('button');
       button.textContent = `${label} ${edge[field]}`;
@@ -847,7 +854,7 @@ function renderNeighborButtons(ps, cs, ambiguous) {
       holder.append(button);
     }
   }
-  if (!ps.length && !cs.length) holder.append(Object.assign(document.createElement('span'), {className:'empty', textContent:'No directed parent or child relationships for this artifact.'}));
+  if (!ps.length && !cs.length) holder.append(Object.assign(document.createElement('span'), {className:'empty', textContent:'No directed relationships for this artifact.'}));
 
   const ambiguousHolder = $('#ambiguous-neighbors'); ambiguousHolder.replaceChildren();
   for (const edge of ambiguous) {
