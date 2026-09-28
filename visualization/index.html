@@ -58,6 +58,8 @@ label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .node.parent{fill:var(--purple);stroke-width:2.3}
 .node.child{fill:var(--green);stroke-width:2.3}
 .node.ambiguous-peer{fill:var(--gray);stroke-width:2}
+.compare-hover-ring{fill:none;stroke:#e53935;stroke-width:3;opacity:0;pointer-events:none;vector-effect:non-scaling-stroke}
+.compare-hover-ring.active{opacity:1}
 svg text{fill:var(--fg);font:13px system-ui}
 .muted{font-size:13px;color:var(--muted)}
 #message{min-height:24px;overflow-wrap:anywhere}
@@ -75,6 +77,14 @@ svg text{fill:var(--fg);font:13px system-ui}
 .control-panel{border:1px solid var(--border);border-radius:7px;padding:12px;background:var(--bg);min-width:0}
 .control-panel h3{margin:0 0 8px}
 .control-panel label{width:100%}
+.field-label{display:block;margin-bottom:4px}
+.compare-dropdown{position:relative;width:100%}
+.compare-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
+.compare-toggle::after{content:'▾';color:var(--muted);flex:0 0 auto}
+.compare-toggle[aria-expanded='true']::after{content:'▴'}
+.compare-menu{position:absolute;z-index:30;top:calc(100% + 4px);left:0;right:0;max-height:250px;overflow:auto;border:1px solid var(--border);border-radius:6px;background:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.2);padding:4px}
+.compare-option{display:block;width:100%;border:0;border-radius:4px;background:transparent;text-align:left;padding:7px 9px}
+.compare-option:hover,.compare-option:focus-visible,.compare-option[aria-selected='true']{background:var(--panel)}
 .control-panel .detail-actions{margin-bottom:0}
 .control-panel .muted{margin-top:8px}
 .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -178,7 +188,11 @@ th{background:var(--panel)}
     </section>
     <section class="control-panel">
       <h3>Compare To</h3>
-      <label>Artifact<select id="compare"></select></label>
+      <span class="field-label">Artifact</span>
+      <div id="compare-control" class="compare-dropdown">
+        <button id="compare-toggle" class="compare-toggle" type="button" aria-haspopup="listbox" aria-expanded="false">NONE</button>
+        <div id="compare-menu" class="compare-menu" role="listbox" hidden></div>
+      </div>
       <div class="detail-actions">
         <button id="view-diff" hidden>View diff</button>
         <button id="scan-diff" hidden>Run scan</button>
@@ -252,6 +266,7 @@ let selected = null;
 let selectedRelationship = null;
 let selectedComparison = null;
 let currentDetails = null;
+let hoveredCompareArtifactId = null;
 let box = [0, 0, 800, 560];
 let fitBox = box;
 let lastPositions = new Map();
@@ -305,7 +320,7 @@ function clearState() {
   $('#neighbors').replaceChildren();
   $('#ambiguous-neighbors').replaceChildren();
   $('#detail-content').replaceChildren();
-  $('#compare').replaceChildren(); $('#sibling').replaceChildren();
+  resetCompareDropdown(); $('#sibling').replaceChildren();
   $('#selection-panels').hidden = true;
   $('#view-content').hidden = true;
   $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
@@ -357,6 +372,69 @@ function saveReport(filename) {
   if (!filename) return;
   try { localStorage.setItem(SELECTED_REPORT_KEY, filename); }
   catch (_) { /* Browser storage may be disabled; report loading still works. */ }
+}
+
+function setCompareHover(artifactId = null) {
+  hoveredCompareArtifactId = artifactId === null || artifactId === undefined ? null : Number(artifactId);
+  marks.querySelectorAll('.compare-hover-ring').forEach(ring => {
+    ring.classList.toggle('active', Number(ring.dataset.artifactId) === hoveredCompareArtifactId);
+  });
+}
+
+function closeCompareMenu() {
+  const menu = $('#compare-menu');
+  const toggle = $('#compare-toggle');
+  menu.hidden = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  setCompareHover(null);
+}
+
+function resetCompareDropdown() {
+  const toggle = $('#compare-toggle');
+  const menu = $('#compare-menu');
+  menu.replaceChildren();
+  menu.hidden = true;
+  toggle.textContent = 'NONE';
+  toggle.disabled = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  setCompareHover(null);
+}
+
+function renderCompareDropdown(comparisons, comparison) {
+  const toggle = $('#compare-toggle');
+  const menu = $('#compare-menu');
+  menu.replaceChildren();
+  menu.hidden = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  setCompareHover(null);
+
+  if (!comparisons.length) {
+    resetCompareDropdown();
+    return;
+  }
+
+  toggle.disabled = false;
+  const current = comparisons.find(item => Number(item.id) === Number(comparison?.id)) || comparisons[0];
+  toggle.textContent = current.label;
+
+  for (const item of comparisons) {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'compare-option';
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-selected', String(Number(item.id) === Number(current.id)));
+    option.textContent = item.label;
+    option.addEventListener('mouseenter', () => setCompareHover(item.id));
+    option.addEventListener('mouseleave', () => setCompareHover(null));
+    option.addEventListener('focus', () => setCompareHover(item.id));
+    option.addEventListener('blur', () => setCompareHover(null));
+    option.addEventListener('click', () => {
+      toggle.textContent = item.label;
+      closeCompareMenu();
+      loadDetails(Number(item.id));
+    });
+    menu.append(option);
+  }
 }
 
 async function reports() {
@@ -650,7 +728,9 @@ function draw({view='preserve'} = {}) {
     const group = svgEl('g');
     const title = svgEl('title');
     title.textContent = `Artifact ${id}${nodes.get(id)?.root ? ' · root candidate' : ''}`;
+    group.dataset.artifactId = id;
     const hit = svgEl('circle', {cx: point.x, cy: point.y, r: 18, fill: 'transparent'});
+    const hoverRing = svgEl('circle', {cx: point.x, cy: point.y, r: 14, class: `compare-hover-ring${id === hoveredCompareArtifactId ? ' active' : ''}`, 'data-artifact-id': id});
     const classes = ['node'];
     if (nodes.get(id)?.root) classes.push('root');
     if (id === selected) classes.push('selected');
@@ -659,7 +739,7 @@ function draw({view='preserve'} = {}) {
     else if (ambiguousPeers.has(id)) classes.push('ambiguous-peer');
     const circle = svgEl('circle', {cx: point.x, cy: point.y, r: id === selected ? 9 : 7, class: classes.join(' ')});
     const text = svgEl('text', {x: point.x+13, y: point.y-10}); text.textContent = id;
-    group.append(title, hit, circle, text);
+    group.append(title, hit, hoverRing, circle, text);
     group.style.cursor = 'pointer';
     group.onclick = () => { if (!moved) select(id); };
     marks.append(group);
@@ -896,15 +976,7 @@ function renderDetails(result) {
   $('#view-content').title = result.database.available ? '' : 'DuckDB is unavailable.';
   $('#selection-panels').hidden = false;
 
-  $('#compare').replaceChildren();
-  if (result.comparisons.length) {
-    for (const item of result.comparisons) $('#compare').add(new Option(item.label, item.id));
-    if (result.comparison) $('#compare').value = result.comparison.id;
-    $('#compare').disabled = false;
-  } else {
-    $('#compare').add(new Option('NONE', ''));
-    $('#compare').disabled = true;
-  }
+  renderCompareDropdown(result.comparisons, result.comparison);
 
   $('#sibling').replaceChildren();
   if (result.siblings.length) {
@@ -1154,7 +1226,17 @@ $('#cluster').onchange = () => loadCluster();
 $('#scope').onchange = () => draw({view:'fit'});
 $('#search').onclick = searchArtifact;
 $('#artifact-search').onkeydown = event => { if (event.key === 'Enter') searchArtifact(); };
-$('#compare').onchange = () => { const value = $('#compare').value; if (value) loadDetails(Number(value)); };
+$('#compare-toggle').onclick = event => {
+  event.stopPropagation();
+  if ($('#compare-toggle').disabled) return;
+  const menu = $('#compare-menu');
+  const opening = menu.hidden;
+  menu.hidden = !opening;
+  $('#compare-toggle').setAttribute('aria-expanded', String(opening));
+  if (!opening) setCompareHover(null);
+};
+document.addEventListener('click', event => { if (!$('#compare-control').contains(event.target)) closeCompareMenu(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('#compare-menu').hidden) { closeCompareMenu(); $('#compare-toggle').focus(); } });
 $('#view-content').onclick = openArtifactContent;
 $('#view-sibling-content').onclick = openSiblingContent;
 $('#view-sibling-diff').onclick = openSiblingDiff;
