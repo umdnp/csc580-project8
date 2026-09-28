@@ -510,29 +510,6 @@ def _build_bundle_variants(artifacts: tuple[Artifact, ...]) -> tuple[BundleVaria
     return tuple(variants)
 
 
-def _earliest_repo_created_at(artifacts: Iterable[Artifact]) -> str | None:
-    """Return the earliest repository creation time when all members have one.
-
-    Bundle variants can represent the same content in several repositories. A
-    repository-creation boundary is safe only when every occurrence has a valid
-    repository creation timestamp; otherwise an older unknown repository could
-    invalidate the inference.
-    """
-
-    members = tuple(artifacts)
-    parsed = [
-        (_parse_timestamp(artifact.repo_created_at), artifact.repo_created_at)
-        for artifact in members
-    ]
-    if any(timestamp is None for timestamp, _ in parsed):
-        return None
-
-    return min(
-        parsed,
-        key=lambda item: item[0],
-    )[1]
-
-
 def _representative_artifact(artifacts: Iterable[Artifact]) -> Artifact:
     members = tuple(artifacts)
     observed = [
@@ -639,6 +616,16 @@ def _build_evolution_graph(
             ambiguous.append(relation)
 
     selected = _select_predecessor_edges(directed_candidates)
+    selected_pairs = {
+        (edge.source.key, edge.target.key)
+        for edge in selected
+    }
+    related = tuple(
+        edge
+        for edge in directed_candidates
+        if (edge.source.key, edge.target.key) not in selected_pairs
+    )
+
     incoming = {edge.target.key for edge in selected}
     roots = tuple(
         sorted(
@@ -651,41 +638,17 @@ def _build_evolution_graph(
         )
     )
 
+    def edge_sort_key(edge: _DirectedCandidate) -> tuple[int, int]:
+        return (
+            edge.source.representative_artifact_id,
+            edge.target.representative_artifact_id,
+        )
+
     return EvolutionGraph(
         bundle_keys=tuple(bundle.key for bundle in bundles),
         directed_edges=tuple(
-            EvolutionEdge(
-                source=edge.source.key,
-                target=edge.target.key,
-                source_artifact_id=edge.source.representative_artifact_id,
-                target_artifact_id=edge.target.representative_artifact_id,
-                basis=edge.basis,
-                containment=edge.containment,
-                jaccard=edge.jaccard,
-                shared_shingles=edge.shared_shingles,
-                change_type=edge.change_type,
-                shared_group_ids=edge.shared_group_ids,
-                evidence=edge.evidence,
-                source_chronology=(
-                    edge.source_chronology.to_evidence()
-                    if edge.source_chronology is not None
-                    and edge.source_chronology.basis == "equivalent-peer"
-                    else None
-                ),
-                target_chronology=(
-                    edge.target_chronology.to_evidence()
-                    if edge.target_chronology is not None
-                    and edge.target_chronology.basis == "equivalent-peer"
-                    else None
-                ),
-            )
-            for edge in sorted(
-                selected,
-                key=lambda edge: (
-                    edge.source.representative_artifact_id,
-                    edge.target.representative_artifact_id,
-                ),
-            )
+            _to_evolution_edge(edge)
+            for edge in sorted(selected, key=edge_sort_key)
         ),
         ambiguous_edges=tuple(
             sorted(
@@ -698,6 +661,40 @@ def _build_evolution_graph(
         ),
         root_candidate_artifact_ids=tuple(
             bundle.representative_artifact_id for bundle in roots
+        ),
+        related_edges=tuple(
+            _to_evolution_edge(edge)
+            for edge in sorted(related, key=edge_sort_key)
+        ),
+    )
+
+
+def _to_evolution_edge(edge: _DirectedCandidate) -> EvolutionEdge:
+    """Convert one inferred candidate into reportable edge evidence."""
+
+    return EvolutionEdge(
+        source=edge.source.key,
+        target=edge.target.key,
+        source_artifact_id=edge.source.representative_artifact_id,
+        target_artifact_id=edge.target.representative_artifact_id,
+        basis=edge.basis,
+        containment=edge.containment,
+        jaccard=edge.jaccard,
+        shared_shingles=edge.shared_shingles,
+        change_type=edge.change_type,
+        shared_group_ids=edge.shared_group_ids,
+        evidence=edge.evidence,
+        source_chronology=(
+            edge.source_chronology.to_evidence()
+            if edge.source_chronology is not None
+            and edge.source_chronology.basis == "equivalent-peer"
+            else None
+        ),
+        target_chronology=(
+            edge.target_chronology.to_evidence()
+            if edge.target_chronology is not None
+            and edge.target_chronology.basis == "equivalent-peer"
+            else None
         ),
     )
 
@@ -1099,34 +1096,6 @@ def _infer_direction(
     if result is None:
         return None
 
-    left_repo_date = _parse_timestamp(left.earliest_repo_created_at)
-    right_repo_date = _parse_timestamp(right.earliest_repo_created_at)
-
-    # A known file observation predating every repository that contains the other
-    # bundle variant establishes observed order even when that variant lacks file
-    # history. Repository age is used only as a hard lower bound, never as a
-    # replacement for first_commit_at.
-    if left_date is not None and right_repo_date is not None:
-        if left_date < right_repo_date:
-            return left, right, "repo-created-boundary"
-
-    if right_date is not None and left_repo_date is not None:
-        if right_date < left_repo_date:
-            return right, left, "repo-created-boundary"
-
-    return None
-
-
-def _infer_direction(
-    left: BundleVariant,
-    right: BundleVariant,
-    result: SimilarityResult,
-    policy: SimilarityPolicy,
-) -> tuple[BundleVariant, BundleVariant, str] | None:
-    chronological = _infer_chronological_direction(left, right)
-    if chronological is not None:
-        return chronological
-
     left_to_right = result.containment(left.file_sha, right.file_sha)
     right_to_left = result.containment(right.file_sha, left.file_sha)
     difference = left_to_right - right_to_left
@@ -1272,13 +1241,6 @@ def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
         and target_date is not None
     ):
         time_gap = (target_date - source_date).total_seconds()
-    elif candidate.basis == "repo-created-boundary" and source_date is not None:
-        target_repo_date = _parse_timestamp(candidate.target.earliest_repo_created_at)
-        time_gap = (
-            (target_repo_date - source_date).total_seconds()
-            if target_repo_date is not None
-            else float("inf")
-        )
     else:
         time_gap = float("inf")
 

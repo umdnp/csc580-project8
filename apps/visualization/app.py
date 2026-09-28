@@ -199,12 +199,20 @@ def _is_analyze_family_report(raw: object) -> bool:
         for key in ("root_candidate_artifact_ids", "directed_edges", "ambiguous_edges"):
             if not isinstance(evolution.get(key), list):
                 return False
+        if "related_edges" in evolution and not isinstance(evolution.get("related_edges"), list):
+            return False
 
     return True
 
 
 def _empty_cluster() -> dict:
-    return {"nodes": {}, "edges": [], "ambiguous": [], "roots": set()}
+    return {
+        "nodes": {},
+        "edges": [],
+        "ambiguous": [],
+        "related": [],
+        "roots": set(),
+    }
 
 
 def _add_node(nodes: dict[int, dict], clusters: dict[int, dict], artifact_id: object, cluster_id: object) -> dict:
@@ -345,6 +353,12 @@ def _build_family_index(raw: dict) -> dict:
             _add_node(nodes, clusters, normalized["left"], cluster_id)["amb"] += 1
             _add_node(nodes, clusters, normalized["right"], cluster_id)["amb"] += 1
             clusters[cluster_id]["ambiguous"].append(normalized)
+
+        for edge in evolution.get("related_edges") or []:
+            normalized = _normalize_directed_edge(edge)
+            _add_node(nodes, clusters, normalized["source"], cluster_id)
+            _add_node(nodes, clusters, normalized["target"], cluster_id)
+            clusters[cluster_id]["related"].append(normalized)
 
     report_summary = raw.get("summary") or {}
     total = int(report_summary.get("artifact_count", len(nodes)))
@@ -777,11 +791,9 @@ def _ambiguous_for(cluster: dict, artifact_id: int) -> list[dict]:
 
 
 def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
-    """Return parent comparisons first, then directly recorded peer relationships."""
+    """Return parent comparisons, direct peers, and other related pairs."""
 
     parents = _parents(cluster, artifact_id)
-    parent_ids = {edge["source"] for edge in parents}
-
     candidates = [
         {
             "id": edge["source"],
@@ -791,9 +803,11 @@ def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
         }
         for edge in parents
     ]
+    seen = {item["id"] for item in candidates}
+
     for edge in _ambiguous_for(cluster, artifact_id):
         peer = edge["right"] if edge["left"] == artifact_id else edge["left"]
-        if peer in parent_ids:
+        if peer in seen:
             continue
         peer_type = (
             "equivalent"
@@ -808,6 +822,27 @@ def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
                 "relationship": edge,
             }
         )
+        seen.add(peer)
+
+    for edge in cluster.get("related", []):
+        if artifact_id == edge["source"]:
+            peer = edge["target"]
+        elif artifact_id == edge["target"]:
+            peer = edge["source"]
+        else:
+            continue
+        if peer in seen:
+            continue
+        candidates.append(
+            {
+                "id": peer,
+                "kind": "related",
+                "label": f"Artifact {peer} (related)",
+                "relationship": edge,
+            }
+        )
+        seen.add(peer)
+
     return candidates
 
 
@@ -950,6 +985,7 @@ def cluster(filename: str, cluster_id: int):
         "nodes": list(item["nodes"].values()),
         "edges": item["edges"],
         "ambiguous": item["ambiguous"],
+        "related": item.get("related", []),
         "roots": sorted(item["roots"]),
     }
 
@@ -1036,6 +1072,11 @@ def artifact_details(
         if selected_comparison is not None and selected_comparison["kind"] == "ambiguous"
         else None
     )
+    related_relationship = (
+        selected_comparison["relationship"]
+        if selected_comparison is not None and selected_comparison["kind"] == "related"
+        else None
+    )
 
     health = (
         {**database_status(), "available": True, "error": None}
@@ -1053,6 +1094,7 @@ def artifact_details(
         "comparison": selected_comparison,
         "relationship": directed_relationship,
         "ambiguous_relationship": ambiguous_relationship,
+        "related_relationship": related_relationship,
         "parents": parents,
         "children": children,
         "ambiguous": ambiguous,
@@ -1064,6 +1106,7 @@ def artifact_details(
             "parents": len(parents),
             "children": len(children),
             "ambiguous": len(ambiguous),
+            "related": len(cluster_item.get("related", [])),
             "siblings": len(siblings),
         },
         "database": health,

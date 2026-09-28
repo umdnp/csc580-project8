@@ -1090,6 +1090,33 @@ function undirectedRelationshipBox(relationship, compareArtifact, selectedArtifa
   return box;
 }
 
+function relatedRelationshipBox(relationship, compareArtifact, selectedArtifact) {
+  const box = document.createElement('section'); box.className = 'meta-box relationship';
+  const heading = document.createElement('h3'); heading.textContent = 'Related artifacts'; box.append(heading);
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', 'Related — not selected as parent');
+  addKv(dl, 'Artifacts', `${compareArtifact.id} ↔ ${selectedArtifact.id}`);
+  addKv(dl, 'Inferred ordering', `${relationship.source} → ${relationship.target}`);
+  addKv(dl, 'Basis', basisText(relationship.basis));
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
+  addInheritedChronology(dl, relationship);
+  addKv(dl, 'Change type', relationship.change_type);
+  addKv(dl, 'Containment', relationship.containment === null || relationship.containment === undefined ? null : Number(relationship.containment).toFixed(4));
+  addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
+  addKv(dl, 'Shared shingles', relationship.shared_shingles);
+  addKv(dl, 'Compared artifact siblings', compareArtifact?.artifact_sibling_count);
+  addKv(dl, 'Selected artifact siblings', selectedArtifact?.artifact_sibling_count);
+  box.append(dl);
+
+  const details = document.createElement('details'); details.className = 'metadata';
+  const summary = document.createElement('summary'); summary.textContent = 'Additional relationship evidence';
+  const extra = document.createElement('dl'); extra.className = 'kv';
+  addKv(extra, 'Same artifact group', relationship.same_artifact_group);
+  addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
+  details.append(summary, extra); box.append(details);
+  return box;
+}
+
 async function loadDetails(compareId = null) {
   if (selected === null) return;
   const token = ++detailRequest;
@@ -1131,9 +1158,11 @@ function updateComparisonActions() {
     : (hasComparison ? '' : 'A comparison artifact is required for a sibling diff.');
 
   if (!hasComparison) {
-    $('#compare-note').textContent = 'No parent or undirected artifact is available for comparison.';
+    $('#compare-note').textContent = 'No parent or related artifact is available for comparison.';
   } else if (comparison.kind === 'parent') {
     $('#compare-note').textContent = 'Parent comparison: the selected artifact is the derived side. File diff, sibling diff, and scan diff are available.';
+  } else if (comparison.kind === 'related') {
+    $('#compare-note').textContent = 'Related artifacts: this pair met the relationship criteria but was not selected as the parent edge. File and sibling diffs are available; scan diff is disabled.';
   } else {
     const relationship = currentDetails?.ambiguous_relationship || {};
     const status = relationshipStatus(relationship);
@@ -1186,9 +1215,14 @@ function renderDetails(result) {
 
   const grid = document.createElement('div'); grid.className = 'detail-grid';
   if (result.compare_artifact && result.comparison) {
-    const leftTitle = result.comparison.kind === 'parent'
-      ? `Parent / base ${result.compare_artifact.id}`
-      : `${relationshipShortLabel(result.ambiguous_relationship || {})} ${result.compare_artifact.id}`;
+    let leftTitle;
+    if (result.comparison.kind === 'parent') {
+      leftTitle = `Parent / base ${result.compare_artifact.id}`;
+    } else if (result.comparison.kind === 'related') {
+      leftTitle = `Related artifact ${result.compare_artifact.id}`;
+    } else {
+      leftTitle = `${relationshipShortLabel(result.ambiguous_relationship || {})} ${result.compare_artifact.id}`;
+    }
     grid.append(artifactBox(leftTitle, result.compare_artifact));
   }
   grid.append(artifactBox(result.relationship ? `Derived / selected ${result.artifact.id}` : `Selected artifact ${result.artifact.id}`, result.artifact));
@@ -1196,11 +1230,13 @@ function renderDetails(result) {
 
   if (result.relationship && result.compare_artifact) {
     content.append(relationshipBox(result.relationship, result.compare_artifact, result.artifact));
+  } else if (result.related_relationship && result.compare_artifact) {
+    content.append(relatedRelationshipBox(result.related_relationship, result.compare_artifact, result.artifact));
   } else if (result.ambiguous_relationship && result.compare_artifact) {
     content.append(undirectedRelationshipBox(result.ambiguous_relationship, result.compare_artifact, result.artifact));
   } else {
     const note = document.createElement('p'); note.className = 'warning';
-    note.textContent = 'No parent or undirected artifact is available for comparison.';
+    note.textContent = 'No parent or related artifact is available for comparison.';
     content.append(note);
   }
 

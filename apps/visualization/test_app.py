@@ -113,6 +113,20 @@ class ViewerTests(unittest.TestCase):
                                     "same_artifact_group": False,
                                 }
                             ],
+                            "related_edges": [
+                                {
+                                    "source_artifact_id": 30,
+                                    "target_artifact_id": 40,
+                                    "basis": "containment",
+                                    "containment": 0.86,
+                                    "jaccard": 0.58,
+                                    "shared_shingles": 29,
+                                    "change_type": "skill-only",
+                                    "evidence": [],
+                                    "shared_group_ids": [],
+                                    "same_artifact_group": False,
+                                }
+                            ],
                         },
                     }
                 ],
@@ -170,6 +184,7 @@ class ViewerTests(unittest.TestCase):
             30,
         )
         self.assertEqual((graph["ambiguous"][0]["left"], graph["ambiguous"][0]["right"]), (20, 30))
+        self.assertEqual((graph["related"][0]["source"], graph["related"][0]["target"]), (30, 40))
         self.assertEqual(graph["roots"], [10, 30])
 
     def test_compare_to_lists_parent_first_then_ambiguous_peer(self):
@@ -222,6 +237,28 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual([item["kind"] for item in candidates], ["parent", "ambiguous"])
         self.assertEqual(candidates[1]["label"], "Artifact 30 (equivalent)")
 
+    def test_unselected_related_edge_is_available_for_comparison(self):
+        records = {
+            30: {"id": 30, "name": "related"},
+            40: {"id": 40, "name": "selected"},
+        }
+        with (
+            patch.object(server, "fetch_artifact_records", return_value=records),
+            patch.object(server, "fetch_sibling_records", return_value=[]),
+            patch.object(server, "database_health", return_value=self.healthy_status()),
+        ):
+            result = self.client.get(
+                "/api/reports/example.json/artifacts/40/details",
+                params={"compare_id": 30},
+            ).json()
+
+        self.assertEqual(result["comparison"]["id"], 30)
+        self.assertEqual(result["comparison"]["kind"], "related")
+        self.assertIsNone(result["relationship"])
+        self.assertIsNone(result["ambiguous_relationship"])
+        self.assertEqual(result["related_relationship"]["source"], 30)
+        self.assertEqual(result["related_relationship"]["target"], 40)
+
     def test_ambiguous_root_can_be_selected_as_compare_target(self):
         records = {
             20: {"id": 20, "name": "peer"},
@@ -256,10 +293,12 @@ class ViewerTests(unittest.TestCase):
             10: {"id": 10, "content": "one\ntwo\nthree\n"},
             20: {"id": 20, "content": "one\nTWO\nthree\nfour\n"},
             30: {"id": 30, "content": "one\nTHREE\n"},
+            40: {"id": 40, "content": "one\nTHREE\nfour\n"},
         }
         with patch.object(server, "fetch_artifact_records", return_value=records):
             parent = self.client.get("/api/reports/example.json/diff/10/20")
             ambiguous = self.client.get("/api/reports/example.json/diff/20/30")
+            related = self.client.get("/api/reports/example.json/diff/30/40")
             invalid = self.client.get("/api/reports/example.json/diff/40/20")
 
         self.assertEqual(parent.status_code, 200)
@@ -267,6 +306,8 @@ class ViewerTests(unittest.TestCase):
         self.assertTrue(any(row["derived_kind"] == "added" for row in parent.json()["rows"]))
         self.assertEqual(ambiguous.status_code, 200)
         self.assertEqual(ambiguous.json()["comparison_kind"], "ambiguous")
+        self.assertEqual(related.status_code, 200)
+        self.assertEqual(related.json()["comparison_kind"], "related")
         self.assertEqual(invalid.status_code, 400)
 
     def test_scan_diff_requires_directed_parent_child_relationship(self):
