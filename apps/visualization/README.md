@@ -1,6 +1,6 @@
 # Local skill relationship explorer
 
-The viewer reads candidate-family reports only from `visualization/reports/`.
+The viewer reads candidate-family reports only from `apps/visualization/reports/`.
 There is no report-directory environment variable. Only valid current
 `analyze_family` JSON reports are listed in the report dropdown.
 
@@ -11,19 +11,24 @@ repository root, using the project environment:
 
 ```sh
 uv sync --group dev
-python -m visualization.app --db C:/data/duckdb/agent_skills_release.db
+python -m uvicorn apps.visualization:app --host 127.0.0.1 --port 8000
 ```
 
-Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C. `--host` and `--port`
-are also available when different local settings are needed.
+Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C. Run the command from
+the repository root.
 
-Run the command from the repository root. The existing Uvicorn form
-`python -m uvicorn visualization.app:app --host 127.0.0.1 --port 8000` still works,
-but the `--db` option belongs to the `visualization.app` launcher.
+When a command-line database fallback is needed, use the package launcher:
+
+```sh
+python -m apps.visualization --db C:/data/duckdb/agent_skills_release.db
+```
+
+The `--db` option belongs to the package launcher; Uvicorn itself does not define that
+custom option. `--host` and `--port` are also available through the package launcher.
 
 ## Reports
 
-The report dropdown reads JSON files directly from `visualization/reports/`, but it
+The report dropdown reads JSON files directly from `apps/visualization/reports/`, but it
 remembers the last selected valid report in browser local storage, so a normal refresh
 restores the same report when it is still available. It
 only lists files that match the current `analyze_family` JSON format and can be
@@ -36,7 +41,7 @@ the full pairwise similarity matrix to keep visualization reports smaller; pass
 `--verbose` only when that diagnostic detail is needed. For example:
 
 ```sh
-analyze_family busybox-on-windows --json --output visualization/reports
+analyze_family busybox-on-windows --json --output apps/visualization/reports
 ```
 
 The graph is built from the selected report. The viewer does not recalculate family
@@ -47,7 +52,7 @@ ancestry from DuckDB.
 The database path is selected in this order:
 
 1. `GITSKILLS_DB` when the environment variable is set
-2. `--db PATH` passed to `python -m visualization.app`
+2. `--db PATH` passed to `python -m apps.visualization`
 3. the default path `C:/data/duckdb/agent_skills_release.db`
 
 This lets a user or script define its local database location once with `GITSKILLS_DB`
@@ -133,8 +138,7 @@ effective chronology, its `equivalent-peer` basis, and the artifact that supplie
 that date. Comparison panels always show
 **Repo created**, **Commit history**, **First commit**, **Last commit**, and **Commit count**;
 missing values are displayed as `Unknown` instead of being hidden. `Repo created` comes from
-the `repos` table, and **Commit history** reports whether artifact history was fetched. Dates
-are displayed as `YYYY-MM-DD`. Relationship panels surface the relationship type, basis, and
+the `repos` table, and **Commit history** reports whether artifact history was fetched. Dates preserve the available timestamp precision, including time and timezone when present. Relationship panels surface the relationship type, basis, and
 direction evidence recorded by `analyze_family`. Normalized description is omitted from
 artifact comparison metadata because the human-readable description is already shown, and
 filename is omitted because the full path already includes it. The older `Has scripts` and
@@ -155,5 +159,5 @@ API documentation is available locally at `/docs`.
 Run from the repository root:
 
 ```sh
-python -m unittest visualization.test_app
+python -m unittest apps.visualization.test_app
 ```

@@ -1,1 +1,3 @@
-"""Local interactive viewer for generated family reports."""
+"""Skill relationship explorer application."""
+
+from .app import app

@@ -1,10 +1,14 @@
 """Local explorer for analyze_family candidate-family JSON reports.
 
 From the repository root:
-    python -m visualization.app --db C:/data/duckdb/agent_skills_release.db
+    python -m uvicorn apps.visualization:app --host 127.0.0.1 --port 8000
 
-Reports are always read from visualization/reports. Artifact metadata and content
-use $GITSKILLS_DB when set, then --db when provided, then the default project DB path.
+Or use the package launcher when a --db fallback is needed:
+    python -m apps.visualization --db C:/data/duckdb/agent_skills_release.db
+
+Reports are always read from apps/visualization/reports. Artifact metadata and
+content use $GITSKILLS_DB when set, then --db when provided through the package
+launcher, then the default project DB path.
 The application opens DuckDB read-only and never executes artifact content.
 """
 
@@ -24,7 +28,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 
 HERE = Path(__file__).resolve().parent
-PROJECT_ROOT = HERE.parent
+PROJECT_ROOT = HERE.parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
 if SRC_DIR.is_dir() and str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -126,13 +130,13 @@ def database_health() -> dict:
 
 
 def report_path(filename: str) -> Path:
-    """Restrict requests to JSON files directly inside visualization/reports."""
+    """Restrict requests to JSON files directly inside apps/visualization/reports."""
 
     if Path(filename).name != filename or "/" in filename or "\\" in filename:
         raise HTTPException(400, "Use a report filename, not a path.")
     path = (REPORT_DIR / filename).resolve()
     if path.parent != REPORT_DIR or path.suffix.lower() != ".json":
-        raise HTTPException(400, "Only JSON reports in visualization/reports are allowed.")
+        raise HTTPException(400, "Only JSON reports in apps/visualization/reports are allowed.")
     if not path.is_file():
         raise HTTPException(404, "Report not found.")
     return path
