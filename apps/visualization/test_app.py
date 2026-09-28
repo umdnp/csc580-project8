@@ -420,6 +420,30 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(artifact.status_code, 200)
         self.assertEqual(artifact.json()["content"], "# Derived\nHello\n")
 
+    def test_compact_analyze_family_report_is_listed_and_loads_proxy_chronology(self):
+        payload = self.family_report()
+        for key in ("groups", "skill_variants", "bundle_variants", "provenance"):
+            payload.pop(key, None)
+        payload["family"].pop("artifact_ids", None)
+        payload["chronology_proxies"] = [
+            {
+                "artifact_id": 20,
+                "effective_chronology": "2026-01-15T09:30:00+00:00",
+                "chronology_basis": "equivalent-peer",
+                "chronology_source_artifact_id": 10,
+            }
+        ]
+        self.write("compact.json", payload)
+
+        listing = self.client.get("/api/reports").json()["reports"]
+        self.assertIn("compact.json", listing)
+
+        index = server.build_index(payload)
+        proxy = index["artifact_meta"][20]
+        self.assertEqual(proxy["effective_chronology"], "2026-01-15T09:30:00+00:00")
+        self.assertEqual(proxy["chronology_basis"], "equivalent-peer")
+        self.assertEqual(proxy["chronology_source_artifact_id"], 10)
+
     def test_non_analyze_family_reports_are_rejected_and_hidden_from_listing(self):
         legacy = {"name": "legacy", "artifact_count": 2, "cluster_count": 1, "comparisons": []}
         scan_report = {"candidate_family": "example", "active_rules": [], "summary": {"pairs_analyzed": 1}}

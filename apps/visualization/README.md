@@ -36,9 +36,12 @@ loaded successfully. Malformed JSON, `scan_family` output, older prototype forma
 and unrelated JSON files are ignored.
 
 `analyze_family` reports contain the family clusters, directed evolution edges,
-peer relationships, and root candidates used by the graph. The default JSON omits
-the full pairwise similarity matrix to keep visualization reports smaller; pass
-`--verbose` only when that diagnostic detail is needed. For example:
+peer relationships, root candidates, and equivalent-peer chronology proxies used by
+the graph and detail panels. The default compact report is the normal visualization
+format. Verbose diagnostic collections such as the full pairwise similarity matrix,
+artifact groups, variants, provenance listings, and artifact metadata are optional;
+the viewer accepts both compact and verbose reports. Pass `--verbose` only when that
+diagnostic detail is needed. For example:
 
 ```sh
 analyze_family busybox-on-windows --json --output apps/visualization/reports
@@ -135,11 +138,13 @@ The metadata display uses **Artifact Sibling Count**, computed from the same fil
 `artifact_siblings` rows used by the sibling dropdown. When direction relies on an
 equivalent peer's observed chronology, the relationship panel also shows the
 effective chronology, its `equivalent-peer` basis, and the artifact that supplied
-that date. Comparison panels always show
-**Repo created**, **Commit history**, **First commit**, **Last commit**, and **Commit count**;
-missing values are displayed as `Unknown` instead of being hidden. `Repo created` comes from
-the `repos` table, and **Commit history** reports whether artifact history was fetched. Dates preserve the available timestamp precision, including time and timezone when present. Relationship panels surface the relationship type, basis, and
-direction evidence recorded by `analyze_family`. Normalized description is omitted from
+that date. When commit history is available, comparison panels show the available commit-history
+fields. When commit chronology is unavailable, the panel instead shows **Effective
+chronology**, **Chronology basis**, and **Chronology source** from an equivalent peer when
+that proxy exists; otherwise those proxy values are shown as `Unknown`. `Repo created`
+comes from the `repos` table. Dates preserve the available timestamp precision, including
+time and timezone when present. Relationship panels surface the relationship type, basis,
+and direction evidence recorded by `analyze_family`. Normalized description is omitted from
 artifact comparison metadata because the human-readable description is already shown, and
 filename is omitted because the full path already includes it. The older `Has scripts` and
 `Has references` fields are not displayed.
