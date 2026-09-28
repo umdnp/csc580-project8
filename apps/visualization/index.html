@@ -18,7 +18,7 @@
   --green:light-dark(#347a47,#76cf8d);
   --peer-line:light-dark(#b7c0c8,#a5afb9);
   --related-peer:light-dark(#aab4be,#7f8b97);
-  --equivalent-peer:light-dark(#14181c,#46515c);
+  --equivalent-peer:light-dark(#d9ca95,#b9ab78);
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
@@ -60,7 +60,7 @@ label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .node.parent{fill:var(--purple);stroke-width:2.3}
 .node.child{fill:var(--green);stroke-width:2.3}
 .node.undirected-peer{fill:var(--related-peer);stroke-width:2}
-.node.equivalent-peer{fill:var(--equivalent-peer);stroke-width:2.3}
+.node.equivalent-peer{fill:var(--equivalent-peer);stroke:var(--fg);stroke-width:2}
 .compare-hover-ring{fill:none;stroke:#e53935;stroke-width:3;opacity:0;pointer-events:none;vector-effect:non-scaling-stroke}
 .compare-hover-ring.active{opacity:1}
 svg text{fill:var(--fg);font:13px system-ui}
@@ -669,6 +669,7 @@ function basisText(basis) {
     'repo-created-boundary': 'Repository creation boundary',
     'equivalent-peer-chronology': 'Equivalent-peer chronology',
     'equivalent-peer': 'Equivalent peer',
+    'direct': 'Direct',
     'declared-source': 'Declared source',
     'equivalent-state': 'Equivalent state',
     'similarity-only': 'Similarity only',
@@ -900,7 +901,7 @@ function dateText(value) {
 
 function commitHistoryText(value) {
   if (value === null || value === undefined || value === '') return 'Unknown';
-  if (value === true || value === 1 || String(value).toLowerCase() === 'true' || String(value) === '1') return 'Available';
+  if (value === true || value === 1 || String(value).toLowerCase() === 'true' || String(value) === '1') return 'Fetched';
   if (value === false || value === 0 || String(value).toLowerCase() === 'false' || String(value) === '0') return 'Not fetched';
   return String(value);
 }
@@ -946,23 +947,24 @@ const PRIMARY_FIELDS = [
 ];
 
 const COMMIT_FIELDS = [
-  ['history_fetched','Commit history'],['first_commit_at','First commit'],
-  ['last_commit_at','Last commit'],['commit_count','Commit count']
+  'history_fetched','first_commit_at','last_commit_at','commit_count',
+  'first_commit_author','first_commit_type','first_commit_message',
+  'last_commit_author','last_commit_type','last_commit_message'
 ];
 
-function historyWasFetched(value) {
-  return value === true
-    || value === 1
-    || String(value).toLowerCase() === 'true'
-    || String(value) === '1';
-}
-
-function hasCommitChronology(artifact) {
-  if (!artifact) return false;
-  return historyWasFetched(artifact.history_fetched)
-    || artifact.first_commit_at !== null && artifact.first_commit_at !== undefined && artifact.first_commit_at !== ''
-    || artifact.last_commit_at !== null && artifact.last_commit_at !== undefined && artifact.last_commit_at !== ''
-    || artifact.commit_count !== null && artifact.commit_count !== undefined && artifact.commit_count !== '';
+function effectiveChronologyFor(artifact) {
+  if (!artifact) return { value: null, basis: null, source: null };
+  if (artifact.effective_chronology) {
+    return {
+      value: artifact.effective_chronology,
+      basis: artifact.chronology_basis || null,
+      source: artifact.chronology_source_artifact_id || null,
+    };
+  }
+  if (artifact.first_commit_at) {
+    return { value: artifact.first_commit_at, basis: 'direct', source: null };
+  }
+  return { value: null, basis: null, source: null };
 }
 
 function artifactBox(title, artifact) {
@@ -988,27 +990,20 @@ function artifactBox(title, artifact) {
     }
   }
 
-  if (hasCommitChronology(artifact)) {
-    for (const [key, label] of COMMIT_FIELDS) {
-      const value = artifact ? artifact[key] : null;
-      if (key === 'history_fetched' && !historyWasFetched(value)) {
-        shown.add(key);
-        continue;
-      }
-      if (value !== undefined && value !== null && value !== '') {
-        addKv(dl, label, artifactFieldText(key, value));
-      }
-      shown.add(key);
-    }
-  } else {
-    addKv(dl, 'Effective chronology', dateText(artifact?.effective_chronology));
-    addKv(dl, 'Chronology basis', artifact?.chronology_basis ? basisText(artifact.chronology_basis) : 'Unknown');
-    addKv(dl, 'Chronology source', artifact?.chronology_source_artifact_id ? `Artifact ${artifact.chronology_source_artifact_id}` : 'Unknown');
-    shown.add('effective_chronology');
-    shown.add('chronology_basis');
-    shown.add('chronology_source_artifact_id');
-    for (const [key] of COMMIT_FIELDS) shown.add(key);
+  addKv(dl, 'Commit history', commitHistoryText(artifact?.history_fetched));
+  for (const key of COMMIT_FIELDS) shown.add(key);
+
+  const chronology = effectiveChronologyFor(artifact);
+  addKv(dl, 'Effective chronology', dateText(chronology.value));
+  addKv(dl, 'Chronology basis', chronology.basis ? basisText(chronology.basis) : 'Unknown');
+  if (chronology.source) {
+    addKv(dl, 'Chronology source', `Artifact ${chronology.source}`);
+  } else if (!chronology.value) {
+    addKv(dl, 'Chronology source', 'Unknown');
   }
+  shown.add('effective_chronology');
+  shown.add('chronology_basis');
+  shown.add('chronology_source_artifact_id');
   box.append(dl);
 
   const hiddenMetadata = new Set([
