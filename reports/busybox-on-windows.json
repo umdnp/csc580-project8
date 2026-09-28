@@ -16,17 +16,17 @@
     "related_skill_pair_count": 253,
     "within_group_related_pair_count": 191,
     "across_group_related_pair_count": 62,
-    "directed_edge_count": 23,
-    "within_group_directed_edge_count": 20,
+    "directed_edge_count": 18,
+    "within_group_directed_edge_count": 15,
     "across_group_directed_edge_count": 3,
-    "ambiguous_edge_count": 85,
-    "within_group_ambiguous_edge_count": 61,
+    "ambiguous_edge_count": 101,
+    "within_group_ambiguous_edge_count": 77,
     "across_group_ambiguous_edge_count": 24,
     "change_counts": {
       "skill-only": 11,
       "siblings-only": 1,
-      "skill+siblings": 7,
-      "equivalent": 4,
+      "skill+siblings": 3,
+      "equivalent": 3,
       "unknown": 0
     }
   },
@@ -61,17 +61,17 @@
     ],
     "skill_variant_count": 26,
     "bundle_variant_count": 26,
-    "directed_edge_count": 23,
-    "within_group_directed_edge_count": 20,
+    "directed_edge_count": 18,
+    "within_group_directed_edge_count": 15,
     "across_group_directed_edge_count": 3,
-    "ambiguous_edge_count": 85,
-    "within_group_ambiguous_edge_count": 61,
+    "ambiguous_edge_count": 101,
+    "within_group_ambiguous_edge_count": 77,
     "across_group_ambiguous_edge_count": 24,
     "change_counts": {
       "skill-only": 11,
       "siblings-only": 1,
-      "skill+siblings": 7,
-      "equivalent": 4,
+      "skill+siblings": 3,
+      "equivalent": 3,
       "unknown": 0
     },
     "clusters": [
@@ -131,30 +131,63 @@
         ],
         "evolution": {
           "root_candidate_artifact_ids": [
-            580239
+            571389,
+            572392,
+            580239,
+            620659,
+            648200,
+            701823
           ],
-          "directed_edge_count": 22,
-          "within_group_directed_edge_count": 19,
+          "directed_edge_count": 17,
+          "within_group_directed_edge_count": 14,
           "across_group_directed_edge_count": 3,
-          "ambiguous_edge_count": 85,
-          "within_group_ambiguous_edge_count": 61,
+          "ambiguous_edge_count": 101,
+          "within_group_ambiguous_edge_count": 77,
           "across_group_ambiguous_edge_count": 24,
           "change_counts": {
             "skill-only": 11,
             "siblings-only": 1,
-            "skill+siblings": 6,
-            "equivalent": 4,
+            "skill+siblings": 2,
+            "equivalent": 3,
             "unknown": 0
           },
           "directed_edges": [
             {
-              "source_artifact_id": 571909,
-              "target_artifact_id": 620659,
-              "basis": "repo-created-boundary",
+              "source_artifact_id": 571389,
+              "target_artifact_id": 697917,
+              "basis": "containment",
               "containment": 1.0,
-              "jaccard": 0.916256157635468,
+              "jaccard": 0.8571428571428571,
               "shared_shingles": 186,
-              "change_type": "skill+siblings",
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 571389,
+              "target_artifact_id": 704724,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8815165876777251,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 571389,
+              "target_artifact_id": 739192,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8732394366197183,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
                 353754
@@ -167,48 +200,6 @@
               "basis": "chronology",
               "containment": 1.0,
               "jaccard": 0.916256157635468,
-              "shared_shingles": 186,
-              "change_type": "skill+siblings",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 571909,
-              "target_artifact_id": 648200,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.916256157635468,
-              "shared_shingles": 186,
-              "change_type": "skill+siblings",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 571909,
-              "target_artifact_id": 697917,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.8571428571428571,
-              "shared_shingles": 186,
-              "change_type": "skill+siblings",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 571909,
-              "target_artifact_id": 739192,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.8732394366197183,
               "shared_shingles": 186,
               "change_type": "skill+siblings",
               "evidence": [],
@@ -232,12 +223,54 @@
               "same_artifact_group": true
             },
             {
-              "source_artifact_id": 580239,
+              "source_artifact_id": 620659,
+              "target_artifact_id": 733887,
+              "basis": "containment",
+              "containment": 0.9211822660098522,
+              "jaccard": 0.7164750957854407,
+              "shared_shingles": 187,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 620659,
               "target_artifact_id": 757286,
-              "basis": "repo-created-boundary",
+              "basis": "containment",
               "containment": 1.0,
-              "jaccard": 0.75,
-              "shared_shingles": 186,
+              "jaccard": 0.8185483870967742,
+              "shared_shingles": 203,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 620659,
+              "target_artifact_id": 759629,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8185483870967742,
+              "shared_shingles": 203,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 620659,
+              "target_artifact_id": 767452,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8185483870967742,
+              "shared_shingles": 203,
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
@@ -272,40 +305,36 @@
               "same_artifact_group": true
             },
             {
+              "source_artifact_id": 620659,
+              "target_artifact_id": 852973,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.7435897435897436,
+              "shared_shingles": 203,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 620659,
+              "target_artifact_id": 3648115,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8388429752066116,
+              "shared_shingles": 203,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
               "source_artifact_id": 623742,
               "target_artifact_id": 753188,
               "basis": "chronology",
               "containment": 1.0,
               "jaccard": 0.8185483870967742,
               "shared_shingles": 203,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 623742,
-              "target_artifact_id": 767452,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.8185483870967742,
-              "shared_shingles": 203,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 624960,
-              "target_artifact_id": 571389,
-              "basis": "repo-created-boundary",
-              "containment": 0.916256157635468,
-              "jaccard": 0.916256157635468,
-              "shared_shingles": 186,
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
@@ -328,48 +357,6 @@
               "same_artifact_group": true
             },
             {
-              "source_artifact_id": 624960,
-              "target_artifact_id": 704724,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.9620853080568721,
-              "shared_shingles": 203,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 624960,
-              "target_artifact_id": 759629,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.8185483870967742,
-              "shared_shingles": 203,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 637359,
-              "target_artifact_id": 572392,
-              "basis": "repo-created-boundary",
-              "containment": 0.916256157635468,
-              "jaccard": 0.916256157635468,
-              "shared_shingles": 186,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
               "source_artifact_id": 637359,
               "target_artifact_id": 623742,
               "basis": "chronology",
@@ -382,58 +369,6 @@
                 353754
               ],
               "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 637359,
-              "target_artifact_id": 701823,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 1.0,
-              "shared_shingles": 203,
-              "change_type": "equivalent",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 637359,
-              "target_artifact_id": 733887,
-              "basis": "repo-created-boundary",
-              "containment": 0.9211822660098522,
-              "jaccard": 0.7164750957854407,
-              "shared_shingles": 187,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [
-                353754
-              ],
-              "same_artifact_group": true
-            },
-            {
-              "source_artifact_id": 637359,
-              "target_artifact_id": 852973,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.7435897435897436,
-              "shared_shingles": 203,
-              "change_type": "skill+siblings",
-              "evidence": [],
-              "shared_group_ids": [],
-              "same_artifact_group": false
-            },
-            {
-              "source_artifact_id": 637359,
-              "target_artifact_id": 3648115,
-              "basis": "repo-created-boundary",
-              "containment": 1.0,
-              "jaccard": 0.8388429752066116,
-              "shared_shingles": 203,
-              "change_type": "skill-only",
-              "evidence": [],
-              "shared_group_ids": [],
-              "same_artifact_group": false
             },
             {
               "source_artifact_id": 753188,
@@ -453,7 +388,37 @@
           "ambiguous_edges": [
             {
               "left_artifact_id": 571389,
+              "right_artifact_id": 571909,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 186,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 571389,
               "right_artifact_id": 572392,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 186,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 571389,
+              "right_artifact_id": 580239,
               "basis": "similarity-only",
               "containment_left_to_right": 1.0,
               "containment_right_to_left": 1.0,
@@ -484,6 +449,21 @@
             {
               "left_artifact_id": 571389,
               "right_artifact_id": 623742,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.916256157635468,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 571389,
+              "right_artifact_id": 624960,
               "basis": "similarity-only",
               "containment_left_to_right": 1.0,
               "containment_right_to_left": 0.916256157635468,
@@ -542,6 +522,66 @@
               "same_artifact_group": true
             },
             {
+              "left_artifact_id": 571909,
+              "right_artifact_id": 701823,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.916256157635468,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 572392,
+              "right_artifact_id": 571909,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 186,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 572392,
+              "right_artifact_id": 580239,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 186,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 572392,
+              "right_artifact_id": 637359,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.916256157635468,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
               "left_artifact_id": 572392,
               "right_artifact_id": 648200,
               "basis": "similarity-only",
@@ -572,8 +612,53 @@
               "same_artifact_group": true
             },
             {
+              "left_artifact_id": 580239,
+              "right_artifact_id": 701823,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.916256157635468,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 620659,
+              "right_artifact_id": 571909,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.916256157635468,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
               "left_artifact_id": 620659,
               "right_artifact_id": 572392,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.916256157635468,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 620659,
+              "right_artifact_id": 580239,
               "basis": "similarity-only",
               "containment_left_to_right": 0.916256157635468,
               "containment_right_to_left": 1.0,
@@ -798,6 +883,21 @@
             },
             {
               "left_artifact_id": 624960,
+              "right_artifact_id": 572392,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.916256157635468,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 624960,
               "right_artifact_id": 648200,
               "basis": "similarity-only",
               "containment_left_to_right": 1.0,
@@ -818,6 +918,36 @@
               "containment_left_to_right": 1.0,
               "containment_right_to_left": 0.9354838709677419,
               "jaccard": 0.9354838709677419,
+              "shared_shingles": 203,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 624960,
+              "right_artifact_id": 701823,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 203,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 624960,
+              "right_artifact_id": 704724,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9620853080568721,
+              "jaccard": 0.9620853080568721,
               "shared_shingles": 203,
               "change_type": "skill-only",
               "evidence": [],
@@ -864,6 +994,36 @@
               "containment_right_to_left": 0.9620853080568721,
               "jaccard": 0.9620853080568721,
               "shared_shingles": 203,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 648200,
+              "right_artifact_id": 571909,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.916256157635468,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 648200,
+              "right_artifact_id": 580239,
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.916256157635468,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.916256157635468,
+              "shared_shingles": 186,
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
@@ -940,6 +1100,21 @@
               "jaccard": 0.9530516431924883,
               "shared_shingles": 203,
               "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                353754
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 701823,
+              "right_artifact_id": 637359,
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 203,
+              "change_type": "equivalent",
               "evidence": [],
               "shared_group_ids": [
                 353754
@@ -2160,8 +2335,7 @@
         353754
       ],
       "representative_artifact_id": 801451,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-01-24T13:53:30Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "09dccf16338e21f0de5ff69f7beb715d95bc5a3e",
@@ -2174,8 +2348,7 @@
         304566
       ],
       "representative_artifact_id": 2733595,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-26T03:02:55Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "0ed119a25b84d0aea37c1ba6306b84cf0acae093",
@@ -2188,8 +2361,7 @@
         621553
       ],
       "representative_artifact_id": 588553,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-05-16T15:10:34Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "1c5e8b965ab94e787e8c494e20b2abbeaa403cc2",
@@ -2202,8 +2374,7 @@
         311222
       ],
       "representative_artifact_id": 786882,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2025-11-05T10:32:18Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "1f66c915bb6833d16c8079d0d014d126df7e08de",
@@ -2216,8 +2387,7 @@
         353754
       ],
       "representative_artifact_id": 571389,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-25T00:16:34Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "212ee382307c8b9e62e8838929dd1791531741b0",
@@ -2230,8 +2400,7 @@
         141815
       ],
       "representative_artifact_id": 3648115,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-04-08T19:27:05Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "3c35649917700bcaa09c4914c9c2bd7306fff0fd",
@@ -2244,8 +2413,7 @@
         353754
       ],
       "representative_artifact_id": 767452,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-05-19T00:57:47Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "4b4768b6c18910c5d159fada8c592fc889b89273",
@@ -2258,8 +2426,7 @@
         353754
       ],
       "representative_artifact_id": 759629,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-22T16:55:21Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "4ee62dd08f7f502c4f971cb81e25107ecfe64589",
@@ -2272,8 +2439,7 @@
         353754
       ],
       "representative_artifact_id": 623742,
-      "earliest_observed_at": "2026-04-28T05:33:50Z",
-      "earliest_repo_created_at": "2025-12-30T11:52:54Z"
+      "earliest_observed_at": "2026-04-28T05:33:50Z"
     },
     {
       "file_sha": "57c8a55b17f5c6e5d7b44653cddabd49ac9d5271",
@@ -2286,8 +2452,7 @@
         353754
       ],
       "representative_artifact_id": 733887,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-27T11:27:18Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "66e1c79167f3bd92ad6c05259a587826a278bf03",
@@ -2300,8 +2465,7 @@
         353754
       ],
       "representative_artifact_id": 620659,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-02-22T15:13:41Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "695e55e9191701b05041126004ad5873471af369",
@@ -2314,8 +2478,7 @@
         353754
       ],
       "representative_artifact_id": 624960,
-      "earliest_observed_at": "2026-03-07T16:50:20Z",
-      "earliest_repo_created_at": "2026-02-14T00:04:26Z"
+      "earliest_observed_at": "2026-03-07T16:50:20Z"
     },
     {
       "file_sha": "6ce0cce09ae8844a53efff3b548cd0e8533f22af",
@@ -2328,8 +2491,7 @@
         353754
       ],
       "representative_artifact_id": 572392,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-04-11T01:20:11Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "772d81fd9ff46f05cb6d9d4594fbaffced89fba5",
@@ -2342,8 +2504,7 @@
         353754
       ],
       "representative_artifact_id": 753188,
-      "earliest_observed_at": "2026-05-31T04:46:04Z",
-      "earliest_repo_created_at": "2026-05-30T18:54:11Z"
+      "earliest_observed_at": "2026-05-31T04:46:04Z"
     },
     {
       "file_sha": "815f4f54b8a75af493f8392e5ebd3ce822dab9a4",
@@ -2356,8 +2517,7 @@
         353754
       ],
       "representative_artifact_id": 648200,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-02-25T18:12:16Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "81f17cbdb4690524d2b5a78ef43a9688ec905b8b",
@@ -2370,8 +2530,7 @@
         353754
       ],
       "representative_artifact_id": 571909,
-      "earliest_observed_at": "2026-02-17T12:23:56Z",
-      "earliest_repo_created_at": "2026-02-16T13:00:01Z"
+      "earliest_observed_at": "2026-02-17T12:23:56Z"
     },
     {
       "file_sha": "8882b1810f0b33de6ce5e6d421cb88984f03d50e",
@@ -2384,8 +2543,7 @@
         353754
       ],
       "representative_artifact_id": 739192,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-05T21:26:15Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "8b7ae510057b92a7199bbb9e4e8ea50cde220c25",
@@ -2398,8 +2556,7 @@
         353754
       ],
       "representative_artifact_id": 580239,
-      "earliest_observed_at": "2026-02-13T10:02:41Z",
-      "earliest_repo_created_at": "2026-01-27T21:22:16Z"
+      "earliest_observed_at": "2026-02-13T10:02:41Z"
     },
     {
       "file_sha": "974eddde02362cd2bcfc85c965ec1911b472a6a2",
@@ -2412,8 +2569,7 @@
         353754
       ],
       "representative_artifact_id": 757286,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-02-15T08:31:46Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "9fab8c4f8ba67f2d31afcf3002e0b3800864ecb2",
@@ -2426,8 +2582,7 @@
         353754
       ],
       "representative_artifact_id": 763919,
-      "earliest_observed_at": "2026-06-30T07:00:18Z",
-      "earliest_repo_created_at": "2026-06-30T07:14:00Z"
+      "earliest_observed_at": "2026-06-30T07:00:18Z"
     },
     {
       "file_sha": "a2049d574c24ab116d9f4b32518557f5b5d92fb9",
@@ -2440,8 +2595,7 @@
         353754
       ],
       "representative_artifact_id": 701823,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-26T12:04:58Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "b0ea425c7fec16d5a6907d7f94a50ef24c76a08b",
@@ -2454,8 +2608,7 @@
         353754
       ],
       "representative_artifact_id": 637359,
-      "earliest_observed_at": "2026-03-25T19:59:41Z",
-      "earliest_repo_created_at": "2025-10-08T22:22:23Z"
+      "earliest_observed_at": "2026-03-25T19:59:41Z"
     },
     {
       "file_sha": "c76b94608e394fdb2b136dcfb8b6e1f9aab39c39",
@@ -2468,8 +2621,7 @@
         304566
       ],
       "representative_artifact_id": 2811614,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-26T03:02:55Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "d84d08016d042dc557c297ff1852e4988450d00a",
@@ -2482,8 +2634,7 @@
         353754
       ],
       "representative_artifact_id": 704724,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-10T18:12:59Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "dee019d9688fdd7c1ed35ef3578015e16babf217",
@@ -2496,8 +2647,7 @@
         353754
       ],
       "representative_artifact_id": 697917,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-02-21T00:39:05Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "edd2ab5265804d77af6f80b031c271e43828b049",
@@ -2510,8 +2660,7 @@
         374342
       ],
       "representative_artifact_id": 852973,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-04-20T20:21:31Z"
+      "earliest_observed_at": null
     }
   ],
   "provenance": [
@@ -9412,6 +9561,476 @@
       "right_representative_artifact_id": 852973,
       "shared_group_ids": [],
       "same_artifact_group": false
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 571389,
+      "group_id": 353754,
+      "repo_id": 2448,
+      "repo_full_name": "onfire7777/universal-ai-skills-library",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "1f66c915bb6833d16c8079d0d014d126df7e08de",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-25T00:16:34Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 571909,
+      "group_id": 353754,
+      "repo_id": 4227,
+      "repo_full_name": "AristidesAI/VisionEmoji",
+      "path": ".claude/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "81f17cbdb4690524d2b5a78ef43a9688ec905b8b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-17T12:23:56Z",
+      "repo_created_at": "2026-02-16T13:00:01Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "9a551e0839adec62bf191712022af0374f04097327231c4b945376b0283de7bd"
+    },
+    {
+      "artifact_id": 572392,
+      "group_id": 353754,
+      "repo_id": 4337,
+      "repo_full_name": "Mishit18/claude-code-templates",
+      "path": "cli-tool/components/skills/utilities/busybox-on-windows/SKILL.md",
+      "file_sha": "6ce0cce09ae8844a53efff3b548cd0e8533f22af",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-11T01:20:11Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 580239,
+      "group_id": 353754,
+      "repo_id": 4217,
+      "repo_full_name": "Dokhacgiakhoa/Agent-skills-setup-for-AntiGravity",
+      "path": "tests/manual-repair-test/.agent/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "8b7ae510057b92a7199bbb9e4e8ea50cde220c25",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-13T10:02:41Z",
+      "repo_created_at": "2026-01-27T21:22:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 588553,
+      "group_id": 621553,
+      "repo_id": 2875,
+      "repo_full_name": "artubss/SKILLS-CLAUDE-CODE",
+      "path": "skills/skills/utilities/busybox-on-windows/SKILL.md",
+      "file_sha": "0ed119a25b84d0aea37c1ba6306b84cf0acae093",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-16T15:10:34Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 620659,
+      "group_id": 353754,
+      "repo_id": 8014,
+      "repo_full_name": "benjaminasterA/antigravity-awesome-skills",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "66e1c79167f3bd92ad6c05259a587826a278bf03",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-22T15:13:41Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 623742,
+      "group_id": 353754,
+      "repo_id": 7593,
+      "repo_full_name": "Jeeva0104/connector-service-mini",
+      "path": ".claude/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "4ee62dd08f7f502c4f971cb81e25107ecfe64589",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-28T05:33:50Z",
+      "repo_created_at": "2025-12-30T11:52:54Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 624960,
+      "group_id": 353754,
+      "repo_id": 1035,
+      "repo_full_name": "layoutdev-pt/Motogardunha",
+      "path": ".claude/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "695e55e9191701b05041126004ad5873471af369",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-07T16:50:20Z",
+      "repo_created_at": "2026-02-14T00:04:26Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 637359,
+      "group_id": 353754,
+      "repo_id": 8176,
+      "repo_full_name": "foolhardy45/portfolio",
+      "path": ".claude/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "b0ea425c7fec16d5a6907d7f94a50ef24c76a08b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-25T19:59:41Z",
+      "repo_created_at": "2025-10-08T22:22:23Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 648200,
+      "group_id": 353754,
+      "repo_id": 9762,
+      "repo_full_name": "ncdevshiv/NC-skills-mcp",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "815f4f54b8a75af493f8392e5ebd3ce822dab9a4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-25T18:12:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 697917,
+      "group_id": 353754,
+      "repo_id": 14867,
+      "repo_full_name": "rootcastleco/rei-skills",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "dee019d9688fdd7c1ed35ef3578015e16babf217",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-21T00:39:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 701823,
+      "group_id": 353754,
+      "repo_id": 12618,
+      "repo_full_name": "Number-Pii/organisation",
+      "path": "Teams/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "a2049d574c24ab116d9f4b32518557f5b5d92fb9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T12:04:58Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 704724,
+      "group_id": 353754,
+      "repo_id": 129,
+      "repo_full_name": "ibragimov-oasis/name-navigator",
+      "path": ".antigravity/skills/skills-antigravity/source-antigravity-awesome-skills/plugins/antigravity-awesome-skills-claude/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "d84d08016d042dc557c297ff1852e4988450d00a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T18:12:59Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 733887,
+      "group_id": 353754,
+      "repo_id": 19346,
+      "repo_full_name": "Regtransfers/agency-agents-mcp",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "57c8a55b17f5c6e5d7b44653cddabd49ac9d5271",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-27T11:27:18Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 739192,
+      "group_id": 353754,
+      "repo_id": 20357,
+      "repo_full_name": "BEKO2210/Firstbrain",
+      "path": "03 - Resources/Skills/busybox-on-windows/SKILL.md",
+      "file_sha": "8882b1810f0b33de6ce5e6d421cb88984f03d50e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-05T21:26:15Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 753188,
+      "group_id": 353754,
+      "repo_id": 19623,
+      "repo_full_name": "Yash000/9tattvas",
+      "path": ".claude/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "772d81fd9ff46f05cb6d9d4594fbaffced89fba5",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-31T04:46:04Z",
+      "repo_created_at": "2026-05-30T18:54:11Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 757286,
+      "group_id": 353754,
+      "repo_id": 54,
+      "repo_full_name": "JantonioFC/skillsbank",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "974eddde02362cd2bcfc85c965ec1911b472a6a2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-15T08:31:46Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 759629,
+      "group_id": 353754,
+      "repo_id": 3490,
+      "repo_full_name": "HenriqueMC17/agente-core",
+      "path": "modules/development/busybox-on-windows/SKILL.md",
+      "file_sha": "4b4768b6c18910c5d159fada8c592fc889b89273",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-22T16:55:21Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 763919,
+      "group_id": 353754,
+      "repo_id": 8807,
+      "repo_full_name": "n2g7/agent-skills",
+      "path": "busybox-on-windows/SKILL.md",
+      "file_sha": "9fab8c4f8ba67f2d31afcf3002e0b3800864ecb2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-30T07:00:18Z",
+      "repo_created_at": "2026-06-30T07:14:00Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 767452,
+      "group_id": 353754,
+      "repo_id": 20724,
+      "repo_full_name": "sitaurs/pbl-ppe-detection",
+      "path": ".agents/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "3c35649917700bcaa09c4914c9c2bd7306fff0fd",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-19T00:57:47Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 786882,
+      "group_id": 311222,
+      "repo_id": 4687,
+      "repo_full_name": "anubhavg-icpl/vibe",
+      "path": "skills/ag-busybox-on-windows/SKILL.md",
+      "file_sha": "1c5e8b965ab94e787e8c494e20b2abbeaa403cc2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-11-05T10:32:18Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 801451,
+      "group_id": 353754,
+      "repo_id": 4501,
+      "repo_full_name": "ranbot-ai/awesome-skills",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "08ef86628e4cebe9be85043dea33fd1748e80ffb",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-24T13:53:30Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 852973,
+      "group_id": 374342,
+      "repo_id": 28116,
+      "repo_full_name": "Anhvu1107/all-agent-skill",
+      "path": ".agent/skills/busybox-on-windows/SKILL.md",
+      "file_sha": "edd2ab5265804d77af6f80b031c271e43828b049",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-20T20:21:31Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "4bbc194c0af681f54c7138bfc2869d5da0ae5265f03b5819829db420494b8ca8"
+    },
+    {
+      "artifact_id": 2733595,
+      "group_id": 304566,
+      "repo_id": 83020,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills/busybox-on-windows/SKILL.md",
+      "file_sha": "09dccf16338e21f0de5ff69f7beb715d95bc5a3e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T03:02:55Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "b31494092542e8d05891b36547f98b7956f7c1c62516ee5a5c89b951a2fd89c1"
+    },
+    {
+      "artifact_id": 2811614,
+      "group_id": 304566,
+      "repo_id": 83020,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills_omni/busybox-on-windows/SKILL.md",
+      "file_sha": "c76b94608e394fdb2b136dcfb8b6e1f9aab39c39",
+      "provenance": {
+        "derived_from": "skills/busybox-on-windows",
+        "upstream_skill": "skills/busybox-on-windows",
+        "source_repo": "diegosouzapw/awesome-omni-skills",
+        "upstream_source": "community"
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T03:02:55Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "8dd96b9e1e2840c714e65499b3d6cb9ae40cdbffe41300fc5d3e17027777f41b"
+    },
+    {
+      "artifact_id": 3648115,
+      "group_id": 141815,
+      "repo_id": 18810,
+      "repo_full_name": "thiagofernandes1987-create/APEX",
+      "path": "skills/community/general/busybox-on-windows/SKILL.md",
+      "file_sha": "212ee382307c8b9e62e8838929dd1791531741b0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": "antigravity-awesome-skills",
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-08T19:27:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ]
 }

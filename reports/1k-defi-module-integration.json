@@ -245,8 +245,7 @@
         423459
       ],
       "representative_artifact_id": 2723114,
-      "earliest_observed_at": "2026-06-03T07:00:18Z",
-      "earliest_repo_created_at": "2026-06-03T06:59:05Z"
+      "earliest_observed_at": "2026-06-03T07:00:18Z"
     },
     {
       "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
@@ -259,8 +258,7 @@
         360715
       ],
       "representative_artifact_id": 2696303,
-      "earliest_observed_at": "2026-04-15T21:39:25Z",
-      "earliest_repo_created_at": "2026-04-15T21:55:27Z"
+      "earliest_observed_at": "2026-04-15T21:39:25Z"
     },
     {
       "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
@@ -273,8 +271,7 @@
         250589
       ],
       "representative_artifact_id": 2498630,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2021-11-22T14:54:51Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
@@ -287,8 +284,7 @@
         423459
       ],
       "representative_artifact_id": 3076631,
-      "earliest_observed_at": "2026-05-01T00:13:08Z",
-      "earliest_repo_created_at": "2026-01-21T06:17:51Z"
+      "earliest_observed_at": "2026-05-01T00:13:08Z"
     }
   ],
   "provenance": [],
@@ -414,6 +410,80 @@
       "right_representative_artifact_id": 3076631,
       "shared_group_ids": [],
       "same_artifact_group": false
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 2498630,
+      "group_id": 250589,
+      "repo_id": 78873,
+      "repo_full_name": "OneKeyHQ/app-monorepo",
+      "path": ".skillshare/skills/1k-defi-module-integration/SKILL.md",
+      "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2021-11-22T14:54:51Z",
+      "sibling_file_count": 18,
+      "sibling_content_sha": "b6f86e95318c8321d4cd970045ef78f469cc55ff6821df86bb0b3de003bd9ba0"
+    },
+    {
+      "artifact_id": 2696303,
+      "group_id": 360715,
+      "repo_id": 63828,
+      "repo_full_name": "wanghaisheng/web3-scaffold-app-monorepo",
+      "path": ".claude/skills/1k-defi-module-integration/SKILL.md",
+      "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-15T21:39:25Z",
+      "repo_created_at": "2026-04-15T21:55:27Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "05c4cf576dc7bbc733b2aeb31c70f0d628b70c346ae2fd7da7c5f64dd6cabcd2"
+    },
+    {
+      "artifact_id": 2723114,
+      "group_id": 423459,
+      "repo_id": 3936,
+      "repo_full_name": "MikeCheng1208/BattleTree",
+      "path": ".agents/skills/1k-defi-module-integration/SKILL.md",
+      "file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-03T07:00:18Z",
+      "repo_created_at": "2026-06-03T06:59:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3076631,
+      "group_id": 423459,
+      "repo_id": 261,
+      "repo_full_name": "lxyeternal/MalSkillBench",
+      "path": "Dataset/Skills/malware/1k-defi-module-integration/SKILL.md",
+      "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-01T00:13:08Z",
+      "repo_created_at": "2026-01-21T06:17:51Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
     }
   ]
 }

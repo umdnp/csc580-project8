@@ -237,8 +237,7 @@
         603780
       ],
       "representative_artifact_id": 1970318,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-04-12T19:45:27Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
@@ -251,8 +250,7 @@
         603780
       ],
       "representative_artifact_id": 2244377,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-02-22T16:34:17Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
@@ -265,8 +263,7 @@
         485589
       ],
       "representative_artifact_id": 2386173,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-03-04T00:42:06Z"
+      "earliest_observed_at": null
     },
     {
       "file_sha": "cc5c501649ef678b79dc30b98c62462981ea1b4f",
@@ -279,8 +276,7 @@
         603780
       ],
       "representative_artifact_id": 2386167,
-      "earliest_observed_at": null,
-      "earliest_repo_created_at": "2026-05-28T23:02:08Z"
+      "earliest_observed_at": null
     }
   ],
   "provenance": [],
@@ -410,6 +406,80 @@
       "right_representative_artifact_id": 2386167,
       "shared_group_ids": [],
       "same_artifact_group": false
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 1970318,
+      "group_id": 603780,
+      "repo_id": 162284,
+      "repo_full_name": "flaviostutz/testprompt",
+      "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md",
+      "file_sha": "2941934ac0db60b9a3888ee9da82396ef063af07",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-12T19:45:27Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2244377,
+      "group_id": 603780,
+      "repo_id": 162936,
+      "repo_full_name": "flaviostutz/filedist",
+      "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md",
+      "file_sha": "348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-22T16:34:17Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2386167,
+      "group_id": 603780,
+      "repo_id": 204279,
+      "repo_full_name": "flaviostutz/deepworkflow",
+      "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md",
+      "file_sha": "cc5c501649ef678b79dc30b98c62462981ea1b4f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-28T23:02:08Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2386173,
+      "group_id": 485589,
+      "repo_id": 165213,
+      "repo_full_name": "flaviostutz/agentme",
+      "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md",
+      "file_sha": "4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-04T00:42:06Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ]
 }
