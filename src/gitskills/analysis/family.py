@@ -510,6 +510,29 @@ def _build_bundle_variants(artifacts: tuple[Artifact, ...]) -> tuple[BundleVaria
     return tuple(variants)
 
 
+def _earliest_repo_created_at(artifacts: Iterable[Artifact]) -> str | None:
+    """Return the earliest repository creation time when all members have one.
+
+    Bundle variants can represent the same content in several repositories. A
+    repository-creation boundary is safe only when every occurrence has a valid
+    repository creation timestamp; otherwise an older unknown repository could
+    invalidate the inference.
+    """
+
+    members = tuple(artifacts)
+    parsed = [
+        (_parse_timestamp(artifact.repo_created_at), artifact.repo_created_at)
+        for artifact in members
+    ]
+    if any(timestamp is None for timestamp, _ in parsed):
+        return None
+
+    return min(
+        parsed,
+        key=lambda item: item[0],
+    )[1]
+
+
 def _representative_artifact(artifacts: Iterable[Artifact]) -> Artifact:
     members = tuple(artifacts)
     observed = [
@@ -1076,6 +1099,34 @@ def _infer_direction(
     if result is None:
         return None
 
+    left_repo_date = _parse_timestamp(left.earliest_repo_created_at)
+    right_repo_date = _parse_timestamp(right.earliest_repo_created_at)
+
+    # A known file observation predating every repository that contains the other
+    # bundle variant establishes observed order even when that variant lacks file
+    # history. Repository age is used only as a hard lower bound, never as a
+    # replacement for first_commit_at.
+    if left_date is not None and right_repo_date is not None:
+        if left_date < right_repo_date:
+            return left, right, "repo-created-boundary"
+
+    if right_date is not None and left_repo_date is not None:
+        if right_date < left_repo_date:
+            return right, left, "repo-created-boundary"
+
+    return None
+
+
+def _infer_direction(
+    left: BundleVariant,
+    right: BundleVariant,
+    result: SimilarityResult,
+    policy: SimilarityPolicy,
+) -> tuple[BundleVariant, BundleVariant, str] | None:
+    chronological = _infer_chronological_direction(left, right)
+    if chronological is not None:
+        return chronological
+
     left_to_right = result.containment(left.file_sha, right.file_sha)
     right_to_left = result.containment(right.file_sha, left.file_sha)
     difference = left_to_right - right_to_left
@@ -1221,6 +1272,13 @@ def _candidate_sort_key(candidate: _DirectedCandidate) -> tuple[object, ...]:
         and target_date is not None
     ):
         time_gap = (target_date - source_date).total_seconds()
+    elif candidate.basis == "repo-created-boundary" and source_date is not None:
+        target_repo_date = _parse_timestamp(candidate.target.earliest_repo_created_at)
+        time_gap = (
+            (target_repo_date - source_date).total_seconds()
+            if target_repo_date is not None
+            else float("inf")
+        )
     else:
         time_gap = float("inf")
 

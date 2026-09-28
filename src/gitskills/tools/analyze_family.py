@@ -260,15 +260,38 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
     else:
         print("    Directed edges: 0")
 
-    ambiguous_count = len(cluster.evolution.ambiguous_edges)
-    if ambiguous_count:
+    equivalent = cluster.evolution.equivalent_edges
+    if equivalent:
         print(
-            f"    Ambiguous edges: {ambiguous_count} "
+            f"    Equivalent undirected edges: {len(equivalent)} "
+            f"(within groups={cluster.evolution.within_group_equivalent_edge_count}, "
+            f"across groups={cluster.evolution.across_group_equivalent_edge_count})"
+        )
+        if verbose:
+            for edge in equivalent:
+                scope = "within-group" if edge.same_artifact_group else "across-groups"
+                print(
+                    f"      {edge.left_artifact_id} <-> "
+                    f"{edge.right_artifact_id} "
+                    f"change={edge.change_type.value} "
+                    f"containment={edge.containment_left_to_right:.3f}/"
+                    f"{edge.containment_right_to_left:.3f} "
+                    f"jaccard={edge.jaccard:.3f} "
+                    f"basis={edge.basis} "
+                    f"scope={scope}"
+                )
+    else:
+        print("    Equivalent undirected edges: 0")
+
+    ambiguous = cluster.evolution.unresolved_edges
+    if ambiguous:
+        print(
+            f"    Ambiguous edges: {len(ambiguous)} "
             f"(within groups={cluster.evolution.within_group_ambiguous_edge_count}, "
             f"across groups={cluster.evolution.across_group_ambiguous_edge_count})"
         )
         if verbose:
-            for edge in cluster.evolution.ambiguous_edges:
+            for edge in ambiguous:
                 scope = "within-group" if edge.same_artifact_group else "across-groups"
                 evidence_text = (
                     f" evidence={','.join(edge.evidence)}"
@@ -278,6 +301,7 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                 print(
                     f"      {edge.left_artifact_id} <-> "
                     f"{edge.right_artifact_id} "
+                    f"status={edge.relationship_status} "
                     f"change={edge.change_type.value} "
                     f"containment={edge.containment_left_to_right:.3f}/"
                     f"{edge.containment_right_to_left:.3f} "
@@ -345,6 +369,13 @@ def _print_edge_summary(family: ScopeAnalysis) -> None:
     print(f"  Unknown:            {counts[ChangeType.UNKNOWN]}")
     print(f"  Within artifact groups: {family.within_group_directed_edge_count}")
     print(f"  Across artifact groups: {family.across_group_directed_edge_count}")
+    print(f"Equivalent undirected edges: {family.equivalent_edge_count}")
+    print(
+        f"  Within artifact groups: {family.within_group_equivalent_edge_count}"
+    )
+    print(
+        f"  Across artifact groups: {family.across_group_equivalent_edge_count}"
+    )
     print(f"Ambiguous edges: {family.ambiguous_edge_count}")
     print(f"  Within artifact groups: {family.within_group_ambiguous_edge_count}")
     print(f"  Across artifact groups: {family.across_group_ambiguous_edge_count}")

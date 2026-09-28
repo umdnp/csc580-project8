@@ -296,10 +296,21 @@ class AmbiguousRelationship:
     def same_artifact_group(self) -> bool:
         return bool(self.shared_group_ids)
 
+    @property
+    def relationship_status(self) -> str:
+        """Return a human-facing status for an undirected relationship."""
+
+        if self.basis == "provenance-conflict":
+            return "direction-conflict"
+        if self.change_type is ChangeType.EQUIVALENT:
+            return "equivalent"
+        return "direction-unknown"
+
     def to_dict(self) -> dict[str, object]:
         return {
             "left_artifact_id": self.left_artifact_id,
             "right_artifact_id": self.right_artifact_id,
+            "relationship_status": self.relationship_status,
             "basis": self.basis,
             "containment_left_to_right": self.containment_left_to_right,
             "containment_right_to_left": self.containment_right_to_left,
@@ -343,12 +354,48 @@ class EvolutionGraph:
         return len(self.directed_edges) - self.within_group_directed_edge_count
 
     @property
+    def equivalent_edges(self) -> tuple[AmbiguousRelationship, ...]:
+        """Return undirected pairs whose analyzed content is equivalent."""
+
+        return tuple(
+            edge
+            for edge in self.ambiguous_edges
+            if edge.relationship_status == "equivalent"
+        )
+
+    @property
+    def unresolved_edges(self) -> tuple[AmbiguousRelationship, ...]:
+        """Return truly unresolved undirected relationships."""
+
+        return tuple(
+            edge
+            for edge in self.ambiguous_edges
+            if edge.relationship_status != "equivalent"
+        )
+
+    @property
+    def equivalent_edge_count(self) -> int:
+        return len(self.equivalent_edges)
+
+    @property
+    def ambiguous_edge_count(self) -> int:
+        return len(self.unresolved_edges)
+
+    @property
+    def within_group_equivalent_edge_count(self) -> int:
+        return sum(edge.same_artifact_group for edge in self.equivalent_edges)
+
+    @property
+    def across_group_equivalent_edge_count(self) -> int:
+        return self.equivalent_edge_count - self.within_group_equivalent_edge_count
+
+    @property
     def within_group_ambiguous_edge_count(self) -> int:
-        return sum(edge.same_artifact_group for edge in self.ambiguous_edges)
+        return sum(edge.same_artifact_group for edge in self.unresolved_edges)
 
     @property
     def across_group_ambiguous_edge_count(self) -> int:
-        return len(self.ambiguous_edges) - self.within_group_ambiguous_edge_count
+        return self.ambiguous_edge_count - self.within_group_ambiguous_edge_count
 
     # Compatibility aliases for notebooks or code written against the earlier model.
     @property
@@ -400,7 +447,15 @@ class EvolutionGraph:
             "across_group_directed_edge_count": (
                 self.across_group_directed_edge_count
             ),
-            "ambiguous_edge_count": len(self.ambiguous_edges),
+            "undirected_edge_count": len(self.ambiguous_edges),
+            "equivalent_edge_count": self.equivalent_edge_count,
+            "within_group_equivalent_edge_count": (
+                self.within_group_equivalent_edge_count
+            ),
+            "across_group_equivalent_edge_count": (
+                self.across_group_equivalent_edge_count
+            ),
+            "ambiguous_edge_count": self.ambiguous_edge_count,
             "within_group_ambiguous_edge_count": (
                 self.within_group_ambiguous_edge_count
             ),
@@ -460,8 +515,16 @@ class ScopeAnalysis:
         return sum(len(cluster.evolution.directed_edges) for cluster in self.clusters)
 
     @property
-    def ambiguous_edge_count(self) -> int:
+    def undirected_edge_count(self) -> int:
         return sum(len(cluster.evolution.ambiguous_edges) for cluster in self.clusters)
+
+    @property
+    def equivalent_edge_count(self) -> int:
+        return sum(cluster.evolution.equivalent_edge_count for cluster in self.clusters)
+
+    @property
+    def ambiguous_edge_count(self) -> int:
+        return sum(cluster.evolution.ambiguous_edge_count for cluster in self.clusters)
 
     @property
     def within_group_directed_edge_count(self) -> int:
@@ -473,6 +536,17 @@ class ScopeAnalysis:
     @property
     def across_group_directed_edge_count(self) -> int:
         return self.directed_edge_count - self.within_group_directed_edge_count
+
+    @property
+    def within_group_equivalent_edge_count(self) -> int:
+        return sum(
+            cluster.evolution.within_group_equivalent_edge_count
+            for cluster in self.clusters
+        )
+
+    @property
+    def across_group_equivalent_edge_count(self) -> int:
+        return self.equivalent_edge_count - self.within_group_equivalent_edge_count
 
     @property
     def within_group_ambiguous_edge_count(self) -> int:
@@ -546,6 +620,14 @@ class ScopeAnalysis:
             ),
             "across_group_directed_edge_count": (
                 self.across_group_directed_edge_count
+            ),
+            "undirected_edge_count": self.undirected_edge_count,
+            "equivalent_edge_count": self.equivalent_edge_count,
+            "within_group_equivalent_edge_count": (
+                self.within_group_equivalent_edge_count
+            ),
+            "across_group_equivalent_edge_count": (
+                self.across_group_equivalent_edge_count
             ),
             "ambiguous_edge_count": self.ambiguous_edge_count,
             "within_group_ambiguous_edge_count": (
@@ -688,6 +770,7 @@ class FamilyAnalysis:
                     "group_ids": list(variant.group_ids),
                     "representative_artifact_id": variant.representative_artifact_id,
                     "earliest_observed_at": variant.earliest_observed_at,
+                    "earliest_repo_created_at": variant.earliest_repo_created_at,
                 }
                 for variant in self.bundle_variants
             ]
