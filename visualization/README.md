@@ -1,49 +1,145 @@
 # Local skill relationship explorer
 
-From the repository root, using your Python environment:
+The viewer reads candidate-family reports only from `visualization/reports/`.
+There is no report-directory environment variable. Only valid current
+`analyze_family` JSON reports are listed in the report dropdown.
+
+## Start the viewer
+
+Dependencies are managed by the repository-level `pyproject.toml`. From the
+repository root, using the project environment:
 
 ```sh
-python -m pip install -r visualization/requirements.txt
+uv sync --group dev
 python -m uvicorn visualization.app:app --host 127.0.0.1 --port 8000
 ```
 
-Open http://127.0.0.1:8000. Generate reports with the existing family-analysis
-workflow into `work/`, then select a JSON report. The app does not run analysis
-or change source data. To use another report folder, set `GITSKILLS_REPORT_DIR`
-before starting the server. File paths are resolved independently of the shell's
-working directory. Stop the server with Ctrl+C.
+Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C.
 
-The viewer supports cluster selection, artifact-ID lookup across clusters,
-parent/child navigation, ancestor/descendant views, pan, zoom, and comparison
-details. All interface assets are local; no CDN or frontend build is required.
+Run the command from the repository root. If your shell is already inside the
+`visualization` directory, the equivalent import path is `app:app` rather than
+`visualization.app:app`.
 
-## Report handling and interpretation
+## Reports
 
-- Expected format: `analyze_family_diffs` output with `artifact_count`,
-  `cluster_count`, `comparisons`, and `ambiguous_relationships`.
-- Reports are parsed on first access. A compact index of one report is cached;
-  changing a file's size or modification time invalidates its cache. Switching
-  reports rebuilds the index. Initial parsing temporarily holds the full JSON
-  and can use substantially more memory than the file's size. Use one worker
-  for local use to avoid duplicate caches.
-- Only a selected cluster's compact graph is sent to the browser. Ambiguous
-  pairs are counted, not rendered or assigned a direction. Individual ambiguous
-  pair inspection is not implemented.
-- Arrows are inferred source-to-target relationships, not proof of copying.
-  Multiple parents and cycles can occur; the graph is not necessarily a tree.
-  A cycle warning means the layered layout must not be read as generation order.
-- Artifacts whose IDs do not occur in relationships cannot be drawn from the
-  current report format. They are reported as an unlisted count.
-- The viewer uses artifact IDs and does not expose raw report files, source
-  bodies, or repository metadata. IDs remain linkable to local dataset records.
-- This is a local application without authentication. Keep the default loopback
-  address; do not expose it publicly without a separate deployment review.
+The report dropdown reads JSON files directly from `visualization/reports/`, but it
+remembers the last selected valid report in browser local storage, so a normal refresh
+restores the same report when it is still available. It
+only lists files that match the current `analyze_family` JSON format and can be
+loaded successfully. Malformed JSON, `scan_family` output, older prototype formats,
+and unrelated JSON files are ignored.
+
+`analyze_family` reports contain the family clusters, directed evolution edges,
+ambiguous relationships, similarity metrics, and root candidates used by the graph.
+For example:
+
+```sh
+analyze_family busybox-on-windows --json --verbose --output visualization/reports
+```
+
+The graph is built from the selected report. The viewer does not recalculate family
+ancestry from DuckDB.
+
+## DuckDB access
+
+The viewer uses this database by default:
+
+```text
+C:/data/duckdb/agent_skills_release.db
+```
+
+If `GITSKILLS_DB` is set, its value overrides the default. DuckDB is opened read-only.
+The active database path and health are shown at the bottom of the viewer.
+
+The browser polls `/api/health` every 30 seconds. The health check opens DuckDB
+read-only and verifies that the `artifacts` and `artifact_siblings` tables are
+accessible. If access is lost, the viewer opens a compact centered warning dialog.
+If the user closes that dialog while DuckDB is still unavailable, the next 30-second
+health check opens it again. The dialog closes automatically if a later health check
+succeeds. The report-based graph continues to work while database-backed features
+are unavailable.
+
+DuckDB is queried lazily for:
+
+- artifact metadata such as name, description, repository/path, and commit dates;
+- artifact search by name, repository, path, filename, or SHA;
+- selected SKILL.md contents;
+- content-bearing file siblings from `artifact_siblings`;
+- side-by-side artifact and sibling-file diffs; and
+- on-demand static `scan_diff` using the existing `gitskills` analyzer.
+
+Artifact sibling lists include only rows where `entry_type = 'file'` and `content IS
+NOT NULL`. Directory entries and files whose content was not stored are excluded.
+
+## Graph behavior
+
+Directed ancestry edges are always shown for the current view. Ambiguous edges are
+contextual: only ambiguous relationships connected to the selected artifact are
+drawn. Selecting another node replaces those ambiguous edges with that node's
+ambiguous relationships. This keeps large families readable without discarding the
+uncertainty recorded in the report.
+
+The **View** dropdown uses **Direct relationships** for the selected artifact's
+immediate relationships and **Direct and indirect relationships** for the broader
+lineage view. The selected artifact, its direct parent(s), direct child(ren), and
+ambiguous peers are visually distinguished. `Fit visible family` resets the viewport;
+`Focus selected` centers the selected artifact without changing the current graph mode.
+
+The search box accepts an artifact ID without needing DuckDB. Text searches use
+DuckDB and can match artifact name, repository, path, filename, or SHA.
+
+## Artifact details and actions
+
+Selecting an artifact opens a three-panel action area:
+
+- **Selected Artifact** shows the artifact ID, repository, and full path on separate
+  lines and provides **View content**. The candidate-family name is not repeated here
+  because it is already shown in the report summary above the graph.
+- **Compare To** lists directed parent artifact(s) first and labels them `(parent)`.
+  Unresolved ambiguous peers are listed afterward and labeled `(ambiguous)`. A peer
+  that already has a directed lineage relationship to the selected artifact is not
+  repeated as ambiguous.
+- **Artifact Siblings** lists the selected artifact's content-bearing file siblings by
+  `entry_name`. Database IDs are not displayed. **View content** opens the
+  selected sibling file even when there is no comparison target. If none exist, the
+  dropdown shows `NONE` and no sibling actions are shown.
+
+The previous parent/child/ambiguous/sibling-count/role summary cards were removed;
+that relationship structure is already visible in the graph and does not need to be
+repeated in the detail area.
+
+`View content` opens the selected skill itself. `View diff` compares the
+selected artifact with the current **Compare To** artifact. For parent comparisons,
+the parent is the Base and the selected node is the Derived artifact. Ambiguous
+comparisons are displayed as a neutral side-by-side comparison because lineage
+direction is unresolved.
+
+`Run scan` is available only for a directed parent comparison because the static
+scanner requires an explicit Base -> Derived direction.
+
+`View content` opens the selected artifact's sibling file directly. **View diff** compares that sibling `entry_name` across the current comparison artifact and the selected artifact. If one side does not contain that
+file, its pane says `No such file for this artifact.` while the existing side shows
+its contents and the addition/removal highlighting.
+
+The metadata display uses **Artifact Sibling Count**, computed from the same filtered
+`artifact_siblings` rows used by the sibling dropdown. Normalized description is omitted
+from artifact comparison metadata because the human-readable description is already shown,
+and filename is omitted because the full path already includes it. The older `Has scripts` and
+`Has references` fields are not displayed.
+
+Useful artifact identifiers and Base -> Derived IDs have copy buttons. Long metadata
+values are constrained to scrollable areas so they do not overwhelm the detail panel.
+Opening and closing dialogs does not change the current graph selection or viewport.
+
+This is a local application without authentication. Keep the default loopback host;
+do not expose it publicly without a separate deployment review. Artifact and sibling
+content are displayed and statically scanned only; they are never executed.
 
 API documentation is available locally at `/docs`.
 
 ## Tests
 
-Install `httpx` in the test environment, then run from the repository root:
+Run from the repository root:
 
 ```sh
 python -m unittest visualization.test_app
