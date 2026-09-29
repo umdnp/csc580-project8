@@ -107,7 +107,12 @@ details.metadata summary{cursor:pointer}
 .search-results{margin-top:0}
 .search-results button{text-align:left;max-width:min(100%,720px);overflow-wrap:anywhere}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
-.db-status{border-top:1px solid var(--border);margin-top:18px;padding-top:10px;overflow-wrap:anywhere}
+.policy-status{border-top:1px solid var(--border);margin-top:18px;padding-top:10px;font-size:13px;line-height:1.5}
+.policy-status .policy-title{font-weight:700;color:var(--fg)}
+.policy-status .policy-item,.policy-status .policy-explanation{color:var(--muted)}
+.policy-status .policy-item strong{color:var(--fg);font-weight:600}
+.policy-status .policy-separator{color:var(--muted);margin:0 6px}
+.db-status{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;overflow-wrap:anywhere}
 
 /* Dialogs */
 dialog{width:min(96vw,1500px);height:min(92vh,980px);padding:0;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg)}
@@ -118,10 +123,13 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .dialog-shell{display:flex;flex-direction:column;height:100%}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
 .dialog-head h2{margin:0}
+.dialog-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .dialog-body{padding:14px 16px;overflow:auto;min-height:0;flex:1}
 .content-meta{font-size:13px;color:var(--muted);margin-bottom:10px;overflow-wrap:anywhere}
 .file-content{margin:0;border:1px solid var(--border);border-radius:6px;padding:12px;min-height:300px;height:calc(100% - 38px);overflow:auto;white-space:pre;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--panel)}
-.diff-headings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px;font-weight:600}
+.diff-headings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px}
+.diff-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
+.diff-heading button{font-size:12px;padding:4px 7px;flex:0 0 auto}
 .diff-panes{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:calc(100% - 34px);min-height:300px}
 .diff-pane{border:1px solid var(--border);border-radius:6px;overflow:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg)}
 .diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);min-height:1.45em;white-space:pre}
@@ -219,12 +227,13 @@ th{background:var(--panel)}
   <p id="edge-detail" aria-live="polite"></p>
 </section>
 <p id="limitations" class="muted"></p>
+<div id="policy-status" class="policy-status" hidden></div>
 <p id="db-status" class="db-status muted"></p>
 </main>
 
 <dialog id="content-dialog">
   <div class="dialog-shell">
-    <div class="dialog-head"><h2 id="content-title">File contents</h2><button data-close="content-dialog">Close</button></div>
+    <div class="dialog-head"><h2 id="content-title">File contents</h2><div class="dialog-actions"><button id="content-copy" disabled>Copy Contents</button><button data-close="content-dialog">Close</button></div></div>
     <div class="dialog-body"><div id="content-meta" class="content-meta"></div><pre id="content-text" class="file-content">Loading…</pre></div>
   </div>
 </dialog>
@@ -332,6 +341,7 @@ function clearState() {
   $('#report-summary').replaceChildren(); $('#report-summary').hidden = true;
   $('#search-results').replaceChildren(); $('#search-results').hidden = true;
   for (const id of ['visible','details','limitations','edge-detail']) $('#'+id).textContent = '';
+  $('#policy-status').replaceChildren(); $('#policy-status').hidden = true;
   busy(true);
 }
 
@@ -479,6 +489,60 @@ async function reports() {
   }
 }
 
+function formatPolicyRatio(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? `${(number * 100).toFixed(Number.isInteger(number * 100) ? 0 : 1)}%` : 'unavailable';
+}
+
+function renderReportPolicy(policy = {}) {
+  const holder = $('#policy-status');
+  holder.replaceChildren();
+
+  const parts = [];
+
+  const title = document.createElement('span');
+  title.className = 'policy-title';
+  title.textContent = 'Similarity policy';
+  parts.push(title);
+
+  for (const [label, value] of [
+    ['Containment threshold', policy.min_containment],
+    ['Similarity threshold', policy.min_jaccard],
+  ]) {
+    if (value == null) continue;
+    const item = document.createElement('span');
+    item.className = 'policy-item';
+    const strong = document.createElement('strong');
+    strong.textContent = formatPolicyRatio(value);
+    item.append(`${label}: `, strong);
+    parts.push(item);
+  }
+
+  if (policy.shingle_size != null && policy.min_shared_shingles != null) {
+    const explanation = document.createElement('span');
+    explanation.className = 'policy-explanation';
+    explanation.textContent = `Pairs must share at least ${policy.min_shared_shingles} matching ${policy.shingle_size}-token shingles, then meet the configured containment and similarity thresholds.`;
+    parts.push(explanation);
+  }
+
+  if (parts.length === 1) {
+    holder.hidden = true;
+    return;
+  }
+
+  parts.forEach((part, index) => {
+    if (index) {
+      const separator = document.createElement('span');
+      separator.className = 'policy-separator';
+      separator.textContent = '·';
+      holder.append(separator);
+    }
+    holder.append(part);
+  });
+
+  holder.hidden = false;
+}
+
 function renderReportSummary() {
   const holder = $('#report-summary'); holder.replaceChildren();
   holder.append(
@@ -501,6 +565,7 @@ async function loadReport() {
     meta = result;
     saveReport($('#report').value);
     renderReportSummary();
+    renderReportPolicy(meta.policy);
     meta.clusters.forEach(cluster => $('#cluster').add(new Option(`Cluster ${cluster.id} · ${cluster.n} artifacts · ${cluster.e} directed · ${cluster.a} peers`, cluster.id)));
     const unlisted = Math.max(0, meta.total - meta.referenced);
     $('#limitations').textContent = `${meta.referenced.toLocaleString()} artifact IDs are drawable from this report${unlisted ? `; ${unlisted.toLocaleString()} reported artifacts do not have IDs in the family structure` : ''}. Horizontal position represents inferred steps, not elapsed time. Peer relationships are contextual: only peers of the selected artifact are shown. Artifact metadata, file content, sibling files, search, diffs, and scans query DuckDB only when requested.`;
@@ -926,16 +991,19 @@ function addKv(container, label, value) {
   container.append(dt, dd);
 }
 
-async function copyText(text, button) {
-  if (!text) return;
-  const original = button.textContent;
+async function writeClipboardText(text) {
   try {
     await navigator.clipboard.writeText(String(text));
-    button.textContent = 'Copied';
   } catch {
     const area = document.createElement('textarea'); area.value = String(text); document.body.append(area); area.select(); document.execCommand('copy'); area.remove();
-    button.textContent = 'Copied';
   }
+}
+
+async function copyText(text, button) {
+  if (text === null || text === undefined) return;
+  const original = button.textContent;
+  await writeClipboardText(text);
+  button.textContent = 'Copied';
   setTimeout(() => button.textContent = original, 1000);
 }
 
@@ -1263,18 +1331,28 @@ function artifactDisplay(artifact) {
 
 async function openArtifactContent() {
   if (selected === null) return;
+  const artifactId = selected;
   const dialog = $('#content-dialog');
-  $('#content-title').textContent = `File contents · artifact ${selected}`;
+  const copyButton = $('#content-copy');
+  $('#content-title').textContent = `File contents · artifact ${artifactId}`;
   $('#content-meta').textContent = '';
   $('#content-text').textContent = 'Loading…';
+  copyButton.disabled = true;
+  copyButton.textContent = 'Copy Contents';
+  copyButton.title = 'Copy the raw artifact content from DuckDB.';
+  copyButton.onclick = null;
   showDialog(dialog);
   try {
-    const result = await api(route() + `/artifacts/${selected}/content`);
-    $('#content-title').textContent = result.artifact.filename || `Artifact ${selected}`;
+    const result = await api(route() + `/artifacts/${artifactId}/content`);
+    $('#content-title').textContent = result.artifact.filename || `Artifact ${artifactId}`;
     $('#content-meta').textContent = artifactDisplay(result.artifact);
     $('#content-text').textContent = result.content;
+    copyButton.disabled = false;
+    copyButton.onclick = () => copyArtifactContents(artifactId, copyButton);
   } catch (error) {
     $('#content-text').textContent = error.message;
+    copyButton.disabled = true;
+    copyButton.title = error.message;
   }
 }
 
@@ -1283,6 +1361,43 @@ function addDiffLine(pane, lineNumber, text, kind) {
   const line = document.createElement('span'); line.className = 'ln'; line.textContent = lineNumber ?? '';
   const code = document.createElement('span'); code.className = 'code'; code.textContent = text || ' ';
   row.append(line, code); pane.append(row);
+}
+
+async function copyArtifactContents(artifactId, button) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Copying…';
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/content`);
+    await writeClipboardText(result.content);
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = original; }, 1000);
+  } catch (error) {
+    button.textContent = 'Copy failed';
+    button.title = error.message;
+    setTimeout(() => { button.textContent = original; button.title = 'Copy the raw artifact content from DuckDB.'; }, 1500);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function copySiblingContents(artifactId, entryName, button) {
+  const original = button.textContent;
+  const originalTitle = button.title;
+  button.disabled = true;
+  button.textContent = 'Copying…';
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
+    await writeClipboardText(result.content);
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = original; }, 1000);
+  } catch (error) {
+    button.textContent = 'Copy failed';
+    button.title = error.message;
+    setTimeout(() => { button.textContent = original; button.title = originalTitle; }, 1500);
+  } finally {
+    button.disabled = false;
+  }
 }
 
 async function openDiff() {
@@ -1303,20 +1418,30 @@ async function openDiff() {
 
 async function openSiblingContent() {
   if (selected === null || !currentDetails?.siblings?.length) return;
+  const artifactId = selected;
   const entryName = $('#sibling').value;
   if (!entryName) return;
   const dialog = $('#content-dialog');
+  const copyButton = $('#content-copy');
   $('#content-title').textContent = `Sibling contents · ${entryName}`;
-  $('#content-meta').textContent = `Artifact ${selected}`;
+  $('#content-meta').textContent = `Artifact ${artifactId}`;
   $('#content-text').textContent = 'Loading…';
+  copyButton.disabled = true;
+  copyButton.textContent = 'Copy Contents';
+  copyButton.title = 'Copy the raw sibling-file content from DuckDB.';
+  copyButton.onclick = null;
   showDialog(dialog);
   try {
-    const result = await api(route() + `/artifacts/${selected}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
     $('#content-title').textContent = result.sibling.entry_name;
-    $('#content-meta').textContent = `Artifact ${selected} · ${artifactDisplay(currentDetails?.artifact)}`;
+    $('#content-meta').textContent = `Artifact ${artifactId} · ${artifactDisplay(currentDetails?.artifact)}`;
     $('#content-text').textContent = result.content;
+    copyButton.disabled = false;
+    copyButton.onclick = () => copySiblingContents(artifactId, entryName, copyButton);
   } catch (error) {
     $('#content-text').textContent = error.message;
+    copyButton.disabled = true;
+    copyButton.title = error.message;
   }
 }
 
@@ -1343,8 +1468,33 @@ function renderDiff(result, sibling = false) {
   const parentLabels = result.comparison_kind === 'parent';
   const leftLabel = parentLabels ? `Base artifact ${result.left_id}` : `Compared artifact ${result.left_id}`;
   const rightLabel = parentLabels ? `Derived artifact ${result.right_id}` : `Selected artifact ${result.right_id}`;
-  const leftHeading = document.createElement('div'); leftHeading.textContent = sibling ? `${leftLabel} · ${result.entry_name}` : leftLabel;
-  const rightHeading = document.createElement('div'); rightHeading.textContent = sibling ? `${rightLabel} · ${result.entry_name}` : rightLabel;
+  const leftHeading = document.createElement('div'); leftHeading.className = 'diff-heading';
+  const rightHeading = document.createElement('div'); rightHeading.className = 'diff-heading';
+
+  const leftHeadingText = document.createElement('span');
+  leftHeadingText.textContent = sibling ? `${leftLabel} · ${result.entry_name}` : leftLabel;
+  const rightHeadingText = document.createElement('span');
+  rightHeadingText.textContent = sibling ? `${rightLabel} · ${result.entry_name}` : rightLabel;
+
+  const leftCopy = document.createElement('button'); leftCopy.textContent = 'Copy Contents';
+  const rightCopy = document.createElement('button'); rightCopy.textContent = 'Copy Contents';
+
+  if (sibling) {
+    leftCopy.disabled = result.left_exists === false;
+    rightCopy.disabled = result.right_exists === false;
+    leftCopy.title = leftCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    rightCopy.title = rightCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    leftCopy.onclick = () => copySiblingContents(result.left_id, result.entry_name, leftCopy);
+    rightCopy.onclick = () => copySiblingContents(result.right_id, result.entry_name, rightCopy);
+  } else {
+    leftCopy.title = 'Copy the raw artifact content from DuckDB.';
+    rightCopy.title = 'Copy the raw artifact content from DuckDB.';
+    leftCopy.onclick = () => copyArtifactContents(result.left_id, leftCopy);
+    rightCopy.onclick = () => copyArtifactContents(result.right_id, rightCopy);
+  }
+
+  leftHeading.append(leftHeadingText, leftCopy);
+  rightHeading.append(rightHeadingText, rightCopy);
   headings.append(leftHeading, rightHeading);
 
   const panes = document.createElement('div'); panes.className = 'diff-panes';
