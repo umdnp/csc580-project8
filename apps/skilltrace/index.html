@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Skill relationship explorer</title>
+<title>SkillTrace – GitSkills Similarity &amp; Security Analyzer</title>
 <style>
 :root{
   color-scheme:light dark;
@@ -151,7 +151,7 @@ th{background:var(--panel)}
 </head>
 <body>
 <main>
-<h1>Inferred skill evolution</h1>
+<h1>SkillTrace – GitSkills Similarity &amp; Security Analyzer</h1>
 <p class="muted">Explore candidate-family ancestry, uncertainty, artifact contents, sibling files, diffs, and static scan results.</p>
 
 <div class="controls">
@@ -257,7 +257,7 @@ th{background:var(--panel)}
     <div class="dialog-head"><h2>DuckDB unavailable</h2><button data-close="health-dialog">Close</button></div>
     <div class="dialog-body">
       <p>The configured DuckDB database is no longer accessible. Database-backed features such as metadata, contents, sibling comparisons, diffs, search, and scans will not work until access is restored.</p>
-      <p class="muted">If the database was moved, replaced, or locked, correct the problem and restart the visualization app if needed. The JSON relationship graph will continue to work.</p>
+      <p class="muted">If the database was moved, replaced, or locked, correct the problem and restart the SkillTrace app if needed. The JSON relationship graph will continue to work.</p>
       <p id="health-error" class="warning"></p>
     </div>
   </div>
@@ -375,7 +375,7 @@ async function loadStatus() {
 }
 
 
-const SELECTED_REPORT_KEY = 'gitskills.visualization.selectedReport';
+const SELECTED_REPORT_KEY = 'gitskills.skilltrace.selectedReport';
 
 function savedReport() {
   try { return localStorage.getItem(SELECTED_REPORT_KEY) || ''; }
@@ -480,7 +480,7 @@ async function reports() {
     if (result.reports.includes(current)) $('#report').value = current;
     else if (result.reports.includes(remembered)) $('#report').value = remembered;
     if (!result.reports.length) {
-      msg('No valid analyze_family JSON reports found in visualization/reports.');
+      msg('No valid analyze_family JSON reports found in skilltrace/reports.');
       return;
     }
     await loadReport();
