@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
-server = importlib.import_module("apps.visualization.app")
+server = importlib.import_module("apps.skilltrace.app")
 
 
 class ViewerTests(unittest.TestCase):
@@ -615,7 +615,7 @@ class ViewerTests(unittest.TestCase):
         fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.1", port=8000)
 
     def test_package_exports_fastapi_app(self):
-        package = importlib.import_module("apps.visualization")
+        package = importlib.import_module("apps.skilltrace")
         self.assertIs(package.app, server.app)
 
     def test_cache_file_change_path_restrictions_and_home(self):

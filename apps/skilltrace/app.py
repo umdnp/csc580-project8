@@ -1,12 +1,12 @@
 """Local explorer for analyze_family candidate-family JSON reports.
 
 From the repository root:
-    python -m uvicorn apps.visualization:app --host 127.0.0.1 --port 8000
+    python -m uvicorn apps.skilltrace:app --host 127.0.0.1 --port 8000
 
 Or use the package launcher when a --db fallback is needed:
-    python -m apps.visualization --db C:/data/duckdb/agent_skills_release.db
+    python -m apps.skilltrace --db C:/data/duckdb/agent_skills_release.db
 
-Reports are always read from apps/visualization/reports. Artifact metadata and
+Reports are always read from apps/skilltrace/reports. Artifact metadata and
 content use $GITSKILLS_DB when set, then --db when provided through the package
 launcher, then the default project DB path.
 The application opens DuckDB read-only and never executes artifact content.
@@ -39,7 +39,7 @@ REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
 DB_ENV = "GITSKILLS_DB"
 
-app = FastAPI(title="Skill relationship explorer", version="0.5.1")
+app = FastAPI(title="SkillTrace – GitSkills Similarity & Security Analyzer", version="0.5.1")
 _lock = Lock()
 _cached_key: tuple[Path, int, int] | None = None
 _cached_report: dict | None = None
@@ -130,13 +130,13 @@ def database_health() -> dict:
 
 
 def report_path(filename: str) -> Path:
-    """Restrict requests to JSON files directly inside apps/visualization/reports."""
+    """Restrict requests to JSON files directly inside apps/skilltrace/reports."""
 
     if Path(filename).name != filename or "/" in filename or "\\" in filename:
         raise HTTPException(400, "Use a report filename, not a path.")
     path = (REPORT_DIR / filename).resolve()
     if path.parent != REPORT_DIR or path.suffix.lower() != ".json":
-        raise HTTPException(400, "Only JSON reports in apps/visualization/reports are allowed.")
+        raise HTTPException(400, "Only JSON reports in apps/skilltrace/reports are allowed.")
     if not path.is_file():
         raise HTTPException(404, "Report not found.")
     return path
@@ -523,7 +523,7 @@ def fetch_artifact_records(
     try:
         import duckdb
     except ImportError as exc:  # pragma: no cover - environment failure
-        raise DatabaseAccessError("duckdb is not installed for the visualization app.") from exc
+        raise DatabaseAccessError("duckdb is not installed for the SkillTrace app.") from exc
 
     try:
         connection = duckdb.connect(str(database), read_only=True)
@@ -608,7 +608,7 @@ def fetch_sibling_records(
     try:
         import duckdb
     except ImportError as exc:  # pragma: no cover - environment failure
-        raise DatabaseAccessError("duckdb is not installed for the visualization app.") from exc
+        raise DatabaseAccessError("duckdb is not installed for the SkillTrace app.") from exc
 
     try:
         connection = duckdb.connect(str(database), read_only=True)
@@ -675,7 +675,7 @@ def search_artifact_records(report: dict, query_text: str, limit: int = 25) -> l
     try:
         import duckdb
     except ImportError as exc:  # pragma: no cover - environment failure
-        raise DatabaseAccessError("duckdb is not installed for the visualization app.") from exc
+        raise DatabaseAccessError("duckdb is not installed for the SkillTrace app.") from exc
 
     try:
         connection = duckdb.connect(str(database), read_only=True)
@@ -1248,7 +1248,7 @@ def scan_diff(filename: str, base_id: int, derived_id: int):
     }
 
 def build_argument_parser() -> argparse.ArgumentParser:
-    """Build command-line options for the local visualization server."""
+    """Build command-line options for the local SkillTrace server."""
 
     parser = argparse.ArgumentParser(description="Run the local skill relationship explorer.")
     parser.add_argument(
@@ -1265,7 +1265,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> None:
-    """Run the visualization server with command-line database configuration."""
+    """Run the SkillTrace server with command-line database configuration."""
 
     args = build_argument_parser().parse_args(argv)
     configure_database_path(args.db)

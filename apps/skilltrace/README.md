@@ -1,6 +1,6 @@
-# Local skill relationship explorer
+# SkillTrace – GitSkills Similarity & Security Analyzer
 
-The viewer reads candidate-family reports only from `apps/visualization/reports/`.
+The viewer reads candidate-family reports only from `apps/skilltrace/reports/`.
 There is no report-directory environment variable. Only valid current
 `analyze_family` JSON reports are listed in the report dropdown.
 
@@ -11,7 +11,7 @@ repository root, using the project environment:
 
 ```sh
 uv sync --group dev
-python -m uvicorn apps.visualization:app --host 127.0.0.1 --port 8000
+python -m uvicorn apps.skilltrace:app --host 127.0.0.1 --port 8000
 ```
 
 Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C. Run the command from
@@ -20,7 +20,7 @@ the repository root.
 When a command-line database fallback is needed, use the package launcher:
 
 ```sh
-python -m apps.visualization --db C:/data/duckdb/agent_skills_release.db
+python -m apps.skilltrace --db C:/data/duckdb/agent_skills_release.db
 ```
 
 The `--db` option belongs to the package launcher; Uvicorn itself does not define that
@@ -28,7 +28,7 @@ custom option. `--host` and `--port` are also available through the package laun
 
 ## Reports
 
-The report dropdown reads JSON files directly from `apps/visualization/reports/`, but it
+The report dropdown reads JSON files directly from `apps/skilltrace/reports/`, but it
 remembers the last selected valid report in browser local storage, so a normal refresh
 restores the same report when it is still available. It
 only lists files that match the current `analyze_family` JSON format and can be
@@ -44,7 +44,7 @@ the viewer accepts both compact and verbose reports. Pass `--verbose` only when 
 diagnostic detail is needed. For example:
 
 ```sh
-analyze_family busybox-on-windows --json --output apps/visualization/reports
+analyze_family busybox-on-windows --json --output apps/skilltrace/reports
 ```
 
 The graph is built from the selected report. The viewer does not recalculate family
@@ -55,7 +55,7 @@ ancestry from DuckDB.
 The database path is selected in this order:
 
 1. `GITSKILLS_DB` when the environment variable is set
-2. `--db PATH` passed to `python -m apps.visualization`
+2. `--db PATH` passed to `python -m apps.skilltrace`
 3. the default path `C:/data/duckdb/agent_skills_release.db`
 
 This lets a user or script define its local database location once with `GITSKILLS_DB`
@@ -164,5 +164,5 @@ API documentation is available locally at `/docs`.
 Run from the repository root:
 
 ```sh
-python -m unittest apps.visualization.test_app
+python -m unittest apps.skilltrace.test_app
 ```
