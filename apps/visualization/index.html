@@ -16,8 +16,9 @@
   --orange:light-dark(#9b5b13,#eeba74);
   --purple:light-dark(#7951a8,#c3a5ee);
   --green:light-dark(#347a47,#76cf8d);
-  --gray:light-dark(#7d8792,#88929d);
-  --gold:light-dark(#8a6b00,#e5c64d);
+  --peer-line:light-dark(#b7c0c8,#a5afb9);
+  --related-peer:light-dark(#aab4be,#7f8b97);
+  --equivalent-peer:light-dark(#d9ca95,#b9ab78);
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
@@ -40,24 +41,26 @@ label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .line{display:inline-block;width:25px;border-top:2px solid var(--blue);vertical-align:middle;margin-right:6px}
 .chrono{border-color:var(--orange);border-top-style:dashed}
 .declared{border-color:var(--purple)}
-.ambiguous-line{border-color:var(--gray);border-top-style:dotted}
+.ambiguous-line{border-color:var(--peer-line);border-top-style:dotted}
 .dot{display:inline-block;width:12px;height:12px;border:2px solid var(--fg);border-radius:50%;vertical-align:-1px;margin-right:5px;background:var(--bg)}
 .dot.selected{background:var(--blue)}
 .dot.parent{background:var(--purple)}
 .dot.child{background:var(--green)}
-.dot.ambiguous{background:var(--gray)}
+.dot.related-peer{background:var(--related-peer)}
+.dot.equivalent-peer{background:var(--equivalent-peer)}
 #graph{display:block;width:100%;height:560px;border:1px solid var(--border);touch-action:none;background:var(--panel)}
 .edge{fill:none;stroke:var(--blue);stroke-width:1.4}
 .edge.chronology{stroke:var(--orange);stroke-dasharray:5 3}
 .edge.declared-source{stroke:var(--purple)}
-.edge.ambiguous{stroke:var(--gray);stroke-dasharray:2 5;stroke-width:1.5}
+.edge.ambiguous{stroke:var(--peer-line);stroke-dasharray:2 5;stroke-width:1.5}
 .edge.connected{stroke-width:2.8}
 .node{fill:var(--bg);stroke:var(--fg);stroke-width:1.5}
 .node.root{stroke-width:2.8}
 .node.selected{fill:var(--blue);stroke-width:3}
 .node.parent{fill:var(--purple);stroke-width:2.3}
 .node.child{fill:var(--green);stroke-width:2.3}
-.node.ambiguous-peer{fill:var(--gray);stroke-width:2}
+.node.undirected-peer{fill:var(--related-peer);stroke-width:2}
+.node.equivalent-peer{fill:var(--equivalent-peer);stroke:var(--fg);stroke-width:2}
 .compare-hover-ring{fill:none;stroke:#e53935;stroke-width:3;opacity:0;pointer-events:none;vector-effect:non-scaling-stroke}
 .compare-hover-ring.active{opacity:1}
 svg text{fill:var(--fg);font:13px system-ui}
@@ -160,14 +163,15 @@ th{background:var(--panel)}
 <div class="legend">
   <span><i class="line"></i>Containment →</span>
   <span><i class="line chrono"></i>Chronology →</span>
-  <span><i class="line declared"></i>Declared source →</span>
-  <span><i class="line ambiguous-line"></i>Ambiguous</span>
+  <span><i class="line declared"></i>Declared →</span>
+  <span><i class="line ambiguous-line"></i>No direction</span>
   <span><i class="dot selected"></i>Selected</span>
-  <span><i class="dot parent"></i>Direct parent</span>
-  <span><i class="dot child"></i>Direct child</span>
-  <span><i class="dot ambiguous"></i>Ambiguous peer</span>
+  <span><i class="dot parent"></i>Parent candidate</span>
+  <span><i class="dot child"></i>Derived candidate</span>
+  <span><i class="dot related-peer"></i>Related peer</span>
+  <span><i class="dot equivalent-peer"></i>Equivalent peer</span>
 </div>
-<p class="muted">Directed arrows are inferred parent → child, not proof of copying. Only ambiguous relationships connected to the selected artifact are drawn.</p>
+<p class="muted">Arrowheads show inferred earlier → later; gray peer lines have no direction. Node color distinguishes peer type.</p>
 <div class="actions">
   <button id="fit">Fit visible family</button>
   <button id="focus">Focus selected</button>
@@ -175,7 +179,7 @@ th{background:var(--panel)}
   <button id="minus" aria-label="Zoom out">−</button>
   <span id="visible" class="muted"></span>
 </div>
-<svg id="graph" role="img" aria-label="Interactive inferred parent-child graph. Ambiguous relationships are shown only for the selected artifact."><defs></defs><g id="marks"></g></svg>
+<svg id="graph" role="img" aria-label="Interactive inferred relationship graph. Peer relationships are shown for the selected artifact."><defs></defs><g id="marks"></g></svg>
 
 <section class="card" aria-label="Selected artifact details">
   <div id="selection-panels" class="selection-panels" hidden>
@@ -211,7 +215,7 @@ th{background:var(--panel)}
   </div>
   <div id="detail-content"></div>
   <h3>Directed connections</h3><div id="neighbors"></div>
-  <h3 id="ambiguous-heading">Ambiguous relationships</h3><div id="ambiguous-neighbors"></div>
+  <h3 id="ambiguous-heading">Peer relationships</h3><div id="ambiguous-neighbors"></div>
   <p id="edge-detail" aria-live="polite"></p>
 </section>
 <p id="limitations" class="muted"></p>
@@ -400,6 +404,20 @@ function resetCompareDropdown() {
   setCompareHover(null);
 }
 
+function comparisonLabel(item) {
+  const peers = ambiguousByNode.get(selected) || [];
+  const edge = peers.find(edge => {
+    const peer = Number(edge.left) === Number(selected) ? edge.right : edge.left;
+    return Number(peer) === Number(item.id);
+  });
+  if (!edge) return item.label;
+
+  const type = relationshipStatus(edge) === 'equivalent' ? 'equivalent' : 'related';
+  const base = String(item.label || `Artifact ${item.id}`)
+    .replace(/\s*\((?:ambiguous|equivalent|related)\)\s*$/i, '');
+  return `${base} (${type})`;
+}
+
 function renderCompareDropdown(comparisons, comparison) {
   const toggle = $('#compare-toggle');
   const menu = $('#compare-menu');
@@ -415,7 +433,7 @@ function renderCompareDropdown(comparisons, comparison) {
 
   toggle.disabled = false;
   const current = comparisons.find(item => Number(item.id) === Number(comparison?.id)) || comparisons[0];
-  toggle.textContent = current.label;
+  toggle.textContent = comparisonLabel(current);
 
   for (const item of comparisons) {
     const option = document.createElement('button');
@@ -423,13 +441,13 @@ function renderCompareDropdown(comparisons, comparison) {
     option.className = 'compare-option';
     option.setAttribute('role', 'option');
     option.setAttribute('aria-selected', String(Number(item.id) === Number(current.id)));
-    option.textContent = item.label;
+    option.textContent = comparisonLabel(item);
     option.addEventListener('mouseenter', () => setCompareHover(item.id));
     option.addEventListener('mouseleave', () => setCompareHover(null));
     option.addEventListener('focus', () => setCompareHover(item.id));
     option.addEventListener('blur', () => setCompareHover(null));
     option.addEventListener('click', () => {
-      toggle.textContent = item.label;
+      toggle.textContent = comparisonLabel(item);
       closeCompareMenu();
       loadDetails(Number(item.id));
     });
@@ -467,7 +485,7 @@ function renderReportSummary() {
     stat('Candidate family', meta.name),
     stat('Artifacts', meta.total.toLocaleString()),
     stat('Directed relationships', meta.directed.toLocaleString()),
-    stat('Ambiguous relationships', meta.ambiguous.toLocaleString()),
+    stat('Peer relationships', meta.ambiguous.toLocaleString()),
     stat('Clusters', meta.clustersTotal.toLocaleString())
   );
   holder.hidden = false;
@@ -483,9 +501,9 @@ async function loadReport() {
     meta = result;
     saveReport($('#report').value);
     renderReportSummary();
-    meta.clusters.forEach(cluster => $('#cluster').add(new Option(`Cluster ${cluster.id} · ${cluster.n} artifacts · ${cluster.e} directed · ${cluster.a} ambiguous`, cluster.id)));
+    meta.clusters.forEach(cluster => $('#cluster').add(new Option(`Cluster ${cluster.id} · ${cluster.n} artifacts · ${cluster.e} directed · ${cluster.a} peers`, cluster.id)));
     const unlisted = Math.max(0, meta.total - meta.referenced);
-    $('#limitations').textContent = `${meta.referenced.toLocaleString()} artifact IDs are drawable from this report${unlisted ? `; ${unlisted.toLocaleString()} reported artifacts do not have IDs in the family structure` : ''}. Horizontal position represents inferred steps, not elapsed time. Ambiguous relationships are contextual: only those touching the selected artifact are drawn. Artifact metadata, file content, sibling files, search, diffs, and scans query DuckDB only when requested.`;
+    $('#limitations').textContent = `${meta.referenced.toLocaleString()} artifact IDs are drawable from this report${unlisted ? `; ${unlisted.toLocaleString()} reported artifacts do not have IDs in the family structure` : ''}. Horizontal position represents inferred steps, not elapsed time. Peer relationships are contextual: only peers of the selected artifact are shown. Artifact metadata, file content, sibling files, search, diffs, and scans query DuckDB only when requested.`;
     if (!meta.clusters.length) {
       msg('This report has no family clusters to draw.');
       return;
@@ -616,13 +634,66 @@ function number(value, digits = 3) {
   return value === null || value === undefined ? 'unavailable' : Number(value).toFixed(digits);
 }
 
-function edgeText(edge) {
-  const evidence = edge.evidence?.length ? ` · evidence ${edge.evidence.join(', ')}` : '';
-  return `${edge.source} → ${edge.target} · ${edge.basis} · containment ${number(edge.containment)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}${evidence}`;
+function relationshipStatus(edge) {
+  if (edge.relationship_status) return edge.relationship_status;
+  if (edge.basis === 'provenance-conflict') return 'direction-conflict';
+  if (edge.change_type === 'equivalent') return 'equivalent';
+  return 'direction-unknown';
 }
 
-function ambiguousText(edge) {
-  return `${edge.left} ↔ ${edge.right} · ${edge.basis} · containment ${number(edge.containment_left_to_right)}/${number(edge.containment_right_to_left)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}`;
+function relationshipHeading(edge) {
+  const status = relationshipStatus(edge);
+  if (status === 'direction-conflict') return 'Conflicting direction evidence';
+  if (status === 'equivalent') return 'Equivalent artifacts — direction unknown';
+  return 'Related artifacts — direction unknown';
+}
+
+function relationshipLabel(edge) {
+  const status = relationshipStatus(edge);
+  if (status === 'direction-conflict') return 'Related — direction evidence conflicts';
+  if (status === 'equivalent') return 'Equivalent — direction unknown';
+  return 'Related — direction unknown';
+}
+
+function relationshipShortLabel(edge) {
+  const status = relationshipStatus(edge);
+  if (status === 'direction-conflict') return 'Conflict';
+  if (status === 'equivalent') return 'Equivalent';
+  return 'Unknown direction';
+}
+
+function basisText(basis) {
+  return ({
+    'containment': 'Containment',
+    'chronology': 'Chronology',
+    'repo-created-boundary': 'Repository creation boundary',
+    'equivalent-peer-chronology': 'Equivalent-peer chronology',
+    'equivalent-peer': 'Equivalent peer',
+    'direct': 'Direct',
+    'declared-source': 'Declared source',
+    'equivalent-state': 'Equivalent state',
+    'similarity-only': 'Similarity only',
+    'same-content-direction-unknown': 'Same content',
+    'provenance-conflict': 'Conflicting provenance',
+  })[basis] || basis || 'Unknown';
+}
+
+function inheritedChronology(edge) {
+  return Object.entries(edge.chronology || {})
+    .filter(([, value]) => value?.chronology_basis === 'equivalent-peer');
+}
+
+function edgeText(edge) {
+  const evidence = edge.evidence?.length ? ` · evidence ${edge.evidence.join(', ')}` : '';
+  const inherited = inheritedChronology(edge);
+  const chronology = inherited.length
+    ? ` · effective chronology ${inherited.map(([, value]) => `${dateText(value.effective_chronology)} via artifact ${value.chronology_source_artifact_id}`).join('; ')}`
+    : '';
+  return `${edge.source} → ${edge.target} · ${basisText(edge.basis)} · containment ${number(edge.containment)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}${evidence}${chronology}`;
+}
+
+function undirectedText(edge) {
+  return `${edge.left} ↔ ${edge.right} · ${relationshipShortLabel(edge)} · ${basisText(edge.basis)} · containment ${number(edge.containment_left_to_right)}/${number(edge.containment_right_to_left)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}`;
 }
 
 function currentVisibleIds() {
@@ -700,19 +771,29 @@ function draw({view='preserve'} = {}) {
   marks.replaceChildren();
   const selectedParents = new Set((parents.get(selected) || []).map(edge => edge.source));
   const selectedChildren = new Set((children.get(selected) || []).map(edge => edge.target));
-  const ambiguousPeers = new Set(ambiguous.map(edge => edge.left === selected ? edge.right : edge.left));
+  const equivalentPeers = new Set(
+    ambiguous
+      .filter(edge => relationshipStatus(edge) === 'equivalent')
+      .map(edge => edge.left === selected ? edge.right : edge.left)
+  );
+  const undirectedPeers = new Set(
+    ambiguous
+      .filter(edge => relationshipStatus(edge) !== 'equivalent')
+      .map(edge => edge.left === selected ? edge.right : edge.left)
+  );
 
   for (const edge of ambiguous) {
+    if (relationshipStatus(edge) === 'equivalent') continue;
     const a = pos.get(edge.left), b = pos.get(edge.right);
     const path = svgEl('path', {d: `M${a.x},${a.y}L${b.x},${b.y}`, class: 'edge ambiguous connected'});
-    const title = svgEl('title'); title.textContent = ambiguousText(edge); path.append(title);
-    path.onclick = () => $('#edge-detail').textContent = ambiguousText(edge);
+    const title = svgEl('title'); title.textContent = undirectedText(edge); path.append(title);
+    path.onclick = () => $('#edge-detail').textContent = undirectedText(edge);
     marks.append(path);
   }
 
   for (const edge of directed) {
     const a = pos.get(edge.source), b = pos.get(edge.target);
-    const basis = ['chronology','declared-source'].includes(edge.basis) ? edge.basis : 'containment';
+    const basis = edge.basis === 'declared-source' ? 'declared-source' : (['chronology','equivalent-peer-chronology','repo-created-boundary'].includes(edge.basis) ? 'chronology' : 'containment');
     const connected = edge.source === selected || edge.target === selected;
     const path = svgEl('path', {
       d: `M${a.x+9},${a.y}C${(a.x+b.x)/2},${a.y} ${(a.x+b.x)/2},${b.y} ${b.x-10},${b.y}`,
@@ -727,7 +808,14 @@ function draw({view='preserve'} = {}) {
   for (const [id, point] of pos) {
     const group = svgEl('g');
     const title = svgEl('title');
-    title.textContent = `Artifact ${id}${nodes.get(id)?.root ? ' · root candidate' : ''}`;
+    const roles = [];
+    if (id === selected) roles.push('selected');
+    if (nodes.get(id)?.root) roles.push('root candidate');
+    if (selectedParents.has(id)) roles.push('parent candidate');
+    if (selectedChildren.has(id)) roles.push('derived candidate');
+    if (equivalentPeers.has(id)) roles.push('equivalent peer');
+    else if (undirectedPeers.has(id)) roles.push('related peer');
+    title.textContent = `Artifact ${id}${roles.length ? ` · ${roles.join(' · ')}` : ''}`;
     group.dataset.artifactId = id;
     const hit = svgEl('circle', {cx: point.x, cy: point.y, r: 18, fill: 'transparent'});
     const hoverRing = svgEl('circle', {cx: point.x, cy: point.y, r: 14, class: `compare-hover-ring${id === hoveredCompareArtifactId ? ' active' : ''}`, 'data-artifact-id': id});
@@ -736,7 +824,8 @@ function draw({view='preserve'} = {}) {
     if (id === selected) classes.push('selected');
     else if (selectedParents.has(id)) classes.push('parent');
     else if (selectedChildren.has(id)) classes.push('child');
-    else if (ambiguousPeers.has(id)) classes.push('ambiguous-peer');
+    else if (equivalentPeers.has(id)) classes.push('equivalent-peer');
+    else if (undirectedPeers.has(id)) classes.push('undirected-peer');
     const circle = svgEl('circle', {cx: point.x, cy: point.y, r: id === selected ? 9 : 7, class: classes.join(' ')});
     const text = svgEl('text', {x: point.x+13, y: point.y-10}); text.textContent = id;
     group.append(title, hit, hoverRing, circle, text);
@@ -755,7 +844,13 @@ function draw({view='preserve'} = {}) {
   else if (view === 'focus') focusSelected();
   else graph.setAttribute('viewBox', box.join(' '));
 
-  $('#visible').textContent = `${ids.size} visible artifacts · ${directed.length} directed links · ${ambiguous.length} selected-node ambiguous link${ambiguous.length === 1 ? '' : 's'}${cyclic ? ' · cycle detected; layout is not a tree' : ''}`;
+  const equivalentCount = ambiguous.filter(edge => relationshipStatus(edge) === 'equivalent').length;
+  const unresolvedCount = ambiguous.length - equivalentCount;
+  const undirectedSummary = [
+    equivalentCount ? `${equivalentCount} equivalent` : '',
+    unresolvedCount ? `${unresolvedCount} unresolved` : '',
+  ].filter(Boolean).join(' · ');
+  $('#visible').textContent = `${ids.size} visible artifacts · ${directed.length} directed links${undirectedSummary ? ` · ${undirectedSummary}` : ''}${cyclic ? ' · cycle detected; layout is not a tree' : ''}`;
   const ps = parents.get(selected) || [], cs = children.get(selected) || [], as = ambiguousByNode.get(selected) || [];
   $('#edge-detail').textContent = '';
   renderNeighborButtons(ps, cs, as);
@@ -763,7 +858,7 @@ function draw({view='preserve'} = {}) {
 
 function renderNeighborButtons(ps, cs, ambiguous) {
   const holder = $('#neighbors'); holder.replaceChildren();
-  for (const [label, list, field] of [['Parent', ps, 'source'], ['Child', cs, 'target']]) {
+  for (const [label, list, field] of [['Parent candidate', ps, 'source'], ['Derived candidate', cs, 'target']]) {
     for (const edge of list) {
       const button = document.createElement('button');
       button.textContent = `${label} ${edge[field]}`;
@@ -772,15 +867,15 @@ function renderNeighborButtons(ps, cs, ambiguous) {
       holder.append(button);
     }
   }
-  if (!ps.length && !cs.length) holder.append(Object.assign(document.createElement('span'), {className:'empty', textContent:'No directed parent or child relationships for this artifact.'}));
+  if (!ps.length && !cs.length) holder.append(Object.assign(document.createElement('span'), {className:'empty', textContent:'No directed relationships for this artifact.'}));
 
   const ambiguousHolder = $('#ambiguous-neighbors'); ambiguousHolder.replaceChildren();
   for (const edge of ambiguous) {
     const peer = edge.left === selected ? edge.right : edge.left;
     const button = document.createElement('button');
-    button.textContent = `Artifact ${peer}`;
-    button.title = ambiguousText(edge);
-    button.onclick = () => { select(peer); $('#edge-detail').textContent = ambiguousText(edge); };
+    button.textContent = `${relationshipShortLabel(edge)} ${peer}`;
+    button.title = undirectedText(edge);
+    button.onclick = () => { select(peer); $('#edge-detail').textContent = undirectedText(edge); };
     ambiguousHolder.append(button);
   }
   $('#ambiguous-heading').hidden = !ambiguous.length;
@@ -793,6 +888,35 @@ function valueText(value) {
   if (Array.isArray(value)) return value.length ? value.join(', ') : 'none';
   if (typeof value === 'object') return JSON.stringify(value, null, 2);
   return String(value);
+}
+
+function dateText(value) {
+  if (value === null || value === undefined || value === '') return 'Unknown';
+  const text = String(value).trim();
+  const match = text.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?/);
+  if (!match) return text;
+  const timezone = match[3] ? ` ${match[3]}` : '';
+  return `${match[1]} ${match[2]}${timezone}`;
+}
+
+function commitHistoryText(value) {
+  if (value === null || value === undefined || value === '') return 'Unknown';
+  if (value === true || value === 1 || String(value).toLowerCase() === 'true' || String(value) === '1') return 'Fetched';
+  if (value === false || value === 0 || String(value).toLowerCase() === 'false' || String(value) === '0') return 'Not fetched';
+  return String(value);
+}
+
+function artifactFieldText(key, value) {
+  if (key === 'repo_created_at' || key === 'first_commit_at' || key === 'last_commit_at') return dateText(value);
+  if (key === 'history_fetched') return commitHistoryText(value);
+  if (key === 'commit_count' && (value === null || value === undefined || value === '')) return 'Unknown';
+  return value;
+}
+
+function evidenceText(value) {
+  if (Array.isArray(value) && !value.length) return 'None recorded';
+  if (value === null || value === undefined || value === '') return 'None recorded';
+  return value;
 }
 
 function addKv(container, label, value) {
@@ -817,10 +941,31 @@ async function copyText(text, button) {
 
 const PRIMARY_FIELDS = [
   ['id','Artifact ID'],['name','Name'],['description','Description'],
-  ['repo_full_name','Repository'],['path','Path'],['first_commit_at','First commit'],['last_commit_at','Last commit'],
-  ['commit_count','Commit count'],['artifact_sibling_count','Artifact Sibling Count'],['file_sha','File SHA'],
+  ['repo_full_name','Repository'],['path','Path'],['repo_created_at','Repo created'],
+  ['artifact_sibling_count','Artifact Sibling Count'],['file_sha','File SHA'],
   ['body_chars','Body characters'],['location_class','Location class'],['group_id','Artifact group']
 ];
+
+const COMMIT_FIELDS = [
+  'history_fetched','first_commit_at','last_commit_at','commit_count',
+  'first_commit_author','first_commit_type','first_commit_message',
+  'last_commit_author','last_commit_type','last_commit_message'
+];
+
+function effectiveChronologyFor(artifact) {
+  if (!artifact) return { value: null, basis: null, source: null };
+  if (artifact.effective_chronology) {
+    return {
+      value: artifact.effective_chronology,
+      basis: artifact.chronology_basis || null,
+      source: artifact.chronology_source_artifact_id || null,
+    };
+  }
+  if (artifact.first_commit_at) {
+    return { value: artifact.first_commit_at, basis: 'direct', source: null };
+  }
+  return { value: null, basis: null, source: null };
+}
 
 function artifactBox(title, artifact) {
   const box = document.createElement('section'); box.className = 'meta-box';
@@ -838,11 +983,33 @@ function artifactBox(title, artifact) {
   const dl = document.createElement('dl'); dl.className = 'kv';
   const shown = new Set();
   for (const [key, label] of PRIMARY_FIELDS) {
-    if (artifact && artifact[key] !== undefined && artifact[key] !== null) { addKv(dl, label, artifact[key]); shown.add(key); }
+    const value = artifact ? artifact[key] : null;
+    if (value !== undefined && value !== null && value !== '') {
+      addKv(dl, label, artifactFieldText(key, value));
+      shown.add(key);
+    }
   }
+
+  addKv(dl, 'Commit history', commitHistoryText(artifact?.history_fetched));
+  for (const key of COMMIT_FIELDS) shown.add(key);
+
+  const chronology = effectiveChronologyFor(artifact);
+  addKv(dl, 'Effective chronology', dateText(chronology.value));
+  addKv(dl, 'Chronology basis', chronology.basis ? basisText(chronology.basis) : 'Unknown');
+  if (chronology.source) {
+    addKv(dl, 'Chronology source', `Artifact ${chronology.source}`);
+  } else if (!chronology.value) {
+    addKv(dl, 'Chronology source', 'Unknown');
+  }
+  shown.add('effective_chronology');
+  shown.add('chronology_basis');
+  shown.add('chronology_source_artifact_id');
   box.append(dl);
 
-  const hiddenMetadata = new Set(['normalized_description', 'filename']);
+  const hiddenMetadata = new Set([
+    'normalized_description', 'filename', 'effective_chronology',
+    'chronology_basis', 'chronology_source_artifact_id'
+  ]);
   const extras = Object.entries(artifact || {}).filter(([key, value]) => !shown.has(key) && key !== 'id' && !hiddenMetadata.has(key) && value !== null && value !== undefined && value !== '');
   if (extras.length) {
     const details = document.createElement('details'); details.className = 'metadata';
@@ -854,14 +1021,32 @@ function artifactBox(title, artifact) {
   return box;
 }
 
+function addInheritedChronology(dl, relationship) {
+  const inherited = inheritedChronology(relationship);
+  if (!inherited.length) return;
+
+  for (const [side, value] of inherited) {
+    const prefix = inherited.length > 1
+      ? (side === 'source' ? 'Base ' : 'Derived ')
+      : '';
+    addKv(dl, `${prefix}Effective chronology`, dateText(value.effective_chronology));
+    addKv(dl, `${prefix}Chronology basis`, 'Equivalent peer');
+    addKv(dl, `${prefix}Chronology source`, `Artifact ${value.chronology_source_artifact_id}`);
+  }
+}
+
 function relationshipBox(relationship, base, derived) {
   const box = document.createElement('section'); box.className = 'meta-box relationship';
-  const heading = document.createElement('h3'); heading.textContent = 'Base → Derived relationship'; box.append(heading);
+  const equivalent = relationship.change_type === 'equivalent';
+  const heading = document.createElement('h3'); heading.textContent = equivalent ? 'Equivalent artifacts' : 'Directed relationship'; box.append(heading);
   const copies = document.createElement('div'); copies.className = 'copy-actions';
   const copyPair = document.createElement('button'); copyPair.textContent = 'Copy Base → Derived IDs'; copyPair.onclick = () => copyText(`${relationship.source} → ${relationship.target}`, copyPair); copies.append(copyPair); box.append(copies);
   const dl = document.createElement('dl'); dl.className = 'kv';
-  addKv(dl, 'Base → derived', `${relationship.source} → ${relationship.target}`);
-  addKv(dl, 'Basis', relationship.basis);
+  addKv(dl, 'Relationship', equivalent ? 'Equivalent — direction known' : 'Directed parent → child');
+  addKv(dl, equivalent ? 'Direction' : 'Base → derived', `${relationship.source} → ${relationship.target}`);
+  addKv(dl, 'Basis', basisText(relationship.basis));
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
+  addInheritedChronology(dl, relationship);
   addKv(dl, 'Change type', relationship.change_type);
   addKv(dl, 'Containment', relationship.containment === null || relationship.containment === undefined ? null : Number(relationship.containment).toFixed(4));
   addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
@@ -875,17 +1060,18 @@ function relationshipBox(relationship, base, derived) {
   const extra = document.createElement('dl'); extra.className = 'kv';
   addKv(extra, 'Same artifact group', relationship.same_artifact_group);
   addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
-  addKv(extra, 'Direction evidence', relationship.evidence);
   details.append(summary, extra); box.append(details);
   return box;
 }
 
-function ambiguousRelationshipBox(relationship, compareArtifact, selectedArtifact) {
+function undirectedRelationshipBox(relationship, compareArtifact, selectedArtifact) {
   const box = document.createElement('section'); box.className = 'meta-box relationship';
-  const heading = document.createElement('h3'); heading.textContent = 'Ambiguous comparison'; box.append(heading);
+  const heading = document.createElement('h3'); heading.textContent = relationshipHeading(relationship); box.append(heading);
   const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', relationshipLabel(relationship));
   addKv(dl, 'Artifacts', `${compareArtifact.id} ↔ ${selectedArtifact.id}`);
-  addKv(dl, 'Basis', relationship.basis);
+  addKv(dl, 'Basis', basisText(relationship.basis));
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
   addKv(dl, 'Change type', relationship.change_type);
   addKv(dl, 'Containment left → right', relationship.containment_left_to_right === null || relationship.containment_left_to_right === undefined ? null : Number(relationship.containment_left_to_right).toFixed(4));
   addKv(dl, 'Containment right → left', relationship.containment_right_to_left === null || relationship.containment_right_to_left === undefined ? null : Number(relationship.containment_right_to_left).toFixed(4));
@@ -900,7 +1086,6 @@ function ambiguousRelationshipBox(relationship, compareArtifact, selectedArtifac
   const extra = document.createElement('dl'); extra.className = 'kv';
   addKv(extra, 'Same artifact group', relationship.same_artifact_group);
   addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
-  addKv(extra, 'Evidence', relationship.evidence);
   details.append(summary, extra); box.append(details);
   return box;
 }
@@ -946,11 +1131,19 @@ function updateComparisonActions() {
     : (hasComparison ? '' : 'A comparison artifact is required for a sibling diff.');
 
   if (!hasComparison) {
-    $('#compare-note').textContent = 'No parent or unresolved ambiguous artifact is available for comparison.';
+    $('#compare-note').textContent = 'No parent or undirected artifact is available for comparison.';
   } else if (comparison.kind === 'parent') {
     $('#compare-note').textContent = 'Parent comparison: the selected artifact is the derived side. File diff, sibling diff, and scan diff are available.';
   } else {
-    $('#compare-note').textContent = 'Ambiguous comparison: lineage direction is unresolved. File and sibling diffs are available; scan diff is disabled because it requires Base → Derived direction.';
+    const relationship = currentDetails?.ambiguous_relationship || {};
+    const status = relationshipStatus(relationship);
+    if (status === 'equivalent') {
+      $('#compare-note').textContent = 'Equivalent artifacts: content is equivalent, but direction is unknown. File and sibling diffs are available.';
+    } else if (status === 'direction-conflict') {
+      $('#compare-note').textContent = 'Direction evidence conflicts. File and sibling diffs are available; scan diff is disabled because Base → Derived direction is unresolved.';
+    } else {
+      $('#compare-note').textContent = 'Related artifacts: direction is unresolved. File and sibling diffs are available; scan diff is disabled because Base → Derived direction is unknown.';
+    }
   }
 }
 
@@ -995,7 +1188,7 @@ function renderDetails(result) {
   if (result.compare_artifact && result.comparison) {
     const leftTitle = result.comparison.kind === 'parent'
       ? `Parent / base ${result.compare_artifact.id}`
-      : `Ambiguous comparison ${result.compare_artifact.id}`;
+      : `${relationshipShortLabel(result.ambiguous_relationship || {})} ${result.compare_artifact.id}`;
     grid.append(artifactBox(leftTitle, result.compare_artifact));
   }
   grid.append(artifactBox(result.relationship ? `Derived / selected ${result.artifact.id}` : `Selected artifact ${result.artifact.id}`, result.artifact));
@@ -1004,10 +1197,10 @@ function renderDetails(result) {
   if (result.relationship && result.compare_artifact) {
     content.append(relationshipBox(result.relationship, result.compare_artifact, result.artifact));
   } else if (result.ambiguous_relationship && result.compare_artifact) {
-    content.append(ambiguousRelationshipBox(result.ambiguous_relationship, result.compare_artifact, result.artifact));
+    content.append(undirectedRelationshipBox(result.ambiguous_relationship, result.compare_artifact, result.artifact));
   } else {
     const note = document.createElement('p'); note.className = 'warning';
-    note.textContent = 'No parent or unresolved ambiguous artifact is available for comparison.';
+    note.textContent = 'No parent or undirected artifact is available for comparison.';
     content.append(note);
   }
 

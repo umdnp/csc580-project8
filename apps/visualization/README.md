@@ -1,6 +1,6 @@
 # Local skill relationship explorer
 
-The viewer reads candidate-family reports only from `visualization/reports/`.
+The viewer reads candidate-family reports only from `apps/visualization/reports/`.
 There is no report-directory environment variable. Only valid current
 `analyze_family` JSON reports are listed in the report dropdown.
 
@@ -11,18 +11,24 @@ repository root, using the project environment:
 
 ```sh
 uv sync --group dev
-python -m uvicorn visualization.app:app --host 127.0.0.1 --port 8000
+python -m uvicorn apps.visualization:app --host 127.0.0.1 --port 8000
 ```
 
-Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C.
+Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C. Run the command from
+the repository root.
 
-Run the command from the repository root. If your shell is already inside the
-`visualization` directory, the equivalent import path is `app:app` rather than
-`visualization.app:app`.
+When a command-line database fallback is needed, use the package launcher:
+
+```sh
+python -m apps.visualization --db C:/data/duckdb/agent_skills_release.db
+```
+
+The `--db` option belongs to the package launcher; Uvicorn itself does not define that
+custom option. `--host` and `--port` are also available through the package launcher.
 
 ## Reports
 
-The report dropdown reads JSON files directly from `visualization/reports/`, but it
+The report dropdown reads JSON files directly from `apps/visualization/reports/`, but it
 remembers the last selected valid report in browser local storage, so a normal refresh
 restores the same report when it is still available. It
 only lists files that match the current `analyze_family` JSON format and can be
@@ -30,11 +36,15 @@ loaded successfully. Malformed JSON, `scan_family` output, older prototype forma
 and unrelated JSON files are ignored.
 
 `analyze_family` reports contain the family clusters, directed evolution edges,
-ambiguous relationships, similarity metrics, and root candidates used by the graph.
-For example:
+peer relationships, root candidates, and equivalent-peer chronology proxies used by
+the graph and detail panels. The default compact report is the normal visualization
+format. Verbose diagnostic collections such as the full pairwise similarity matrix,
+artifact groups, variants, provenance listings, and artifact metadata are optional;
+the viewer accepts both compact and verbose reports. Pass `--verbose` only when that
+diagnostic detail is needed. For example:
 
 ```sh
-analyze_family busybox-on-windows --json --verbose --output visualization/reports
+analyze_family busybox-on-windows --json --output apps/visualization/reports
 ```
 
 The graph is built from the selected report. The viewer does not recalculate family
@@ -42,17 +52,20 @@ ancestry from DuckDB.
 
 ## DuckDB access
 
-The viewer uses this database by default:
+The database path is selected in this order:
 
-```text
-C:/data/duckdb/agent_skills_release.db
-```
+1. `GITSKILLS_DB` when the environment variable is set
+2. `--db PATH` passed to `python -m apps.visualization`
+3. the default path `C:/data/duckdb/agent_skills_release.db`
 
-If `GITSKILLS_DB` is set, its value overrides the default. DuckDB is opened read-only.
-The active database path and health are shown at the bottom of the viewer.
+This lets a user or script define its local database location once with `GITSKILLS_DB`
+without having a command-line path accidentally override that configuration.
+
+DuckDB is opened read-only. The active database path, configuration source, and health
+are shown at the bottom of the viewer.
 
 The browser polls `/api/health` every 30 seconds. The health check opens DuckDB
-read-only and verifies that the `artifacts` and `artifact_siblings` tables are
+read-only and verifies that the `artifacts`, `artifact_siblings`, and `repos` tables are
 accessible. If access is lost, the viewer opens a compact centered warning dialog.
 If the user closes that dialog while DuckDB is still unavailable, the next 30-second
 health check opens it again. The dialog closes automatically if a later health check
@@ -73,11 +86,11 @@ NOT NULL`. Directory entries and files whose content was not stored are excluded
 
 ## Graph behavior
 
-Directed ancestry edges are always shown for the current view. Ambiguous edges are
-contextual: only ambiguous relationships connected to the selected artifact are
-drawn. Selecting another node replaces those ambiguous edges with that node's
-ambiguous relationships. This keeps large families readable without discarding the
-uncertainty recorded in the report.
+Directed ancestry edges are always shown for the current view. Peer relationships are
+contextual: only peers connected to the selected artifact are shown. Related peers
+with unknown direction use a gray dotted line; equivalent peers are identified by
+node color without an additional line. Selecting another node updates those peer
+relationships.
 
 The **View** dropdown uses **Direct relationships** for the selected artifact's
 immediate relationships and **Direct and indirect relationships** for the broader
@@ -96,9 +109,9 @@ Selecting an artifact opens a three-panel action area:
   lines and provides **View content**. The candidate-family name is not repeated here
   because it is already shown in the report summary above the graph.
 - **Compare To** lists directed parent artifact(s) first and labels them `(parent)`.
-  Unresolved ambiguous peers are listed afterward and labeled `(ambiguous)`. A peer
+  Peer comparisons are listed afterward as `(equivalent)` or `(related)`. A peer
   that already has a directed lineage relationship to the selected artifact is not
-  repeated as ambiguous.
+  repeated.
 - **Artifact Siblings** lists the selected artifact's content-bearing file siblings by
   `entry_name`. Database IDs are not displayed. **View content** opens the
   selected sibling file even when there is no comparison target. If none exist, the
@@ -122,9 +135,18 @@ file, its pane says `No such file for this artifact.` while the existing side sh
 its contents and the addition/removal highlighting.
 
 The metadata display uses **Artifact Sibling Count**, computed from the same filtered
-`artifact_siblings` rows used by the sibling dropdown. Normalized description is omitted
-from artifact comparison metadata because the human-readable description is already shown,
-and filename is omitted because the full path already includes it. The older `Has scripts` and
+`artifact_siblings` rows used by the sibling dropdown. When direction relies on an
+equivalent peer's observed chronology, the relationship panel also shows the
+effective chronology, its `equivalent-peer` basis, and the artifact that supplied
+that date. When commit history is available, comparison panels show the available commit-history
+fields. When commit chronology is unavailable, the panel instead shows **Effective
+chronology**, **Chronology basis**, and **Chronology source** from an equivalent peer when
+that proxy exists; otherwise those proxy values are shown as `Unknown`. `Repo created`
+comes from the `repos` table. Dates preserve the available timestamp precision, including
+time and timezone when present. Relationship panels surface the relationship type, basis,
+and direction evidence recorded by `analyze_family`. Normalized description is omitted from
+artifact comparison metadata because the human-readable description is already shown, and
+filename is omitted because the full path already includes it. The older `Has scripts` and
 `Has references` fields are not displayed.
 
 Useful artifact identifiers and Base -> Derived IDs have copy buttons. Long metadata
@@ -142,5 +164,5 @@ API documentation is available locally at `/docs`.
 Run from the repository root:
 
 ```sh
-python -m unittest visualization.test_app
+python -m unittest apps.visualization.test_app
 ```

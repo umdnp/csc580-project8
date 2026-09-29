@@ -1,15 +1,20 @@
 """Local explorer for analyze_family candidate-family JSON reports.
 
 From the repository root:
-    python -m uvicorn visualization.app:app --host 127.0.0.1 --port 8000
+    python -m uvicorn apps.visualization:app --host 127.0.0.1 --port 8000
 
-Reports are always read from visualization/reports. Artifact metadata and content
-come from $GITSKILLS_DB when it is set, otherwise from the default project DB.
+Or use the package launcher when a --db fallback is needed:
+    python -m apps.visualization --db C:/data/duckdb/agent_skills_release.db
+
+Reports are always read from apps/visualization/reports. Artifact metadata and
+content use $GITSKILLS_DB when set, then --db when provided through the package
+launcher, then the default project DB path.
 The application opens DuckDB read-only and never executes artifact content.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -23,7 +28,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 
 HERE = Path(__file__).resolve().parent
-PROJECT_ROOT = HERE.parent
+PROJECT_ROOT = HERE.parents[1]
 SRC_DIR = PROJECT_ROOT / "src"
 if SRC_DIR.is_dir() and str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -34,21 +39,56 @@ REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
 DB_ENV = "GITSKILLS_DB"
 
-app = FastAPI(title="Skill relationship explorer", version="0.4.0")
+app = FastAPI(title="Skill relationship explorer", version="0.5.1")
 _lock = Lock()
 _cached_key: tuple[Path, int, int] | None = None
 _cached_report: dict | None = None
+_database_path_override: Path | None = None
 
 
 class DatabaseAccessError(RuntimeError):
     """Raised when artifact data cannot be read from DuckDB."""
 
 
+def configure_database_path(value: str | Path | None) -> None:
+    """Set or clear the command-line DuckDB path fallback."""
+
+    global _database_path_override
+    _database_path_override = Path(value).expanduser() if value else None
+
+
 def database_path() -> Path:
     """Return the configured GitSkills DuckDB path."""
 
     value = os.getenv(DB_ENV)
-    return Path(value).expanduser() if value else Path(DEFAULT_DB_PATH)
+    if value:
+        return Path(value).expanduser()
+    if _database_path_override is not None:
+        return _database_path_override
+    return Path(DEFAULT_DB_PATH)
+
+
+def database_source() -> str:
+    """Return the configuration source used for the active database path."""
+
+    if os.getenv(DB_ENV):
+        return DB_ENV
+    if _database_path_override is not None:
+        return "--db"
+    return "default"
+
+
+
+
+def database_source_label() -> str:
+    """Return a human-readable label for the active database configuration source."""
+
+    source = database_source()
+    if source == "--db":
+        return "--db"
+    if source == DB_ENV:
+        return f"${DB_ENV}"
+    return "default path"
 
 
 def database_status() -> dict:
@@ -57,7 +97,7 @@ def database_status() -> dict:
     path = database_path()
     return {
         "path": str(path),
-        "source": DB_ENV if os.getenv(DB_ENV) else "default",
+        "source": database_source(),
         "exists": path.exists(),
     }
 
@@ -79,6 +119,7 @@ def database_health() -> dict:
         connection = duckdb.connect(str(database_path()), read_only=True)
         connection.execute("SELECT 1 FROM artifacts LIMIT 1").fetchone()
         connection.execute("SELECT 1 FROM artifact_siblings LIMIT 1").fetchone()
+        connection.execute("SELECT 1 FROM repos LIMIT 1").fetchone()
     except Exception as exc:  # pragma: no cover - depends on external DB state
         return {**status, "available": False, "error": str(exc)}
     finally:
@@ -89,13 +130,13 @@ def database_health() -> dict:
 
 
 def report_path(filename: str) -> Path:
-    """Restrict requests to JSON files directly inside visualization/reports."""
+    """Restrict requests to JSON files directly inside apps/visualization/reports."""
 
     if Path(filename).name != filename or "/" in filename or "\\" in filename:
         raise HTTPException(400, "Use a report filename, not a path.")
     path = (REPORT_DIR / filename).resolve()
     if path.parent != REPORT_DIR or path.suffix.lower() != ".json":
-        raise HTTPException(400, "Only JSON reports in visualization/reports are allowed.")
+        raise HTTPException(400, "Only JSON reports in apps/visualization/reports are allowed.")
     if not path.is_file():
         raise HTTPException(404, "Report not found.")
     return path
@@ -117,19 +158,22 @@ def _is_analyze_family_report(raw: object) -> bool:
     if not isinstance(raw, dict):
         return False
 
-    required_collections = {
-        "groups": list,
-        "skill_variants": list,
-        "bundle_variants": list,
-        "provenance": list,
-        "similarities": list,
-    }
     if not isinstance(raw.get("name"), str) or not raw["name"].strip():
         return False
     if not isinstance(raw.get("policy"), dict) or not isinstance(raw.get("summary"), dict):
         return False
-    if any(not isinstance(raw.get(key), expected) for key, expected in required_collections.items()):
-        return False
+
+    # Compact analyze_family reports intentionally omit verbose diagnostic
+    # collections. When present, validate their types; do not require them.
+    for key in (
+        "groups",
+        "skill_variants",
+        "bundle_variants",
+        "provenance",
+        "chronology_proxies",
+    ):
+        if key in raw and not isinstance(raw.get(key), list):
+            return False
 
     summary = raw["summary"]
     for key in ("artifact_count", "cluster_count", "directed_edge_count", "ambiguous_edge_count"):
@@ -139,7 +183,9 @@ def _is_analyze_family_report(raw: object) -> bool:
     family = raw.get("family")
     if not isinstance(family, dict):
         return False
-    if not isinstance(family.get("artifact_ids"), list) or not isinstance(family.get("clusters"), list):
+    if not isinstance(family.get("clusters"), list):
+        return False
+    if "artifact_ids" in family and not isinstance(family.get("artifact_ids"), list):
         return False
 
     for cluster in family["clusters"]:
@@ -185,6 +231,7 @@ def _normalize_directed_edge(edge: dict) -> dict:
         "evidence": list(edge.get("evidence") or []),
         "shared_group_ids": list(edge.get("shared_group_ids") or []),
         "same_artifact_group": bool(edge.get("same_artifact_group", False)),
+        "chronology": edge.get("chronology") or None,
     }
 
 
@@ -247,6 +294,19 @@ def _family_artifact_metadata(raw: dict) -> dict[int, dict]:
             metadata[int(artifact_id)]["declared_provenance"] = {
                 key: value for key, value in provenance.items() if key != "artifact_id"
             }
+
+    for proxy in raw.get("chronology_proxies") or []:
+        artifact_id = proxy.get("artifact_id")
+        if artifact_id is not None:
+            metadata[int(artifact_id)].update(
+                {
+                    "effective_chronology": proxy.get("effective_chronology"),
+                    "chronology_basis": proxy.get("chronology_basis"),
+                    "chronology_source_artifact_id": proxy.get(
+                        "chronology_source_artifact_id"
+                    ),
+                }
+            )
 
     for artifact in raw.get("artifacts") or []:
         artifact_id = artifact.get("artifact_id")
@@ -415,6 +475,7 @@ _ARTIFACT_FIELDS = (
     "description",
     "body_chars",
     "dedup_primary",
+    "history_fetched",
     "first_commit_at",
     "last_commit_at",
     "commit_count",
@@ -442,7 +503,7 @@ def fetch_artifact_records(
 
     database = database_path()
     if not database.exists():
-        source = f"${DB_ENV}" if os.getenv(DB_ENV) else "default path"
+        source = database_source_label()
         raise DatabaseAccessError(f"DuckDB database not found at {database} ({source}).")
 
     try:
@@ -469,18 +530,52 @@ def fetch_artifact_records(
         placeholders = ", ".join("?" for _ in ids)
         query = f"SELECT {quoted} FROM artifacts WHERE id IN ({placeholders})"
         rows = connection.execute(query, list(ids)).fetchall()
+
+        records = {}
+        for row in rows:
+            record = {field: _json_value(value) for field, value in zip(fields, row)}
+            records[int(record["id"])] = record
+
+        # Repository creation time is useful context for ancestry, but it is
+        # repository-level metadata rather than an artifact field. Treat it as
+        # optional so older/incomplete databases still return artifact details.
+        repo_ids = sorted(
+            {
+                int(record["repo_id"])
+                for record in records.values()
+                if record.get("repo_id") is not None
+            }
+        )
+        if repo_ids:
+            try:
+                repo_cursor = connection.execute("SELECT * FROM repos LIMIT 0")
+                repo_columns = {column[0] for column in repo_cursor.description}
+                if {"id", "created_at"}.issubset(repo_columns):
+                    repo_placeholders = ", ".join("?" for _ in repo_ids)
+                    repo_rows = connection.execute(
+                        f"SELECT id, created_at FROM repos WHERE id IN ({repo_placeholders})",
+                        repo_ids,
+                    ).fetchall()
+                    repo_created = {
+                        int(repo_id): _json_value(created_at)
+                        for repo_id, created_at in repo_rows
+                    }
+                    for record in records.values():
+                        repo_id = record.get("repo_id")
+                        if repo_id is not None:
+                            record["repo_created_at"] = repo_created.get(int(repo_id))
+            except Exception:
+                # Keep artifact metadata usable even when repository metadata is
+                # unavailable. The UI will display Repo created as Unknown.
+                pass
+
+        return records
     except DatabaseAccessError:
         raise
     except Exception as exc:  # pragma: no cover - depends on external DB state
         raise DatabaseAccessError(f"Unable to query artifacts table: {exc}") from exc
     finally:
         connection.close()
-
-    records = {}
-    for row in rows:
-        record = {field: _json_value(value) for field, value in zip(fields, row)}
-        records[int(record["id"])] = record
-    return records
 
 
 def fetch_sibling_records(
@@ -493,7 +588,7 @@ def fetch_sibling_records(
 
     database = database_path()
     if not database.exists():
-        source = f"${DB_ENV}" if os.getenv(DB_ENV) else "default path"
+        source = database_source_label()
         raise DatabaseAccessError(f"DuckDB database not found at {database} ({source}).")
 
     try:
@@ -560,7 +655,7 @@ def search_artifact_records(report: dict, query_text: str, limit: int = 25) -> l
 
     database = database_path()
     if not database.exists():
-        source = f"${DB_ENV}" if os.getenv(DB_ENV) else "default path"
+        source = database_source_label()
         raise DatabaseAccessError(f"DuckDB database not found at {database} ({source}).")
 
     try:
@@ -682,7 +777,7 @@ def _ambiguous_for(cluster: dict, artifact_id: int) -> list[dict]:
 
 
 def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
-    """Return parent comparisons first, then unresolved ambiguous peers."""
+    """Return parent comparisons first, then undirected peer relationships."""
 
     parents = _parents(cluster, artifact_id)
 
@@ -714,11 +809,16 @@ def _comparison_candidates(cluster: dict, artifact_id: int) -> list[dict]:
         peer = edge["right"] if edge["left"] == artifact_id else edge["left"]
         if peer in lineage_peers:
             continue
+        peer_type = (
+            "equivalent"
+            if edge.get("change_type") == "equivalent"
+            else "related"
+        )
         candidates.append(
             {
                 "id": peer,
                 "kind": "ambiguous",
-                "label": f"Artifact {peer} (ambiguous)",
+                "label": f"Artifact {peer} ({peer_type})",
                 "relationship": edge,
             }
         )
@@ -744,7 +844,7 @@ def _directed_relationship(report: dict, source: int, target: int) -> dict:
     raise HTTPException(
         400,
         "The selected pair is not a directed parent-child relationship in this report. "
-        "Ambiguous relationships cannot be diffed or scanned.",
+        "Peer relationships cannot be scanned without a direction.",
     )
 
 
@@ -1117,3 +1217,34 @@ def scan_diff(filename: str, base_id: int, derived_id: int):
         "relationship": relationship,
         "scan_diff": payload,
     }
+
+def build_argument_parser() -> argparse.ArgumentParser:
+    """Build command-line options for the local visualization server."""
+
+    parser = argparse.ArgumentParser(description="Run the local skill relationship explorer.")
+    parser.add_argument(
+        "--db",
+        metavar="PATH",
+        help=(
+            "GitSkills DuckDB path used when $GITSKILLS_DB is not set. "
+            f"Falls back to {DEFAULT_DB_PATH} when neither is provided."
+        ),
+    )
+    parser.add_argument("--host", default="127.0.0.1", help="Server host (default: 127.0.0.1).")
+    parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000).")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Run the visualization server with command-line database configuration."""
+
+    args = build_argument_parser().parse_args(argv)
+    configure_database_path(args.db)
+
+    import uvicorn
+
+    uvicorn.run(app, host=args.host, port=args.port)
+
+
+if __name__ == "__main__":
+    main()
