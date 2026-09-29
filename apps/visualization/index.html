@@ -118,6 +118,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .dialog-shell{display:flex;flex-direction:column;height:100%}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
 .dialog-head h2{margin:0}
+.dialog-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .dialog-body{padding:14px 16px;overflow:auto;min-height:0;flex:1}
 .content-meta{font-size:13px;color:var(--muted);margin-bottom:10px;overflow-wrap:anywhere}
 .file-content{margin:0;border:1px solid var(--border);border-radius:6px;padding:12px;min-height:300px;height:calc(100% - 38px);overflow:auto;white-space:pre;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--panel)}
@@ -226,7 +227,7 @@ th{background:var(--panel)}
 
 <dialog id="content-dialog">
   <div class="dialog-shell">
-    <div class="dialog-head"><h2 id="content-title">File contents</h2><button data-close="content-dialog">Close</button></div>
+    <div class="dialog-head"><h2 id="content-title">File contents</h2><div class="dialog-actions"><button id="content-copy" disabled>Copy Contents</button><button data-close="content-dialog">Close</button></div></div>
     <div class="dialog-body"><div id="content-meta" class="content-meta"></div><pre id="content-text" class="file-content">Loading…</pre></div>
   </div>
 </dialog>
@@ -1268,18 +1269,28 @@ function artifactDisplay(artifact) {
 
 async function openArtifactContent() {
   if (selected === null) return;
+  const artifactId = selected;
   const dialog = $('#content-dialog');
-  $('#content-title').textContent = `File contents · artifact ${selected}`;
+  const copyButton = $('#content-copy');
+  $('#content-title').textContent = `File contents · artifact ${artifactId}`;
   $('#content-meta').textContent = '';
   $('#content-text').textContent = 'Loading…';
+  copyButton.disabled = true;
+  copyButton.textContent = 'Copy Contents';
+  copyButton.title = 'Copy the raw artifact content from DuckDB.';
+  copyButton.onclick = null;
   showDialog(dialog);
   try {
-    const result = await api(route() + `/artifacts/${selected}/content`);
-    $('#content-title').textContent = result.artifact.filename || `Artifact ${selected}`;
+    const result = await api(route() + `/artifacts/${artifactId}/content`);
+    $('#content-title').textContent = result.artifact.filename || `Artifact ${artifactId}`;
     $('#content-meta').textContent = artifactDisplay(result.artifact);
     $('#content-text').textContent = result.content;
+    copyButton.disabled = false;
+    copyButton.onclick = () => copyArtifactContents(artifactId, copyButton);
   } catch (error) {
     $('#content-text').textContent = error.message;
+    copyButton.disabled = true;
+    copyButton.title = error.message;
   }
 }
 
@@ -1345,20 +1356,30 @@ async function openDiff() {
 
 async function openSiblingContent() {
   if (selected === null || !currentDetails?.siblings?.length) return;
+  const artifactId = selected;
   const entryName = $('#sibling').value;
   if (!entryName) return;
   const dialog = $('#content-dialog');
+  const copyButton = $('#content-copy');
   $('#content-title').textContent = `Sibling contents · ${entryName}`;
-  $('#content-meta').textContent = `Artifact ${selected}`;
+  $('#content-meta').textContent = `Artifact ${artifactId}`;
   $('#content-text').textContent = 'Loading…';
+  copyButton.disabled = true;
+  copyButton.textContent = 'Copy Contents';
+  copyButton.title = 'Copy the raw sibling-file content from DuckDB.';
+  copyButton.onclick = null;
   showDialog(dialog);
   try {
-    const result = await api(route() + `/artifacts/${selected}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
     $('#content-title').textContent = result.sibling.entry_name;
-    $('#content-meta').textContent = `Artifact ${selected} · ${artifactDisplay(currentDetails?.artifact)}`;
+    $('#content-meta').textContent = `Artifact ${artifactId} · ${artifactDisplay(currentDetails?.artifact)}`;
     $('#content-text').textContent = result.content;
+    copyButton.disabled = false;
+    copyButton.onclick = () => copySiblingContents(artifactId, entryName, copyButton);
   } catch (error) {
     $('#content-text').textContent = error.message;
+    copyButton.disabled = true;
+    copyButton.title = error.message;
   }
 }
 
