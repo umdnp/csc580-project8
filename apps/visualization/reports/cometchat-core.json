@@ -19,8 +19,8 @@
     "directed_edge_count": 2,
     "within_group_directed_edge_count": 2,
     "across_group_directed_edge_count": 0,
-    "ambiguous_edge_count": 3,
-    "within_group_ambiguous_edge_count": 3,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 2,
     "across_group_ambiguous_edge_count": 0,
     "change_counts": {
       "skill-only": 2,
@@ -83,6 +83,7 @@
             {
               "left_artifact_id": 3485370,
               "right_artifact_id": 3498417,
+              "relationship_status": "direction-unknown",
               "basis": "similarity-only",
               "containment_left_to_right": 0.9876712328767123,
               "containment_right_to_left": 0.9446446118571896,
@@ -98,6 +99,7 @@
             {
               "left_artifact_id": 3498458,
               "right_artifact_id": 3485370,
+              "relationship_status": "direction-unknown",
               "basis": "similarity-only",
               "containment_left_to_right": 0.9446446118571896,
               "containment_right_to_left": 0.9876712328767123,
@@ -113,6 +115,7 @@
             {
               "left_artifact_id": 3498458,
               "right_artifact_id": 3498417,
+              "relationship_status": "equivalent",
               "basis": "equivalent-state",
               "containment_left_to_right": 1.0,
               "containment_right_to_left": 1.0,
