@@ -1,168 +1,178 @@
 # SkillTrace – GitSkills Similarity & Security Analyzer
 
-The viewer reads candidate-family reports only from `apps/skilltrace/reports/`.
-There is no report-directory environment variable. Only valid current
-`analyze_family` JSON reports are listed in the report dropdown.
+SkillTrace is a local web application for exploring similarity, inferred lineage, sibling files, and security-sensitive changes across GitSkills artifacts.
 
-## Start the viewer
+It visualizes reports produced by `analyze_family` and uses the local GitSkills DuckDB database for artifact metadata, file contents, sibling files, diffs, search, and on-demand security scans.
 
-Dependencies are managed by the repository-level `pyproject.toml`. From the
-repository root, using the project environment:
+## Prerequisites
 
-```sh
-uv sync --group dev
-python -m uvicorn apps.skilltrace:app --host 127.0.0.1 --port 8000
-```
+Before starting SkillTrace, you need:
 
-Open <http://127.0.0.1:8000>. Stop the server with Ctrl+C. Run the command from
-the repository root.
+- the project environment installed;
+- a local GitSkills **DuckDB** database; and
+- at least one `analyze_family` report in `apps/skilltrace/reports/`.
 
-When a command-line database fallback is needed, use the package launcher:
+The downloaded GitSkills database is SQLite. The project creates a separate DuckDB database for local analysis and builds the additional analysis tables used by SkillTrace.
 
-```sh
-python -m apps.skilltrace --db C:/data/duckdb/agent_skills_release.db
-```
+See [`data/README.md`](../../data/README.md) for database setup instructions.
 
-The `--db` option belongs to the package launcher; Uvicorn itself does not define that
-custom option. `--host` and `--port` are also available through the package launcher.
+## Configure the Database
 
-## Reports
+SkillTrace chooses the DuckDB path in this order:
 
-The report dropdown reads JSON files directly from `apps/skilltrace/reports/`, but it
-remembers the last selected valid report in browser local storage, so a normal refresh
-restores the same report when it is still available. It
-only lists files that match the current `analyze_family` JSON format and can be
-loaded successfully. Malformed JSON, `scan_family` output, older prototype formats,
-and unrelated JSON files are ignored.
+1. `GITSKILLS_DB`
+2. `--db PATH`
+3. `C:/data/duckdb/agent_skills_release.db`
 
-`analyze_family` reports contain the family clusters, directed evolution edges,
-peer relationships, root candidates, and equivalent-peer chronology proxies used by
-the graph and detail panels. The default compact report is the normal visualization
-format. Verbose diagnostic collections such as the full pairwise similarity matrix,
-artifact groups, variants, provenance listings, and artifact metadata are optional;
-the viewer accepts both compact and verbose reports. Pass `--verbose` only when that
-diagnostic detail is needed. For example:
+`GITSKILLS_DB` has priority over both `--db` and the default path.
+
+For the default WSL setup:
 
 ```sh
-analyze_family busybox-on-windows --json --output apps/skilltrace/reports
+export GITSKILLS_DB="/c/data/duckdb/agent_skills_release.db"
 ```
 
-The graph is built from the selected report. The viewer does not recalculate family
-ancestry from DuckDB.
+Verify it with:
 
-## DuckDB access
+```sh
+echo "$GITSKILLS_DB"
+```
 
-The database path is selected in this order:
+If `GITSKILLS_DB` is set, passing a different `--db` value will not override it.
 
-1. `GITSKILLS_DB` when the environment variable is set
-2. `--db PATH` passed to `python -m apps.skilltrace`
-3. the default path `C:/data/duckdb/agent_skills_release.db`
+## Generate a Report
 
-This lets a user or script define its local database location once with `GITSKILLS_DB`
-without having a command-line path accidentally override that configuration.
+SkillTrace does not calculate family relationships itself. It visualizes JSON reports produced by `analyze_family`.
 
-DuckDB is opened read-only. The active database path, configuration source, and health
-are shown at the bottom of the viewer.
+Run `analyze_family` for the skill family you want to explore and write the report to `apps/skilltrace/reports/`:
 
-The browser polls `/api/health` every 30 seconds. The health check opens DuckDB
-read-only and verifies that the `artifacts`, `artifact_siblings`, and `repos` tables are
-accessible. If access is lost, the viewer opens a compact centered warning dialog.
-If the user closes that dialog while DuckDB is still unavailable, the next 30-second
-health check opens it again. The dialog closes automatically if a later health check
-succeeds. The report-based graph continues to work while database-backed features
-are unavailable.
+```sh
+python -m gitskills.tools.analyze_family \
+  --db C:/data/duckdb/agent_skills_release.db \
+  cometchat-core \
+  --output apps/skilltrace/reports
+```
 
-DuckDB is queried lazily for:
+If `GITSKILLS_DB` is already set, `--db` can be omitted:
 
-- artifact metadata such as name, description, repository/path, and commit dates;
-- artifact search by name, repository, path, filename, or SHA;
-- selected SKILL.md contents;
-- content-bearing file siblings from `artifact_siblings`;
-- side-by-side artifact and sibling-file diffs; and
-- on-demand static `scan_diff` using the existing `gitskills` analyzer.
+```sh
+python -m gitskills.tools.analyze_family \
+  cometchat-core \
+  --output apps/skilltrace/reports
+```
 
-Artifact sibling lists include only rows where `entry_type = 'file'` and `content IS
-NOT NULL`. Directory entries and files whose content was not stored are excluded.
+SkillTrace loads valid current `analyze_family` JSON reports from that directory. Reports from `scan_family`, malformed JSON, and older unsupported report formats are ignored.
 
-## Graph behavior
+For `analyze_family` options and similarity-policy details, see [`TOOLS.md`](../../TOOLS.md).
 
-Directed ancestry edges are always shown for the current view. Peer relationships are
-contextual: only peers connected to the selected artifact are shown. Related peers
-with unknown direction use a gray dotted line; equivalent peers are identified by
-node color without an additional line. Selecting another node updates those peer
-relationships.
+## Start SkillTrace
 
-The **View** dropdown uses **Direct relationships** for the selected artifact's
-immediate relationships and **Direct and indirect relationships** for the broader
-lineage view. The selected artifact, its direct parent(s), direct child(ren), and
-ambiguous peers are visually distinguished. `Fit visible family` resets the viewport;
-`Focus selected` centers the selected artifact without changing the current graph mode.
+Run from the repository root.
 
-The search box accepts an artifact ID without needing DuckDB. Text searches use
-DuckDB and can match artifact name, repository, path, filename, or SHA.
+### Option 1: Start script
 
-## Artifact details and actions
+```sh
+sh bin/start_skilltrace_server.sh
+```
 
-Selecting an artifact opens a three-panel action area:
+### Option 2: Python module
 
-- **Selected Artifact** shows the artifact ID, repository, and full path on separate
-  lines and provides **View content**. The candidate-family name is not repeated here
-  because it is already shown in the report summary above the graph.
-- **Compare To** lists directed parent artifact(s) first and labels them `(parent)`.
-  Peer comparisons are listed afterward as `(equivalent)` or `(related)`. A peer
-  that already has a directed lineage relationship to the selected artifact is not
-  repeated.
-- **Artifact Siblings** lists the selected artifact's content-bearing file siblings by
-  `entry_name`. Database IDs are not displayed. **View content** opens the
-  selected sibling file even when there is no comparison target. If none exist, the
-  dropdown shows `NONE` and no sibling actions are shown.
+```sh
+python -m apps.skilltrace \
+  --db /c/data/duckdb/agent_skills_release.db \
+  --host 127.0.0.1 \
+  --port 8000
+```
 
-The previous parent/child/ambiguous/sibling-count/role summary cards were removed;
-that relationship structure is already visible in the graph and does not need to be
-repeated in the detail area.
+Then open:
 
-`View content` opens the selected skill itself. `View diff` compares the
-selected artifact with the current **Compare To** artifact. For parent comparisons,
-the parent is the Base and the selected node is the Derived artifact. Ambiguous
-comparisons are displayed as a neutral side-by-side comparison because lineage
-direction is unresolved.
+```text
+http://127.0.0.1:8000
+```
 
-`Run scan` is available only for a directed parent comparison because the static
-scanner requires an explicit Base -> Derived direction.
+If `GITSKILLS_DB` is set, it takes priority over the `--db` value shown above.
 
-`View content` opens the selected artifact's sibling file directly. **View diff** compares that sibling `entry_name` across the current comparison artifact and the selected artifact. If one side does not contain that
-file, its pane says `No such file for this artifact.` while the existing side shows
-its contents and the addition/removal highlighting.
+Stop the server with `Ctrl+C`.
 
-The metadata display uses **Artifact Sibling Count**, computed from the same filtered
-`artifact_siblings` rows used by the sibling dropdown. When direction relies on an
-equivalent peer's observed chronology, the relationship panel also shows the
-effective chronology, its `equivalent-peer` basis, and the artifact that supplied
-that date. When commit history is available, comparison panels show the available commit-history
-fields. When commit chronology is unavailable, the panel instead shows **Effective
-chronology**, **Chronology basis**, and **Chronology source** from an equivalent peer when
-that proxy exists; otherwise those proxy values are shown as `Unknown`. `Repo created`
-comes from the `repos` table. Dates preserve the available timestamp precision, including
-time and timezone when present. Relationship panels surface the relationship type, basis,
-and direction evidence recorded by `analyze_family`. Normalized description is omitted from
-artifact comparison metadata because the human-readable description is already shown, and
-filename is omitted because the full path already includes it. The older `Has scripts` and
-`Has references` fields are not displayed.
+## What SkillTrace Shows
 
-Useful artifact identifiers and Base -> Derived IDs have copy buttons. Long metadata
-values are constrained to scrollable areas so they do not overwhelm the detail panel.
-Opening and closing dialogs does not change the current graph selection or viewport.
+Choose an `analyze_family` report from the **Report** dropdown. SkillTrace displays the report's inferred family structure as an interactive graph.
 
-This is a local application without authentication. Keep the default loopback host;
-do not expose it publicly without a separate deployment review. Artifact and sibling
-content are displayed and statically scanned only; they are never executed.
+The graph supports:
 
-API documentation is available locally at `/docs`.
+- directed parent/derived relationships;
+- equivalent and direction-unknown peer relationships;
+- direct or direct-and-indirect relationship views;
+- root candidates and inferred lineage;
+- artifact selection, focus, and viewport controls; and
+- artifact search by ID or, when DuckDB is available, by name, repository, path, filename, or SHA.
+
+The footer shows the similarity policy stored in the selected report, including the containment threshold, similarity threshold, shared-shingle requirement, and shingle size.
+
+## Artifact Inspection
+
+Selecting an artifact opens controls for the selected skill, related artifacts, and content-bearing sibling files.
+
+You can:
+
+- view raw `SKILL.md` contents;
+- copy raw contents directly from DuckDB;
+- inspect artifact metadata and chronology evidence;
+- compare a selected artifact with its parent or related peers;
+- view side-by-side skill diffs;
+- view and copy sibling-file contents;
+- compare sibling files across related artifacts; and
+- inspect added, removed, or changed files.
+
+Diff panes contain alignment rows for side-by-side display. Use **Copy Contents** when you need the original database text; it copies the raw content rather than the rendered diff pane.
+
+## Security Scanning
+
+For a directed parent-to-derived relationship, **Run scan** performs the project's static security comparison on demand.
+
+The scan reports changes in security-sensitive behavior such as:
+
+- command execution;
+- network access;
+- file-system operations;
+- credential or secret references;
+- external package or script execution; and
+- other configured security-rule matches.
+
+SkillTrace scans stored text only. It does not execute artifact or sibling content.
+
+A scan finding identifies behavior that warrants review; it does not establish malicious intent.
+
+## DuckDB Availability
+
+DuckDB is opened read-only. The active database path and connection status are shown at the bottom of the page.
+
+The relationship graph comes from the selected JSON report and remains available if DuckDB becomes unavailable. Database-backed features such as metadata, content, sibling inspection, search, diffs, and scans require a working database connection.
+
+SkillTrace periodically checks database health and reports when the configured database cannot be accessed.
+
+## Reports Directory
+
+SkillTrace reads reports only from:
+
+```text
+apps/skilltrace/reports/
+```
+
+The last selected valid report is remembered in browser local storage and restored on refresh when it is still available.
 
 ## Tests
 
-Run from the repository root:
+Run the SkillTrace tests from the repository root:
 
 ```sh
 python -m unittest apps.skilltrace.test_app
 ```
+
+## Notes
+
+- SkillTrace is intended for local use and defaults to `127.0.0.1`.
+- DuckDB is opened read-only.
+- Artifact and sibling contents are displayed and statically scanned, never executed.
+- The graph represents inferred relationships from `analyze_family`; it is not proof of repository ancestry or original authorship.
+- Local API documentation is available at `/docs` while the server is running.
