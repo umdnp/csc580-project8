@@ -2,12 +2,13 @@
 
 | Field | Value |
 | --- | --- |
-| **Status** | Accepted |
+| **Status** | Superseded |
 | **Date** | 2026-09-26 |
 | **Type** | Research methodology |
 | **Related work** | Question 4, RDR-001, RDR-002, RDR-003, RDR-004, `analyze_family`, Sprint 1 |
 | **Evidence** | Manual review of `busybox-on-windows` candidate-family results and GitSkills metadata |
 | **Supersedes** | None |
+| **Superseded by** | RDR-007 |
 
 ## Context
 
