@@ -121,7 +121,9 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .dialog-body{padding:14px 16px;overflow:auto;min-height:0;flex:1}
 .content-meta{font-size:13px;color:var(--muted);margin-bottom:10px;overflow-wrap:anywhere}
 .file-content{margin:0;border:1px solid var(--border);border-radius:6px;padding:12px;min-height:300px;height:calc(100% - 38px);overflow:auto;white-space:pre;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--panel)}
-.diff-headings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px;font-weight:600}
+.diff-headings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px}
+.diff-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
+.diff-heading button{font-size:12px;padding:4px 7px;flex:0 0 auto}
 .diff-panes{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:calc(100% - 34px);min-height:300px}
 .diff-pane{border:1px solid var(--border);border-radius:6px;overflow:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg)}
 .diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);min-height:1.45em;white-space:pre}
@@ -926,16 +928,19 @@ function addKv(container, label, value) {
   container.append(dt, dd);
 }
 
-async function copyText(text, button) {
-  if (!text) return;
-  const original = button.textContent;
+async function writeClipboardText(text) {
   try {
     await navigator.clipboard.writeText(String(text));
-    button.textContent = 'Copied';
   } catch {
     const area = document.createElement('textarea'); area.value = String(text); document.body.append(area); area.select(); document.execCommand('copy'); area.remove();
-    button.textContent = 'Copied';
   }
+}
+
+async function copyText(text, button) {
+  if (text === null || text === undefined) return;
+  const original = button.textContent;
+  await writeClipboardText(text);
+  button.textContent = 'Copied';
   setTimeout(() => button.textContent = original, 1000);
 }
 
@@ -1285,6 +1290,43 @@ function addDiffLine(pane, lineNumber, text, kind) {
   row.append(line, code); pane.append(row);
 }
 
+async function copyArtifactContents(artifactId, button) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Copying…';
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/content`);
+    await writeClipboardText(result.content);
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = original; }, 1000);
+  } catch (error) {
+    button.textContent = 'Copy failed';
+    button.title = error.message;
+    setTimeout(() => { button.textContent = original; button.title = 'Copy the raw artifact content from DuckDB.'; }, 1500);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function copySiblingContents(artifactId, entryName, button) {
+  const original = button.textContent;
+  const originalTitle = button.title;
+  button.disabled = true;
+  button.textContent = 'Copying…';
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
+    await writeClipboardText(result.content);
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = original; }, 1000);
+  } catch (error) {
+    button.textContent = 'Copy failed';
+    button.title = error.message;
+    setTimeout(() => { button.textContent = original; button.title = originalTitle; }, 1500);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function openDiff() {
   if (!selectedComparison || selected === null) return;
   const compareId = selectedComparison.id;
@@ -1343,8 +1385,33 @@ function renderDiff(result, sibling = false) {
   const parentLabels = result.comparison_kind === 'parent';
   const leftLabel = parentLabels ? `Base artifact ${result.left_id}` : `Compared artifact ${result.left_id}`;
   const rightLabel = parentLabels ? `Derived artifact ${result.right_id}` : `Selected artifact ${result.right_id}`;
-  const leftHeading = document.createElement('div'); leftHeading.textContent = sibling ? `${leftLabel} · ${result.entry_name}` : leftLabel;
-  const rightHeading = document.createElement('div'); rightHeading.textContent = sibling ? `${rightLabel} · ${result.entry_name}` : rightLabel;
+  const leftHeading = document.createElement('div'); leftHeading.className = 'diff-heading';
+  const rightHeading = document.createElement('div'); rightHeading.className = 'diff-heading';
+
+  const leftHeadingText = document.createElement('span');
+  leftHeadingText.textContent = sibling ? `${leftLabel} · ${result.entry_name}` : leftLabel;
+  const rightHeadingText = document.createElement('span');
+  rightHeadingText.textContent = sibling ? `${rightLabel} · ${result.entry_name}` : rightLabel;
+
+  const leftCopy = document.createElement('button'); leftCopy.textContent = 'Copy Contents';
+  const rightCopy = document.createElement('button'); rightCopy.textContent = 'Copy Contents';
+
+  if (sibling) {
+    leftCopy.disabled = result.left_exists === false;
+    rightCopy.disabled = result.right_exists === false;
+    leftCopy.title = leftCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    rightCopy.title = rightCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    leftCopy.onclick = () => copySiblingContents(result.left_id, result.entry_name, leftCopy);
+    rightCopy.onclick = () => copySiblingContents(result.right_id, result.entry_name, rightCopy);
+  } else {
+    leftCopy.title = 'Copy the raw artifact content from DuckDB.';
+    rightCopy.title = 'Copy the raw artifact content from DuckDB.';
+    leftCopy.onclick = () => copyArtifactContents(result.left_id, leftCopy);
+    rightCopy.onclick = () => copyArtifactContents(result.right_id, rightCopy);
+  }
+
+  leftHeading.append(leftHeadingText, leftCopy);
+  rightHeading.append(rightHeadingText, rightCopy);
   headings.append(leftHeading, rightHeading);
 
   const panes = document.createElement('div'); panes.className = 'diff-panes';
