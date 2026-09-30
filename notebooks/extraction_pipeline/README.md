@@ -82,5 +82,5 @@ From a configured project environment with `duckdb`, `pandas`, `matplotlib`, and
 3. Set `GITSKILLS_DB` to the database path.
 4. Open [`notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb`](../../notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb) with the working directory set to [`notebooks/extraction_pipeline`](../../notebooks/extraction_pipeline).
 5. Run all cells from top to bottom.
-6. Confirm that [`results/sample_artifacts_scanner_results.parquet`](../../results/sample_artifacts_scanner_results.parquet) and the three files under [`figures/`](../../figures/) are regenerated.
+6. Confirm that [`results/sample_artifacts_scanner_results.parquet`](results/sample_artifacts_scanner_results.parquet) and the three files under [`figures/`](figures/) are regenerated.
 7. Review the notebook tables and figures to confirm the sample and detection counts.
