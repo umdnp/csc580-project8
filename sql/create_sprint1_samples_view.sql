@@ -28,12 +28,12 @@ with sample_groupings as (
   )
 )
 select g.*, a.file_sha, a.path, a.filename, a.location_class, a.content, a.content_fetched, a.history_fetched,
-  a.composition_fetched, a.dedup_primary, a.sibling_count, a.has_scripts, a.content_sha_ok,
+  a.first_commit_at, a.composition_fetched, a.dedup_primary, a.sibling_count, a.has_scripts, a.content_sha_ok,
   r.full_name repo_name, r.owner as repo_owner, r.created_at as repo_created_at
 from sample_groupings g
 join artifacts a on a.id=g.artifact_id
 join repos r on r.id=g.repo_id
-order by name;
+order by name, first_commit_at, repo_created_at;
 
 -- Expected: 43, provided every selected ID exists.
 SELECT COUNT(*) AS sample_artifact_count
