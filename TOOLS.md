@@ -9,8 +9,46 @@ This document describes the project command-line tools and the options most deve
 | [`scan_diff`](#scan_diff) | Compare two skill files and report changes in security-sensitive behavior. |
 | [`analyze_family`](#analyze_family) | Analyze similarity, clusters, chronology, and inferred relationships within one candidate family. |
 | [`scan_family`](#scan_family) | Scan selected directed family relationships for newly introduced or increased security-sensitive behavior. |
+| [`family_picker`](#family_picker) | Interactively browse candidate families and run [`analyze_family`](#analyze_family). |
 
 Use `<tool> --help` for the complete command-line help. When running directly from the source tree, the equivalent form is `python -m gitskills.tools.<tool>`.
+
+## `family_picker`
+
+### Purpose
+
+`family_picker` is an interactive convenience interface for repeatedly running `analyze_family` while exploring candidate families. It does not replace the `analyze_family` command or expose its analysis configuration options.
+
+The picker reads candidate-family names from `artifact_groupings` using the database configured by `GITSKILLS_DB`. Each selection screen shows 10 randomly selected families together with the number of artifacts that share each family name.
+
+### Usage
+
+**Run the picker from the project root:**
+
+```bash
+python -m gitskills.tools.family_picker
+```
+
+The selection screen supports:
+
+- entering `1` through `10` to analyze one of the displayed random families;
+- typing an exact family name directly;
+- entering `R` to refresh the list with 10 new random families; and
+- entering `Q` or pressing `Ctrl+C` to exit cleanly.
+
+After an analysis finishes, the picker returns to the family-selection screen with a new random set so additional families can be reviewed without restarting the tool.
+
+### Analysis Command
+
+For the selected family, the picker runs the equivalent of:
+
+```bash
+python -m gitskills.tools.analyze_family NAME --output apps/skilltrace/reports
+```
+
+Reports produced through the picker are therefore written to `apps/skilltrace/reports`. Use `analyze_family` directly when custom similarity thresholds, JSON output, verbose output, a different database path, or a different output directory are required.
+
+---
 
 ## Common Options
 
