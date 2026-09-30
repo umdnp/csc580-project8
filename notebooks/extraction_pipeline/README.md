@@ -1,184 +1,86 @@
-# SKILL.md Base vs. Derived Comparison
+# Sample Extraction and Exploration
 
 ## Overview
 
-This project analyzes and compares `SKILL.md` files from the `base` and `derived` sample skill folders.
+This notebook provides the extraction and exploratory analysis pipeline for the approved GitSkills sample. It reads the `sample_artifacts` view from the project DuckDB database, compares adjacent artifacts within each skill-name group, runs the GitSkills static scanner, and generates the analysis dataset and figures.
 
-The analysis identifies what changed between each base and derived skill and checks newly added content against a set of regex-based security detection rules.
+Artifact content is treated only as text. The notebook does not execute commands, scripts, or other instructions contained in the dataset.
 
-The dataset content is treated strictly as **plain text**. No commands, code blocks, or instructions contained in any `SKILL.md` file are executed.
+## Data Setup
 
-## Folder Structure
+The GitSkills DuckDB database must already be available before running the notebook. See [`data/README.md`](../../data/README.md) for database setup and dataset-loading instructions.
 
-The expected dataset structure is:
+The analysis also requires the `sample_artifacts` view. From the repository root, run `sql/create_sprint1_samples_view.sql` against the GitSkills DuckDB database before starting the notebook. The view selects the approved sample and joins the artifact and repository fields used by the analysis.
 
-```text
-sample_skills/
-├── base/
-│   ├── config-backup/SKILL.md
-│   ├── repo-status-reporter/SKILL.md
-│   ├── api-report/SKILL.md
-│   ├── bootstrap-helper/SKILL.md
-│   └── release-notes-writer/SKILL.md
-│
-└── derived/
-    ├── config-backup/SKILL.md
-    ├── repo-status-reporter/SKILL.md
-    ├── api-report/SKILL.md
-    ├── bootstrap-helper/SKILL.md
-    └── release-notes-writer/SKILL.md
-```
+The notebook processes artifacts in the order returned by this view; it does not apply a separate ordering step in Pandas.
 
-## Setup
-
-Python 3.10 or later is recommended.
-
-Install the required packages:
+Set `GITSKILLS_DB` to the database path before starting the notebook:
 
 ```bash
-pip install jupyter pandas
+export GITSKILLS_DB=/path/to/agent_skills_release.db
 ```
 
-Start Jupyter:
+If the variable is not set, the notebook uses the default path defined near the top of the notebook.
 
-```bash
-jupyter notebook
-```
+## How the Pipeline Works
 
-Open:
+The notebook:
+
+1. Connects to DuckDB in read-only mode and inspects the approved sample.
+2. Loads all rows from `sample_artifacts` and groups them by `name` while preserving view order.
+3. Compares each artifact with the immediately preceding artifact in the same group.
+4. Runs the GitSkills scanner on the base and derived content and records positive rule deltas.
+5. Saves the extracted dataset to Parquet, reloads it, and generates pair-, rule-, and category-level summaries and figures.
+
+The first artifact in each name group has no scanner result because there is no earlier artifact in that group to compare against.
+
+## Scanner Overview
+
+The notebook uses the local `gitskills` package for static analysis. The scanner applies regex-based rules grouped into security-sensitive categories including command execution, network access, file-system access, credential access, external code execution, and system modification.
+
+For each base/derived pair, the scanner analyzes both artifacts independently and compares their rule match counts. A rule is flagged when its match count increases in the derived artifact. The notebook stores the number of flagged rules in `rules_flagged` and the full comparison result in `scanner_json`.
+
+The rule catalog is read directly from `gitskills`, so the notebook stays aligned with the current scanner definitions without duplicating them.
+
+## Generated Outputs
+
+The extracted analysis dataset is written to:
 
 ```text
-skill_md_comparison.ipynb
+notebooks/extraction_pipeline/results/sample_artifacts_scanner_results.parquet
 ```
 
-## Running the Analysis
+The Parquet file contains the original `sample_artifacts` fields plus:
 
-1. Place the `sample_skills` folder in the project directory.
-2. Open `skill_md_comparison.ipynb`.
-3. Run the notebook cells from top to bottom.
-4. Review the comparison table and detection results.
-5. Check the generated CSV and JSON output files.
+- `rules_flagged` — number of distinct scanner rules with a positive match-count delta
+- `scanner_json` — complete base-versus-derived scanner comparison output
 
-The notebook automatically matches:
+The generated visualizations are written to:
 
 ```text
-base/<skill>/SKILL.md
+notebooks/extraction_pipeline/figures/pair_scan_outcomes.png
+notebooks/extraction_pipeline/figures/flagged_rules.png
+notebooks/extraction_pipeline/figures/flagged_risk_categories.png
 ```
 
-with:
+These outputs are regenerated when the notebook is run from beginning to end.
 
-```text
-derived/<skill>/SKILL.md
-```
+## Current Sample Results
 
-## Extracted Information
+The current sample contains **43 artifacts across 10 skill-name groups**, producing **33 adjacent base-versus-derived comparisons**. All 33 comparisons were scanned successfully.
 
-For each skill pair, the notebook extracts information including:
+Of those comparisons, **13 (39.4%)** had at least one rule with a positive match-count delta. Across those pairs, the scanner recorded **35 rule-level positive-delta events** representing **77 additional matches** in the derived artifacts.
 
-- Skill identifier
-- Base and derived file paths
-- Base and derived content
-- Content hashes
-- Comparison status
-- Added lines
-- Removed lines
-- Unified diff
-- Detection rule matches
-- Risk categories
-- Matching evidence
-- Invalid-record status and skip reason
+`command_execution` was the most frequently flagged risk category, followed by `network_access` and `external_code_execution`. These are static-analysis signals: they identify changes in matched content and do not establish that an artifact is malicious or that any detected instruction was executed.
 
-## Detection Model
+## Reproducing the Results
 
-The detector uses regex-based rules grouped by risk category.
+From a configured project environment with `duckdb`, `pandas`, `matplotlib`, and the local `gitskills` package available:
 
-### Command Execution
-
-- `CMD-001` — Shell code block detected
-- `CMD-002` — Command invocation detected
-
-### Network Access
-
-- `NET-001` — HTTP/HTTPS URL detected
-- `NET-002` — Network client usage detected
-
-### Filesystem Access
-
-- `FS-001` — File-system command detected
-- `FS-002` — File-writing API detected
-
-### Credential Access
-
-- `CRED-001` — Credential or secret reference detected
-- `CRED-002` — Credential file reference detected
-
-### External Code Execution
-
-- `EXT-001` — Downloaded content piped to a shell interpreter
-- `EXT-002` — External package installation detected
-
-### System Modification
-
-- `SYS-001` — Privilege-elevation command detected
-- `SYS-002` — System modification command detected
-
-## Change Detection
-
-Detection rules are applied to the **newly added content in the derived file**.
-
-This is important because the goal is to identify risky capabilities introduced by the derived version rather than reporting behavior that was already present in the base version.
-
-For example:
-
-```text
-base/SKILL.md
-        ↓
-      compare
-        ↓
-derived/SKILL.md
-        ↓
-   added content
-        ↓
- detection rules
-        ↓
-Rule ID + Risk Category + Evidence
-```
-
-## Invalid Records
-
-Invalid records are not silently ignored.
-
-If a base or derived `SKILL.md` cannot be loaded, the analysis records:
-
-- `status = invalid`
-- A clear `skip_reason`
-
-Examples include missing files, invalid paths, unreadable files, or invalid UTF-8 content.
-
-## Output
-
-The notebook saves the extracted analysis records in machine-readable formats:
-
-```text
-analysis_output/
-├── skill_comparisons.csv
-└── skill_comparisons.json
-```
-
-These files contain the extracted comparison and detection results for further analysis.
-
-## Tests
-
-The notebook contains automated assertions that verify the loader, comparison, extraction, and detection logic.
-
-Run all notebook cells to execute the tests.
-
-Successful tests display confirmation that the expected behavior passed.
-
-## Safety
-
-`SKILL.md` files may contain shell commands, URLs, package installation instructions, or other potentially sensitive operations.
-
-The notebook **does not execute any content from the dataset**.
-
-Files are read only as UTF-8 text and analyzed using Python string processing, regular expressions, hashing, and diff operations.
+1. Prepare the GitSkills DuckDB database as described in `data/README.md`.
+2. From the repository root, run `sql/create_sprint1_samples_view.sql` against the database.
+3. Set `GITSKILLS_DB` to the database path.
+4. Open `notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb` with the working directory set to `notebooks/extraction_pipeline`.
+5. Run all cells from top to bottom.
+6. Confirm that `results/sample_artifacts_scanner_results.parquet` and the three files under `figures/` are regenerated.
+7. Review the notebook tables and figures to confirm the sample and detection counts.
