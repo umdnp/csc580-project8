@@ -1,29 +1,45 @@
 # Research Question
 
-## Selected Topic
+## Topic
 
 **Question 4: Skill Security and Supply-Chain Risk**
 
-### Research Question
+## Research Question
 
 **Do modified or reused skills introduce command execution, file-system access, network access, or other risky behavior that was absent from an earlier version or source artifact?**
 
-### Required Implementation
+## Motivation
 
-The project requires a static analyzer or rule-based scanner for executable commands, URLs, scripts, file operations, credential-related instructions, and changes across skill versions.
+Agent skills can contain instructions involving commands, files, networks, scripts, and credentials. When skills are reused or modified, new security-sensitive behavior may be introduced without being obvious to someone adopting the skill.
 
-### Minimum Evidence
+Understanding whether this occurs in GitSkills can provide evidence about potential security and software supply-chain risks associated with sharing and modifying agent skills.
 
-The project should include a threat model, detection rules, annotated examples, discussion of false positives, and a safe reporting artifact. Untrusted scripts from the dataset must not be executed.
+## Expected Contribution
 
-## Our Interpretation of the Research Question
+This study will provide evidence about whether related GitSkills artifacts introduce security-sensitive behavior that was absent from an earlier or source artifact, and what types of behavior are introduced when this occurs.
 
-We interpret this question as asking whether reused or modified skills in the GitSkills dataset tend to introduce new behavior that could increase security risk.
+## Interpretation and Feasibility
 
-The focus is not just on whether an individual skill contains commands, file operations, network access, scripts, or instructions involving credentials or secrets. We are interested in whether these kinds of behaviors appear when skills are reused or changed, even though they were not present in an earlier or source artifact.
+We interpret the research question as asking whether a related skill artifact contains security-sensitive behavior that was not present in an earlier or source artifact. **Other risky behavior** includes security-sensitive actions beyond command execution, file-system access, and network access, such as credential-related or script-based behavior. The presence of this behavior does not necessarily mean that a skill is malicious.
 
-Though not explicitly defined, we interpret **other risky behavior** to mean actions beyond command execution, file-system access, and network access that could increase security risk. This could include things such as handling credentials or secrets, creating or invoking scripts, or other instructions that could expose, alter, or misuse systems or data. This does not necessarily mean that the skill is malicious.
+Based on our Sprint 1 exploration, we believe the GitSkills release dataset contains enough artifact content, repository information, dates, and related skill records to investigate the research question as written. The available data does not always prove that one artifact was directly copied from another or that the earliest observed artifact is the true original, so conclusions about source and modification relationships need to be made carefully.
 
-This can become a supply-chain concern because skills are shared and reused across repositories. If new risky behavior is introduced into a reused skill, that behavior may also be carried into other projects that adopt or copy it.
+The team's decision to retain the original research question and the alternatives considered are documented in [RDR-001](docs/decisions/RDR-001-retain-question-4-versioning-strategy.md).
 
-Our goal is to use the GitSkills dataset to see whether this happens in practice and, when it does, what kinds of risky behavior are being introduced.
+## Competing Explanation
+
+Differences in security-sensitive behavior may reflect legitimate changes in a skill's intended functionality rather than evidence that reuse or modification itself increased security risk.
+
+## Study Definition
+
+| Item | Definition |
+| --- | --- |
+| **Unit of analysis** | A comparison between two related GitSkills artifacts where the available evidence supports an earlier/source and later/modified ordering. |
+| **Population** | Qualifying `SKILL.md` artifacts in the selected GitSkills release dataset and the related artifact comparisons that can be identified among them using the project's study criteria. |
+| **Sprint 1 sample** | A purposeful sample of 43 artifacts across 10 skill families, producing 17 directed comparisons in the saved Sprint 1 analysis reports. The sample is intended to support feasibility and tool validation, not population-wide risk estimates. |
+| **Variables** | Artifact relationship and ordering; security-sensitive behavior observed in each artifact; and whether a behavior is newly present in the later artifact. |
+| **Outcome measures** | Whether newly introduced security-sensitive behavior is detected in a comparison, and the type of behavior introduced. |
+
+## Supporting Analysis
+
+Exploratory and sample analysis are maintained under [`notebooks/`](notebooks/). Detailed research and methodology decisions are maintained under [`docs/decisions/`](docs/decisions/).
