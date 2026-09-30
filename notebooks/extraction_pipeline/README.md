@@ -10,7 +10,7 @@ Artifact content is treated only as text. The notebook does not execute commands
 
 The GitSkills DuckDB database must already be available before running the notebook. See [`data/README.md`](../../data/README.md) for database setup and dataset-loading instructions.
 
-The analysis also requires the `sample_artifacts` view. From the repository root, run `sql/create_sprint1_samples_view.sql` against the GitSkills DuckDB database before starting the notebook. The view selects the approved sample and joins the artifact and repository fields used by the analysis.
+The analysis also requires the `sample_artifacts` view. From the repository root, run [`sql/create_sprint1_samples_view.sql`](../../sql/create_sprint1_samples_view.sql) against the GitSkills DuckDB database before starting the notebook. The view selects the approved sample and joins the artifact and repository fields used by the analysis.
 
 The notebook processes artifacts in the order returned by this view; it does not apply a separate ordering step in Pandas.
 
@@ -77,10 +77,10 @@ Of those comparisons, **13 (39.4%)** had at least one rule with a positive match
 
 From a configured project environment with `duckdb`, `pandas`, `matplotlib`, and the local `gitskills` package available:
 
-1. Prepare the GitSkills DuckDB database as described in `data/README.md`.
-2. From the repository root, run `sql/create_sprint1_samples_view.sql` against the database.
+1. Prepare the GitSkills DuckDB database as described in [`data/README.md`](../../data/README.md).
+2. From the repository root, run [`sql/create_sprint1_samples_view.sql`](../../sql/create_sprint1_samples_view.sql) against the database.
 3. Set `GITSKILLS_DB` to the database path.
-4. Open `notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb` with the working directory set to `notebooks/extraction_pipeline`.
+4. Open [`notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb`](../../notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb) with the working directory set to [`notebooks/extraction_pipeline`](../../notebooks/extraction_pipeline).
 5. Run all cells from top to bottom.
-6. Confirm that `results/sample_artifacts_scanner_results.parquet` and the three files under `figures/` are regenerated.
+6. Confirm that [`results/sample_artifacts_scanner_results.parquet`](../../results/sample_artifacts_scanner_results.parquet) and the three files under [`figures/`](../../figures/) are regenerated.
 7. Review the notebook tables and figures to confirm the sample and detection counts.
