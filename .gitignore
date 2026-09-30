@@ -228,3 +228,5 @@ scripts/output/
 data/*.db
 data/**/*.db
 
+# Ignore mac specific files
+.DS_Store
