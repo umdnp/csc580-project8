@@ -230,4 +230,4 @@ data/**/*.db
 
 # Ignore OS metadata files
 .DS_Store
-.Thumbs.db
+Thumbs.db
