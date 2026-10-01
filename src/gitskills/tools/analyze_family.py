@@ -18,6 +18,7 @@ from gitskills.analysis.family_models import (
     SimilarityPolicy,
 )
 from gitskills.data.families import DuckDBFamilyRepository
+from . import _output
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -77,13 +78,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Show artifact IDs, qualifying similarities, and ambiguous edge details.",
+        help=(
+            "Show artifact metadata, the full pairwise similarity matrix, and "
+            "detailed relationship evidence."
+        ),
     )
     parser.add_argument(
         "--json",
         action="store_true",
         help="Emit structured JSON instead of the human-readable report.",
     )
+    _output.add_argument(parser)
     return parser
 
 
@@ -91,6 +96,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run candidate-family analysis."""
 
     args = build_parser().parse_args(argv)
+
+    try:
+        output_dir = _output.prepare_directory(args.output)
+    except _output.OutputError as exc:
+        print(exc, file=sys.stderr)
+        return 2
 
     database = args.db or _database_from_environment()
     if database is None:
@@ -121,10 +132,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Unable to analyze candidate family: {exc}", file=sys.stderr)
         return 1
 
+    payload = result.to_dict(verbose=args.verbose)
+
+    output_path = None
+    if output_dir is not None:
+        try:
+            output_path = _output.write_json(output_dir, args.name, payload)
+        except _output.OutputError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+
     if args.json:
-        print(json.dumps(result.to_dict(verbose=args.verbose), indent=2))
+        print(json.dumps(payload, indent=2))
     else:
         _print_report(result, verbose=args.verbose)
+        if output_path is not None:
+            print()
+            suffix = " (verbose)" if args.verbose else ""
+            print(f"JSON report:      {output_path.resolve()}{suffix}")
 
     return 0
 
@@ -218,18 +243,55 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                 f"{evidence_text}"
                 f"{scope_text}"
             )
+            if verbose:
+                for side, chronology in (
+                    ("source", edge.source_chronology),
+                    ("target", edge.target_chronology),
+                ):
+                    if chronology is None:
+                        continue
+                    print(
+                        f"        {side} effective_chronology="
+                        f"{chronology.effective_chronology} "
+                        f"chronology_basis={chronology.chronology_basis} "
+                        f"chronology_source=artifact "
+                        f"{chronology.chronology_source_artifact_id}"
+                    )
     else:
         print("    Directed edges: 0")
 
-    ambiguous_count = len(cluster.evolution.ambiguous_edges)
-    if ambiguous_count:
+    equivalent = cluster.evolution.equivalent_edges
+    if equivalent:
         print(
-            f"    Ambiguous edges: {ambiguous_count} "
+            f"    Equivalent undirected edges: {len(equivalent)} "
+            f"(within groups={cluster.evolution.within_group_equivalent_edge_count}, "
+            f"across groups={cluster.evolution.across_group_equivalent_edge_count})"
+        )
+        if verbose:
+            for edge in equivalent:
+                scope = "within-group" if edge.same_artifact_group else "across-groups"
+                print(
+                    f"      {edge.left_artifact_id} <-> "
+                    f"{edge.right_artifact_id} "
+                    f"change={edge.change_type.value} "
+                    f"containment={edge.containment_left_to_right:.3f}/"
+                    f"{edge.containment_right_to_left:.3f} "
+                    f"jaccard={edge.jaccard:.3f} "
+                    f"basis={edge.basis} "
+                    f"scope={scope}"
+                )
+    else:
+        print("    Equivalent undirected edges: 0")
+
+    ambiguous = cluster.evolution.unresolved_edges
+    if ambiguous:
+        print(
+            f"    Ambiguous edges: {len(ambiguous)} "
             f"(within groups={cluster.evolution.within_group_ambiguous_edge_count}, "
             f"across groups={cluster.evolution.across_group_ambiguous_edge_count})"
         )
         if verbose:
-            for edge in cluster.evolution.ambiguous_edges:
+            for edge in ambiguous:
                 scope = "within-group" if edge.same_artifact_group else "across-groups"
                 evidence_text = (
                     f" evidence={','.join(edge.evidence)}"
@@ -239,6 +301,7 @@ def _print_cluster(cluster: ClusterAnalysis, *, verbose: bool) -> None:
                 print(
                     f"      {edge.left_artifact_id} <-> "
                     f"{edge.right_artifact_id} "
+                    f"status={edge.relationship_status} "
                     f"change={edge.change_type.value} "
                     f"containment={edge.containment_left_to_right:.3f}/"
                     f"{edge.containment_right_to_left:.3f} "
@@ -306,6 +369,13 @@ def _print_edge_summary(family: ScopeAnalysis) -> None:
     print(f"  Unknown:            {counts[ChangeType.UNKNOWN]}")
     print(f"  Within artifact groups: {family.within_group_directed_edge_count}")
     print(f"  Across artifact groups: {family.across_group_directed_edge_count}")
+    print(f"Equivalent undirected edges: {family.equivalent_edge_count}")
+    print(
+        f"  Within artifact groups: {family.within_group_equivalent_edge_count}"
+    )
+    print(
+        f"  Across artifact groups: {family.across_group_equivalent_edge_count}"
+    )
     print(f"Ambiguous edges: {family.ambiguous_edge_count}")
     print(f"  Within artifact groups: {family.within_group_ambiguous_edge_count}")
     print(f"  Across artifact groups: {family.across_group_ambiguous_edge_count}")

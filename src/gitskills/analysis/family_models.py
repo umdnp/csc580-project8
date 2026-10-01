@@ -72,6 +72,7 @@ class BundleVariant:
     group_ids: tuple[int, ...]
     representative_artifact_id: int
     earliest_observed_at: str | None
+    repo_created_lower_bound_at: str | None = None
 
     @property
     def file_sha(self) -> str:
@@ -196,6 +197,40 @@ class SimilarityPolicy:
 
 
 @dataclass(frozen=True, slots=True)
+class ChronologyEvidence:
+    """Effective chronology used to support an inferred direction."""
+
+    effective_chronology: str
+    chronology_basis: str
+    chronology_source_artifact_id: int
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "effective_chronology": self.effective_chronology,
+            "chronology_basis": self.chronology_basis,
+            "chronology_source_artifact_id": self.chronology_source_artifact_id,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactChronologyProxy:
+    """Equivalent-peer chronology available to one undated artifact."""
+
+    artifact_id: int
+    effective_chronology: str
+    chronology_basis: str
+    chronology_source_artifact_id: int
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "artifact_id": self.artifact_id,
+            "effective_chronology": self.effective_chronology,
+            "chronology_basis": self.chronology_basis,
+            "chronology_source_artifact_id": self.chronology_source_artifact_id,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class EvolutionEdge:
     """One inferred directional relationship between bundle variants."""
 
@@ -210,13 +245,15 @@ class EvolutionEdge:
     change_type: ChangeType
     shared_group_ids: tuple[int, ...]
     evidence: tuple[str, ...] = ()
+    source_chronology: ChronologyEvidence | None = None
+    target_chronology: ChronologyEvidence | None = None
 
     @property
     def same_artifact_group(self) -> bool:
         return bool(self.shared_group_ids)
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        output: dict[str, object] = {
             "source_artifact_id": self.source_artifact_id,
             "target_artifact_id": self.target_artifact_id,
             "basis": self.basis,
@@ -228,6 +265,14 @@ class EvolutionEdge:
             "shared_group_ids": list(self.shared_group_ids),
             "same_artifact_group": self.same_artifact_group,
         }
+        chronology = {}
+        if self.source_chronology is not None:
+            chronology["source"] = self.source_chronology.to_dict()
+        if self.target_chronology is not None:
+            chronology["target"] = self.target_chronology.to_dict()
+        if chronology:
+            output["chronology"] = chronology
+        return output
 
 
 @dataclass(frozen=True, slots=True)
@@ -251,10 +296,21 @@ class AmbiguousRelationship:
     def same_artifact_group(self) -> bool:
         return bool(self.shared_group_ids)
 
+    @property
+    def relationship_status(self) -> str:
+        """Return the user-facing status for an undirected relationship."""
+
+        if self.basis == "provenance-conflict":
+            return "direction-conflict"
+        if self.change_type is ChangeType.EQUIVALENT:
+            return "equivalent"
+        return "direction-unknown"
+
     def to_dict(self) -> dict[str, object]:
         return {
             "left_artifact_id": self.left_artifact_id,
             "right_artifact_id": self.right_artifact_id,
+            "relationship_status": self.relationship_status,
             "basis": self.basis,
             "containment_left_to_right": self.containment_left_to_right,
             "containment_right_to_left": self.containment_right_to_left,
@@ -275,6 +331,7 @@ class EvolutionGraph:
     directed_edges: tuple[EvolutionEdge, ...]
     ambiguous_edges: tuple[AmbiguousRelationship, ...]
     root_candidate_artifact_ids: tuple[int, ...]
+    related_edges: tuple[EvolutionEdge, ...] = ()
 
     @property
     def has_single_root(self) -> bool:
@@ -298,12 +355,48 @@ class EvolutionGraph:
         return len(self.directed_edges) - self.within_group_directed_edge_count
 
     @property
+    def equivalent_edges(self) -> tuple[AmbiguousRelationship, ...]:
+        """Return undirected pairs whose analyzed state is equivalent."""
+
+        return tuple(
+            edge
+            for edge in self.ambiguous_edges
+            if edge.relationship_status == "equivalent"
+        )
+
+    @property
+    def unresolved_edges(self) -> tuple[AmbiguousRelationship, ...]:
+        """Return undirected relationships whose direction remains unresolved."""
+
+        return tuple(
+            edge
+            for edge in self.ambiguous_edges
+            if edge.relationship_status != "equivalent"
+        )
+
+    @property
+    def equivalent_edge_count(self) -> int:
+        return len(self.equivalent_edges)
+
+    @property
+    def ambiguous_edge_count(self) -> int:
+        return len(self.unresolved_edges)
+
+    @property
+    def within_group_equivalent_edge_count(self) -> int:
+        return sum(edge.same_artifact_group for edge in self.equivalent_edges)
+
+    @property
+    def across_group_equivalent_edge_count(self) -> int:
+        return self.equivalent_edge_count - self.within_group_equivalent_edge_count
+
+    @property
     def within_group_ambiguous_edge_count(self) -> int:
-        return sum(edge.same_artifact_group for edge in self.ambiguous_edges)
+        return sum(edge.same_artifact_group for edge in self.unresolved_edges)
 
     @property
     def across_group_ambiguous_edge_count(self) -> int:
-        return len(self.ambiguous_edges) - self.within_group_ambiguous_edge_count
+        return self.ambiguous_edge_count - self.within_group_ambiguous_edge_count
 
     # Compatibility aliases for notebooks or code written against the earlier model.
     @property
@@ -338,9 +431,17 @@ class EvolutionGraph:
     def across_group_ambiguous_count(self) -> int:
         return self.across_group_ambiguous_edge_count
 
-    def to_dict(self) -> dict[str, object]:
-        return {
+    def to_dict(self, *, compact: bool = False) -> dict[str, object]:
+        output: dict[str, object] = {
             "root_candidate_artifact_ids": list(self.root_candidate_artifact_ids),
+            "directed_edges": [edge.to_dict() for edge in self.directed_edges],
+            "ambiguous_edges": [edge.to_dict() for edge in self.ambiguous_edges],
+            "related_edges": [edge.to_dict() for edge in self.related_edges],
+        }
+        if compact:
+            return output
+
+        output.update({
             "directed_edge_count": len(self.directed_edges),
             "within_group_directed_edge_count": (
                 self.within_group_directed_edge_count
@@ -348,7 +449,15 @@ class EvolutionGraph:
             "across_group_directed_edge_count": (
                 self.across_group_directed_edge_count
             ),
-            "ambiguous_edge_count": len(self.ambiguous_edges),
+            "undirected_edge_count": len(self.ambiguous_edges),
+            "equivalent_edge_count": self.equivalent_edge_count,
+            "within_group_equivalent_edge_count": (
+                self.within_group_equivalent_edge_count
+            ),
+            "across_group_equivalent_edge_count": (
+                self.across_group_equivalent_edge_count
+            ),
+            "ambiguous_edge_count": self.ambiguous_edge_count,
             "within_group_ambiguous_edge_count": (
                 self.within_group_ambiguous_edge_count
             ),
@@ -359,9 +468,8 @@ class EvolutionGraph:
                 change_type.value: count
                 for change_type, count in self.change_counts.items()
             },
-            "directed_edges": [edge.to_dict() for edge in self.directed_edges],
-            "ambiguous_edges": [edge.to_dict() for edge in self.ambiguous_edges],
-        }
+        })
+        return output
 
 
 @dataclass(frozen=True, slots=True)
@@ -378,15 +486,21 @@ class ClusterAnalysis:
     def skill_variant_count(self) -> int:
         return len(self.file_shas)
 
-    def to_dict(self) -> dict[str, object]:
-        return {
+    def to_dict(self, *, compact: bool = False) -> dict[str, object]:
+        output: dict[str, object] = {
             "cluster": self.number,
             "artifact_ids": list(self.artifact_ids),
+            "evolution": self.evolution.to_dict(compact=compact),
+        }
+        if compact:
+            return output
+
+        output.update({
             "skill_variant_count": self.skill_variant_count,
             "bundle_variant_count": self.bundle_variant_count,
             "file_shas": list(self.file_shas),
-            "evolution": self.evolution.to_dict(),
-        }
+        })
+        return output
 
 
 @dataclass(frozen=True, slots=True)
@@ -403,8 +517,16 @@ class ScopeAnalysis:
         return sum(len(cluster.evolution.directed_edges) for cluster in self.clusters)
 
     @property
-    def ambiguous_edge_count(self) -> int:
+    def undirected_edge_count(self) -> int:
         return sum(len(cluster.evolution.ambiguous_edges) for cluster in self.clusters)
+
+    @property
+    def equivalent_edge_count(self) -> int:
+        return sum(cluster.evolution.equivalent_edge_count for cluster in self.clusters)
+
+    @property
+    def ambiguous_edge_count(self) -> int:
+        return sum(cluster.evolution.ambiguous_edge_count for cluster in self.clusters)
 
     @property
     def within_group_directed_edge_count(self) -> int:
@@ -416,6 +538,17 @@ class ScopeAnalysis:
     @property
     def across_group_directed_edge_count(self) -> int:
         return self.directed_edge_count - self.within_group_directed_edge_count
+
+    @property
+    def within_group_equivalent_edge_count(self) -> int:
+        return sum(
+            cluster.evolution.within_group_equivalent_edge_count
+            for cluster in self.clusters
+        )
+
+    @property
+    def across_group_equivalent_edge_count(self) -> int:
+        return self.equivalent_edge_count - self.within_group_equivalent_edge_count
 
     @property
     def within_group_ambiguous_edge_count(self) -> int:
@@ -471,7 +604,14 @@ class ScopeAnalysis:
     def across_group_ambiguous_count(self) -> int:
         return self.across_group_ambiguous_edge_count
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self, *, compact: bool = False) -> dict[str, object]:
+        if compact:
+            return {
+                "clusters": [
+                    cluster.to_dict(compact=True) for cluster in self.clusters
+                ]
+            }
+
         return {
             "artifact_ids": list(self.artifact_ids),
             "skill_variant_count": self.skill_variant_count,
@@ -482,6 +622,14 @@ class ScopeAnalysis:
             ),
             "across_group_directed_edge_count": (
                 self.across_group_directed_edge_count
+            ),
+            "undirected_edge_count": self.undirected_edge_count,
+            "equivalent_edge_count": self.equivalent_edge_count,
+            "within_group_equivalent_edge_count": (
+                self.within_group_equivalent_edge_count
+            ),
+            "across_group_equivalent_edge_count": (
+                self.across_group_equivalent_edge_count
             ),
             "ambiguous_edge_count": self.ambiguous_edge_count,
             "within_group_ambiguous_edge_count": (
@@ -532,6 +680,7 @@ class FamilyAnalysis:
     skill_variants: tuple[SkillVariant, ...]
     bundle_variants: tuple[BundleVariant, ...]
     artifacts: tuple[Artifact, ...]
+    chronology_proxies: tuple[ArtifactChronologyProxy, ...] = ()
 
     @property
     def artifact_group_count(self) -> int:
@@ -596,9 +745,15 @@ class FamilyAnalysis:
                     for change_type, count in self.family.change_counts.items()
                 },
             },
-            "family": self.family.to_dict(),
-            "groups": [group.to_dict() for group in self.groups],
-            "skill_variants": [
+            "family": self.family.to_dict(compact=not verbose),
+            "chronology_proxies": [
+                proxy.to_dict() for proxy in self.chronology_proxies
+            ],
+        }
+
+        if verbose:
+            output["groups"] = [group.to_dict() for group in self.groups]
+            output["skill_variants"] = [
                 {
                     "file_sha": variant.file_sha,
                     "artifact_ids": list(variant.artifact_ids),
@@ -607,8 +762,8 @@ class FamilyAnalysis:
                     "earliest_observed_at": variant.earliest_observed_at,
                 }
                 for variant in self.skill_variants
-            ],
-            "bundle_variants": [
+            ]
+            output["bundle_variants"] = [
                 {
                     "file_sha": variant.file_sha,
                     "sibling_content_sha": variant.sibling_content_sha,
@@ -619,19 +774,16 @@ class FamilyAnalysis:
                     "earliest_observed_at": variant.earliest_observed_at,
                 }
                 for variant in self.bundle_variants
-            ],
-            "provenance": [
+            ]
+            output["provenance"] = [
                 {
                     "artifact_id": artifact.artifact_id,
                     **artifact.provenance.to_dict(),
                 }
                 for artifact in self.artifacts
                 if artifact.provenance.has_values()
-            ],
-            "similarities": self._similarities_to_dict(),
-        }
-
-        if verbose:
+            ]
+            output["similarities"] = self._similarities_to_dict()
             output["artifacts"] = [
                 {
                     "artifact_id": artifact.artifact_id,
