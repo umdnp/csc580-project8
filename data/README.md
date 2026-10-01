@@ -138,7 +138,7 @@ After completing step 3, run the follow command to generate the frozen Sprint 1 
 duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/generate_sprint1_sample.sql
 ```
 
-Reference [`docs/decisions/RDR-006-sprint1-sample-design-and-selection.md`](../decisions/RDR-006-sprint1-sample-design-and-selection.md) for more information.
+Reference [`docs/decisions/RDR-006-sprint1-sample-design-and-selection.md`](../docs/decisions/RDR-006-sprint1-sample-design-and-selection.md) for more information.
 
 ## Configure the Local Database Path
 
