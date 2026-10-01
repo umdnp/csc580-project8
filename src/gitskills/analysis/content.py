@@ -9,6 +9,17 @@ _FRONTMATTER_START = re.compile(r"\A(?:\ufeff)?---[ \t]*(?:\r\n|\n|\r)")
 _FRONTMATTER_END = re.compile(r"^---[ \t]*(?:\r\n|\n|\r|$)", re.MULTILINE)
 
 
+def extract_frontmatter(text: str) -> str | None:
+    """Return top-of-file YAML frontmatter without delimiters, when present."""
+
+    bounds = _frontmatter_bounds(text)
+    if bounds is None:
+        return None
+
+    content_start, content_end, _ = bounds
+    return text[content_start:content_end]
+
+
 def mask_frontmatter(text: str) -> str:
     """Mask top-of-file YAML frontmatter while preserving source positions.
 
@@ -22,17 +33,25 @@ def mask_frontmatter(text: str) -> str:
     delimiter is found, the original text is returned unchanged.
     """
 
+    bounds = _frontmatter_bounds(text)
+    if bounds is None:
+        return text
+
+    _, _, frontmatter_end = bounds
+    masked_frontmatter = _mask_non_newline_characters(text[:frontmatter_end])
+    return masked_frontmatter + text[frontmatter_end:]
+
+
+def _frontmatter_bounds(text: str) -> tuple[int, int, int] | None:
     start_match = _FRONTMATTER_START.match(text)
     if start_match is None:
-        return text
+        return None
 
     end_match = _FRONTMATTER_END.search(text, start_match.end())
     if end_match is None:
-        return text
+        return None
 
-    frontmatter_end = end_match.end()
-    masked_frontmatter = _mask_non_newline_characters(text[:frontmatter_end])
-    return masked_frontmatter + text[frontmatter_end:]
+    return start_match.end(), end_match.start(), end_match.end()
 
 
 def _mask_non_newline_characters(text: str) -> str:

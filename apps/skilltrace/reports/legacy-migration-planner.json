@@ -1,0 +1,145 @@
+{
+  "name": "legacy-migration-planner",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 3,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 1,
+    "related_skill_pair_count": 10,
+    "within_group_related_pair_count": 2,
+    "across_group_related_pair_count": 8,
+    "directed_edge_count": 4,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 2,
+      "skill+siblings": 2,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2044216,
+          2090132,
+          2093346,
+          3306314,
+          3335142
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2090132
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2044216,
+              "target_artifact_id": 3306314,
+              "basis": "containment",
+              "containment": 0.9718706047819972,
+              "jaccard": 0.4031505250875146,
+              "shared_shingles": 691,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2090132,
+              "target_artifact_id": 2044216,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 711,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-04-25T23:24:24Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2093346
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2090132,
+              "target_artifact_id": 2093346,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 711,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                374895
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3306314,
+              "target_artifact_id": 3335142,
+              "basis": "declared-source",
+              "containment": 0.9852420306965761,
+              "jaccard": 0.9737456242707118,
+              "shared_shingles": 1669,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "derived_from",
+                "upstream_skill",
+                "source_repo"
+              ],
+              "shared_group_ids": [
+                172439
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2044216,
+              "right_artifact_id": 2093346,
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 711,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 2044216,
+      "effective_chronology": "2026-04-25T23:24:24Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 2093346
+    }
+  ]
+}

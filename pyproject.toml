@@ -14,24 +14,26 @@ readme = "README.md"
 
 dependencies = [
     "duckdb",
+    "fastapi>=0.141.1",
     "ipykernel>=7.3.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.3",
     "pandas",
     "seaborn>=0.13.2",
+    "uvicorn>=0.54.0",
 ]
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]
 
 [project.scripts]
+analyze_family = "gitskills.tools.analyze_family:main"
 scan_diff = "gitskills.tools.scan_diff:main"
+scan_family = "gitskills.tools.scan_family:main"

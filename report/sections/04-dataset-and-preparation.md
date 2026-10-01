@@ -24,7 +24,7 @@ Artifacts without analyzable content or without an identifiable, ordered relatio
 
 ## Relevant Schema
 
-The analysis uses data at four related levels: artifact, relationship, scanner profile, and ordered comparison. Exact source-table and column names will be verified against the implemented extraction pipeline and documented in `DATA_DICTIONARY.md`.
+The analysis uses data at four related levels: artifact, relationship, scanner profile, and ordered comparison. The field lists below describe the broader target schema, not a claim that every field is present in the current Sprint 1 reports. Exact source-table and column names will be verified against the implemented extraction pipeline and documented in `DATA_DICTIONARY.md`. Current wrapper reports record endpoint artifact IDs, relationship evidence, introduced-capability flags, total match counts, and nonzero rule-count deltas.
 
 ### Artifact Data
 
@@ -80,8 +80,8 @@ Rule-level and category-level fields are both retained. A derived artifact may i
 
 The primary unit of analysis is one ordered comparison between two related, content-bearing skill artifacts:
 
-- **Base artifact:** The earliest identified version or source content in the relationship.
-- **Derived artifact:** The later, reused, or modified content being compared with the base.
+- **Base artifact:** The inferred source endpoint, according to the supported direction evidence.
+- **Derived artifact:** The inferred target endpoint being compared with the base; this designation does not prove historical descent.
 
 The ordering is represented as:
 
@@ -119,15 +119,15 @@ The preparation process converts the source database into analysis-ready artifac
 
 ## Population Analysis and Sampling
 
-### Automated Census
+### Planned Automated Census
 
 The automated analysis will attempt a census of the eligible comparison population rather than select a statistical sample. Every eligible base-derived comparison extracted from `agent_skills_release.db` will be processed by the comparison pipeline.
 
 Smaller reproducible datasets may be used while developing and debugging the pipeline. These development datasets are test inputs, not the research sample, and will not replace the final population-level analysis.
 
-### Manual Validation Sample
+### Planned Manual Validation Sample
 
-The team will manually review a stratified sample of at least 100 eligible base-derived comparisons from the automated results:
+For the broader evaluation, the team plans to manually review a stratified sample of at least 100 eligible base-derived comparisons from the automated results. This future plan is separate from the 17 directed comparisons in the current Sprint 1 reports:
 
 - at least 50 comparisons for which the scanner reports one or more newly introduced rules or categories; and
 - at least 50 comparisons for which the scanner reports no newly introduced rules or categories.
@@ -147,6 +147,38 @@ For each sampled comparison, reviewers will record:
 
 These records will support confirmed and rejected relationship counts, ordering disagreements, classification counts, precision and any other justified validation metrics, category- or relationship-specific breakdowns where sample size permits, and representative failure modes. The Evaluation and Validation section will define the final calculation and interpretation of those measures.
 
+### Sprint 1 Sampling Strategy
+
+Sprint 1 uses a small, purposeful tool-validation sample of **43 artifacts across 10 exact-name families**. The ten saved analysis reports contain **17 directed comparisons**. These totals describe the current tool output, not a representative population sample or completed manual validation of every comparison.
+
+The earlier design combined purposeful cases with 75 random artifact seeds and family expansion, producing approximately 1,400 artifact-selection rows. It was too large for immediate manual validation. The revised selection aimed for approximately 50 artifacts or fewer and has no separate random component. The earlier sample may remain useful for later work; its reconstruction checks do not validate the revised selection.
+
+#### Selection Logic and Family Scope
+
+Families were selected to exercise supported direction evidence, ambiguous relationships, cases without inferred relationships, and positive, negative, or unchanged scanner counts. Other cases distinguish additional matches within an existing capability from newly detected capabilities and expose scanner coverage or normalization limitations.
+
+`artifact_groupings` groups artifacts by exact name and normalized description. The current `analyze_family` tool loads all qualifying artifacts sharing an exact name, including multiple description groups. Some screening queries compare only within a name-and-description group, so their screening scope is narrower than the family-analysis scope. Shared metadata establishes candidate context, not proven lineage.
+
+The selection queries screened for package-installation count variation, supported provenance-field references, and variation in additional scanner rules. SQL patterns were selection heuristics rather than validated findings. Candidate families were checked through the Python workflow, and selected comparisons were inspected manually in Mergely. Searching ended because further screening was time-consuming, not because the sample was exhaustive or statistically optimized. The query rationale and RDR-006 record the selection decisions.
+
+#### Observed Coverage and Limits
+
+The saved reports demonstrate nonzero count deltas in 10 of the scanner's 12 rules. EXT-001 and SYS-001 remain without confirmed delta examples. Rule presence, a count change, and an introduced capability are different outcomes; none alone establishes increased or decreased risk.
+
+The wrapper scans selected directed relationships rather than every possible artifact pair. Ambiguous relationships are listed without directional scanning, and a family with no directed comparisons does not establish an absence of scanner matches. Only `SKILL.md` content is scanned; sibling-file contents are not compared. Sibling-only relationships remain useful validation cases but do not establish the safety of sibling changes.
+
+Selected manual inspections exposed uneven command coverage and a line-ending sensitivity bug. The wrapper now normalizes line endings before scanning, and the corrected comparison remains a regression case. Other inspected cases illustrate limitations in declared-source resolution and exact-name candidate generation. These observations do not constitute manual validation of every comparison.
+
+#### Sample View and Reproducibility
+
+The revised selection uses `artifact_id`, which the project team confirmed is deterministic for the project's dataset. The script `sql/generate_sprint1_sample.sql` embeds the 43 selected IDs and creates or replaces the `sample_artifacts` view by matching them to `artifacts.id`. The CSV at `data/sample-population/sample_population.csv` also records the selected IDs, but the view does not read that file.
+
+The view stores the selection query rather than copying artifact records into separate sample tables. Its ID list fixes the selection criteria, while returned values reflect the underlying `artifacts` table when queried. It exposes all artifact columns locally, including content and identifying metadata; it is not an anonymized reporting view.
+
+The script's final count query should return 43 if every selected ID exists. The saved family-report totals do not demonstrate that this query has been run successfully. Reproducibility checks should reconcile the embedded IDs with the recorded list, confirm that every ID resolves, and compare reconstructed membership in both directions. A matching row count alone is insufficient to establish identical membership.
+
+Deterministic IDs support reconstruction for the agreed dataset; they do not guarantee unchanged membership or content in a different release. The dataset version, selection SQL, scanner rules, and normalization settings must therefore be recorded. Earlier frozen-table validation applies only to the earlier sample.
+
 ## Data Ethics and Safety
 
 All artifact content is treated as untrusted data. The project performs static analysis only and will not execute scripts, commands, or instructions contained in the dataset.
@@ -155,8 +187,10 @@ The pipeline and reporting process will:
 
 - avoid executing or importing untrusted artifact code;
 - avoid exposing credentials, tokens, or other sensitive strings that may appear in artifact content;
-- retain only the match locations or excerpts needed for validation and safe reporting;
+- keep validation evidence local and omit source text and identifying values from exported reports under the current output constraints;
 - distinguish detected risk signals from proof of malicious intent, vulnerability, exploitability, or real-world harm; and
-- report aggregate findings and carefully selected examples using the project's responsible reporting framework.
+- report aggregate findings and generalized observations without naming selected artifacts or reproducing source content.
+
+Current orchestration reports identify endpoints by artifact ID, omit text diffs, and serialize scanner comparisons with `verbose=False`. These measures limit exported content but do not guarantee anonymity or resolve licensing questions. Artifact IDs can be linked to source records by someone with access to the dataset.
 
 [TODO: Document the implemented redaction, access-control, retention, and safe-example-selection procedures.]

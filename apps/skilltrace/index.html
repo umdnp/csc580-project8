@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkillTrace – GitSkills Similarity &amp; Security Analyzer</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:light-dark(#fff,#181b20);
+  --panel:light-dark(#f7f9fb,#20252b);
+  --fg:light-dark(#202832,#e3e9f0);
+  --muted:light-dark(#5b6774,#aab4bf);
+  --border:light-dark(#d3dbe3,#48525e);
+  --blue:light-dark(#216aab,#79baff);
+  --orange:light-dark(#9b5b13,#eeba74);
+  --purple:light-dark(#7951a8,#c3a5ee);
+  --green:light-dark(#347a47,#76cf8d);
+  --peer-line:light-dark(#b7c0c8,#a5afb9);
+  --related-peer:light-dark(#aab4be,#7f8b97);
+  --equivalent-peer:light-dark(#d9ca95,#b9ab78);
+  --added:light-dark(#e5f5e8,#173c25);
+  --removed:light-dark(#fde7e7,#482222);
+  --changed:light-dark(#fff4cf,#493f1b);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+main{max-width:1500px;margin:auto;padding:24px}
+h1{font-size:24px;font-weight:600;margin:0 0 4px}
+h2{font-size:18px;margin-bottom:10px}
+h3{font-size:15px;margin:14px 0 8px}
+p{margin:6px 0}
+button,input,select{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:7px 10px;max-width:100%}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.controls,.legend,.actions,.detail-actions,.copy-actions,.search-results{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
+.controls label{flex:1 1 220px}
+.search-control{flex:2 1 360px!important}
+.legend{font-size:13px;align-items:center}
+.line{display:inline-block;width:25px;border-top:2px solid var(--blue);vertical-align:middle;margin-right:6px}
+.chrono{border-color:var(--orange);border-top-style:dashed}
+.declared{border-color:var(--purple)}
+.ambiguous-line{border-color:var(--peer-line);border-top-style:dotted}
+.dot{display:inline-block;width:12px;height:12px;border:2px solid var(--fg);border-radius:50%;vertical-align:-1px;margin-right:5px;background:var(--bg)}
+.dot.selected{background:var(--blue)}
+.dot.parent{background:var(--purple)}
+.dot.child{background:var(--green)}
+.dot.related-peer{background:var(--related-peer)}
+.dot.equivalent-peer{background:var(--equivalent-peer)}
+#graph{display:block;width:100%;height:560px;border:1px solid var(--border);touch-action:none;background:var(--panel)}
+.edge{fill:none;stroke:var(--blue);stroke-width:1.4}
+.edge.chronology{stroke:var(--orange);stroke-dasharray:5 3}
+.edge.declared-source{stroke:var(--purple)}
+.edge.ambiguous{stroke:var(--peer-line);stroke-dasharray:2 5;stroke-width:1.5}
+.edge.connected{stroke-width:2.8}
+.node{fill:var(--bg);stroke:var(--fg);stroke-width:1.5}
+.node.root{stroke-width:2.8}
+.node.selected{fill:var(--blue);stroke-width:3}
+.node.parent{fill:var(--purple);stroke-width:2.3}
+.node.child{fill:var(--green);stroke-width:2.3}
+.node.undirected-peer{fill:var(--related-peer);stroke-width:2}
+.node.equivalent-peer{fill:var(--equivalent-peer);stroke:var(--fg);stroke-width:2}
+.compare-hover-ring{fill:none;stroke:#e53935;stroke-width:3;opacity:0;pointer-events:none;vector-effect:non-scaling-stroke}
+.compare-hover-ring.active{opacity:1}
+svg text{fill:var(--fg);font:13px system-ui}
+.muted{font-size:13px;color:var(--muted)}
+#message{min-height:24px;overflow-wrap:anywhere}
+#neighbors,#ambiguous-neighbors{display:flex;gap:8px;flex-wrap:wrap}
+#edge-detail{overflow-wrap:anywhere;min-height:24px}
+.card{border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:16px;margin-top:18px}
+.report-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:14px 0}
+.stat{border:1px solid var(--border);border-radius:7px;padding:10px 12px;background:var(--panel);min-width:0}
+.stat .value{display:block;font-size:19px;font-weight:650;overflow-wrap:anywhere}
+.stat .label{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.selection-panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.selected-artifact-identity{display:grid;gap:3px;overflow-wrap:anywhere;margin:0 0 10px}
+.selected-artifact-identity .identity-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px}
+.selected-artifact-identity strong{font-weight:650}
+.control-panel{border:1px solid var(--border);border-radius:7px;padding:12px;background:var(--bg);min-width:0}
+.control-panel h3{margin:0 0 8px}
+.control-panel label{width:100%}
+.field-label{display:block;margin-bottom:4px}
+.compare-dropdown{position:relative;width:100%}
+.compare-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
+.compare-toggle::after{content:'▾';color:var(--muted);flex:0 0 auto}
+.compare-toggle[aria-expanded='true']::after{content:'▴'}
+.compare-menu{position:absolute;z-index:30;top:calc(100% + 4px);left:0;right:0;max-height:250px;overflow:auto;border:1px solid var(--border);border-radius:6px;background:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.2);padding:4px}
+.compare-option{display:block;width:100%;border:0;border-radius:4px;background:transparent;text-align:left;padding:7px 9px}
+.compare-option:hover,.compare-option:focus-visible,.compare-option[aria-selected='true']{background:var(--panel)}
+.control-panel .detail-actions{margin-bottom:0}
+.control-panel .muted{margin-top:8px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.meta-box{border:1px solid var(--border);border-radius:6px;padding:12px;min-width:0;background:var(--bg)}
+.kv{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(0,1.5fr);gap:6px 12px;margin:0}
+.kv dt{font-weight:600;color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.kv dd.long-value{max-height:9em;overflow:auto;padding-right:4px}
+.relationship{margin-top:14px}
+.pill{display:inline-block;padding:2px 7px;border:1px solid var(--border);border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+details.metadata{margin-top:10px}
+details.metadata summary{cursor:pointer}
+.warning{border-left:3px solid var(--orange);padding-left:10px;color:var(--muted)}
+.empty{color:var(--muted);font-style:italic}
+.copy-actions{margin:0 0 10px}
+.copy-actions button{font-size:12px;padding:4px 7px}
+.search-results{margin-top:0}
+.search-results button{text-align:left;max-width:min(100%,720px);overflow-wrap:anywhere}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.policy-status{border-top:1px solid var(--border);margin-top:18px;padding-top:10px;font-size:13px;line-height:1.5}
+.policy-status .policy-title{font-weight:700;color:var(--fg)}
+.policy-status .policy-item,.policy-status .policy-explanation{color:var(--muted)}
+.policy-status .policy-item strong{color:var(--fg);font-weight:600}
+.policy-status .policy-separator{color:var(--muted);margin:0 6px}
+.db-status{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;overflow-wrap:anywhere}
+
+/* Dialogs */
+dialog{width:min(96vw,1500px);height:min(92vh,980px);padding:0;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg)}
+dialog.health-dialog{position:fixed;inset:0;margin:auto;width:min(92vw,620px);height:auto;max-height:min(80vh,560px)}
+dialog.health-dialog .dialog-shell{height:auto}
+dialog.health-dialog .dialog-body{flex:none;overflow:auto;padding:14px 16px 18px}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dialog-shell{display:flex;flex-direction:column;height:100%}
+.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.dialog-head h2{margin:0}
+.dialog-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.dialog-body{padding:14px 16px;overflow:auto;min-height:0;flex:1}
+.content-meta{font-size:13px;color:var(--muted);margin-bottom:10px;overflow-wrap:anywhere}
+.file-content{margin:0;border:1px solid var(--border);border-radius:6px;padding:12px;min-height:300px;height:calc(100% - 38px);overflow:auto;white-space:pre;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--panel)}
+.diff-headings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px}
+.diff-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
+.diff-heading button{font-size:12px;padding:4px 7px;flex:0 0 auto}
+.diff-panes{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:calc(100% - 34px);min-height:300px}
+.diff-pane{border:1px solid var(--border);border-radius:6px;overflow:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg)}
+.diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);min-height:1.45em;white-space:pre}
+.diff-line .ln{user-select:none;text-align:right;padding:0 9px;color:var(--muted);border-right:1px solid var(--border)}
+.diff-line .code{padding:0 8px;min-width:max-content}
+.diff-line.added{background:var(--added)}
+.diff-line.removed{background:var(--removed)}
+.diff-line.changed{background:var(--changed)}
+.diff-line.empty{opacity:.45}
+.missing-file{display:flex;align-items:center;justify-content:center;height:100%;min-height:300px;padding:24px;color:var(--muted);font-style:italic;text-align:center}
+.scan-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.scan-summary .meta-box{height:100%}
+table{border-collapse:collapse;width:100%;margin:8px 0 14px}
+th,td{border:1px solid var(--border);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--panel)}
+.match-list{font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:900px){main{padding:12px}#graph{height:450px}.detail-grid,.diff-panes,.diff-headings,.scan-summary,.report-summary,.selection-panels{grid-template-columns:1fr}.diff-panes{height:auto}.diff-pane{height:300px}.diff-headings{display:none}.kv{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>SkillTrace – GitSkills Similarity &amp; Security Analyzer</h1>
+<p class="muted">Explore candidate-family ancestry, uncertainty, artifact contents, sibling files, diffs, and static scan results.</p>
+
+<div class="controls">
+  <label>Report<select id="report"></select></label>
+  <button id="refresh">Refresh reports</button>
+  <label>Relationship cluster<select id="cluster"></select></label>
+  <label>View<select id="scope"><option value="local">Direct relationships</option><option value="lineage">Direct and indirect relationships</option><option value="cluster">Entire cluster</option></select></label>
+</div>
+<div id="report-summary" class="report-summary" hidden></div>
+<div class="controls">
+  <label class="search-control">Find artifact<input id="artifact-search" placeholder="Artifact ID, name, repository, path, or SHA"></label>
+  <button id="search">Search</button>
+</div>
+<div id="search-results" class="search-results" hidden></div>
+<div id="message" role="status" aria-live="polite"></div>
+
+<div class="legend">
+  <span><i class="line"></i>Containment →</span>
+  <span><i class="line chrono"></i>Chronology →</span>
+  <span><i class="line declared"></i>Declared →</span>
+  <span><i class="line ambiguous-line"></i>No direction</span>
+  <span><i class="dot selected"></i>Selected</span>
+  <span><i class="dot parent"></i>Parent candidate</span>
+  <span><i class="dot child"></i>Derived candidate</span>
+  <span><i class="dot related-peer"></i>Related peer</span>
+  <span><i class="dot equivalent-peer"></i>Equivalent peer</span>
+</div>
+<p class="muted">Arrowheads show inferred earlier → later; gray peer lines have no direction. Node color distinguishes peer type.</p>
+<div class="actions">
+  <button id="fit">Fit visible family</button>
+  <button id="focus">Focus selected</button>
+  <button id="plus" aria-label="Zoom in">+</button>
+  <button id="minus" aria-label="Zoom out">−</button>
+  <span id="visible" class="muted"></span>
+</div>
+<svg id="graph" role="img" aria-label="Interactive inferred relationship graph. Peer relationships are shown for the selected artifact."><defs></defs><g id="marks"></g></svg>
+
+<section class="card" aria-label="Selected artifact details">
+  <div id="selection-panels" class="selection-panels" hidden>
+    <section class="control-panel">
+      <h3>Selected Artifact</h3>
+      <div id="details" class="selected-artifact-identity">Select an artifact to inspect it.</div>
+      <div class="detail-actions">
+        <button id="view-content" hidden>View content</button>
+      </div>
+    </section>
+    <section class="control-panel">
+      <h3>Compare To</h3>
+      <span class="field-label">Artifact</span>
+      <div id="compare-control" class="compare-dropdown">
+        <button id="compare-toggle" class="compare-toggle" type="button" aria-haspopup="listbox" aria-expanded="false">NONE</button>
+        <div id="compare-menu" class="compare-menu" role="listbox" hidden></div>
+      </div>
+      <div class="detail-actions">
+        <button id="view-diff" hidden>View diff</button>
+        <button id="scan-diff" hidden>Run scan</button>
+      </div>
+      <p id="compare-note" class="muted"></p>
+    </section>
+    <section class="control-panel">
+      <h3>Artifact Siblings</h3>
+      <label>File<select id="sibling"></select></label>
+      <div class="detail-actions">
+        <button id="view-sibling-content" hidden>View content</button>
+        <button id="view-sibling-diff" hidden>View diff</button>
+      </div>
+      <p id="sibling-note" class="muted"></p>
+    </section>
+  </div>
+  <div id="detail-content"></div>
+  <h3>Directed connections</h3><div id="neighbors"></div>
+  <h3 id="ambiguous-heading">Peer relationships</h3><div id="ambiguous-neighbors"></div>
+  <p id="edge-detail" aria-live="polite"></p>
+</section>
+<p id="limitations" class="muted"></p>
+<div id="policy-status" class="policy-status" hidden></div>
+<p id="db-status" class="db-status muted"></p>
+</main>
+
+<dialog id="content-dialog">
+  <div class="dialog-shell">
+    <div class="dialog-head"><h2 id="content-title">File contents</h2><div class="dialog-actions"><button id="content-copy" disabled>Copy Contents</button><button data-close="content-dialog">Close</button></div></div>
+    <div class="dialog-body"><div id="content-meta" class="content-meta"></div><pre id="content-text" class="file-content">Loading…</pre></div>
+  </div>
+</dialog>
+
+<dialog id="diff-dialog">
+  <div class="dialog-shell">
+    <div class="dialog-head"><h2 id="diff-title">Artifact diff</h2><button data-close="diff-dialog">Close</button></div>
+    <div class="dialog-body" id="diff-body"><p>Loading diff…</p></div>
+  </div>
+</dialog>
+
+<dialog id="scan-dialog">
+  <div class="dialog-shell">
+    <div class="dialog-head"><h2 id="scan-title">Scan diff</h2><button data-close="scan-dialog">Close</button></div>
+    <div class="dialog-body" id="scan-body"><p>Running scan…</p></div>
+  </div>
+</dialog>
+
+<dialog id="health-dialog" class="health-dialog">
+  <div class="dialog-shell">
+    <div class="dialog-head"><h2>DuckDB unavailable</h2><button data-close="health-dialog">Close</button></div>
+    <div class="dialog-body">
+      <p>The configured DuckDB database is no longer accessible. Database-backed features such as metadata, contents, sibling comparisons, diffs, search, and scans will not work until access is restored.</p>
+      <p class="muted">If the database was moved, replaced, or locked, correct the problem and restart the SkillTrace app if needed. The JSON relationship graph will continue to work.</p>
+      <p id="health-error" class="warning"></p>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const $ = selector => document.querySelector(selector);
+const graph = $('#graph');
+const marks = $('#marks');
+const ns = 'http://www.w3.org/2000/svg';
+
+let meta = null;
+let data = {nodes: [], edges: [], ambiguous: [], roots: []};
+let nodes = new Map();
+let parents = new Map();
+let children = new Map();
+let ambiguousByNode = new Map();
+let selected = null;
+let selectedRelationship = null;
+let selectedComparison = null;
+let currentDetails = null;
+let hoveredCompareArtifactId = null;
+let box = [0, 0, 800, 560];
+let fitBox = box;
+let lastPositions = new Map();
+let drag = null;
+let request = 0;
+let detailRequest = 0;
+let moved = false;
+
+function svgEl(tag, attrs = {}) {
+  const node = document.createElementNS(ns, tag);
+  Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+  return node;
+}
+
+for (const [basis, color] of [['containment','--blue'],['chronology','--orange'],['declared-source','--purple']]) {
+  const marker = svgEl('marker', {id: `arrow-${basis}`, viewBox: '0 0 10 10', refX: 10, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto'});
+  marker.append(svgEl('path', {d: 'M0 0L10 5L0 10Z', fill: `var(${color})`}));
+  graph.querySelector('defs').append(marker);
+}
+
+function msg(text) { $('#message').textContent = text; }
+
+async function api(path, options = undefined) {
+  const response = await fetch('/api/' + path, options);
+  let payload;
+  try { payload = await response.json(); } catch { payload = {}; }
+  if (!response.ok) throw Error(typeof payload.detail === 'string' ? payload.detail : 'Request failed');
+  return payload;
+}
+
+function route() { return 'reports/' + encodeURIComponent($('#report').value); }
+
+function busy(value) {
+  for (const id of ['cluster','scope','artifact-search','search','fit','focus','plus','minus']) $('#'+id).disabled = value;
+}
+
+function stat(label, value) {
+  const card = document.createElement('div'); card.className = 'stat';
+  const valueEl = document.createElement('span'); valueEl.className = 'value'; valueEl.textContent = value;
+  const labelEl = document.createElement('span'); labelEl.className = 'label'; labelEl.textContent = label;
+  card.append(valueEl, labelEl); return card;
+}
+
+function clearState() {
+  meta = null;
+  data = {nodes: [], edges: [], ambiguous: [], roots: []};
+  nodes.clear(); parents.clear(); children.clear(); ambiguousByNode.clear();
+  selected = null; selectedRelationship = null; selectedComparison = null; currentDetails = null; lastPositions = new Map();
+  marks.replaceChildren();
+  $('#cluster').replaceChildren();
+  $('#neighbors').replaceChildren();
+  $('#ambiguous-neighbors').replaceChildren();
+  $('#detail-content').replaceChildren();
+  resetCompareDropdown(); $('#sibling').replaceChildren();
+  $('#selection-panels').hidden = true;
+  $('#view-content').hidden = true;
+  $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
+  $('#compare-note').textContent = ''; $('#sibling-note').textContent = '';
+  $('#report-summary').replaceChildren(); $('#report-summary').hidden = true;
+  $('#search-results').replaceChildren(); $('#search-results').hidden = true;
+  for (const id of ['visible','details','limitations','edge-detail']) $('#'+id).textContent = '';
+  $('#policy-status').replaceChildren(); $('#policy-status').hidden = true;
+  busy(true);
+}
+
+async function checkDatabaseHealth(showWarning = true) {
+  try {
+    const result = await api('health');
+    const db = result.database;
+    const source = db.source === 'GITSKILLS_DB' ? 'GITSKILLS_DB' : 'default path';
+    $('#db-status').textContent = `DuckDB: ${db.path} · source: ${source} · ${db.available ? 'available' : 'unavailable'}`;
+    const dialog = $('#health-dialog');
+    if (!db.available && showWarning) {
+      $('#health-error').textContent = db.error || 'DuckDB could not be opened.';
+      if (!dialog.open) showDialog(dialog);
+    } else if (db.available && dialog.open) {
+      dialog.close();
+    }
+    return db;
+  } catch (error) {
+    $('#db-status').textContent = `Database health check failed: ${error.message}`;
+    if (showWarning) {
+      $('#health-error').textContent = error.message;
+      const dialog = $('#health-dialog');
+      if (!dialog.open) showDialog(dialog);
+    }
+    return null;
+  }
+}
+
+async function loadStatus() {
+  await checkDatabaseHealth(true);
+}
+
+
+const SELECTED_REPORT_KEY = 'gitskills.skilltrace.selectedReport';
+
+function savedReport() {
+  try { return localStorage.getItem(SELECTED_REPORT_KEY) || ''; }
+  catch (_) { return ''; }
+}
+
+function saveReport(filename) {
+  if (!filename) return;
+  try { localStorage.setItem(SELECTED_REPORT_KEY, filename); }
+  catch (_) { /* Browser storage may be disabled; report loading still works. */ }
+}
+
+function setCompareHover(artifactId = null) {
+  hoveredCompareArtifactId = artifactId === null || artifactId === undefined ? null : Number(artifactId);
+  marks.querySelectorAll('.compare-hover-ring').forEach(ring => {
+    ring.classList.toggle('active', Number(ring.dataset.artifactId) === hoveredCompareArtifactId);
+  });
+}
+
+function closeCompareMenu() {
+  const menu = $('#compare-menu');
+  const toggle = $('#compare-toggle');
+  menu.hidden = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  setCompareHover(null);
+}
+
+function resetCompareDropdown() {
+  const toggle = $('#compare-toggle');
+  const menu = $('#compare-menu');
+  menu.replaceChildren();
+  menu.hidden = true;
+  toggle.textContent = 'NONE';
+  toggle.disabled = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  setCompareHover(null);
+}
+
+function comparisonLabel(item) {
+  const peers = ambiguousByNode.get(selected) || [];
+  const edge = peers.find(edge => {
+    const peer = Number(edge.left) === Number(selected) ? edge.right : edge.left;
+    return Number(peer) === Number(item.id);
+  });
+  if (!edge) return item.label;
+
+  const type = relationshipStatus(edge) === 'equivalent' ? 'equivalent' : 'related';
+  const base = String(item.label || `Artifact ${item.id}`)
+    .replace(/\s*\((?:ambiguous|equivalent|related)\)\s*$/i, '');
+  return `${base} (${type})`;
+}
+
+function renderCompareDropdown(comparisons, comparison) {
+  const toggle = $('#compare-toggle');
+  const menu = $('#compare-menu');
+  menu.replaceChildren();
+  menu.hidden = true;
+  toggle.setAttribute('aria-expanded', 'false');
+  setCompareHover(null);
+
+  if (!comparisons.length) {
+    resetCompareDropdown();
+    return;
+  }
+
+  toggle.disabled = false;
+  const current = comparisons.find(item => Number(item.id) === Number(comparison?.id)) || comparisons[0];
+  toggle.textContent = comparisonLabel(current);
+
+  for (const item of comparisons) {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'compare-option';
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-selected', String(Number(item.id) === Number(current.id)));
+    option.textContent = comparisonLabel(item);
+    option.addEventListener('mouseenter', () => setCompareHover(item.id));
+    option.addEventListener('mouseleave', () => setCompareHover(null));
+    option.addEventListener('focus', () => setCompareHover(item.id));
+    option.addEventListener('blur', () => setCompareHover(null));
+    option.addEventListener('click', () => {
+      toggle.textContent = comparisonLabel(item);
+      closeCompareMenu();
+      loadDetails(Number(item.id));
+    });
+    menu.append(option);
+  }
+}
+
+async function reports() {
+  const token = ++request;
+  clearState();
+  msg('Finding reports…');
+  await loadStatus();
+  try {
+    const result = await api('reports');
+    if (token !== request) return;
+    const current = $('#report').value;
+    const remembered = savedReport();
+    $('#report').replaceChildren();
+    result.reports.forEach(filename => $('#report').add(new Option(filename, filename)));
+    if (result.reports.includes(current)) $('#report').value = current;
+    else if (result.reports.includes(remembered)) $('#report').value = remembered;
+    if (!result.reports.length) {
+      msg('No valid analyze_family JSON reports found in skilltrace/reports.');
+      return;
+    }
+    await loadReport();
+  } catch (error) {
+    if (token === request) msg(error.message);
+  }
+}
+
+function formatPolicyRatio(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? `${(number * 100).toFixed(Number.isInteger(number * 100) ? 0 : 1)}%` : 'unavailable';
+}
+
+function renderReportPolicy(policy = {}) {
+  const holder = $('#policy-status');
+  holder.replaceChildren();
+
+  const parts = [];
+
+  const title = document.createElement('span');
+  title.className = 'policy-title';
+  title.textContent = 'Similarity policy';
+  parts.push(title);
+
+  for (const [label, value] of [
+    ['Containment threshold', policy.min_containment],
+    ['Similarity threshold', policy.min_jaccard],
+  ]) {
+    if (value == null) continue;
+    const item = document.createElement('span');
+    item.className = 'policy-item';
+    const strong = document.createElement('strong');
+    strong.textContent = formatPolicyRatio(value);
+    item.append(`${label}: `, strong);
+    parts.push(item);
+  }
+
+  if (policy.shingle_size != null && policy.min_shared_shingles != null) {
+    const explanation = document.createElement('span');
+    explanation.className = 'policy-explanation';
+    explanation.textContent = `Pairs must share at least ${policy.min_shared_shingles} matching ${policy.shingle_size}-token shingles, then meet the configured containment and similarity thresholds.`;
+    parts.push(explanation);
+  }
+
+  if (parts.length === 1) {
+    holder.hidden = true;
+    return;
+  }
+
+  parts.forEach((part, index) => {
+    if (index) {
+      const separator = document.createElement('span');
+      separator.className = 'policy-separator';
+      separator.textContent = '·';
+      holder.append(separator);
+    }
+    holder.append(part);
+  });
+
+  holder.hidden = false;
+}
+
+function renderReportSummary() {
+  const holder = $('#report-summary'); holder.replaceChildren();
+  holder.append(
+    stat('Candidate family', meta.name),
+    stat('Artifacts', meta.total.toLocaleString()),
+    stat('Directed relationships', meta.directed.toLocaleString()),
+    stat('Peer relationships', meta.ambiguous.toLocaleString()),
+    stat('Clusters', meta.clustersTotal.toLocaleString())
+  );
+  holder.hidden = false;
+}
+
+async function loadReport() {
+  const token = ++request;
+  clearState();
+  msg('Loading and indexing report…');
+  try {
+    const result = await api(route() + '/summary');
+    if (token !== request) return;
+    meta = result;
+    saveReport($('#report').value);
+    renderReportSummary();
+    renderReportPolicy(meta.policy);
+    meta.clusters.forEach(cluster => $('#cluster').add(new Option(`Cluster ${cluster.id} · ${cluster.n} artifacts · ${cluster.e} directed · ${cluster.a} peers`, cluster.id)));
+    const unlisted = Math.max(0, meta.total - meta.referenced);
+    $('#limitations').textContent = `${meta.referenced.toLocaleString()} artifact IDs are drawable from this report${unlisted ? `; ${unlisted.toLocaleString()} reported artifacts do not have IDs in the family structure` : ''}. Horizontal position represents inferred steps, not elapsed time. Peer relationships are contextual: only peers of the selected artifact are shown. Artifact metadata, file content, sibling files, search, diffs, and scans query DuckDB only when requested.`;
+    if (!meta.clusters.length) {
+      msg('This report has no family clusters to draw.');
+      return;
+    }
+    await loadCluster();
+  } catch (error) {
+    if (token === request) msg(error.message);
+  }
+}
+
+async function loadCluster(preferredId = null) {
+  const token = ++request;
+  busy(true);
+  marks.replaceChildren();
+  $('#detail-content').replaceChildren();
+  msg('Loading cluster…');
+  try {
+    const result = await api(route() + '/clusters/' + $('#cluster').value);
+    if (token !== request) return;
+    data = result;
+    nodes = new Map(data.nodes.map(node => [node.id, node]));
+    parents = new Map(); children = new Map(); ambiguousByNode = new Map();
+
+    for (const edge of data.edges) {
+      if (!parents.has(edge.target)) parents.set(edge.target, []);
+      parents.get(edge.target).push(edge);
+      if (!children.has(edge.source)) children.set(edge.source, []);
+      children.get(edge.source).push(edge);
+    }
+    for (const edge of data.ambiguous) {
+      for (const id of [edge.left, edge.right]) {
+        if (!ambiguousByNode.has(id)) ambiguousByNode.set(id, []);
+        ambiguousByNode.get(id).push(edge);
+      }
+    }
+
+    const degree = node => (parents.get(node.id) || []).length + (children.get(node.id) || []).length + (ambiguousByNode.get(node.id) || []).length;
+    const candidates = [...data.nodes].sort((a,b) => Number(b.root)-Number(a.root) || Math.abs(degree(a)-6)-Math.abs(degree(b)-6) || a.id-b.id);
+    selected = nodes.has(preferredId) ? preferredId : candidates[0]?.id ?? null;
+    busy(false);
+    msg('');
+    draw({view:'fit'});
+    if (selected !== null) await loadDetails();
+  } catch (error) {
+    if (token === request) msg(error.message);
+  }
+}
+
+async function searchArtifact() {
+  const text = $('#artifact-search').value.trim();
+  $('#search-results').replaceChildren(); $('#search-results').hidden = true;
+  if (!text) { msg('Enter an artifact ID, name, repository, path, or SHA.'); return; }
+
+  if (/^\d+$/.test(text)) {
+    const id = Number(text);
+    if (nodes.has(id)) { select(id); return; }
+    const token = ++request;
+    msg('Locating artifact…');
+    try {
+      const node = await api(route() + '/artifacts/' + id);
+      if (token !== request) return;
+      $('#cluster').value = node.c;
+      await loadCluster(id);
+    } catch (error) {
+      if (token === request) msg(error.message);
+    }
+    return;
+  }
+
+  msg('Searching report artifacts in DuckDB…');
+  try {
+    const result = await api(route() + '/search?q=' + encodeURIComponent(text));
+    msg('');
+    if (!result.matches.length) { msg('No report artifacts matched that search.'); return; }
+    if (result.matches.length === 1) { await goToSearchResult(result.matches[0]); return; }
+    const holder = $('#search-results'); holder.hidden = false;
+    for (const match of result.matches) {
+      const button = document.createElement('button');
+      const location = [match.repo_full_name, match.path].filter(Boolean).join(' / ');
+      button.textContent = `Artifact ${match.id}${match.name ? ` · ${match.name}` : ''}${location ? ` · ${location}` : ''}`;
+      button.onclick = () => goToSearchResult(match);
+      holder.append(button);
+    }
+    const note = document.createElement('span'); note.className = 'muted'; note.textContent = `${result.matches.length} matches`;
+    holder.append(note);
+  } catch (error) {
+    msg(error.message);
+  }
+}
+
+async function goToSearchResult(match) {
+  $('#search-results').hidden = true;
+  if (String($('#cluster').value) !== String(match.cluster)) {
+    $('#cluster').value = match.cluster;
+    await loadCluster(Number(match.id));
+  } else {
+    select(Number(match.id));
+  }
+}
+
+function select(id, relationship = null) {
+  selected = id;
+  selectedRelationship = relationship;
+  msg('');
+  draw({view:'fit'});
+  loadDetails(relationship && relationship.target === id ? relationship.source : null);
+}
+
+function walk(map, nextField) {
+  const seen = new Set([selected]);
+  const queue = [selected];
+  for (let i = 0; i < queue.length; i++) {
+    for (const edge of map.get(queue[i]) || []) {
+      const next = edge[nextField];
+      if (!seen.has(next)) { seen.add(next); queue.push(next); }
+    }
+  }
+  return seen;
+}
+
+function setBox(next) {
+  box = next;
+  graph.setAttribute('viewBox', next.join(' '));
+  marks.querySelectorAll('text').forEach(text => text.style.display = next[2] / Math.max(graph.clientWidth, 320) < 2 ? '' : 'none');
+}
+
+function number(value, digits = 3) {
+  return value === null || value === undefined ? 'unavailable' : Number(value).toFixed(digits);
+}
+
+function relationshipStatus(edge) {
+  if (edge.relationship_status) return edge.relationship_status;
+  if (edge.basis === 'provenance-conflict') return 'direction-conflict';
+  if (edge.change_type === 'equivalent') return 'equivalent';
+  return 'direction-unknown';
+}
+
+function relationshipHeading(edge) {
+  const status = relationshipStatus(edge);
+  if (status === 'direction-conflict') return 'Conflicting direction evidence';
+  if (status === 'equivalent') return 'Equivalent artifacts — direction unknown';
+  return 'Related artifacts — direction unknown';
+}
+
+function relationshipLabel(edge) {
+  const status = relationshipStatus(edge);
+  if (status === 'direction-conflict') return 'Related — direction evidence conflicts';
+  if (status === 'equivalent') return 'Equivalent — direction unknown';
+  return 'Related — direction unknown';
+}
+
+function relationshipShortLabel(edge) {
+  const status = relationshipStatus(edge);
+  if (status === 'direction-conflict') return 'Conflict';
+  if (status === 'equivalent') return 'Equivalent';
+  return 'Unknown direction';
+}
+
+function basisText(basis) {
+  return ({
+    'containment': 'Containment',
+    'chronology': 'Chronology',
+    'repo-created-boundary': 'Repository creation boundary',
+    'equivalent-peer-chronology': 'Equivalent-peer chronology',
+    'equivalent-peer': 'Equivalent peer',
+    'direct': 'Direct',
+    'declared-source': 'Declared source',
+    'equivalent-state': 'Equivalent state',
+    'similarity-only': 'Similarity only',
+    'same-content-direction-unknown': 'Same content',
+    'provenance-conflict': 'Conflicting provenance',
+  })[basis] || basis || 'Unknown';
+}
+
+function inheritedChronology(edge) {
+  return Object.entries(edge.chronology || {})
+    .filter(([, value]) => value?.chronology_basis === 'equivalent-peer');
+}
+
+function edgeText(edge) {
+  const evidence = edge.evidence?.length ? ` · evidence ${edge.evidence.join(', ')}` : '';
+  const inherited = inheritedChronology(edge);
+  const chronology = inherited.length
+    ? ` · effective chronology ${inherited.map(([, value]) => `${dateText(value.effective_chronology)} via artifact ${value.chronology_source_artifact_id}`).join('; ')}`
+    : '';
+  return `${edge.source} → ${edge.target} · ${basisText(edge.basis)} · containment ${number(edge.containment)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}${evidence}${chronology}`;
+}
+
+function undirectedText(edge) {
+  return `${edge.left} ↔ ${edge.right} · ${relationshipShortLabel(edge)} · ${basisText(edge.basis)} · containment ${number(edge.containment_left_to_right)}/${number(edge.containment_right_to_left)} · Jaccard ${number(edge.jaccard)} · shared shingles ${edge.shared_shingles ?? 'unavailable'} · ${edge.change_type}`;
+}
+
+function currentVisibleIds() {
+  const mode = $('#scope').value;
+  let ids;
+  if (mode === 'cluster') {
+    ids = new Set(nodes.keys());
+  } else if (mode === 'lineage') {
+    ids = new Set([...walk(parents, 'source'), ...walk(children, 'target')]);
+  } else {
+    ids = new Set([
+      selected,
+      ...(parents.get(selected) || []).map(edge => edge.source),
+      ...(children.get(selected) || []).map(edge => edge.target),
+    ]);
+  }
+  for (const edge of ambiguousByNode.get(selected) || []) {
+    ids.add(edge.left === selected ? edge.right : edge.left);
+  }
+  return ids;
+}
+
+function focusSelected() {
+  const point = lastPositions.get(selected);
+  if (!point) return;
+  const width = Math.min(box[2], fitBox[2]);
+  const height = Math.min(box[3], fitBox[3]);
+  setBox([point.x - width/2, point.y - height/2, width, height]);
+}
+
+function draw({view='preserve'} = {}) {
+  if (selected === null) return;
+  const ids = currentVisibleIds();
+  const directed = data.edges.filter(edge => ids.has(edge.source) && ids.has(edge.target));
+  const ambiguous = (ambiguousByNode.get(selected) || []).filter(edge => ids.has(edge.left) && ids.has(edge.right));
+  const indegree = new Map([...ids].map(id => [id, 0]));
+  const layer = new Map([...ids].map(id => [id, 0]));
+  const out = new Map();
+
+  for (const edge of directed) {
+    indegree.set(edge.target, indegree.get(edge.target) + 1);
+    if (!out.has(edge.source)) out.set(edge.source, []);
+    out.get(edge.source).push(edge.target);
+  }
+
+  const queue = [...ids].filter(id => !indegree.get(id));
+  for (let i = 0; i < queue.length; i++) {
+    for (const id of out.get(queue[i]) || []) {
+      layer.set(id, Math.max(layer.get(id), layer.get(queue[i]) + 1));
+      indegree.set(id, indegree.get(id) - 1);
+      if (!indegree.get(id)) queue.push(id);
+    }
+  }
+
+  const cyclic = queue.length < ids.size;
+  const columns = new Map();
+  for (const id of ids) {
+    const level = layer.get(id);
+    if (!columns.has(level)) columns.set(level, []);
+    columns.get(level).push(id);
+  }
+
+  const height = Math.max(220, ...[...columns.values()].map(values => values.length * 48 + 50));
+  const pos = new Map();
+  for (const [level, list] of [...columns].sort((a,b) => a[0]-b[0])) {
+    const averageParentY = id => {
+      const positions = (parents.get(id) || []).map(edge => pos.get(edge.source)).filter(Boolean);
+      return positions.length ? positions.reduce((sum, point) => sum + point.y, 0) / positions.length : id;
+    };
+    list.sort((a,b) => averageParentY(a) - averageParentY(b));
+    list.forEach((id, index) => pos.set(id, {x: 85 + level * 235, y: (height - list.length * 48) / 2 + index * 48 + 24}));
+  }
+  lastPositions = pos;
+
+  marks.replaceChildren();
+  const selectedParents = new Set((parents.get(selected) || []).map(edge => edge.source));
+  const selectedChildren = new Set((children.get(selected) || []).map(edge => edge.target));
+  const equivalentPeers = new Set(
+    ambiguous
+      .filter(edge => relationshipStatus(edge) === 'equivalent')
+      .map(edge => edge.left === selected ? edge.right : edge.left)
+  );
+  const undirectedPeers = new Set(
+    ambiguous
+      .filter(edge => relationshipStatus(edge) !== 'equivalent')
+      .map(edge => edge.left === selected ? edge.right : edge.left)
+  );
+
+  for (const edge of ambiguous) {
+    if (relationshipStatus(edge) === 'equivalent') continue;
+    const a = pos.get(edge.left), b = pos.get(edge.right);
+    const path = svgEl('path', {d: `M${a.x},${a.y}L${b.x},${b.y}`, class: 'edge ambiguous connected'});
+    const title = svgEl('title'); title.textContent = undirectedText(edge); path.append(title);
+    path.onclick = () => $('#edge-detail').textContent = undirectedText(edge);
+    marks.append(path);
+  }
+
+  for (const edge of directed) {
+    const a = pos.get(edge.source), b = pos.get(edge.target);
+    const basis = edge.basis === 'declared-source' ? 'declared-source' : (['chronology','equivalent-peer-chronology','repo-created-boundary'].includes(edge.basis) ? 'chronology' : 'containment');
+    const connected = edge.source === selected || edge.target === selected;
+    const path = svgEl('path', {
+      d: `M${a.x+9},${a.y}C${(a.x+b.x)/2},${a.y} ${(a.x+b.x)/2},${b.y} ${b.x-10},${b.y}`,
+      class: `edge ${basis}${connected ? ' connected' : ''}`,
+      'marker-end': `url(#arrow-${basis})`,
+    });
+    const title = svgEl('title'); title.textContent = edgeText(edge); path.append(title);
+    path.onclick = () => $('#edge-detail').textContent = edgeText(edge);
+    marks.append(path);
+  }
+
+  for (const [id, point] of pos) {
+    const group = svgEl('g');
+    const title = svgEl('title');
+    const roles = [];
+    if (id === selected) roles.push('selected');
+    if (nodes.get(id)?.root) roles.push('root candidate');
+    if (selectedParents.has(id)) roles.push('parent candidate');
+    if (selectedChildren.has(id)) roles.push('derived candidate');
+    if (equivalentPeers.has(id)) roles.push('equivalent peer');
+    else if (undirectedPeers.has(id)) roles.push('related peer');
+    title.textContent = `Artifact ${id}${roles.length ? ` · ${roles.join(' · ')}` : ''}`;
+    group.dataset.artifactId = id;
+    const hit = svgEl('circle', {cx: point.x, cy: point.y, r: 18, fill: 'transparent'});
+    const hoverRing = svgEl('circle', {cx: point.x, cy: point.y, r: 14, class: `compare-hover-ring${id === hoveredCompareArtifactId ? ' active' : ''}`, 'data-artifact-id': id});
+    const classes = ['node'];
+    if (nodes.get(id)?.root) classes.push('root');
+    if (id === selected) classes.push('selected');
+    else if (selectedParents.has(id)) classes.push('parent');
+    else if (selectedChildren.has(id)) classes.push('child');
+    else if (equivalentPeers.has(id)) classes.push('equivalent-peer');
+    else if (undirectedPeers.has(id)) classes.push('undirected-peer');
+    const circle = svgEl('circle', {cx: point.x, cy: point.y, r: id === selected ? 9 : 7, class: classes.join(' ')});
+    const text = svgEl('text', {x: point.x+13, y: point.y-10}); text.textContent = id;
+    group.append(title, hit, hoverRing, circle, text);
+    group.style.cursor = 'pointer';
+    group.onclick = () => { if (!moved) select(id); };
+    marks.append(group);
+  }
+
+  const width = Math.max(340, ...[...pos.values()].map(point => point.x + 140));
+  let fittedWidth = width, fittedHeight = height;
+  const aspect = graph.clientWidth / graph.clientHeight;
+  if (fittedWidth / fittedHeight > aspect) fittedHeight = fittedWidth / aspect;
+  else fittedWidth = fittedHeight * aspect;
+  fitBox = [-20, (height - fittedHeight)/2 - 20, fittedWidth + 40, fittedHeight + 40];
+  if (view === 'fit') setBox(fitBox);
+  else if (view === 'focus') focusSelected();
+  else graph.setAttribute('viewBox', box.join(' '));
+
+  const equivalentCount = ambiguous.filter(edge => relationshipStatus(edge) === 'equivalent').length;
+  const unresolvedCount = ambiguous.length - equivalentCount;
+  const undirectedSummary = [
+    equivalentCount ? `${equivalentCount} equivalent` : '',
+    unresolvedCount ? `${unresolvedCount} unresolved` : '',
+  ].filter(Boolean).join(' · ');
+  $('#visible').textContent = `${ids.size} visible artifacts · ${directed.length} directed links${undirectedSummary ? ` · ${undirectedSummary}` : ''}${cyclic ? ' · cycle detected; layout is not a tree' : ''}`;
+  const ps = parents.get(selected) || [], cs = children.get(selected) || [], as = ambiguousByNode.get(selected) || [];
+  $('#edge-detail').textContent = '';
+  renderNeighborButtons(ps, cs, as);
+}
+
+function renderNeighborButtons(ps, cs, ambiguous) {
+  const holder = $('#neighbors'); holder.replaceChildren();
+  for (const [label, list, field] of [['Parent candidate', ps, 'source'], ['Derived candidate', cs, 'target']]) {
+    for (const edge of list) {
+      const button = document.createElement('button');
+      button.textContent = `${label} ${edge[field]}`;
+      button.title = edgeText(edge);
+      button.onclick = () => { select(edge[field], edge); $('#edge-detail').textContent = edgeText(edge); };
+      holder.append(button);
+    }
+  }
+  if (!ps.length && !cs.length) holder.append(Object.assign(document.createElement('span'), {className:'empty', textContent:'No directed relationships for this artifact.'}));
+
+  const ambiguousHolder = $('#ambiguous-neighbors'); ambiguousHolder.replaceChildren();
+  for (const edge of ambiguous) {
+    const peer = edge.left === selected ? edge.right : edge.left;
+    const button = document.createElement('button');
+    button.textContent = `${relationshipShortLabel(edge)} ${peer}`;
+    button.title = undirectedText(edge);
+    button.onclick = () => { select(peer); $('#edge-detail').textContent = undirectedText(edge); };
+    ambiguousHolder.append(button);
+  }
+  $('#ambiguous-heading').hidden = !ambiguous.length;
+  ambiguousHolder.hidden = !ambiguous.length;
+}
+
+function valueText(value) {
+  if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'boolean') return value ? 'yes' : 'no';
+  if (Array.isArray(value)) return value.length ? value.join(', ') : 'none';
+  if (typeof value === 'object') return JSON.stringify(value, null, 2);
+  return String(value);
+}
+
+function dateText(value) {
+  if (value === null || value === undefined || value === '') return 'Unknown';
+  const text = String(value).trim();
+  const match = text.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?/);
+  if (!match) return text;
+  const timezone = match[3] ? ` ${match[3]}` : '';
+  return `${match[1]} ${match[2]}${timezone}`;
+}
+
+function commitHistoryText(value) {
+  if (value === null || value === undefined || value === '') return 'Unknown';
+  if (value === true || value === 1 || String(value).toLowerCase() === 'true' || String(value) === '1') return 'Fetched';
+  if (value === false || value === 0 || String(value).toLowerCase() === 'false' || String(value) === '0') return 'Not fetched';
+  return String(value);
+}
+
+function artifactFieldText(key, value) {
+  if (key === 'repo_created_at' || key === 'first_commit_at' || key === 'last_commit_at') return dateText(value);
+  if (key === 'history_fetched') return commitHistoryText(value);
+  if (key === 'commit_count' && (value === null || value === undefined || value === '')) return 'Unknown';
+  return value;
+}
+
+function evidenceText(value) {
+  if (Array.isArray(value) && !value.length) return 'None recorded';
+  if (value === null || value === undefined || value === '') return 'None recorded';
+  return value;
+}
+
+function addKv(container, label, value) {
+  const dt = document.createElement('dt'); dt.textContent = label;
+  const dd = document.createElement('dd'); dd.textContent = valueText(value);
+  if (dd.textContent.length > 240 || dd.textContent.includes('\n')) dd.classList.add('long-value');
+  container.append(dt, dd);
+}
+
+async function writeClipboardText(text) {
+  try {
+    await navigator.clipboard.writeText(String(text));
+  } catch {
+    const area = document.createElement('textarea'); area.value = String(text); document.body.append(area); area.select(); document.execCommand('copy'); area.remove();
+  }
+}
+
+async function copyText(text, button) {
+  if (text === null || text === undefined) return;
+  const original = button.textContent;
+  await writeClipboardText(text);
+  button.textContent = 'Copied';
+  setTimeout(() => button.textContent = original, 1000);
+}
+
+const PRIMARY_FIELDS = [
+  ['id','Artifact ID'],['name','Name'],['description','Description'],
+  ['repo_full_name','Repository'],['path','Path'],['repo_created_at','Repo created'],
+  ['artifact_sibling_count','Artifact Sibling Count'],['file_sha','File SHA'],
+  ['body_chars','Body characters'],['location_class','Location class'],['group_id','Artifact group']
+];
+
+const COMMIT_FIELDS = [
+  'history_fetched','first_commit_at','last_commit_at','commit_count',
+  'first_commit_author','first_commit_type','first_commit_message',
+  'last_commit_author','last_commit_type','last_commit_message'
+];
+
+function effectiveChronologyFor(artifact) {
+  if (!artifact) return { value: null, basis: null, source: null };
+  if (artifact.effective_chronology) {
+    return {
+      value: artifact.effective_chronology,
+      basis: artifact.chronology_basis || null,
+      source: artifact.chronology_source_artifact_id || null,
+    };
+  }
+  if (artifact.first_commit_at) {
+    return { value: artifact.first_commit_at, basis: 'direct', source: null };
+  }
+  return { value: null, basis: null, source: null };
+}
+
+function artifactBox(title, artifact) {
+  const box = document.createElement('section'); box.className = 'meta-box';
+  const heading = document.createElement('h3'); heading.textContent = title; box.append(heading);
+  const copies = document.createElement('div'); copies.className = 'copy-actions';
+  const copyItems = [
+    ['Copy artifact ID', artifact?.id],
+    ['Copy repo/path', [artifact?.repo_full_name, artifact?.path].filter(Boolean).join('/')],
+    ['Copy SHA', artifact?.file_sha],
+  ];
+  for (const [label, value] of copyItems) if (value) {
+    const button = document.createElement('button'); button.textContent = label; button.onclick = () => copyText(value, button); copies.append(button);
+  }
+  if (copies.children.length) box.append(copies);
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  const shown = new Set();
+  for (const [key, label] of PRIMARY_FIELDS) {
+    const value = artifact ? artifact[key] : null;
+    if (value !== undefined && value !== null && value !== '') {
+      addKv(dl, label, artifactFieldText(key, value));
+      shown.add(key);
+    }
+  }
+
+  addKv(dl, 'Commit history', commitHistoryText(artifact?.history_fetched));
+  for (const key of COMMIT_FIELDS) shown.add(key);
+
+  const chronology = effectiveChronologyFor(artifact);
+  addKv(dl, 'Effective chronology', dateText(chronology.value));
+  addKv(dl, 'Chronology basis', chronology.basis ? basisText(chronology.basis) : 'Unknown');
+  if (chronology.source) {
+    addKv(dl, 'Chronology source', `Artifact ${chronology.source}`);
+  } else if (!chronology.value) {
+    addKv(dl, 'Chronology source', 'Unknown');
+  }
+  shown.add('effective_chronology');
+  shown.add('chronology_basis');
+  shown.add('chronology_source_artifact_id');
+  box.append(dl);
+
+  const hiddenMetadata = new Set([
+    'normalized_description', 'filename', 'effective_chronology',
+    'chronology_basis', 'chronology_source_artifact_id'
+  ]);
+  const extras = Object.entries(artifact || {}).filter(([key, value]) => !shown.has(key) && key !== 'id' && !hiddenMetadata.has(key) && value !== null && value !== undefined && value !== '');
+  if (extras.length) {
+    const details = document.createElement('details'); details.className = 'metadata';
+    const summary = document.createElement('summary'); summary.textContent = 'Additional metadata';
+    const extraDl = document.createElement('dl'); extraDl.className = 'kv';
+    for (const [key, value] of extras) addKv(extraDl, key.replaceAll('_',' '), value);
+    details.append(summary, extraDl); box.append(details);
+  }
+  return box;
+}
+
+function addInheritedChronology(dl, relationship) {
+  const inherited = inheritedChronology(relationship);
+  if (!inherited.length) return;
+
+  for (const [side, value] of inherited) {
+    const prefix = inherited.length > 1
+      ? (side === 'source' ? 'Base ' : 'Derived ')
+      : '';
+    addKv(dl, `${prefix}Effective chronology`, dateText(value.effective_chronology));
+    addKv(dl, `${prefix}Chronology basis`, 'Equivalent peer');
+    addKv(dl, `${prefix}Chronology source`, `Artifact ${value.chronology_source_artifact_id}`);
+  }
+}
+
+function relationshipBox(relationship, base, derived) {
+  const box = document.createElement('section'); box.className = 'meta-box relationship';
+  const equivalent = relationship.change_type === 'equivalent';
+  const heading = document.createElement('h3'); heading.textContent = equivalent ? 'Equivalent artifacts' : 'Directed relationship'; box.append(heading);
+  const copies = document.createElement('div'); copies.className = 'copy-actions';
+  const copyPair = document.createElement('button'); copyPair.textContent = 'Copy Base → Derived IDs'; copyPair.onclick = () => copyText(`${relationship.source} → ${relationship.target}`, copyPair); copies.append(copyPair); box.append(copies);
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', equivalent ? 'Equivalent — direction known' : 'Directed parent → child');
+  addKv(dl, equivalent ? 'Direction' : 'Base → derived', `${relationship.source} → ${relationship.target}`);
+  addKv(dl, 'Basis', basisText(relationship.basis));
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
+  addInheritedChronology(dl, relationship);
+  addKv(dl, 'Change type', relationship.change_type);
+  addKv(dl, 'Containment', relationship.containment === null || relationship.containment === undefined ? null : Number(relationship.containment).toFixed(4));
+  addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
+  addKv(dl, 'Shared shingles', relationship.shared_shingles);
+  addKv(dl, 'Base artifact siblings', base?.artifact_sibling_count);
+  addKv(dl, 'Derived artifact siblings', derived?.artifact_sibling_count);
+  box.append(dl);
+
+  const details = document.createElement('details'); details.className = 'metadata';
+  const summary = document.createElement('summary'); summary.textContent = 'Additional relationship evidence';
+  const extra = document.createElement('dl'); extra.className = 'kv';
+  addKv(extra, 'Same artifact group', relationship.same_artifact_group);
+  addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
+  details.append(summary, extra); box.append(details);
+  return box;
+}
+
+function undirectedRelationshipBox(relationship, compareArtifact, selectedArtifact) {
+  const box = document.createElement('section'); box.className = 'meta-box relationship';
+  const heading = document.createElement('h3'); heading.textContent = relationshipHeading(relationship); box.append(heading);
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', relationshipLabel(relationship));
+  addKv(dl, 'Artifacts', `${compareArtifact.id} ↔ ${selectedArtifact.id}`);
+  addKv(dl, 'Basis', basisText(relationship.basis));
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
+  addKv(dl, 'Change type', relationship.change_type);
+  addKv(dl, 'Containment left → right', relationship.containment_left_to_right === null || relationship.containment_left_to_right === undefined ? null : Number(relationship.containment_left_to_right).toFixed(4));
+  addKv(dl, 'Containment right → left', relationship.containment_right_to_left === null || relationship.containment_right_to_left === undefined ? null : Number(relationship.containment_right_to_left).toFixed(4));
+  addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
+  addKv(dl, 'Shared shingles', relationship.shared_shingles);
+  addKv(dl, 'Compared artifact siblings', compareArtifact?.artifact_sibling_count);
+  addKv(dl, 'Selected artifact siblings', selectedArtifact?.artifact_sibling_count);
+  box.append(dl);
+
+  const details = document.createElement('details'); details.className = 'metadata';
+  const summary = document.createElement('summary'); summary.textContent = 'Additional relationship evidence';
+  const extra = document.createElement('dl'); extra.className = 'kv';
+  addKv(extra, 'Same artifact group', relationship.same_artifact_group);
+  addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
+  details.append(summary, extra); box.append(details);
+  return box;
+}
+
+function relatedRelationshipBox(relationship, compareArtifact, selectedArtifact) {
+  const box = document.createElement('section'); box.className = 'meta-box relationship';
+  const heading = document.createElement('h3'); heading.textContent = 'Related artifacts'; box.append(heading);
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Relationship', 'Related — not selected as parent');
+  addKv(dl, 'Artifacts', `${compareArtifact.id} ↔ ${selectedArtifact.id}`);
+  addKv(dl, 'Inferred ordering', `${relationship.source} → ${relationship.target}`);
+  addKv(dl, 'Basis', basisText(relationship.basis));
+  addKv(dl, 'Direction evidence', evidenceText(relationship.evidence));
+  addInheritedChronology(dl, relationship);
+  addKv(dl, 'Change type', relationship.change_type);
+  addKv(dl, 'Containment', relationship.containment === null || relationship.containment === undefined ? null : Number(relationship.containment).toFixed(4));
+  addKv(dl, 'Jaccard', relationship.jaccard === null || relationship.jaccard === undefined ? null : Number(relationship.jaccard).toFixed(4));
+  addKv(dl, 'Shared shingles', relationship.shared_shingles);
+  addKv(dl, 'Compared artifact siblings', compareArtifact?.artifact_sibling_count);
+  addKv(dl, 'Selected artifact siblings', selectedArtifact?.artifact_sibling_count);
+  box.append(dl);
+
+  const details = document.createElement('details'); details.className = 'metadata';
+  const summary = document.createElement('summary'); summary.textContent = 'Additional relationship evidence';
+  const extra = document.createElement('dl'); extra.className = 'kv';
+  addKv(extra, 'Same artifact group', relationship.same_artifact_group);
+  addKv(extra, 'Shared group IDs', relationship.shared_group_ids);
+  details.append(summary, extra); box.append(details);
+  return box;
+}
+
+async function loadDetails(compareId = null) {
+  if (selected === null) return;
+  const token = ++detailRequest;
+  $('#detail-content').replaceChildren();
+  $('#detail-content').textContent = 'Loading artifact metadata…';
+  $('#view-content').hidden = true;
+  $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
+  $('#selection-panels').hidden = true;
+  selectedRelationship = null; selectedComparison = null; currentDetails = null;
+  try {
+    let path = route() + `/artifacts/${selected}/details`;
+    if (compareId !== null && compareId !== undefined) path += `?compare_id=${encodeURIComponent(compareId)}`;
+    const result = await api(path);
+    if (token !== detailRequest || result.artifact.id !== selected) return;
+    currentDetails = result;
+    renderDetails(result);
+  } catch (error) {
+    if (token === detailRequest) $('#detail-content').textContent = error.message;
+  }
+}
+
+function updateComparisonActions() {
+  const comparison = currentDetails?.comparison;
+  const hasComparison = Boolean(comparison);
+  $('#view-diff').hidden = !hasComparison;
+  $('#scan-diff').hidden = !(comparison?.kind === 'parent');
+
+  const hasSiblings = Boolean(currentDetails?.siblings?.length);
+  const siblingContentButton = $('#view-sibling-content');
+  siblingContentButton.hidden = !hasSiblings;
+  siblingContentButton.disabled = !(hasSiblings && currentDetails?.database?.available);
+  siblingContentButton.title = currentDetails?.database?.available ? '' : 'DuckDB is unavailable.';
+
+  const siblingButton = $('#view-sibling-diff');
+  siblingButton.hidden = !hasSiblings;
+  siblingButton.disabled = !(hasSiblings && hasComparison && currentDetails?.database?.available);
+  siblingButton.title = !currentDetails?.database?.available
+    ? 'DuckDB is unavailable.'
+    : (hasComparison ? '' : 'A comparison artifact is required for a sibling diff.');
+
+  if (!hasComparison) {
+    $('#compare-note').textContent = 'No parent or related artifact is available for comparison.';
+  } else if (comparison.kind === 'parent') {
+    $('#compare-note').textContent = 'Parent comparison: the selected artifact is the derived side. File diff, sibling diff, and scan diff are available.';
+  } else if (comparison.kind === 'related') {
+    $('#compare-note').textContent = 'Related artifacts: this pair met the relationship criteria but was not selected as the parent edge. File and sibling diffs are available; scan diff is disabled.';
+  } else {
+    const relationship = currentDetails?.ambiguous_relationship || {};
+    const status = relationshipStatus(relationship);
+    if (status === 'equivalent') {
+      $('#compare-note').textContent = 'Equivalent artifacts: content is equivalent, but direction is unknown. File and sibling diffs are available.';
+    } else if (status === 'direction-conflict') {
+      $('#compare-note').textContent = 'Direction evidence conflicts. File and sibling diffs are available; scan diff is disabled because Base → Derived direction is unresolved.';
+    } else {
+      $('#compare-note').textContent = 'Related artifacts: direction is unresolved. File and sibling diffs are available; scan diff is disabled because Base → Derived direction is unknown.';
+    }
+  }
+}
+
+function renderDetails(result) {
+  const content = $('#detail-content'); content.replaceChildren();
+  selectedComparison = result.comparison;
+  selectedRelationship = result.relationship;
+  const details = $('#details');
+  details.replaceChildren();
+  for (const [label, value] of [
+    ['Artifact:', result.artifact.id],
+    ['Repo:', result.artifact.repo_full_name],
+    ['Path:', result.artifact.path],
+  ]) {
+    const row = document.createElement('div'); row.className = 'identity-row';
+    const key = document.createElement('strong'); key.textContent = label;
+    const text = document.createElement('span'); text.textContent = valueText(value);
+    row.append(key, text); details.append(row);
+  }
+
+  $('#view-content').hidden = false;
+  $('#view-content').disabled = !result.database.available;
+  $('#view-content').title = result.database.available ? '' : 'DuckDB is unavailable.';
+  $('#selection-panels').hidden = false;
+
+  renderCompareDropdown(result.comparisons, result.comparison);
+
+  $('#sibling').replaceChildren();
+  if (result.siblings.length) {
+    for (const sibling of result.siblings) $('#sibling').add(new Option(sibling.entry_name, sibling.entry_name));
+    $('#sibling').disabled = false;
+    $('#sibling-note').textContent = `${result.siblings.length} content-bearing file sibling${result.siblings.length === 1 ? '' : 's'} associated with the selected artifact.`;
+  } else {
+    $('#sibling').add(new Option('NONE', ''));
+    $('#sibling').disabled = true;
+    $('#sibling-note').textContent = result.siblings_error ? `Artifact siblings could not be loaded: ${result.siblings_error}` : 'No content-bearing file siblings are associated with this artifact.';
+  }
+
+  updateComparisonActions();
+
+  const grid = document.createElement('div'); grid.className = 'detail-grid';
+  if (result.compare_artifact && result.comparison) {
+    let leftTitle;
+    if (result.comparison.kind === 'parent') {
+      leftTitle = `Parent / base ${result.compare_artifact.id}`;
+    } else if (result.comparison.kind === 'related') {
+      leftTitle = `Related artifact ${result.compare_artifact.id}`;
+    } else {
+      leftTitle = `${relationshipShortLabel(result.ambiguous_relationship || {})} ${result.compare_artifact.id}`;
+    }
+    grid.append(artifactBox(leftTitle, result.compare_artifact));
+  }
+  grid.append(artifactBox(result.relationship ? `Derived / selected ${result.artifact.id}` : `Selected artifact ${result.artifact.id}`, result.artifact));
+  content.append(grid);
+
+  if (result.relationship && result.compare_artifact) {
+    content.append(relationshipBox(result.relationship, result.compare_artifact, result.artifact));
+  } else if (result.related_relationship && result.compare_artifact) {
+    content.append(relatedRelationshipBox(result.related_relationship, result.compare_artifact, result.artifact));
+  } else if (result.ambiguous_relationship && result.compare_artifact) {
+    content.append(undirectedRelationshipBox(result.ambiguous_relationship, result.compare_artifact, result.artifact));
+  } else {
+    const note = document.createElement('p'); note.className = 'warning';
+    note.textContent = 'No parent or related artifact is available for comparison.';
+    content.append(note);
+  }
+
+  if (result.database.error) {
+    const warning = document.createElement('p'); warning.className = 'warning'; warning.textContent = `DuckDB: ${result.database.error}`;
+    content.append(warning);
+  }
+}
+
+
+function zoom(factor) {
+  const [x,y,w,h] = box;
+  setBox([x + w*(1-factor)/2, y + h*(1-factor)/2, w*factor, h*factor]);
+}
+
+function showDialog(dialog) {
+  if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open','');
+}
+
+function artifactDisplay(artifact) {
+  const location = [artifact?.repo_full_name, artifact?.path].filter(Boolean).join(' / ');
+  return `${artifact?.name || `Artifact ${artifact?.id}`}${location ? ` · ${location}` : ''}`;
+}
+
+async function openArtifactContent() {
+  if (selected === null) return;
+  const artifactId = selected;
+  const dialog = $('#content-dialog');
+  const copyButton = $('#content-copy');
+  $('#content-title').textContent = `File contents · artifact ${artifactId}`;
+  $('#content-meta').textContent = '';
+  $('#content-text').textContent = 'Loading…';
+  copyButton.disabled = true;
+  copyButton.textContent = 'Copy Contents';
+  copyButton.title = 'Copy the raw artifact content from DuckDB.';
+  copyButton.onclick = null;
+  showDialog(dialog);
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/content`);
+    $('#content-title').textContent = result.artifact.filename || `Artifact ${artifactId}`;
+    $('#content-meta').textContent = artifactDisplay(result.artifact);
+    $('#content-text').textContent = result.content;
+    copyButton.disabled = false;
+    copyButton.onclick = () => copyArtifactContents(artifactId, copyButton);
+  } catch (error) {
+    $('#content-text').textContent = error.message;
+    copyButton.disabled = true;
+    copyButton.title = error.message;
+  }
+}
+
+function addDiffLine(pane, lineNumber, text, kind) {
+  const row = document.createElement('div'); row.className = 'diff-line ' + kind;
+  const line = document.createElement('span'); line.className = 'ln'; line.textContent = lineNumber ?? '';
+  const code = document.createElement('span'); code.className = 'code'; code.textContent = text || ' ';
+  row.append(line, code); pane.append(row);
+}
+
+async function copyArtifactContents(artifactId, button) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Copying…';
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/content`);
+    await writeClipboardText(result.content);
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = original; }, 1000);
+  } catch (error) {
+    button.textContent = 'Copy failed';
+    button.title = error.message;
+    setTimeout(() => { button.textContent = original; button.title = 'Copy the raw artifact content from DuckDB.'; }, 1500);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function copySiblingContents(artifactId, entryName, button) {
+  const original = button.textContent;
+  const originalTitle = button.title;
+  button.disabled = true;
+  button.textContent = 'Copying…';
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
+    await writeClipboardText(result.content);
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = original; }, 1000);
+  } catch (error) {
+    button.textContent = 'Copy failed';
+    button.title = error.message;
+    setTimeout(() => { button.textContent = original; button.title = originalTitle; }, 1500);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function openDiff() {
+  if (!selectedComparison || selected === null) return;
+  const compareId = selectedComparison.id;
+  const dialog = $('#diff-dialog');
+  const arrow = selectedComparison.kind === 'parent' ? '→' : '↔';
+  $('#diff-title').textContent = `File diff · ${compareId} ${arrow} ${selected}`;
+  $('#diff-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: 'Loading diff…'}));
+  showDialog(dialog);
+  try {
+    const result = await api(route() + `/diff/${compareId}/${selected}`);
+    renderDiff(result, false);
+  } catch (error) {
+    $('#diff-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: error.message}));
+  }
+}
+
+async function openSiblingContent() {
+  if (selected === null || !currentDetails?.siblings?.length) return;
+  const artifactId = selected;
+  const entryName = $('#sibling').value;
+  if (!entryName) return;
+  const dialog = $('#content-dialog');
+  const copyButton = $('#content-copy');
+  $('#content-title').textContent = `Sibling contents · ${entryName}`;
+  $('#content-meta').textContent = `Artifact ${artifactId}`;
+  $('#content-text').textContent = 'Loading…';
+  copyButton.disabled = true;
+  copyButton.textContent = 'Copy Contents';
+  copyButton.title = 'Copy the raw sibling-file content from DuckDB.';
+  copyButton.onclick = null;
+  showDialog(dialog);
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/content?entry_name=${encodeURIComponent(entryName)}`);
+    $('#content-title').textContent = result.sibling.entry_name;
+    $('#content-meta').textContent = `Artifact ${artifactId} · ${artifactDisplay(currentDetails?.artifact)}`;
+    $('#content-text').textContent = result.content;
+    copyButton.disabled = false;
+    copyButton.onclick = () => copySiblingContents(artifactId, entryName, copyButton);
+  } catch (error) {
+    $('#content-text').textContent = error.message;
+    copyButton.disabled = true;
+    copyButton.title = error.message;
+  }
+}
+
+async function openSiblingDiff() {
+  if (!selectedComparison || selected === null || !currentDetails?.siblings?.length) return;
+  const entryName = $('#sibling').value;
+  if (!entryName) return;
+  const compareId = selectedComparison.id;
+  const dialog = $('#diff-dialog');
+  $('#diff-title').textContent = `Sibling diff · ${entryName}`;
+  $('#diff-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: 'Loading sibling diff…'}));
+  showDialog(dialog);
+  try {
+    const result = await api(route() + `/sibling-diff/${compareId}/${selected}?entry_name=${encodeURIComponent(entryName)}`);
+    renderDiff(result, true);
+  } catch (error) {
+    $('#diff-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: error.message}));
+  }
+}
+
+function renderDiff(result, sibling = false) {
+  const body = $('#diff-body'); body.replaceChildren();
+  const headings = document.createElement('div'); headings.className = 'diff-headings';
+  const parentLabels = result.comparison_kind === 'parent';
+  const leftLabel = parentLabels ? `Base artifact ${result.left_id}` : `Compared artifact ${result.left_id}`;
+  const rightLabel = parentLabels ? `Derived artifact ${result.right_id}` : `Selected artifact ${result.right_id}`;
+  const leftHeading = document.createElement('div'); leftHeading.className = 'diff-heading';
+  const rightHeading = document.createElement('div'); rightHeading.className = 'diff-heading';
+
+  const leftHeadingText = document.createElement('span');
+  leftHeadingText.textContent = sibling ? `${leftLabel} · ${result.entry_name}` : leftLabel;
+  const rightHeadingText = document.createElement('span');
+  rightHeadingText.textContent = sibling ? `${rightLabel} · ${result.entry_name}` : rightLabel;
+
+  const leftCopy = document.createElement('button'); leftCopy.textContent = 'Copy Contents';
+  const rightCopy = document.createElement('button'); rightCopy.textContent = 'Copy Contents';
+
+  if (sibling) {
+    leftCopy.disabled = result.left_exists === false;
+    rightCopy.disabled = result.right_exists === false;
+    leftCopy.title = leftCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    rightCopy.title = rightCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    leftCopy.onclick = () => copySiblingContents(result.left_id, result.entry_name, leftCopy);
+    rightCopy.onclick = () => copySiblingContents(result.right_id, result.entry_name, rightCopy);
+  } else {
+    leftCopy.title = 'Copy the raw artifact content from DuckDB.';
+    rightCopy.title = 'Copy the raw artifact content from DuckDB.';
+    leftCopy.onclick = () => copyArtifactContents(result.left_id, leftCopy);
+    rightCopy.onclick = () => copyArtifactContents(result.right_id, rightCopy);
+  }
+
+  leftHeading.append(leftHeadingText, leftCopy);
+  rightHeading.append(rightHeadingText, rightCopy);
+  headings.append(leftHeading, rightHeading);
+
+  const panes = document.createElement('div'); panes.className = 'diff-panes';
+  const left = document.createElement('div'); left.className = 'diff-pane';
+  const right = document.createElement('div'); right.className = 'diff-pane';
+
+  for (const row of result.rows) {
+    addDiffLine(left, row.base_line, row.base_text, row.base_kind);
+    addDiffLine(right, row.derived_line, row.derived_text, row.derived_kind);
+  }
+
+  if (sibling && result.left_exists === false) {
+    left.replaceChildren(Object.assign(document.createElement('div'), {className:'missing-file', textContent:'No such file for this artifact.'}));
+  }
+  if (sibling && result.right_exists === false) {
+    right.replaceChildren(Object.assign(document.createElement('div'), {className:'missing-file', textContent:'No such file for this artifact.'}));
+  }
+
+  let syncing = false;
+  left.addEventListener('scroll', () => { if (!syncing) { syncing = true; right.scrollTop = left.scrollTop; right.scrollLeft = left.scrollLeft; syncing = false; } });
+  right.addEventListener('scroll', () => { if (!syncing) { syncing = true; left.scrollTop = right.scrollTop; left.scrollLeft = right.scrollLeft; syncing = false; } });
+  panes.append(left, right); body.append(headings, panes);
+}
+
+
+function profileList(profile) {
+  const enabled = Object.entries(profile || {}).filter(([,value]) => value).map(([key]) => key);
+  return enabled.length ? enabled.join(', ') : 'none';
+}
+
+function scanSummaryBox(title, profile, count, countLabel = 'Rule matches') {
+  const box = document.createElement('section'); box.className = 'meta-box';
+  const heading = document.createElement('h3'); heading.textContent = title;
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  addKv(dl, 'Capabilities', profileList(profile)); addKv(dl, countLabel, count);
+  box.append(heading, dl); return box;
+}
+
+async function openScan() {
+  if (!selectedRelationship || selectedComparison?.kind !== 'parent') return;
+  const {source, target} = selectedRelationship;
+  const dialog = $('#scan-dialog');
+  $('#scan-title').textContent = `Scan diff · ${source} → ${target}`;
+  $('#scan-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: 'Running static scan…'}));
+  showDialog(dialog);
+  try {
+    const result = await api(route() + `/scan/${source}/${target}`, {method: 'POST'});
+    renderScan(result);
+  } catch (error) {
+    $('#scan-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: error.message}));
+  }
+}
+
+function renderScan(result) {
+  const body = $('#scan-body'); body.replaceChildren();
+  const scan = result.scan_diff;
+  const summary = document.createElement('div'); summary.className = 'scan-summary';
+  summary.append(
+    scanSummaryBox(`Base ${result.base_id}`, scan.base.profile, scan.base.rule_match_count),
+    scanSummaryBox(`Derived ${result.derived_id}`, scan.derived.profile, scan.derived.rule_match_count),
+    scanSummaryBox('Introduced capabilities', scan.introduced, scan.rule_match_count.delta, 'Match delta')
+  );
+  body.append(summary);
+
+  const introducedHeading = document.createElement('p');
+  introducedHeading.textContent = `Introduced capabilities: ${profileList(scan.introduced)} · total match delta: ${scan.rule_match_count.delta >= 0 ? '+' : ''}${scan.rule_match_count.delta}`;
+  body.append(introducedHeading);
+
+  const ruleIds = Object.keys(scan.rule_deltas || {});
+  const heading = document.createElement('h3'); heading.textContent = 'Changed rule counts'; body.append(heading);
+  if (ruleIds.length) {
+    const table = document.createElement('table');
+    const trh = document.createElement('tr'); for (const text of ['Rule','Base','Derived','Delta']) { const th=document.createElement('th'); th.textContent=text; trh.append(th); }
+    const thead = document.createElement('thead'); thead.append(trh); table.append(thead);
+    const tbody = document.createElement('tbody');
+    for (const ruleId of ruleIds) {
+      const delta = scan.rule_deltas[ruleId], tr = document.createElement('tr');
+      for (const value of [ruleId, delta.base, delta.derived, (delta.delta >= 0 ? '+' : '') + delta.delta]) { const td=document.createElement('td'); td.textContent=value; tr.append(td); }
+      tbody.append(tr);
+    }
+    table.append(tbody); body.append(table);
+  } else {
+    body.append(Object.assign(document.createElement('p'), {textContent: 'No rule match counts changed.'}));
+  }
+
+  for (const side of ['base','derived']) {
+    const matches = scan[side].matches || [];
+    const details = document.createElement('details'); details.className = 'metadata';
+    const summaryEl = document.createElement('summary'); summaryEl.textContent = `${side === 'base' ? 'Base' : 'Derived'} matches (${matches.length})`;
+    const list = document.createElement('div'); list.className = 'match-list';
+    if (!matches.length) list.textContent = 'No rule matches.';
+    for (const match of matches) {
+      const line = document.createElement('div');
+      line.textContent = `[${match.rule_id}] ${match.category} · line ${match.line_number ?? '?'} · ${match.description}${match.matched_text ? ` · ${match.matched_text}` : ''}`;
+      list.append(line);
+    }
+    details.append(summaryEl, list); body.append(details);
+  }
+}
+
+$('#fit').onclick = () => setBox(fitBox);
+$('#focus').onclick = focusSelected;
+$('#plus').onclick = () => zoom(.7);
+$('#minus').onclick = () => zoom(1/.7);
+$('#report').onchange = loadReport;
+$('#refresh').onclick = reports;
+$('#cluster').onchange = () => loadCluster();
+$('#scope').onchange = () => draw({view:'fit'});
+$('#search').onclick = searchArtifact;
+$('#artifact-search').onkeydown = event => { if (event.key === 'Enter') searchArtifact(); };
+$('#compare-toggle').onclick = event => {
+  event.stopPropagation();
+  if ($('#compare-toggle').disabled) return;
+  const menu = $('#compare-menu');
+  const opening = menu.hidden;
+  menu.hidden = !opening;
+  $('#compare-toggle').setAttribute('aria-expanded', String(opening));
+  if (!opening) setCompareHover(null);
+};
+document.addEventListener('click', event => { if (!$('#compare-control').contains(event.target)) closeCompareMenu(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('#compare-menu').hidden) { closeCompareMenu(); $('#compare-toggle').focus(); } });
+$('#view-content').onclick = openArtifactContent;
+$('#view-sibling-content').onclick = openSiblingContent;
+$('#view-sibling-diff').onclick = openSiblingDiff;
+$('#view-diff').onclick = openDiff;
+$('#scan-diff').onclick = openScan;
+
+document.querySelectorAll('[data-close]').forEach(button => button.onclick = () => $('#' + button.dataset.close).close());
+
+graph.onpointerdown = event => { moved = false; drag = {x:event.clientX,y:event.clientY,b:[...box]}; };
+graph.onpointermove = event => {
+  if (!drag) return;
+  if (Math.abs(event.clientX-drag.x) + Math.abs(event.clientY-drag.y) > 4) { moved = true; graph.setPointerCapture(event.pointerId); }
+  const rect = graph.getBoundingClientRect();
+  setBox([drag.b[0]-(event.clientX-drag.x)*box[2]/rect.width, drag.b[1]-(event.clientY-drag.y)*box[3]/rect.height, box[2], box[3]]);
+};
+graph.onpointerup = () => drag = null;
+graph.onpointercancel = () => drag = null;
+graph.addEventListener('wheel', event => { event.preventDefault(); zoom(event.deltaY > 0 ? 1.15 : 1/1.15); }, {passive:false});
+new ResizeObserver(() => { if (selected !== null) draw({view:'preserve'}); }).observe(graph);
+
+reports();
+setInterval(() => checkDatabaseHealth(true), 30000);
+</script>
+</body>
+</html>
