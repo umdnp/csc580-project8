@@ -228,5 +228,6 @@ scripts/output/
 data/*.db
 data/**/*.db
 
-# Ignore mac specific files
+# Ignore OS metadata files
 .DS_Store
+Thumbs.db
