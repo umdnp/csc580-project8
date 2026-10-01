@@ -35,7 +35,7 @@ The sample was selected through iterative screening rather than random sampling.
 
 The screening queries were used only to identify candidates. They do not establish that artifacts are related, that one artifact was derived from another, or that a security-sensitive change represents increased risk.
 
-Detailed selection queries and their rationale are documented in [`notes/sample_population_query_rationale.md`](../../notes/sample_population_query_rationale.md).
+Detailed selection queries and their rationale are documented in [`docs/notes/sample_population_query_rationale.md`](../notes/sample_population_query_rationale.md).
 
 ## Selection Rationale
 
@@ -79,7 +79,7 @@ The view defines sample membership only. It should not be treated as evidence of
 ## Follow-up Actions
 
 - Keep [`sql/create_sprint1_samples_view.sql`](../../sql/create_sprint1_samples_view.sql) as the source of truth for the approved sample.
-- Keep detailed candidate-selection queries and rationale in [`notes/sample_population_query_rationale.md`](../../notes/sample_population_query_rationale.md) rather than duplicating them in this RDR.
+- Keep detailed candidate-selection queries and rationale in [`docs/notes/sample_population_query_rationale.md`](../notes/sample_population_query_rationale.md) rather than duplicating them in this RDR.
 - Use the similarity and direction methods defined in RDR-004 and RDR-007 before making claims about reuse, provenance, or introduced behavior.
 - Record manual validation separately from the automated screening used to select candidates.
 
