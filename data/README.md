@@ -135,7 +135,7 @@ Sprint 1 uses a frozen sample population for development and validation of the a
 After completing step 3, run the follow command to generate the frozen Sprint 1 sample view:
 
 ```bash
-duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/generate_sprint1_sample.sql
+duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/create_sprint1_samples_view.sql
 ```
 
 Reference [`docs/decisions/RDR-006-sprint1-sample-design-and-selection.md`](../docs/decisions/RDR-006-sprint1-sample-design-and-selection.md) for more information.

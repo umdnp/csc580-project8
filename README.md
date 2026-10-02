@@ -79,4 +79,81 @@ The [Data Dictionary](DATA_DICTIONARY.md) documents the database structure, incl
 
 ## Running the Project
 
-TODO: Document how to run the project code.
+### Reproduce the Sprint 1 notebook output
+
+Use [Sample Extraction and Exploration](notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb) to regenerate the sample analysis, Parquet results, and figures. The [notebook README](notebooks/extraction_pipeline/README.md) explains the analysis and how to interpret its results.
+
+#### 1. Prepare the environment and database
+
+Complete the [Getting Started](#getting-started) steps above, using Python 3.12 or newer within the project's supported range. Run `uv sync` from the repository root to install the project package and dependencies into `.venv`.
+
+Follow the [data setup instructions](data/README.md#local-duckdb-development-setup) to install the DuckDB CLI, acquire the source SQLite database, create the separate DuckDB database, and build the analysis tables and artifact groupings in order. If those steps are already complete, reuse the prepared DuckDB database.
+
+The setup scripts use `/c/data/...` paths for Git Bash on Windows. In WSL, Windows drive C is normally mounted at `/mnt/c`; adjust the configuration paths in `bin/create_gitskills_db.sh` and the paths in SQL commands to match your environment. Keep the source SQLite database and generated DuckDB database in separate locations.
+
+#### 2. Create the Sprint 1 sample view
+
+From the repository root, run the sample-view script against the prepared DuckDB database. For Git Bash with the default Windows storage location:
+
+```bash
+duckdb -bail /c/data/duckdb/agent_skills_release.db < sql/create_sprint1_samples_view.sql
+```
+
+For WSL, use `/mnt/c/data/duckdb/agent_skills_release.db` instead. The script should report **43 artifacts**. The fixed artifact-ID list and selection rationale are documented in [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
+
+#### 3. Configure the notebook's database path
+
+Set `GITSKILLS_DB` before launching the notebook environment. Use a path that the selected Python interpreter can read. For the Windows `.venv` interpreter launched from Git Bash:
+
+```bash
+export GITSKILLS_DB="C:/data/duckdb/agent_skills_release.db"
+```
+
+For a Linux Python interpreter in WSL:
+
+```bash
+export GITSKILLS_DB="/mnt/c/data/duckdb/agent_skills_release.db"
+```
+
+If your database is elsewhere, substitute its actual path. The notebook requires the prepared **DuckDB** database, not the downloaded SQLite database.
+
+#### 4. Open the notebook and run all cells
+
+In your notebook editor, open `notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb`, select the project `.venv` Python interpreter as the kernel, and set the kernel's working directory to `notebooks/extraction_pipeline`. On Windows, the interpreter is `.venv/Scripts/python.exe`; on Linux or WSL, it is `.venv/bin/python`.
+
+Alternatively, launch JupyterLab from the repository root with:
+
+```bash
+uv run --with jupyterlab jupyter lab --notebook-dir=notebooks/extraction_pipeline
+```
+
+This command supplies JupyterLab for the run and uses the project environment. Open `samples_extraction_and_exploration.ipynb` in the file browser and select its Python kernel.
+
+Restart the kernel and run all cells from top to bottom. In the **Set Variables** output, confirm that the notebook directory is `notebooks/extraction_pipeline`, the Parquet output is under its `results/` directory, and the figures directory is its `figures/` directory. If these paths differ, correct the kernel's working directory before continuing. The notebook reads artifact content as text and does not execute dataset instructions.
+
+#### 5. Check the regenerated results
+
+Confirm that all cells finish without errors and that these files are regenerated:
+
+```text
+notebooks/extraction_pipeline/results/sample_artifacts_scanner_results.parquet
+notebooks/extraction_pipeline/figures/pair_scan_outcomes.png
+notebooks/extraction_pipeline/figures/flagged_rules.png
+notebooks/extraction_pipeline/figures/flagged_risk_categories.png
+```
+
+Check the notebook's tables against the saved Sprint 1 exploratory baseline:
+
+| Measure | Saved baseline |
+| --- | --- |
+| Sample artifacts | 43 |
+| Skill-name groups | 10 |
+| Adjacent comparisons scanned | 33 |
+| Comparisons skipped | 0 |
+| Comparisons with a positive rule delta | 13 |
+| Positive rule-delta events | 35 |
+| Additional rule matches | 77 |
+
+These are adjacent-comparison notebook results, distinct from the 17 directed comparisons in the family reports. Scanner-rule or dataset changes can change the detection totals; record and explain differences instead of silently replacing the baseline. The persistent manual-review section contains the two completed annotations and the corrected derived SHA for the first example; the automatically generated candidate table may still show its original SHA and `TODO` fields.
+
+To complete the story's reproducibility check, record the repository commit, dataset used, execution date, environment, observed counts, and regenerated output paths in the story issue after successfully following these instructions.
