@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| **Status** | Proposed |
+| **Status** | Accepted |
 | **Date** | 2026-09-29 |
 | **Type** | Research methodology |
 | **Related work** | Question 4, RDR-001, RDR-003, RDR-004, RDR-005, `analyze_family`, `scan_family` |
@@ -91,7 +91,7 @@ When direct history is missing, or when an equivalent peer shows that the same s
 
 An equivalent peer can provide chronology only when:
 
-- the `SKILL.md` body is identical or equivalent under the project's validated similarity representation; and
+- the `SKILL.md` body is identical or equivalent under the project's similarity representation; and
 - the sibling-resource state is known and unchanged.
 
 For example:
@@ -155,7 +155,7 @@ Each directed relationship records why direction was selected. The current basis
 
 Relationships that cannot be directed remain unresolved. Equivalent states remain peers. Their chronology becomes useful when that shared state is compared with a changed state.
 
-This distinction controls how the security results are interpreted. Directed relationships can support base-to-derived claims about behavior being introduced or removed. Undirected relationships can show differences or equivalence, but not which artifact introduced a change.
+This distinction controls how the security results are interpreted. Directed relationships can support earlier-to-later claims about behavior being introduced or removed. Undirected relationships can show differences or equivalence, but not which artifact introduced a change.
 
 ## Alternatives Considered
 
