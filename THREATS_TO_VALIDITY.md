@@ -1,72 +1,135 @@
 # Threats to Validity
 
+This document records the main threats to validity identified during Sprint 1. It will be updated as the implementation and validation continue.
+
 ## Construct Validity
 
-The study uses rule-based indicators, candidate groupings, similarity measures, provenance evidence, and sibling-content fingerprints as operational representations of security-relevant instructions and artifact relationships. These constructs do not directly establish behavior during execution, maliciousness, or historical copying.
+### Rule-Based Security Detection
 
-Rule presence, changes in match counts, and newly detected capabilities are distinct outcomes. A count increase can occur within an already detected capability, while a negative delta means fewer detected matches rather than necessarily lower risk. A missing entry in `rule_deltas` does not establish that a rule never matched. SQL screening patterns approximate scanner behavior and are selection heuristics rather than security findings.
+The scanner uses rule-based text patterns to identify security-sensitive behavior such as command execution, file-system access, network access, credential handling, external code execution, and system modification.
 
-`artifact_groupings` groups artifacts by exact name and normalized description, while `analyze_family` loads qualifying artifacts across description groups sharing an exact name. Neither shared metadata nor high similarity proves common ancestry. Similarity measures establish candidate relatedness; resolved declared provenance, chronology, and asymmetric containment provide direction evidence. Similarity-only relationships retain uncertainty about direction.
+The main concerns are:
 
-A sibling-content fingerprint indicates differences in bundled file content when composition data is available, not their security significance. The current wrapper scans only `SKILL.md`, so a sibling-only relationship with no scanner delta does not imply that sibling changes are harmless.
+- A match may appear in documentation or an example rather than an instruction that will actually be executed.
+- The scanner may miss behavior expressed in a form that the current rules do not recognize.
+- A change in match count does not necessarily mean that risk increased or decreased.
+- A security-sensitive capability is not necessarily malicious or unsafe.
+
+For example, a skill may mention `curl` while explaining an API without instructing an agent to run it.
+
+Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. In Sprint 2, manual validation will be used to estimate false positives, false negatives, and important coverage gaps.
+
+### Candidate-Family Matching and Similarity
+
+The project first uses same-name skills to find possible comparison candidates and then uses content similarity and other available evidence to determine whether artifacts appear to be related.
+
+The main concerns are:
+
+- Two unrelated skills may share the same name.
+- A reused skill that was renamed may be missed by the initial grouping.
+- Similarity results depend on the selected method and thresholds.
+- Candidate-family membership does not establish copying, authorship, or the original source.
+
+A matching name or similarity score is therefore treated as evidence of a possible relationship, not proof of one. Similarity thresholds and representative relationships will require validation before broader conclusions are made.
+
+See [RDR-003](docs/decisions/RDR-003-grouping-and-sibling-fingerprints.md) and [RDR-004](docs/decisions/RDR-004-skillmd-similarity-strategy.md).
+
+### Language and Frontmatter
+
+Behavioral scanning excludes YAML frontmatter and keeps non-English skills in the analysis population.
+
+This creates two known limitations:
+
+- Security-relevant information that appears only in frontmatter is outside the behavioral scan.
+- Risky behavior written only in non-English prose may be missed when it does not contain recognizable technical indicators such as commands, URLs, paths, tool names, or credential references.
+
+This tradeoff reduces false positives from descriptive metadata while preserving non-English artifacts that still contain recognizable technical behavior.
+
+See [RDR-002](docs/decisions/RDR-002-language-and-frontmatter-scanning.md).
 
 ## Internal Validity
 
-Errors in candidate generation, similarity analysis, provenance interpretation, ordering, extraction, normalization, or rule matching can affect the reported relationships and scanner changes. Exact-name loading can group independently developed skills together and miss related skills whose names differ. Screening within description groups can also miss variation across those groups.
+### Earlier/Later Ordering
 
-Declared provenance, commit dates, and asymmetric containment provide direction evidence but do not guarantee original authorship or direct descent. Commit history follows the artifact at its current path, so moves or renames may obscure earlier history. Supported provenance fields must resolve within the loaded exact-name family. An unsuccessful source lookup does not establish that the source is absent from the entire dataset, and a pair that also fails similarity criteria does not isolate a source-resolution failure.
+Question 4 requires us to determine whether security-sensitive behavior was **introduced**, so related artifacts need a reasonable earlier/later ordering.
 
-Selected manual inspections identified uneven recognition of equivalent operation types and artificial count differences caused by line-ending formats. The wrapper normalizes line endings before scanning, and the corrected case is retained for regression checking. This fix addresses the observed issue, not every possible formatting sensitivity or scanner coverage gap.
+GitSkills does not provide complete historical file contents or commit history for every artifact.
 
-Only selected comparisons were manually inspected. Saved reports are automated output rather than independent ground truth, and the sample does not establish scanner accuracy or complete validation of inferred relationships.
+The main concerns are:
+
+- `first_commit_at` is the earliest commit observed for the artifact in the available GitSkills history, not guaranteed proof of when the skill was originally created or introduced.
+- File moves or renames may hide earlier history.
+- The earliest artifact observed in the dataset may not be the true original.
+- Source information written in a skill may be incomplete or incorrect.
+- Some relationships may not contain enough evidence to determine which artifact came first.
+
+The project uses the strongest available evidence to establish direction and leaves a relationship unresolved when the evidence is not strong enough. Unresolved relationships should not be used to claim that a behavior was introduced or removed.
+
+See [RDR-007](docs/decisions/RDR-007-effective-chronology-and-direction-evidence.md).
+
+### Alternative Explanations
+
+A newly introduced security-sensitive behavior does not automatically mean that reuse or modification made a skill less secure.
+
+For example, a later skill may add a network request, package installation, or file operation because its intended functionality changed.
+
+The analysis therefore needs to separate:
+
+- **what changed**, which can be observed from the artifacts; from
+- **what the change means**, which requires interpretation.
+
+A security-sensitive change should not be treated as evidence of malicious intent or increased risk without supporting evidence.
+
+### Missing and Incomplete Data
+
+Some GitSkills records have incomplete history, metadata, or related-file information.
+
+Missing data can:
+
+- prevent a relationship from being established;
+- leave the earlier/later direction unresolved;
+- hide behavior contained in unavailable related files; or
+- bias the analysis toward records that have more complete metadata and history.
+
+Missing information should be reported as missing or unresolved rather than interpreted as evidence that a behavior or relationship is absent.
 
 ## External Validity
 
-The revised Sprint 1 sample contains 43 artifacts across 10 exact-name families and produces 17 directed comparisons in the saved reports. Selection was purposeful and aimed to keep the sample below approximately 50 artifacts for focused tool validation. It has no separate random component.
+### Sprint 1 Sample
 
-Cases were chosen for informative relationship outcomes, scanner-count changes, newly detected capabilities, and known limitations. This intentionally favors useful validation cases. The earlier approximately 1,400-row design included random seeds and family expansion, but that component does not make the revised sample representative.
+The Sprint 1 sample contains **43 artifacts across 10 skill families** and produces **17 directed comparisons** in the saved analysis reports.
 
-Searching stopped because additional screening was time-consuming, not because coverage was exhaustive or statistically optimized. Results describe the method's behavior on selected cases and cannot estimate population-wide risk prevalence or generalize automatically to other repositories, platforms, or datasets.
+The sample was purposefully selected to provide useful variation for developing and evaluating the analysis. It is not a random or representative sample of the full GitSkills population.
+
+As a result:
+
+- Sprint 1 percentages should not be used to estimate how common security-sensitive changes are across all GitSkills artifacts.
+- The sample may favor cases that are easier for the current comparison or scanner methods to detect.
+- Additional cases may be needed if later validation exposes behaviors that are not represented in the current sample.
+
+See [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
+
+### Dataset Coverage
+
+The analysis is limited to the selected GitSkills release dataset and the artifacts collected by its mining process.
+
+The dataset should not be assumed to represent every agent skill, repository, platform, or development workflow. Results from this project therefore apply first to the data that was actually collected and analyzed.
 
 ## Conclusion Validity
 
-Security-relevant instructions can be legitimate parts of development, deployment, or administration. Detected matches and changes in their counts do not by themselves establish maliciousness, exploitability, or increased or decreased risk.
+Sprint 1 results are exploratory and should be interpreted cautiously.
 
-The 17 directed comparisons are not independent observations: relationships may share endpoints or repeated content. Small category counts and deliberately selected cases limit quantitative conclusions. The saved reports demonstrate count deltas in 10 of 12 scanner rules, but this is coverage of observed variation, not a measure of accuracy. EXT-001 and SYS-001 remain without confirmed delta examples.
+In particular:
 
-Ambiguous relationships are listed without directional scanning. A family with zero directed comparisons therefore provides no basis for concluding that its artifacts contain zero scanner matches. Similarly, unchanged aggregate counts can conceal differences in matched text and should not be interpreted as identical behavior.
+- Only selected comparisons have been manually inspected; automated output is not independent ground truth.
+- Some directed comparisons may share artifacts or repeated content, so they are not necessarily independent observations.
+- Ambiguous relationships are intentionally left without directional conclusions.
+- Counts and percentages from the purposeful Sprint 1 sample should not be treated as population-wide risk estimates.
 
-## Reproducibility Threats
+These limitations will be revisited as validation and broader analysis continue.
 
-The project team confirmed that `artifact_id` is deterministic for the project's dataset. Revised membership is encoded as 43 IDs in `sql/create_sprint1_samples_view.sql`, which creates or replaces `sample_artifacts`. The embedded ID list is the source of truth for sample membership; the view does not read an external CSV file. Changes to this list must be versioned and kept consistent with the documented sample.
+## Reproducibility
 
-The view stores a query rather than a snapshot of artifact rows. Returned data depends on the underlying database, and IDs absent from that database do not appear in the result. Deterministic IDs for the agreed dataset do not establish identical data across different releases. Dataset identity, dependencies, analysis code, rule definitions, and normalization settings can all affect reproducibility.
+The analysis depends on the selected GitSkills release dataset, the project's derived analysis tables, the fixed Sprint 1 sample, and the versions of the analysis code and rules used to generate the results.
 
-The script includes a count query with an expected result of 43, but the saved family-report totals do not verify execution or reconstruction of the view. Validation should check for both missing selected IDs and unexpected returned IDs against the embedded selection list; a matching count alone is insufficient. Earlier frozen-table reconstruction checks apply to the earlier sample, not to this revised view.
-
-## Missing and Incomplete Data
-
-Missing content, chronology, or sibling-composition data can restrict analysis. Missing values do not establish the absence of a behavior or resource; they may reflect incomplete enrichment. Artifact pairs lacking adequate direction evidence remain ambiguous rather than being forced into an ordered comparison.
-
-Commit history may be missing or limited to the current path. Sibling-composition coverage is uneven across repeated content occurrences, limiting comparisons of bundled resources. The current wrapper does not scan sibling-file contents even where those contents are available.
-
-Filtering for available content, relatedness, or supported direction can bias results toward better-enriched records. Exclusions and ambiguity should therefore be reported separately from negative scanner findings.
-
-## Output Scope and Traceability
-
-Reports use artifact IDs, omit text diffs, and serialize scanner comparisons with `verbose=False` to limit exported content. This report describes aggregate results and generalized observations without selected family names, individual artifact IDs, repository identities, or source excerpts.
-
-These measures do not guarantee anonymity or resolve licensing questions. Someone with the dataset can link an artifact ID to its source record, and the local sample view exposes all columns from matching artifacts. Limited exported evidence also means that detailed verification requires access to the corresponding local data and analysis settings.
-
-## Mitigations
-
-- Distinguish candidate relatedness from direction evidence, and preserve ambiguous relationships without directional scanning.
-- Separate selection heuristics, observed tool output, selected manual inspection, and unresolved limitations.
-- Treat scanner matches as signals rather than proof of risk, and report count changes separately from introduced capabilities.
-- Preserve exact-name family context while documenting candidate-generation and provenance-resolution limits.
-- Retain the line-ending regression case and the two remaining rule-delta coverage gaps.
-- Version the embedded artifact-ID selection and keep the documented sample consistent with it.
-- Verify membership and dataset identity before claiming successful reconstruction of the revised sample.
-- Record incomplete inputs and distinguish unscanned cases from negative findings.
-- Keep broader census and stratified manual-review plans separate from completed Sprint 1 validation.
-- Record methodological decisions and output constraints in research decision records and report documentation.
+The repository documents how to acquire the data, build the analysis tables, reconstruct the sample, and run the notebooks. Results should identify the dataset release, sample, and analysis configuration used to generate them so that later changes to the data or rules can be distinguished from the original Sprint 1 results.
