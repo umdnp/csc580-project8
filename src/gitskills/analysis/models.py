@@ -108,6 +108,9 @@ class AnalysisComparison:
     derived: AnalysisResult
     introduced: RiskProfile
     rule_deltas: tuple[RuleDelta, ...]
+    introduced_rules: frozenset[str] = frozenset()
+    removed_rules: frozenset[str] = frozenset()
+    retained_rules: frozenset[str] = frozenset()
 
     @property
     def rule_match_delta(self) -> int:
@@ -123,8 +126,36 @@ class AnalysisComparison:
     def to_dict(self, verbose: bool = False) -> dict[str, object]:
         """Return comparison data suitable for JSON output."""
 
+        base_rule_counts = self.base.rule_counts()
+        derived_rule_counts = self.derived.rule_counts()
+
+        introduced_rules = [
+            f"{rule_id} (+{derived_rule_counts[rule_id]})"
+            for rule_id in sorted(self.introduced_rules)
+        ]
+        removed_rules = [
+            f"{rule_id} ({base_rule_counts[rule_id]} -> "
+            f"{derived_rule_counts.get(rule_id, 0)})"
+            for rule_id in sorted(self.removed_rules)
+        ]
+        retained_rules = []
+        for rule_id in sorted(self.retained_rules):
+            base_count = base_rule_counts[rule_id]
+            derived_count = derived_rule_counts[rule_id]
+            count_text = (
+                str(derived_count)
+                if base_count == derived_count
+                else f"{base_count} -> {derived_count}"
+            )
+            retained_rules.append(f"{rule_id} ({count_text})")
+
         output: dict[str, object] = {
             "introduced": self.introduced.to_dict(),
+            "rule_sets": {
+                "introduced": introduced_rules,
+                "removed": removed_rules,
+                "retained": retained_rules,
+            },
             "rule_match_count": {
                 "base": self.base.rule_match_count,
                 "derived": self.derived.rule_match_count,

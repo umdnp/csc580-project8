@@ -15,6 +15,8 @@ def compare_results(
 
     base_counts = base.rule_counts()
     derived_counts = derived.rule_counts()
+    base_rule_ids = frozenset(base_counts)
+    derived_rule_ids = frozenset(derived_counts)
     rule_ids = sorted(base_counts.keys() | derived_counts.keys())
 
     rule_deltas = tuple(
@@ -32,4 +34,7 @@ def compare_results(
         derived=derived,
         introduced=introduced,
         rule_deltas=rule_deltas,
+        introduced_rules=derived_rule_ids - base_rule_ids,
+        removed_rules=base_rule_ids - derived_rule_ids,
+        retained_rules=base_rule_ids & derived_rule_ids,
     )

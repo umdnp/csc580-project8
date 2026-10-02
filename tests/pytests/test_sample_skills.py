@@ -98,3 +98,5 @@ def test_sample_skill(config_path, expected, capsys):
         result["rule_deltas"]
         == expected["rule_deltas"]
     )
+    if "rule_sets" in expected:
+        assert result["rule_sets"] == expected["rule_sets"]
