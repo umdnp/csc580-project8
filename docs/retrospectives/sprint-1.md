@@ -91,6 +91,22 @@ We also made several practical changes:
 - Continue recording important research decisions when new evidence changes our assumptions or approach.
 - Keep the backlog flexible enough to reflect what we learn from the data, rather than assuming every technical question can be planned in advance.
 
+## What We Could Improve
+
+The project changed substantially over three weeks, and our tools and approach evolved quickly from week to week. Keeping everyone involved requires time to explain those changes and build a shared mental model of the work.
+
+- **Tool walkthroughs for everyone.** Schedule demonstrations of the current tools, how to run them, and how to interpret their results. Give each team member a chance to try the workflow and ask questions.
+- **Walkthroughs of the project's logic.** Use a small example to explain how we move from the research question to selecting related skills, interpreting their relationships, and comparing security-sensitive content. Explain why we made each major choice so everyone can understand the reasoning behind the workflow.
+- **Make room for questions and catching up.** The research question is dense, and the pace of change may have made it difficult for some members to know where to start. We should check understanding, invite questions, and break explanations into manageable pieces rather than assume that reviewing the repository alone is enough to catch up.
+
+## Decisions Needed for Sprint 2
+
+The team should agree on the scope and priority of the following work before implementing it:
+
+- **Threat model and scanner coverage.** Decide whether to expand the threat model or improve rule coverage within its existing scope. Examples to discuss include IP-address references and missed command keywords such as `bun`. Agree on the context that makes these signals relevant and how we will validate the detections; their presence alone does not establish malicious behavior.
+- **Code block comparison.** Decide how to compare the actual content of code blocks between parent and child artifacts. The current count-based comparison can miss changed commands or destinations when the number of rule matches stays the same. Agree on how to identify meaningful content changes while accounting for formatting differences.
+- **Sibling file checks.** Decide how to include changes to bundled sibling files in the comparison and review workflow. A parent and child can have unchanged `SKILL.md` content while their supporting scripts or resources change, potentially changing the behavior of the child skill. Agree on which files to check and how to report changes or unavailable content.
+
 ## Team Input Before Finalizing
 
 Each team member should review this draft and add anything important that is missing.
