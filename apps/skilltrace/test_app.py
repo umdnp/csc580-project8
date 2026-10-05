@@ -576,7 +576,7 @@ class ViewerTests(unittest.TestCase):
     def test_database_path_precedence_is_environment_then_cli_then_default(self):
         os.environ.pop(server.DB_ENV, None)
         server.configure_database_path(None)
-        self.assertEqual(str(server.database_path()), server.DEFAULT_DB_PATH)
+        self.assertEqual(server.database_path(), Path(server.DEFAULT_DB_PATH))
         self.assertEqual(server.database_source(), "default")
 
         server.configure_database_path("/tmp/command-line.db")

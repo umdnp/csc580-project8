@@ -65,6 +65,16 @@ notebooks/extraction_pipeline/figures/flagged_risk_categories.png
 
 These outputs are regenerated when the notebook is run from beginning to end.
 
+## Automated Tests
+
+From the repository root, run:
+
+```bash
+uv run pytest tests/pytests/test_extraction_pipeline.py -q
+```
+
+The tests execute the notebook's loader, validation, pair extraction, and Parquet cells against a temporary DuckDB database. They verify view order and source-field preservation, adjacent comparisons within each name group, missing-field validation and skipped pairs, positive rule-delta counts, and the Parquet round trip. The full GitSkills dataset and a Jupyter kernel are not required; generated test files stay in pytest's temporary directory.
+
 ## Current Sample Results
 
 The current sample contains **43 artifacts across 10 skill-name groups**, producing **33 adjacent base-versus-derived comparisons**. All 33 comparisons were scanned successfully.
