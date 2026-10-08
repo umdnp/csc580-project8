@@ -17,7 +17,7 @@ class UrlReferenceRule(RegexRule):
 
 
 class NetworkClientRule(RegexRule):
-    """Detect common command-line and Python HTTP clients."""
+    """Detect common command-line, Python, and PowerShell HTTP clients."""
 
     rule_id = "NET-002"
     category = RiskCategory.NETWORK_ACCESS
@@ -25,4 +25,5 @@ class NetworkClientRule(RegexRule):
     patterns = (
         r"(?<![\w.-])(?:curl|wget)[ \t]+(?=[^\s`])",
         r"\brequests\.(?:get|post|put|patch|delete|head)[ \t]*\(",
+        r"(?<![\w.-])(?:Invoke-WebRequest|Invoke-RestMethod)[ \t]+(?=[^\s`])",
     )
