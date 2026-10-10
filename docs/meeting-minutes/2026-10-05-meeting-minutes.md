@@ -113,10 +113,10 @@
 
 ### Jim
 
-- [ ] Reach out to Christian for a final review of the Sprint 1 deliverable.
-- [ ] Submit the Sprint 1 deliverable after final team confirmation.
-- [ ] Help troubleshoot the `GITSKILLS_DB`/VS Code environment issue if it continues.
-- [ ] Work with Kyle on early Sprint 2 scanner refinements, including detection of meaningful parameter/value changes.
+- [x] Reach out to Christian for a final review of the Sprint 1 deliverable.
+- [x] Submit the Sprint 1 deliverable after final team confirmation.
+- [x] Help troubleshoot the `GITSKILLS_DB`/VS Code environment issue if it continues.
+- [x] Work with Kyle on early Sprint 2 scanner refinements, including detection of meaningful parameter/value changes.
 
 ### Vaisnavii
 
