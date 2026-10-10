@@ -4,7 +4,7 @@ from .base import Rule
 from .command_execution import CommandInvocationRule, ShellCodeBlockRule
 from .credential_access import CredentialFileRule, SecretReferenceRule
 from .external_code_execution import DownloadAndExecuteRule, PackageInstallRule
-from .filesystem_access import FileCommandRule, FileWriteApiRule
+from .filesystem_access import FileCommandRule, FileReadRule, FileWriteApiRule
 from .network_access import NetworkClientRule, UrlReferenceRule
 from .system_modification import PrivilegeCommandRule, SystemChangeCommandRule
 
@@ -16,6 +16,7 @@ DEFAULT_RULES: tuple[Rule, ...] = (
     NetworkClientRule(),
     FileCommandRule(),
     FileWriteApiRule(),
+    FileReadRule(),
     SecretReferenceRule(),
     CredentialFileRule(),
     DownloadAndExecuteRule(),

@@ -23,5 +23,7 @@ class CommandInvocationRule(RegexRule):
     category = RiskCategory.COMMAND_EXECUTION
     description = "Command invocation detected"
     patterns = (
-        r"(?<![\w.-])(?:bash|sh|zsh|python(?:3)?|npm|pip(?:3)?|docker)[ \t]+(?=[^\s`])",
+        r"(?<![\w.-])(?:bash|sh|zsh|fish|python(?:\d+(?:\.\d+)*)?|"
+        r"node|bun|uv|uvx|npm|npx|pnpm|yarn|pip(?:\d+(?:\.\d+)*)?|docker|"
+        r"powershell(?:\.exe)?|pwsh(?:\.exe)?|cmd\.exe)[ \t]+(?=[^\s`])",
     )
