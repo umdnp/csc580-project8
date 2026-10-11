@@ -19,6 +19,9 @@ More information about the research question selected by the team is available i
 
 ## Getting Started
 
+For a guided first run, start with [data/README.md](data/README.md), then follow
+the [Project Guide](guide.md) for tool examples and a SkillTrace walkthrough.
+
 The steps below set up the project source code, Python environment, project dependencies, and the local DuckDB database used for analysis.
 
 ### 1. Clone the repository
