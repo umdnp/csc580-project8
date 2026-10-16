@@ -1,6 +1,6 @@
 # Project guide: from setup to SkillTrace
 
-**Start with [data/README.md](data/README.md).** Follow its instructions to
+**Start with [data/README.md](../../data/README.md).** Follow its instructions to
 download the dataset, create the separate DuckDB database, build the analysis
 tables, and update the artifact groupings. Then return here for a guided first run.
 
@@ -12,7 +12,7 @@ scan its directed relationships, and explore the same results in your browser.
 ## 1. Finish setup and check that you are ready
 
 You need the repository on your computer and its Python environment installed.
-The main [README's Getting Started section](README.md#getting-started) explains
+The main [README's Getting Started section](../../README.md#getting-started) explains
 cloning the repository and installing `uv`. From the repository's main folder,
 install the project dependencies:
 
@@ -106,7 +106,7 @@ The tools read and scan stored text without executing its instructions.
 | `scan_family` | Scan the selected directed relationships in a family, including changed siblings. | Exact family name + DuckDB |
 | `family_picker` | Browse family names interactively and generate analysis reports. | DuckDB |
 
-The full command reference is [TOOLS.md](TOOLS.md). For help with an individual
+The full command reference is [TOOLS.md](../../TOOLS.md). For help with an individual
 tool, add `--help`, for example:
 
 ```shell
@@ -344,28 +344,37 @@ The change labels you may see in other families are:
 our chosen pair from DuckDB using the companion script:
 
 ```shell
-uv run python scripts/export_guide_pair.py
+uv run python docs/start_guide/export_guide_pair.py
 ```
 
-The script opens the database read-only and saves these two local text files:
+The script opens the database read-only and saves these two local text files
+under the repository root, regardless of the terminal's current directory:
 
 ```text
-.cache/project-guide/cometchat-core/
-├── 3498417/SKILL.md    (base)
-└── 3602273/SKILL.md    (derived)
+tests/temp/
+├── base/cometchat-core/SKILL.md       (artifact 3498417)
+└── derived/cometchat-core/SKILL.md    (artifact 3602273)
 ```
 
-These are copies of stored dataset text. `.cache/` is ignored by Git, so the
-exported source stays local. Repeating the export replaces these local copies.
+These are copies of stored dataset text for the walkthrough. `tests/temp/` is
+ignored by Git, and repeating the export replaces these temporary copies.
+`scan_diff` accepts any two file paths, so this location does not change its behavior.
+
+The automated regression test uses separate fixtures under `tests/sample_skills/`
+and expected results in `tests/pytests/test_configs/cometchat-core.json`. Run it with:
+
+```shell
+uv run pytest tests/pytests/test_sample_skills.py -v -k cometchat-core
+```
 
 Now compare them. **Keep the base file first and the derived file second.**
 
 ```shell
-uv run python -m gitskills.tools.scan_diff .cache/project-guide/cometchat-core/3498417/SKILL.md .cache/project-guide/cometchat-core/3602273/SKILL.md --output .cache/project-guide/diff-scans
+uv run python -m gitskills.tools.scan_diff tests/temp/base/cometchat-core/SKILL.md tests/temp/derived/cometchat-core/SKILL.md --output output/start_guide/diff-scans
 ```
 
 The tool prints JSON and diagnostic lines. It saves the JSON to
-`.cache/project-guide/diff-scans/3602273.json`. For a file named `SKILL.md`,
+`output/start_guide/diff-scans/cometchat-core.json`. For a file named `SKILL.md`,
 the output name comes from its parent folder.
 
 The verified result for this pair is:
@@ -415,7 +424,7 @@ that the content is safe or that its behavior is unchanged.
 For matching-line detail, repeat the comparison with `--verbose`:
 
 ```shell
-uv run python -m gitskills.tools.scan_diff .cache/project-guide/cometchat-core/3498417/SKILL.md .cache/project-guide/cometchat-core/3602273/SKILL.md --verbose
+uv run python -m gitskills.tools.scan_diff tests/temp/base/cometchat-core/SKILL.md tests/temp/derived/cometchat-core/SKILL.md --verbose
 ```
 
 Credential-related excerpts are redacted. Skill frontmatter (the YAML metadata
@@ -427,7 +436,7 @@ scans the two skill bodies; it does not scan their sibling files.
 Run:
 
 ```shell
-uv run python -m gitskills.tools.scan_family cometchat-core --output .cache/project-guide/family-scans
+uv run python -m gitskills.tools.scan_family cometchat-core --output output/start_guide/family-scans
 ```
 
 This repeats family analysis and scans its **selected directed pairs**. It also
@@ -580,7 +589,7 @@ and **Fit visible family** help navigate larger graphs.
 
 SkillTrace reads valid current `analyze_family` JSON reports only from
 `apps/skilltrace/reports`. It remembers the last selected valid report when you
-refresh the browser. See [the SkillTrace README](apps/skilltrace/README.md) for
+refresh the browser. See [the SkillTrace README](../../apps/skilltrace/README.md) for
 additional reference and [local API documentation](http://127.0.0.1:8000/docs)
 while the server is running.
 
