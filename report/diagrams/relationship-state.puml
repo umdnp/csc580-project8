@@ -1,0 +1,46 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam dpi 150
+hide empty description
+title Conceptual classification of a candidate bundle pair
+state "Candidate pair" as Candidate
+state Relatedness <<choice>>
+state "No qualifying relationship" as Excluded
+state "Related pair" as Related
+state Evidence <<choice>>
+state "Direction unresolved" as Unresolved
+state "Equivalent relationship" as Equivalent
+state "Directed candidate" as Directed
+state Selection <<choice>>
+state "Selected predecessor edge" as Selected
+state "Additional directed relationship" as Additional
+[*] --> Candidate
+Candidate --> Relatedness : evaluate pair
+Relatedness --> Excluded : [not related]
+Relatedness --> Related : [related]
+Related --> Evidence : classify change and resolve direction
+Evidence --> Equivalent : [equivalent]
+Evidence --> Directed : [directed]
+Evidence --> Unresolved : [unresolved]
+Directed --> Selection : rank predecessors
+Selection --> Selected : [chosen; no cycle]
+Selection --> Additional : [not selected]
+Excluded --> [*]
+Unresolved --> [*]
+Equivalent --> [*]
+Selected --> [*]
+Additional --> [*]
+note top of Related
+  Declared source is checked before fallback.
+  Conflicts remain unresolved. Without a source,
+  equivalent states remain undirected; otherwise
+  fallback evidence may support direction.
+end note
+note bottom of Selected
+  Selected edges enter family scanning.
+  Scanner flags are a separate outcome.
+end note
+@enduml

@@ -10,7 +10,7 @@ Rule presence, changes in match counts, and newly detected capabilities are dist
 
 `artifact_groupings` groups artifacts by exact name and normalized description, while `analyze_family` loads qualifying artifacts across description groups sharing an exact name. Neither shared metadata nor high similarity proves common ancestry. Similarity measures establish candidate relatedness; resolved declared provenance, chronology, and asymmetric containment provide direction evidence. Similarity-only relationships retain uncertainty about direction.
 
-A sibling-content fingerprint indicates differences in bundled file content when composition data is available, not their security significance. The current wrapper scans only `SKILL.md`, so a sibling-only relationship with no scanner delta does not imply that sibling changes are harmless.
+A sibling-content fingerprint indicates differences in bundled file content when composition data is available, not their security significance. The saved Sprint 1 wrapper reports scanned only `SKILL.md`. The current family scanner also reviews available sibling content, while `scan_diff` and SkillTrace pair scans compare skill bodies. Findings from these surfaces must be labeled separately; an absent delta on one surface does not establish safety on another.
 
 ## Internal Validity
 
@@ -18,7 +18,7 @@ Errors in candidate generation, similarity analysis, provenance interpretation, 
 
 Declared provenance, commit dates, and asymmetric containment provide direction evidence but do not guarantee original authorship or direct descent. Commit history follows the artifact at its current path, so moves or renames may obscure earlier history. Supported provenance fields must resolve within the loaded exact-name family. An unsuccessful source lookup does not establish that the source is absent from the entire dataset, and a pair that also fails similarity criteria does not isolate a source-resolution failure.
 
-Selected manual inspections identified uneven recognition of equivalent operation types and artificial count differences caused by line-ending formats. The wrapper normalizes line endings before scanning, and the corrected case is retained for regression checking. This fix addresses the observed issue, not every possible formatting sensitivity or scanner coverage gap.
+Selected manual inspections identified uneven recognition of equivalent operation types and artificial count differences caused by line-ending formats. The earlier wrapper normalized line endings before scanning and retained the corrected case for regression checking. Normalization must be verified for each current input path before treating its counts as interchangeable. The historical fix addresses the observed issue, not every possible formatting sensitivity or scanner coverage gap.
 
 Only selected comparisons were manually inspected. Saved reports are automated output rather than independent ground truth, and the sample does not establish scanner accuracy or complete validation of inferred relationships.
 
@@ -34,15 +34,17 @@ Searching stopped because additional screening was time-consuming, not because c
 
 Security-relevant instructions can be legitimate parts of development, deployment, or administration. Detected matches and changes in their counts do not by themselves establish maliciousness, exploitability, or increased or decreased risk.
 
-The 17 directed comparisons are not independent observations: relationships may share endpoints or repeated content. Small category counts and deliberately selected cases limit quantitative conclusions. The saved reports demonstrate count deltas in 10 of 12 scanner rules, but this is coverage of observed variation, not a measure of accuracy. EXT-001 and SYS-001 remain without confirmed delta examples.
+The 17 directed comparisons are not independent observations: relationships may share endpoints or repeated content. Small category counts and deliberately selected cases limit quantitative conclusions. The saved Sprint 1 reports demonstrated count deltas in 10 of the then-current 12 scanner rules, with no confirmed delta examples for EXT-001 and SYS-001 in that selection. The current catalog contains 13 rules. Historical coverage and counts cannot establish coverage or accuracy for the revised catalog; reruns must identify their code revision and scan scope.
 
 Ambiguous relationships are listed without directional scanning. A family with zero directed comparisons therefore provides no basis for concluding that its artifacts contain zero scanner matches. Similarly, unchanged aggregate counts can conceal differences in matched text and should not be interpreted as identical behavior.
 
 ## Reproducibility Threats
 
-The project team confirmed that `artifact_id` is deterministic for the project's dataset. Revised membership is encoded as 43 IDs in `sql/generate_sprint1_sample.sql`, which creates or replaces `sample_artifacts`. The ID list in `data/sample-population/sample_population.csv` is a separate record; the view does not read it. These two representations could diverge unless checked together.
+Team members independently downloaded the source database and ran the SQL queries on their own machines, reporting accurate reproduction of the results. This is positive empirical evidence of repeatability for those runs. It does not remove the following limitations concerning build-local identifiers, snapshot identity, and verification scope.
 
-The view stores a query rather than a snapshot of artifact rows. Returned data depends on the underlying database, and IDs absent from that database do not appear in the result. Deterministic IDs for the agreed dataset do not establish identical data across different releases. Dataset identity, dependencies, analysis code, rule definitions, and normalization settings can all affect reproducibility.
+The saved Sprint 1 selection uses 43 build-local artifact IDs in `sql/create_sprint1_samples_view.sql`, which creates or replaces `sample_artifacts`. Both artifact and group numbers originate from unordered `row_number()` expressions, so independently rebuilding the same source does not guarantee identical numeric assignments. Reopening the same saved database preserves the existing mapping. The ID list in `data/sample-population/sample_population.csv` is a separate record; the view does not read it. These representations could diverge unless checked together.
+
+The view stores a query rather than a snapshot of artifact rows. Returned data depends on candidate membership and the artifact/repository joins. A remapped numeric ID can select a different source occurrence rather than simply producing a missing row. Reproduction across builds therefore requires the dataset snapshot and an ID-to-source mapping based on `(repo_full_name, path)`; subgroup reconciliation uses exact name and normalized description. Content hashes provide an additional integrity check but do not uniquely identify occurrences. Dataset identity, dependencies, analysis code, rule definitions, and normalization settings can all affect reproducibility.
 
 The script includes a count query with an expected result of 43, but the saved family-report totals do not verify execution or reconstruction of the view. Validation should check every selected ID and compare membership in both directions; a matching count alone is insufficient. Earlier frozen-table reconstruction checks apply to the earlier sample, not to this revised view.
 
@@ -50,9 +52,9 @@ The script includes a count query with an expected result of 43, but the saved f
 
 Missing content, chronology, or sibling-composition data can restrict analysis. Missing values do not establish the absence of a behavior or resource; they may reflect incomplete enrichment. Artifact pairs lacking adequate direction evidence remain ambiguous rather than being forced into an ordered comparison.
 
-Commit history may be missing or limited to the current path. Sibling-composition coverage is uneven across repeated content occurrences, limiting comparisons of bundled resources. The current wrapper does not scan sibling-file contents even where those contents are available.
+Commit history may be missing or limited to the current path. Sibling-composition coverage is uneven across repeated content occurrences, limiting comparisons of bundled resources. The current family scanner can scan available sibling content and records unavailable changed resources or unknown SHA evidence as incomplete coverage. This extends the older skill-only workflow but does not eliminate missing-data bias. Content recovered through a matching SHA should retain its evidence source, and missing content must not be interpreted as absence of behavior.
 
-Filtering for available content, relatedness, or supported direction can bias results toward better-enriched records. Exclusions and ambiguity should therefore be reported separately from negative scanner findings.
+Filtering for available content, relatedness, or supported direction can bias results toward better-enriched records. Exclusions and ambiguity should therefore be reported separately from negative scanner findings. Candidate construction additionally requires valid frontmatter, a body longer than 50 characters, non-null name and description, and at least two qualifying occurrences with the same exact name. This excludes malformed or very short skills, metadata-poor artifacts, and singleton names before similarity analysis. The 50-character threshold is a heuristic rather than a validated quality boundary. Any later prevalence estimate must state whether its denominator is the source population, the 943,257 retained candidates in the local audit, or the further restricted set of supported directed comparisons.
 
 ## Output Scope and Traceability
 
@@ -66,8 +68,8 @@ These measures do not guarantee anonymity or resolve licensing questions. Someon
 - Separate selection heuristics, observed tool output, selected manual inspection, and unresolved limitations.
 - Treat scanner matches as signals rather than proof of risk, and report count changes separately from introduced capabilities.
 - Preserve exact-name family context while documenting candidate-generation and provenance-resolution limits.
-- Retain the line-ending regression case and the two remaining rule-delta coverage gaps.
-- Version the embedded artifact-ID selection and reconcile it with the recorded CSV list.
+- Recheck the historical line-ending regression across current input paths, and reassess rule-delta coverage against the current 13-rule catalog.
+- Version the embedded artifact-ID selection, reconcile it with the CSV list, and verify the ID-to-source mapping before reuse in another database build.
 - Verify membership and dataset identity before claiming successful reconstruction of the revised sample.
 - Record incomplete inputs and distinguish unscanned cases from negative findings.
 - Keep broader census and stratified manual-review plans separate from completed Sprint 1 validation.

@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam dpi 150
+skinparam maxMessageSize 180
+hide footbox
+title Family scan: successful execution path
+participant "scan_family\nCLI" as CLI
+participant "DuckDB\nrepositories" as Data
+participant "FamilyRisk\nAnalyzer" as Risk
+participant "Family\nAnalyzer" as Family
+participant "Skill\nAnalyzer" as Scanner
+participant "compare_results\nfunction" as Compare
+CLI -> Data : load(name)
+Data --> CLI : artifacts
+CLI -> Data : load(artifact IDs)
+Data --> CLI : sibling records
+CLI -> Risk : analyze(artifacts, sibling_files)
+activate Risk
+Risk -> Family : analyze(artifacts)
+Family --> Risk : family graph
+loop selected directed edges
+  Risk -> Scanner : scan uncached skill bodies
+  Scanner --> Risk : skill profiles
+  Risk -> Compare : compare_results(base, derived)
+  Compare --> Risk : category flags; rule deltas
+  opt changed sibling state
+    Risk -> Scanner : scan uncached sibling text
+    Scanner --> Risk : sibling profiles
+    Risk -> Compare : compare sibling aggregates
+    Compare --> Risk : rule deltas
+    Risk -> Risk : collect sibling findings;\nrecord incomplete coverage
+  end
+  Risk -> Risk : collect positive skill deltas
+end
+Risk --> CLI : findings and coverage
+deactivate Risk
+CLI -> CLI : write or print report
+note over CLI, Compare
+  Cache hits reuse existing profiles; ambiguous edges are not scanned.
+  Dataset instructions are scanned as text, never executed.
+end note
+@enduml

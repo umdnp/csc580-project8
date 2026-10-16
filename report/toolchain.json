@@ -1,0 +1,17 @@
+{
+  "plantuml": {
+    "version": "v1.2026.8",
+    "url": "https://github.com/plantuml/plantuml/releases/download/v1.2026.8/plantuml-1.2026.8.jar",
+    "sha256": "5e1ecfa8ecd32c90b03bbf3b1eb6f020943f98ab0fcf4032be31a0002ee2c462"
+  },
+  "java": {
+    "version": "21.0.12+101.0.LTS",
+    "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jre_x64_windows_hotspot_21.0.12.1_1.zip",
+    "sha256": "d35f31e712f0fcf6ac5a093edc90204fbff22f720ba3950bd09d331d5e621636"
+  },
+  "pandoc": {
+    "version": "3.12.1",
+    "url": "https://github.com/jgm/pandoc/releases/download/3.12.1/pandoc-3.12.1-windows-x86_64.zip",
+    "sha256": "6ef431cb20b2c24a0371fc19200dc49d452be54b1b5c9239f3462841ef53e587"
+  }
+}
