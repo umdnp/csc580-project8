@@ -224,6 +224,9 @@ __marimo__/
 # Exclude any output generated in scripts directory
 scripts/output/
 
+# Temporary start-guide exports
+tests/temp/
+
 # Ignore any local copies of the GitSkills database
 data/*.db
 data/**/*.db
