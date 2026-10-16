@@ -1,0 +1,29 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam dpi 150
+title Candidate population and evaluation paths
+start
+:Import SQLite release into local DuckDB\n3,797,117 artifact occurrences;
+:Require valid frontmatter\nRetained: 1,627,753;
+:Require body longer than 50 characters\nand non-null content, name, description\nRetained: 1,621,757;
+:Require at least two qualifying\noccurrences with the exact same name;
+:Materialize 943,257 candidate occurrences\nin artifact_groupings;
+note right
+  162,995 exact-name families
+  628,026 description subgroups
+  Local audit: October 15, 2026
+end note
+:Enrich known sibling fingerprints;\npreserve unavailable evidence as NULL;
+if (Analysis objective?) then (family review)
+  :Analyze an exact-name family;\ninfer relatedness and direction;
+  :Scan selected directed pairs\nand applicable sibling changes;
+else (Sprint 1 validation)
+  :Purposefully select Sprint 1 sample:\n43 artifacts across 10 families;
+  :Exercise family analysis and\nnotebook extraction separately;
+endif
+:Review outputs with their scope\nand evidence limitations;
+stop
+@enduml
