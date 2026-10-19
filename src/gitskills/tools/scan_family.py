@@ -126,23 +126,39 @@ def main(argv: Sequence[str] | None = None) -> int:
             min_shared_shingles=args.min_shared_shingles,
             direction_containment_margin=args.direction_margin,
         )
-        artifacts = DuckDBFamilyRepository(database).load(args.name)
-        if not artifacts:
+        loaded = DuckDBFamilyRepository(database).load_available(args.name)
+        artifacts = loaded.artifacts
+        if not artifacts and not loaded.skipped_artifacts:
             print(f"Candidate family not found: {args.name}", file=sys.stderr)
             return 1
 
         sibling_files = DuckDBSiblingRepository(database).load(
             artifact.artifact_id for artifact in artifacts
         )
-        result = FamilyRiskAnalyzer(policy=policy).analyze(
-            artifacts,
-            sibling_files=sibling_files,
-        )
+        analyzer = FamilyRiskAnalyzer(policy=policy)
+        if artifacts:
+            result = analyzer.analyze(artifacts, sibling_files=sibling_files)
+        else:
+            result = FamilyRiskAnalysis(
+                name=args.name,
+                similarity_policy=policy,
+                active_rules=analyzer.active_rules,
+                clusters=(),
+                ambiguous_edges_skipped=0,
+            )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"Unable to scan candidate family: {exc}", file=sys.stderr)
         return 1
 
     payload = result.to_dict(verbose=args.verbose)
+    payload["input_summary"] = {
+        "artifacts_loaded": len(artifacts),
+        "artifacts_skipped": len(loaded.skipped_artifacts),
+        "incomplete": bool(loaded.skipped_artifacts),
+    }
+    payload["skipped_artifacts"] = [
+        artifact.to_dict() for artifact in loaded.skipped_artifacts
+    ]
 
     if output_dir is not None:
         try:
@@ -154,6 +170,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.json:
         print(json.dumps(payload, indent=2))
     else:
+        print(f"Artifacts loaded:        {len(artifacts)}")
+        print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
+        for artifact in loaded.skipped_artifacts:
+            print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
+        if loaded.skipped_artifacts:
+            print("Input coverage incomplete; skipped artifacts have no scan result.")
         _print_report(result, verbose=args.verbose)
 
     return 0
