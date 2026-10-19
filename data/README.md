@@ -140,6 +140,15 @@ duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/create_sprint1_sam
 
 Reference [`docs/decisions/RDR-006-sprint1-sample-design-and-selection.md`](../docs/decisions/RDR-006-sprint1-sample-design-and-selection.md) for more information.
 
+### 5. Sprint 2 Manual Validation
+
+The fixed pair-level review sample and its instructions are stored in
+[`data/validation/validation_sample.csv`](validation/validation_sample.csv) and
+[`docs/validation/validation_protocol.md`](../docs/validation/validation_protocol.md).
+The CSV contains artifact identifiers and analysis metadata, not source content.
+Use the protocol with the local DuckDB database to retrieve the source artifacts
+for review. Do not add source text from the GitSkills dataset to the repository.
+
 ## Configure the Local Database Path
 
 Project code can use the `GITSKILLS_DB` environment variable to locate the generated DuckDB database.
