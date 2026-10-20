@@ -64,13 +64,16 @@ class DuckDBSiblingRepository:
     @staticmethod
     def _row_to_sibling(row: tuple[object, ...]) -> SiblingFile:
         sibling_id, artifact_id, entry_name, entry_sha, content, skipped_reason = row
+        if content is not None and not isinstance(content, str):
+            content = None
+            skipped_reason = "non_text_content"
 
         return SiblingFile(
             sibling_id=int(sibling_id),
             artifact_id=int(artifact_id),
             entry_name=str(entry_name),
             entry_sha=str(entry_sha) if entry_sha is not None else None,
-            content=str(content) if content is not None else None,
+            content=content,
             skipped_reason=(
                 str(skipped_reason) if skipped_reason is not None else None
             ),

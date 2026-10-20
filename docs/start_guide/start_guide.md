@@ -609,7 +609,25 @@ A command's **exit status** tells the terminal whether it completed:
 | `scan_diff` | Completed | Input-read or output-write failure | Arguments or output-directory setup error |
 
 Read the report's completeness fields as well as the exit status. In particular,
-`scan_family` can report incomplete sibling coverage even when the command completes.
+`scan_family` can report incomplete artifact or sibling coverage even when the
+command completes. Its JSON includes `input_summary` (artifacts loaded, artifacts
+skipped, and whether input coverage is incomplete) and `skipped_artifacts`
+(artifact ID, repository, path, and reason). Missing, non-text, or whitespace-only
+skill content and missing/blank file hashes exclude an artifact from comparison;
+remaining usable artifacts continue through family analysis. Excluding an artifact
+can change the inferred relationships, so interpret results as analysis of the
+available subset, not as the complete original family. Skipped artifacts have no
+scanner judgment and must not be counted as negative findings.
+
+If every artifact is skipped, the command produces an incomplete report with zero
+comparisons. An unknown family or a database/schema failure still returns status 1.
+Unavailable or non-text sibling content remains unscanned and is reflected in the
+existing sibling coverage fields when it affects a changed-sibling comparison.
+Malformed YAML does not cause a parse failure: the scanner handles content as text.
+A delimited frontmatter block is masked even if its YAML is invalid; an unclosed
+frontmatter block is scanned as ordinary text and may produce contextual matches.
+An empty string is valid for a direct text scan, but empty skill artifacts are
+excluded from family comparison because they provide no comparable body.
 
 | What you see | What to check or do |
 |---|---|
