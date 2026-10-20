@@ -71,6 +71,16 @@ processes through common Python APIs, and checks that a supplied file-writing
 instruction has no effect. This is a regression check for the exercised scanner
 path, not an exhaustive proof about every possible execution mechanism.
 
+For the separate Story 5.2 non-execution criterion, run:
+
+```shell
+uv run pytest tests/pytests/test_static_analysis_boundary.py -v
+```
+
+See the [static-analysis boundary review](../../docs/security/static_analysis_boundary.md)
+for the file CLI, database-backed family CLI, SkillTrace scan-handler checks,
+source-review findings, and verification limits.
+
 These tests verify the documented operational behavior of the scanner. They do
 not establish real-world detection accuracy, complete syntax coverage, or manual
 validation of dataset findings. Artifact relatedness and complete security-change

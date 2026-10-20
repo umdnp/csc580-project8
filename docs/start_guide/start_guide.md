@@ -9,6 +9,10 @@ This guide takes you through four tools and then the SkillTrace app. We use
 database examples. You will analyze that family, compare two of its files,
 scan its directed relationships, and explore the same results in your browser.
 
+The tools inspect dataset content as text; they do not execute skill instructions
+or sibling scripts. See the [static-analysis boundary review](../security/static_analysis_boundary.md)
+for the reviewed paths and the repeatable non-execution checks.
+
 ## 1. Finish setup and check that you are ready
 
 You need the repository on your computer and its Python environment installed.
