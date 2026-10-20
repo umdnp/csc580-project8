@@ -49,6 +49,33 @@ A specific sample case can be selected with `-k`:
 uv run pytest tests/pytests/test_sample_skills.py -v -k repo-status-reporter
 ```
 
+### Focused Security Function Tests (Story 5.2)
+
+Run the security function tests from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_security_rules.py tests/pytests/test_security_analyzer.py tests/pytests/test_security_siblings.py -v
+```
+
+These tests use constructed text and in-memory artifact/sibling objects; they do
+not require the GitSkills database or execute the supplied instructions.
+
+| Test file | Coverage |
+| --- | --- |
+| `test_security_rules.py` | Positive and negative examples for every active rule, all six categories, supported command/API variants, evidence locations, and overlapping-match deduplication. |
+| `test_security_analyzer.py` | Capability/count aggregation, LF/CRLF and BOM frontmatter handling, sibling configuration scope, empty/benign text, rule configuration, and a static-only scanning check. |
+| `test_security_siblings.py` | Extension-independent sibling scanning, artifact/file traceability, unchanged-content handling, incomplete coverage alongside available findings, and credential-evidence redaction. |
+
+The static-only check supplies executable-looking text, rejects attempts to launch
+processes through common Python APIs, and checks that a supplied file-writing
+instruction has no effect. This is a regression check for the exercised scanner
+path, not an exhaustive proof about every possible execution mechanism.
+
+These tests verify the documented operational behavior of the scanner. They do
+not establish real-world detection accuracy, complete syntax coverage, or manual
+validation of dataset findings. Artifact relatedness and complete security-change
+classification need separate tests under Stories 5.1 and 5.3.
+
 ### Sample Skill Test Design
 
 Sample analyzer tests use a data-driven structure consisting of:
