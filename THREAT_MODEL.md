@@ -48,6 +48,54 @@ Examples of patterns that may be flagged include:
 
 These examples illustrate the kinds of behavior the scanner looks for. Whether a particular use is harmful depends on context.
 
+## Implemented Detection Rules
+
+The categories above define the behaviors of interest. The following table defines
+the current scanner coverage: 13 active rules registered in
+[`src/gitskills/rules/registry.py`](src/gitskills/rules/registry.py). Each rule
+detects selected text patterns, rather than every possible expression of a
+category. URL references, credential references, and package-installation
+instructions are intentional signals even when execution or actual access cannot
+be established.
+
+| Rule ID | Category | Implemented detection |
+| --- | --- | --- |
+| `CMD-001` | Command execution | Opening triple-backtick fences labeled `bash`, `sh`, `shell`, `zsh`, `fish`, `powershell`, or `pwsh`. |
+| `CMD-002` | Command execution | Selected interpreter/tool invocations followed by arguments: shell interpreters, Python, Node, Bun, uv/uvx, npm/npx, pnpm, Yarn, pip, Docker, PowerShell/pwsh, and `cmd.exe`. |
+| `NET-001` | Network access | HTTP and HTTPS URL references. |
+| `NET-002` | Network access | `curl`/`wget` commands, selected Python `requests` methods, and PowerShell `Invoke-WebRequest`/`Invoke-RestMethod`. |
+| `FS-001` | File-system access | `rm`, `mv`, `cp`, `mkdir`, `touch`, and selected PowerShell file-operation commands such as `Remove-Item` and `Set-Content`. |
+| `FS-002` | File-system access | Python-style `open(...)` calls with explicit write/append/create/update modes, and method calls named `write_text`, `write_bytes`, or `write`. |
+| `FS-003` | File-system access | `cat`, `less`, `more`, `Get-Content`, `read_text`/`read_bytes`, and selected Node `fs` reading APIs. |
+| `CRED-001` | Credential-related behavior | Selected secret identifiers such as `api_key`, `access_token`, `client_secret`, and `password`; named AWS/GitHub/OpenAI secret identifiers; and identifiers ending in `_ACCESS_TOKEN`. |
+| `CRED-002` | Credential-related behavior | `.env` files and variants, selected SSH files (`id_rsa`, `id_ed25519`, `config`), and AWS credential-file paths. |
+| `EXT-001` | External code execution | A `curl`/`wget` command piped directly into `bash`, `sh`, or `zsh` on the same line. |
+| `EXT-002` | External code execution | Selected installation commands: pip/pip3, npm, apt/apt-get, dnf, yum, and brew. |
+| `SYS-001` | System modification | `sudo` commands and selected `su` invocations. |
+| `SYS-002` | System modification | `chmod`, `chown`, `setfacl`, `systemctl`, `service`, and `crontab` commands. |
+
+Rules scan the `SKILL.md` body with skill frontmatter masked. Eligible sibling
+content is scanned as text without that masking, so configuration and instruction
+files remain observable; sibling eligibility follows
+[RDR-009](docs/decisions/RDR-009-sibling-security-scanning-scope.md).
+An input may match multiple rules, but a match in one category does not imply
+that all other applicable categories will also be detected.
+
+Known coverage limits include direct script invocation such as
+`./scripts/setup.sh`, ordinary Python reads such as
+`open('report.txt', 'r').read()`, credential environment-variable names such as
+`DATABASE_PASSWORD`, package installation via `pnpm add`, and PowerShell
+download-and-execute pipelines. These forms are not reliably identified in their
+respective categories by the current rules, although another rule may still
+detect a signal in the same input. Other languages, syntax variants, obfuscation,
+and multi-step operations can also be missed. Absence of a match does not
+establish absence of security-sensitive behavior.
+
+Positive and negative examples for every active rule are maintained in
+[`tests/pytests/test_security_rules.py`](tests/pytests/test_security_rules.py).
+These tests verify the implemented pattern definitions, not exhaustive detection
+or measured accuracy on the dataset.
+
 ## Comparison Across Related Artifacts
 
 The project is interested in **newly introduced behavior**, not just whether a single skill contains a risky-looking pattern.
