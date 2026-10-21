@@ -75,7 +75,23 @@
               "same_artifact_group": true
             }
           ],
-          "ambiguous_edges": []
+          "ambiguous_edges": [],
+          "related_edges": [
+            {
+              "source_artifact_id": 2696303,
+              "target_artifact_id": 2723114,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 921,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
         }
       },
       {
@@ -88,7 +104,8 @@
             2498630
           ],
           "directed_edges": [],
-          "ambiguous_edges": []
+          "ambiguous_edges": [],
+          "related_edges": []
         }
       }
     ]
