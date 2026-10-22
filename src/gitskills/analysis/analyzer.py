@@ -28,14 +28,19 @@ class SkillAnalyzer:
         self,
         text: str,
         *,
-        exclude_frontmatter: bool = True,
+        exclude_frontmatter: bool | None = None,
+        filename: str = "SKILL.md",
+        source_id: str | None = None,
     ) -> AnalysisResult:
         """Analyze text and return its profile and rule matches.
 
-        SKILL.md scans exclude YAML frontmatter by default. Callers scanning
-        non-skill resources, such as sibling scripts, can disable that behavior.
+        SKILL.md scans exclude YAML frontmatter by default. Other file types
+        do not; callers may override this behavior explicitly.
         """
 
+        if exclude_frontmatter is None:
+            basename = filename.replace("\\", "/").rsplit("/", 1)[-1]
+            exclude_frontmatter = basename.lower() == "skill.md"
         scan_text = mask_frontmatter(text) if exclude_frontmatter else text
         rule_matches = tuple(
             rule_match
@@ -50,6 +55,8 @@ class SkillAnalyzer:
         return AnalysisResult(
             profile=profile,
             rule_matches=rule_matches,
+            filename=filename,
+            source_id=source_id,
         )
 
     def _validate_rule_ids(self) -> None:

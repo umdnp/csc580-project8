@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Iterable
 
+from .evidence_models import Evidence
+
 
 class RiskCategory(str, Enum):
     """Normalized security-sensitive capabilities detected in an artifact."""
@@ -28,6 +30,8 @@ class RuleMatch:
     message: str
     line_number: int | None = None
     matched_text: str | None = None
+    start_offset: int | None = None
+    end_offset: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +66,9 @@ class AnalysisResult:
 
     profile: RiskProfile
     rule_matches: tuple[RuleMatch, ...]
+    filename: str = "SKILL.md"
+    source_id: str | None = None
+    evidence: tuple[Evidence, ...] = ()
 
     @property
     def rule_match_count(self) -> int:

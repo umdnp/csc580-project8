@@ -72,8 +72,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
     analyzer = SkillAnalyzer()
-    base_result = analyzer.scan(base_text)
-    derived_result = analyzer.scan(derived_text)
+    base_result = analyzer.scan(
+        base_text, filename=args.base.name, source_id=str(args.base.resolve(strict=False))
+    )
+    derived_result = analyzer.scan(
+        derived_text, filename=args.derived.name, source_id=str(args.derived.resolve(strict=False))
+    )
     comparison = compare_results(base_result, derived_result)
 
     _log_rule_changes(comparison, verbose=args.verbose)

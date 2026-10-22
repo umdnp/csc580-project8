@@ -44,6 +44,8 @@ def test_rule_detects_behavior_with_count_and_source_evidence(rule_id, category,
     assert match.message
     assert match.matched_text
     assert match.matched_text in positive
+    text = "Context line.\n" + positive
+    assert text[match.start_offset:match.end_offset] == match.matched_text
 
 
 @pytest.mark.parametrize("rule_id,category,positive,negative", CASES, ids=[case[0] for case in CASES])
@@ -80,7 +82,11 @@ def test_overlapping_patterns_do_not_inflate_counts_or_discard_adjacent_matches(
         description = "Constructed overlap test"
         patterns = (r"abc", r"ab", r"abc")
 
-    matches = OverlappingRule().evaluate("abcabc\nabc")
+    text = "abcabc\nabc"
+    matches = OverlappingRule().evaluate(text)
     assert [(match.matched_text, match.line_number) for match in matches] == [
         ("abc", 1), ("abc", 1), ("abc", 2),
+    ]
+    assert [(m.start_offset, m.end_offset) for m in matches] == [
+        (0, 3), (3, 6), (7, 10),
     ]

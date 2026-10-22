@@ -90,3 +90,41 @@ def test_one_commented_command_keeps_all_overlapping_rule_matches():
     )
     assert result.rule_counts() == {"EXT-001": 1, "NET-001": 1, "NET-002": 1}
     assert all(match.line_number == 1 for match in result.rule_matches)
+
+
+def test_source_offsets_survive_unicode_and_frontmatter_masking():
+    text = (
+        "\ufeff---\r\nendpoint: https://example.test/metadata\r\n---\r\n"
+        "Δ use https://example.test/body\r\n"
+    )
+    analyzer = SkillAnalyzer(rules=[UrlReferenceRule()])
+    result = analyzer.scan(
+        text, filename=r"skills\SKILL.MD", source_id="artifact:42"
+    )
+
+    assert result.filename == r"skills\SKILL.MD"
+    assert result.source_id == "artifact:42"
+    assert result.rule_counts() == {"NET-001": 1}
+    match, = result.rule_matches
+    assert (match.line_number, match.matched_text) == (
+        4, "https://example.test/body"
+    )
+    assert text[match.start_offset:match.end_offset] == match.matched_text
+
+
+def test_sibling_default_frontmatter_policy_and_explicit_override():
+    text = "---\nendpoint: https://example.test/config\n---\n"
+    analyzer = SkillAnalyzer(rules=[UrlReferenceRule()])
+
+    sibling = analyzer.scan(
+        text, filename="scripts/setup.py", source_id="sibling:7"
+    )
+    assert sibling.filename == "scripts/setup.py"
+    assert sibling.source_id == "sibling:7"
+    assert sibling.rule_counts() == {"NET-001": 1}
+    masked = analyzer.scan(text, filename="setup.py", exclude_frontmatter=True)
+    assert masked.rule_matches == ()
+    assert analyzer.scan(text, exclude_frontmatter=False).rule_counts() == {
+        "NET-001": 1
+    }
+    assert analyzer.scan(text).rule_matches == ()

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from gitskills.rules.base import Rule
 
@@ -95,7 +95,7 @@ class FamilyRiskAnalyzer:
         }
 
         skill_scan_cache: dict[str, AnalysisResult] = {}
-        sibling_scan_cache: dict[tuple[str, str], AnalysisResult] = {}
+        sibling_scan_cache: dict[tuple[str, str, str], AnalysisResult] = {}
         clusters: list[ClusterRiskAnalysis] = []
 
         for cluster in family.family.clusters:
@@ -206,7 +206,8 @@ class FamilyRiskAnalyzer:
         variant = variants[file_sha]
         result = self._skill_analyzer.scan(
             variant.content,
-            exclude_frontmatter=True,
+            filename="SKILL.md",
+            source_id=f"skill_sha:{file_sha}",
         )
         cache[file_sha] = result
         return result
@@ -257,7 +258,7 @@ class FamilyRiskAnalyzer:
         source_files: tuple[SiblingFile, ...],
         destination_files: tuple[SiblingFile, ...],
         content_by_sha: dict[str, str],
-        scan_cache: dict[tuple[str, str], AnalysisResult],
+        scan_cache: dict[tuple[str, str, str], AnalysisResult],
     ) -> tuple[tuple[FlaggedRule, ...], SiblingScanSummary]:
         difference = _sibling_difference(source_files, destination_files)
 
@@ -369,7 +370,7 @@ class FamilyRiskAnalyzer:
         sibling_files: tuple[SiblingFile, ...],
         *,
         content_by_sha: dict[str, str],
-        cache: dict[tuple[str, str], AnalysisResult],
+        cache: dict[tuple[str, str, str], AnalysisResult],
     ) -> tuple[tuple[SiblingFile, AnalysisResult], ...]:
         scanned = []
         for sibling in sibling_files:
@@ -387,7 +388,7 @@ class FamilyRiskAnalyzer:
         sibling: SiblingFile,
         *,
         content_by_sha: dict[str, str],
-        cache: dict[tuple[str, str], AnalysisResult],
+        cache: dict[tuple[str, str, str], AnalysisResult],
     ) -> AnalysisResult | None:
         text = sibling.content
         if text is None and sibling.entry_sha is not None:
@@ -396,20 +397,19 @@ class FamilyRiskAnalyzer:
             return None
 
         if sibling.entry_sha is not None:
-            cache_key = ("sha", sibling.entry_sha)
+            cache_key = ("sha", sibling.entry_sha, sibling.entry_name)
         else:
-            cache_key = ("id", str(sibling.sibling_id))
+            cache_key = ("id", str(sibling.sibling_id), sibling.entry_name)
 
         cached = cache.get(cache_key)
-        if cached is not None:
-            return cached
-
-        result = self._skill_analyzer.scan(
-            text,
-            exclude_frontmatter=False,
-        )
-        cache[cache_key] = result
-        return result
+        if cached is None:
+            cached = self._skill_analyzer.scan(
+                text,
+                filename=sibling.entry_name,
+                exclude_frontmatter=False,
+            )
+            cache[cache_key] = cached
+        return replace(cached, source_id=f"sibling:{sibling.sibling_id}")
 
 
 def _sibling_difference(
@@ -495,6 +495,7 @@ def _combine_results(results: Iterable[AnalysisResult]) -> AnalysisResult:
             match.category for match in rule_matches
         ),
         rule_matches=rule_matches,
+        filename="<sibling-aggregate>",
     )
 
 
