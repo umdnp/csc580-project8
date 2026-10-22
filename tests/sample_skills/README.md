@@ -31,10 +31,10 @@ uv sync
 
 ### Run the Test Suite
 
-Run all pytest tests with:
+Run the full pytest suite, including SkillTrace's application tests, with:
 
 ```shell
-uv run pytest tests/pytests -v
+uv run pytest -v
 ```
 
 To run only the sample-skill analyzer tests:
@@ -48,6 +48,35 @@ A specific sample case can be selected with `-k`:
 ```shell
 uv run pytest tests/pytests/test_sample_skills.py -v -k repo-status-reporter
 ```
+
+### Artifact Matching and Direction Tests (Story 6.1)
+
+Run the focused tests from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_artifact_similarity.py tests/pytests/test_artifact_matching.py -v
+```
+
+These tests use constructed artifacts and known shingle sets. They need no
+GitSkills database, network access, or execution of artifact instructions.
+
+| Test file | Behavior checked |
+| --- | --- |
+| `test_artifact_similarity.py` | Directional containment and Jaccard calculations, repeated shingles, short/empty bodies, metadata and formatting normalization, non-English tokens, exact acceptance thresholds, and invalid policy settings. |
+| `test_artifact_matching.py` | Identical/equivalent states, rejection of unrelated same-name artifacts, matching across description groups, preserved source IDs and metadata, direction evidence precedence, provenance ambiguity/conflict, timestamp offsets, equivalent-peer constraints, containment margins, and cycle prevention. |
+
+Expected behavior follows [RDR-004](../../docs/decisions/RDR-004-skillmd-similarity-strategy.md)
+and [RDR-007](../../docs/decisions/RDR-007-effective-chronology-and-direction-evidence.md).
+Assertions use explicit expected relationships rather than treating current tool
+output as ground truth. Tests protect the implemented exploratory policy; they
+do not establish that its thresholds or inferred lineage are correct for real
+dataset artifacts. Manual validation remains separate.
+
+Recovery from missing/non-text artifact content is exercised separately in
+`tests/pytests/test_scan_family_inputs.py`, at the database-loading boundary.
+The matching tests exercise empty/short strings and unusable chronology within
+the analyzer's supported input types. Security-change classification tests are
+also separate from these relationship tests.
 
 ### Focused Security Function Tests (Story 5.2)
 
