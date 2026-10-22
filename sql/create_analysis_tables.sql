@@ -29,12 +29,13 @@ WITH filtered AS (
         a.id AS artifact_id,
         a.repo_id,
         a.name,
-        regexp_replace(
-            lower(trim(a.description)),
+        -- Collapse tabs/newlines before trimming the resulting boundary spaces.
+        trim(regexp_replace(
+            lower(a.description),
             '\s+',
             ' ',
             'g'
-        ) AS normalized_description
+        )) AS normalized_description
     FROM artifacts AS a
     WHERE a.frontmatter_valid = 1
       AND a.body_chars > 50
