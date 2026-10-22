@@ -10,6 +10,10 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Sequence
 
+from gitskills.analysis.evidence_models import Evidence
+from gitskills.analysis.risk_assessor import RiskAssessor
+from gitskills.analysis.risk_models import RiskAssessment, RiskIndicator
+
 from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.analysis.comparator import compare_results
 from gitskills.analysis.models import (
@@ -18,6 +22,7 @@ from gitskills.analysis.models import (
     RuleMatch,
 )
 from . import _output
+from ._redaction import redact_text, safe_excerpt
 
 
 LOGGER = logging.getLogger("gitskills.scan_diff")
@@ -72,13 +77,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
     analyzer = SkillAnalyzer()
-    base_result = analyzer.scan(base_text)
-    derived_result = analyzer.scan(derived_text)
+    base_result = analyzer.scan(
+        base_text, filename=args.base.name, source_id=str(args.base.resolve(strict=False))
+    )
+    derived_result = analyzer.scan(
+        derived_text, filename=args.derived.name, source_id=str(args.derived.resolve(strict=False))
+    )
     comparison = compare_results(base_result, derived_result)
+    assessment = RiskAssessor().assess(comparison)
 
     _log_rule_changes(comparison, verbose=args.verbose)
+    _log_evidence_changes(comparison, base_text=base_text, derived_text=derived_text)
+    _log_risk_indicators(assessment)
 
     payload = comparison.to_dict(verbose=args.verbose)
+    payload["evidence_comparison"] = {
+        "removed": [
+            _report_evidence(item, base_text) for item in comparison.evidence_removed
+        ],
+        "added": [
+            _report_evidence(item, derived_text) for item in comparison.evidence_added
+        ],
+    }
+    payload["risk_indicators"] = _report_risk_indicators(
+        assessment, base_text=base_text, derived_text=derived_text,
+    )
     if output_dir is not None:
         try:
             _output.write_json(
@@ -122,6 +145,7 @@ def _log_rule_changes(
     for rule_match in comparison.derived.rule_matches:
         matches_by_rule[rule_match.rule_id].append(rule_match)
 
+    LOGGER.info("RULE COMPARISON")
     for rule_delta in comparison.rule_deltas:
         rule_matches = matches_by_rule.get(rule_delta.rule_id, [])
         description = _rule_description(
@@ -159,16 +183,113 @@ def _rule_description(
     return "Rule match count changed"
 
 
+def _source_line(text: str, offset: int | None) -> int | None:
+    """Return a 1-based line number for an evidence source span."""
+
+    if offset is None:
+        return None
+    return text.count("\n", 0, offset) + 1
+
+
+def _report_evidence(evidence: Evidence, source_text: str) -> dict[str, object]:
+    """Build a safe JSON view without exporting raw or normalized evidence."""
+
+    context = evidence.context
+    return {
+        "type": evidence.kind,
+        "rule_ids": list(evidence.rule_ids),
+        "source": {
+            "filename": redact_text(evidence.filename),
+            "start_line": _source_line(source_text, evidence.start_offset),
+            "end_line": _source_line(
+                source_text,
+                evidence.end_offset - 1 if evidence.end_offset is not None else None,
+            ),
+        },
+        "context": {
+            "type": context.kind,
+            "language": context.language,
+            "heading": redact_text(context.heading) if context.heading else None,
+        },
+        "extraction_status": evidence.extraction_status.value,
+        "excerpt": safe_excerpt(evidence.raw_text),
+    }
+
+
+def _log_evidence_changes(
+    comparison: AnalysisComparison, *, base_text: str, derived_text: str,
+) -> None:
+    """Print redacted evidence once per source construct, grouped by change."""
+
+    LOGGER.info("EVIDENCE COMPARISON")
+    for label, evidence_list, source in (
+        ("REMOVED", comparison.evidence_removed, base_text),
+        ("ADDED", comparison.evidence_added, derived_text),
+    ):
+        LOGGER.info("%s (%d)", label, len(evidence_list))
+        for evidence in evidence_list:
+            report = _report_evidence(evidence, source)
+            position = report["source"]
+            LOGGER.info(
+                "  [%s] %s (%s:%s): %s",
+                ", ".join(evidence.rule_ids),
+                evidence.kind,
+                position["filename"],
+                position["start_line"] or "?",
+                report["excerpt"],
+            )
+
+
 def _safe_excerpt(rule_match: RuleMatch) -> str:
     if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
         return "[credential-related content redacted]"
+    return safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
 
-    text = " ".join((rule_match.matched_text or "").split())
-    if len(text) <= MAX_EXCERPT_LENGTH:
-        return text
 
-    return f"{text[:MAX_EXCERPT_LENGTH - 3]}..."
 
+
+def _report_risk_indicators(
+    assessment: RiskAssessment, *, base_text: str, derived_text: str,
+) -> dict[str, object]:
+    """Export only redacted references, never internal Evidence objects."""
+    def report(item: RiskIndicator) -> dict[str, object]:
+        return {
+            "id": item.indicator_id,
+            "reason": redact_text(item.reason),
+            "evidence": {
+                "added": [_report_evidence(e, derived_text) for e in item.added],
+                "removed": [_report_evidence(e, base_text) for e in item.removed],
+            },
+        }
+
+    return {
+        "policy_version": assessment.policy_version,
+        "indicator_count": assessment.indicator_count,
+        "finding_count": assessment.finding_count,
+        "indicators": [report(item) for item in assessment.supported],
+        "uncertain": [report(item) for item in assessment.uncertain],
+        "coverage": {
+            "status": assessment.coverage,
+            "notes": [redact_text(note) for note in assessment.coverage_notes],
+        },
+    }
+
+
+def _log_risk_indicators(assessment: RiskAssessment) -> None:
+    """Log observable indicator categories, with uncertainty kept separate."""
+    category_count = assessment.indicator_count
+    finding_count = assessment.finding_count
+    LOGGER.info("RISK INDICATORS (%d %s; %d %s)",
+                category_count, "category" if category_count == 1 else "categories",
+                finding_count, "finding" if finding_count == 1 else "findings")
+    for indicator in assessment.supported:
+        LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
+    if assessment.uncertain:
+        LOGGER.info("UNCERTAIN OBSERVATIONS (%d)", len(assessment.uncertain))
+        for indicator in assessment.uncertain:
+            LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
+    if assessment.coverage != "complete":
+        LOGGER.info("COVERAGE: %s", assessment.coverage)
 
 if __name__ == "__main__":
     raise SystemExit(main())

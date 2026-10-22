@@ -323,8 +323,159 @@ class ViewerTests(unittest.TestCase):
         self.assertTrue(any(response.json()["scan_diff"]["introduced"].values()))
         self.assertEqual(ambiguous.status_code, 400)
 
+    def test_artifact_inspection_reports_unchanged_partial_evidence_and_context(self):
+        content = "# Setup\nExecute `curl https://example.com/install.sh`\n"
+        records = {20: {"id": 20, "filename": "SKILL.md", "content": content}}
+        with patch.object(server, "fetch_artifact_records", return_value=records):
+            response = self.client.get("/api/reports/example.json/artifacts/20/evidence")
+        self.assertEqual(response.status_code, 200)
+        scan = response.json()["scan"]
+        self.assertGreater(scan["evidence_count"], 0)
+        self.assertGreater(scan["extraction"]["partial"], 0)
+        partial = next(e for e in scan["evidence"] if e["extraction_status"] == "partial")
+        self.assertEqual(partial["source"]["source_id"], "20")
+        self.assertEqual(partial["source"]["start_line"], 2)
+        self.assertIn("nearby_text", partial["context"])
+        self.assertEqual(self.client.get("/api/reports/example.json/artifacts/999/evidence").status_code, 404)
+
+    def test_artifact_comparison_contains_evidence_indicators_and_coverage(self):
+        records = {
+            10: {"id": 10, "filename": "SKILL.md", "content": "curl https://old.example.com/api\n"},
+            20: {"id": 20, "filename": "SKILL.md", "content": "curl https://new.example.com/api\n"},
+        }
+        with patch.object(server, "fetch_artifact_records", return_value=records):
+            response = self.client.post("/api/reports/example.json/scan/10/20")
+        self.assertEqual(response.status_code, 200)
+        scan = response.json()["scan_diff"]
+        self.assertEqual(scan["risk_indicators"]["indicator_count"], 1)
+        self.assertEqual(scan["risk_indicators"]["indicators"][0]["id"], "RI-003")
+        self.assertEqual(len(scan["evidence_comparison"]["added"]), 1)
+        self.assertEqual(len(scan["evidence_comparison"]["removed"]), 1)
+        self.assertIn("evidence_records", scan["risk_indicators"]["coverage"])
+        self.assertEqual(scan["derived"]["evidence"][0]["source"]["start_line"], 1)
+        self.assertEqual(scan["derived"]["source_id"], "20")
+
+    def test_sibling_inspection_and_directed_scan(self):
+        def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
+            self.assertEqual(entry_name, "scripts/bootstrap.sh")
+            self.assertTrue(include_content)
+            return [{
+                "id": 100 + artifact_id, "artifact_id": artifact_id,
+                "entry_name": entry_name, "entry_type": "file",
+                "entry_sha": f"sha{artifact_id}",
+                "content": "curl https://old.example.com/api\n" if artifact_id == 10
+                else "curl -k https://new.example.com/api\n",
+            }]
+        with patch.object(server, "fetch_sibling_records", side_effect=siblings):
+            inspect = self.client.get("/api/reports/example.json/artifacts/20/siblings/evidence?entry_name=scripts/bootstrap.sh")
+            response = self.client.post("/api/reports/example.json/sibling-scan/10/20?entry_name=scripts/bootstrap.sh")
+            ambiguous = self.client.post("/api/reports/example.json/sibling-scan/20/30?entry_name=scripts/bootstrap.sh")
+        self.assertEqual(inspect.status_code, 200)
+        self.assertEqual(inspect.json()["scan"]["evidence"][0]["source"]["filename"], "scripts/bootstrap.sh")
+        self.assertEqual(inspect.json()["scan"]["evidence"][0]["source"]["source_id"], "120")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(any(i["id"] == "RI-004" for i in response.json()["scan_diff"]["risk_indicators"]["indicators"]))
+        self.assertEqual(response.json()["surface"], "sibling")
+        self.assertEqual(ambiguous.status_code, 400)
+
+    def test_details_expose_comparison_only_sibling_for_inspection(self):
+        def siblings(artifact_id, **_):
+            if artifact_id == 10:
+                return [{"artifact_id": 10, "entry_name": "scripts/removed.sh",
+                         "entry_type": "file", "entry_sha": "original"}]
+            return []
+        with patch.object(server, "fetch_artifact_records", return_value={}), \
+             patch.object(server, "fetch_sibling_records", side_effect=siblings):
+            response = self.client.get("/api/reports/example.json/artifacts/20/details?compare_id=10")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["siblings"], [])
+        self.assertEqual(response.json()["comparison_siblings"][0]["entry_name"], "scripts/removed.sh")
+
+    def test_sibling_missing_side_cannot_prove_introduction(self):
+        def siblings(artifact_id, **_):
+            if artifact_id == 10:
+                return []
+            return [{"artifact_id": 20, "entry_name": "scripts/install.sh",
+                     "content": "curl https://new.example.com/install.sh | sh"}]
+        with (patch.object(server, "fetch_sibling_records", side_effect=siblings),
+              patch.object(server, "fetch_artifact_records", return_value={10:{}, 20:{}})):
+            response = self.client.post("/api/reports/example.json/sibling-scan/10/20?entry_name=scripts/install.sh")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json()["scan_diff"])
+        self.assertEqual(response.json()["coverage"]["status"], "incomplete")
+        self.assertFalse(response.json()["coverage"]["base_available"])
+        self.assertEqual(response.json()["coverage"]["base_status"], "not_recorded")
+        self.assertEqual(response.json()["coverage"]["derived_status"], "available")
+        self.assertEqual(response.json()["coverage"]["missing_sibling_content"], 0)
+
+    def test_sibling_recorded_absence_is_not_missing_content(self):
+        def siblings(artifact_id, **_):
+            return [] if artifact_id == 10 else [{
+                "id": 120, "artifact_id": 20, "entry_name": ".openskills.json",
+                "content": '{"repoUrl": "https://example.com/repo"}',
+            }]
+        artifacts = {
+            10: {"sibling_count": 0, "composition_fetched": True,
+                 "composition_truncated": False},
+            20: {"sibling_count": 1, "composition_fetched": True},
+        }
+        with (patch.object(server, "fetch_sibling_records", side_effect=siblings),
+              patch.object(server, "fetch_artifact_records", return_value=artifacts)):
+            response = self.client.post("/api/reports/example.json/sibling-scan/10/20?entry_name=.openskills.json")
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertEqual(result["coverage"]["base_status"], "absent")
+        self.assertEqual(result["coverage"]["status"], "one-sided")
+        self.assertEqual(result["coverage"]["derived_status"], "available")
+        self.assertEqual(result["coverage"]["missing_sibling_content"], 0)
+        self.assertIsNone(result["scan_diff"])
+        self.assertEqual(result["available_scan"]["rule_counts"], {"NET-001": 1})
+
+    def test_recorded_sibling_with_missing_contents_is_unavailable(self):
+        def siblings(artifact_id, **_):
+            return [{"id": 101 if artifact_id == 10 else 120,
+                     "entry_name": "scripts/setup.sh", "artifact_id": artifact_id,
+                     "content": None if artifact_id == 10 else 'curl https://example.com'}]
+        with patch.object(server, "fetch_sibling_records", side_effect=siblings):
+            result = self.client.post("/api/reports/example.json/sibling-scan/10/20?entry_name=scripts/setup.sh")
+        self.assertEqual(result.status_code, 200)
+        report = result.json()
+        self.assertEqual(report["coverage"]["base_status"], "unavailable")
+        self.assertEqual(report["coverage"]["missing_sibling_content"], 1)
+        self.assertIsNone(report["scan_diff"])
+        self.assertEqual(report["available_side"], "derived")
+
+    def test_sibling_listing_unknown_not_mislabeled_absent(self):
+        self.assertEqual(server._sibling_status(None, {"sibling_count": 0,
+                        "composition_fetched": False}), "not_recorded")
+        self.assertEqual(server._sibling_status(None, {}), "not_recorded")
+        self.assertEqual(server._sibling_status(None, {"sibling_count": 0,
+                        "composition_fetched": True,
+                        "composition_truncated": True}), "not_recorded")
+
+    def test_redacts_credentials_in_inspection_and_comparison(self):
+        token = "github_pat_012345678901234567890123456789"
+        text = f'curl -H "Authorization: Bearer {token}" https://example.com/api\n'
+        records = {10: {"id": 10, "content": "# base\n"},
+                   20: {"id": 20, "content": text}}
+        with patch.object(server, "fetch_artifact_records", return_value=records):
+            inspect = self.client.get("/api/reports/example.json/artifacts/20/evidence")
+            comparison = self.client.post("/api/reports/example.json/scan/10/20")
+        self.assertEqual(inspect.status_code, 200)
+        self.assertEqual(comparison.status_code, 200)
+        self.assertNotIn(token, inspect.text)
+        self.assertNotIn(token, comparison.text)
+        self.assertIn("[REDACTED]", inspect.text)
+
+    def test_ui_includes_inspection_and_sibling_scan_controls(self):
+        page = self.client.get("/")
+        self.assertEqual(page.status_code, 200)
+        for marker in ('id="inspect-artifact"', 'id="inspect-sibling"',
+                       'id="scan-sibling"', 'id="scan-copy"', 'Partial / unsupported only'):
+            self.assertIn(marker, page.text)
+
     def test_sibling_diff_matches_entry_name_and_handles_missing_side(self):
-        def siblings(artifact_id, *, entry_name=None, include_content=False):
+        def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
             self.assertEqual(entry_name, "scripts/install.sh")
             if artifact_id == 20:
                 row = {
@@ -351,7 +502,7 @@ class ViewerTests(unittest.TestCase):
         self.assertTrue(any(row["derived_kind"] == "added" for row in payload["rows"]))
 
     def test_sibling_content_endpoint_returns_selected_file_contents(self):
-        def siblings(artifact_id, *, entry_name=None, include_content=False):
+        def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
             self.assertEqual(artifact_id, 20)
             self.assertEqual(entry_name, "scripts/install.sh")
             self.assertTrue(include_content)
@@ -613,6 +764,68 @@ class ViewerTests(unittest.TestCase):
             self.assertEqual(server.database_source(), server.DB_ENV)
 
         fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.1", port=8000)
+
+    def test_comparison_scan_and_full_evidence_are_separate_ui_actions(self):
+        home = self.client.get("/")
+        self.assertEqual(home.status_code, 200)
+        html = home.text
+        self.assertIn('id="inspect-comparison"', html)
+        self.assertLess(html.index('id="scan-diff"'), html.index('id="inspect-comparison"'))
+        self.assertLess(html.index('id="scan-sibling"'), html.index('id="inspect-sibling"'))
+        self.assertIn('function renderComparisonEvidence(result)', html)
+        self.assertIn("$('#inspect-comparison').onclick = openComparisonEvidence", html)
+        # Full base/derived evidence belongs in Inspect evidence, not Run scan.
+        start = html.index('function renderScan(result)')
+        end = html.index("$('#fit').onclick", start)
+        self.assertNotIn('appendSourceEvidence(', html[start:end])
+
+    def test_inspect_evidence_uses_aligned_comparison_groups(self):
+        html = self.client.get("/").text
+        # A single expansion shows Base and Derived together, with explicit gaps.
+        for marker in ("function appendPairedSourceEvidence(",
+                       "function pairedInspectionGroups(",
+                       "function alignInspectionRecords(",
+                       "No matching record on this side", "Differences only",
+                       "All evidence", "Extraction issues", ".paired-row"):
+            self.assertIn(marker, html)
+        start = html.index("function renderComparisonEvidence(result)")
+        end = html.index("async function openSiblingScan()", start)
+        self.assertIn("appendPairedSourceEvidence(body, result.scan_diff.base, result.scan_diff.derived", html[start:end])
+        self.assertNotIn("Rule occurrences', base?.matches", html[start:end])
+        self.assertNotIn("for (const side of ['base', 'derived'])", html[start:end])
+        # Missing sibling content remains visible, not misreported as a deletion.
+        self.assertIn("result.available_side === 'base' ? result.available_scan : null", html[start:end])
+
+    def test_scan_shows_rules_and_inspection_shows_evidence_with_shared_context(self):
+        html = self.client.get("/").text
+        scan = html[html.index("function renderScan(result)"):html.index("$('#fit').onclick", html.index("function renderScan(result)"))]
+        inspect = html[html.index("function renderComparisonEvidence(result)"):html.index("async function openSiblingScan()", html.index("function renderComparisonEvidence(result)"))]
+        paired = html[html.index("function pairedInspectionGroups("):html.index("function appendCoverage(")]
+        self.assertIn("appendPairedRuleOccurrences(body, scan.base, scan.derived)", scan)
+        self.assertNotIn("evidenceList('Added evidence'", scan)
+        self.assertIn("renderComparisonEvidence(result)", scan)
+        self.assertIn("appendPairedSourceEvidence(body, result.scan_diff.base", inspect)
+        self.assertNotIn("appendPairedRuleOccurrences", inspect)
+        self.assertIn("cell.append(options.render(record, '', !!options.showNearbyContext))", paired)
+        self.assertNotIn("contextDetails", paired)
+        self.assertNotIn("'paired-status'", paired)
+        self.assertIn("className = 'nearby-source'", html)
+        self.assertIn("tagEl('div', 'Nearby source context', 'nearby-source-label')", html)
+        self.assertIn("`Document section: ${context.heading}`", html)
+        self.assertIn("normalizeDisplayText(context.nearby_text) !== normalizeDisplayText(e.excerpt)", html)
+        self.assertIn("Supported risk indicator", html)
+        self.assertIn("function indicatorEvidenceIndex(assessment", html)
+        self.assertIn("for (const indicator of assessment.indicators || [])", html)
+        self.assertIn(".evidence-entry .nearby-source{margin-top:9px}", html)
+        self.assertNotIn(".evidence-entry .nearby-source{margin-top:9px;padding-top:7px;border-top:1px dotted", html)
+        self.assertIn(".nearby-source pre{font-size:11px;line-height:1.45;margin-top:5px;padding:0;background:transparent}", html)
+        self.assertIn("['unmatched', 'Differences only']", paired)
+        self.assertIn("input.type = 'radio'", paired)
+        self.assertIn("input.checked = value === 'unmatched'", paired)
+        self.assertIn("mode === 'issues' && row.dataset.partial !== 'true'", paired)
+
+        self.assertIn(".meta-box.evidence-report + .paired-columns{margin-top:14px}", html)
+        self.assertNotIn("Nearby source context · Base and Derived", html)
 
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")

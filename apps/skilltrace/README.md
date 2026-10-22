@@ -126,22 +126,95 @@ You can:
 
 Diff panes contain alignment rows for side-by-side display. Use **Copy Contents** when you need the original database text; it copies the raw content rather than the rendered diff pane.
 
-## Security Scanning
+## Evidence and Risk-Indicator Inspection
 
-For a directed parent-to-derived relationship, **Run scan** performs the project's static security comparison on demand.
+The **Selected Artifact** panel offers **Inspect evidence** for its stored
+`SKILL.md`. The **Artifact Siblings** panel offers **Run scan** and
+**Inspect evidence** for the chosen sibling path. Paths recorded on either side
+of the relationship are selectable.
 
-The scan reports changes in security-sensitive behavior such as:
+**Run scan** is the comparison summary:
 
-- command execution;
-- network access;
-- file-system operations;
-- credential or secret references;
-- external package or script execution; and
-- other configured security-rule matches.
+- Base and Derived rule matches and capabilities;
+- A synchronized Base/Derived **Rule occurrences** explorer organized by rule ID;
+- Rule-count changes, evidence-change totals (without repeating evidence details);
+- Supported and uncertain RDR-010 risk indicators with counts and reasons; and
+- Evidence extraction and sibling-comparison coverage.
 
-SkillTrace scans stored text only. It does not execute artifact or sibling content.
+**Inspect evidence** is the supporting detail:
 
-A scan finding identifies behavior that warrants review; it does not establish malicious intent.
+- All extracted evidence records, including unchanged observations;
+- Complete, partial, and unsupported extraction counts;
+- Source filename and sibling ID, offsets, lines, associated rule IDs,
+  Markdown/code context, and redacted excerpts;
+- An aligned Base/Derived **Extracted evidence** explorer. **Differences only**
+  is the default view; **All evidence** includes matching records, while
+  **Extraction issues** shows partial and unsupported records even when matched.
+
+The **Rule occurrences** explorer also defaults to **Differences only**;
+select **All occurrences** to inspect matching rule detections.
+
+Each expandable group has **one shared toggle** for Base and Derived. When
+expanded, each evidence record shows its nearby source context directly beneath
+the excerpt in smaller text only when it adds information, without a
+separator, extra expander, or repeated side labels. The document-section
+heading appears on its own line and identifies its location within SKILL.md,
+not a project sprint. Missing matches appear as explicitly empty cells.
+Supported risk-indicator IDs appear next to the exact source evidence they
+cite (when available); evidence without an indicator remains inspectable.
+Alignment is a visual aid, not a security conclusion; redacted excerpts
+are never assumed identical.
+You can switch between Run scan and Inspect evidence inside the same dialog
+without another database request. Both **Copy report JSON** actions preserve
+the full scan payload for review.
+
+A one-sided sibling scan now distinguishes:
+
+- **Available:** recorded sibling with readable content;
+- **Absent:** absent from an explicitly complete stored composition listing
+  with zero siblings, not proof of its historical absence;
+- **Unavailable:** a sibling record exists but its content cannot be read;
+- **Not recorded:** no matching record, with insufficient information to verify
+  the completeness of the stored listing.
+
+The one-sided view preserves available-side rule matches and evidence, but makes
+no directional introduction/deletion claim. `scan_family` additionally reports
+paths recorded only on one side separately from sibling records whose content
+could not be scanned.
+
+Scans remain limited to directed parent/derived relationships recorded by
+`analyze_family`. An ambiguous peer pair cannot support an introduction claim,
+so **Run scan** is disabled for those pairs. Artifact scans analyze `SKILL.md`
+only; sibling scans analyze the selected sibling file only. These on-demand
+scans do **not** reproduce the full family-level sibling change assessment in
+`scan_family`, including its RI-010 invocation/hash correlation.
+
+If a sibling is present in the available content rows on only one side,
+SkillTrace displays the available source evidence and **incomplete coverage**;
+it does not treat the missing row as proof that the file was newly introduced.
+Sibling inspection and sibling comparisons use the content-bearing files
+available in DuckDB, not a complete inventory of unavailable sibling text.
+
+**Copy report JSON** copies the current evidence inspection or comparison as
+structured JSON, including extraction status and nearby source context, so
+partial examples can be reviewed independently. These reports use best-effort
+secret redaction; **review copied excerpts before sharing them**. The raw
+file-content viewer and its **Copy Contents** action remain intentionally
+unredacted.
+
+These are static observations and indicators for manual review, not proof of
+malicious behavior or of complete security coverage. SkillTrace never executes,
+downloads, or fetches any stored skill or sibling script.
+
+### On-demand API endpoints
+
+- `GET /api/reports/{filename}/artifacts/{id}/evidence`
+- `GET /api/reports/{filename}/artifacts/{id}/siblings/evidence?entry_name=...`
+- `POST /api/reports/{filename}/scan/{base_id}/{derived_id}`
+- `POST /api/reports/{filename}/sibling-scan/{base_id}/{derived_id}?entry_name=...`
+
+All endpoints require the selected artifact(s) to belong to the current
+`analyze_family` report. The sibling pair scan requires a directed edge.
 
 ## DuckDB Availability
 
