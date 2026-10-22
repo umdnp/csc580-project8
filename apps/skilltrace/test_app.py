@@ -806,9 +806,13 @@ class ViewerTests(unittest.TestCase):
         self.assertIn("renderComparisonEvidence(result)", scan)
         self.assertIn("appendPairedSourceEvidence(body, result.scan_diff.base", inspect)
         self.assertNotIn("appendPairedRuleOccurrences", inspect)
-        self.assertIn("const contextDetails = document.createElement('details')", paired)
-        self.assertIn("Nearby source context · Base and Derived", paired)
-        self.assertIn("cell.append(options.render(record, '', false))", paired)
+        self.assertIn("cell.append(options.render(record, '', !!options.showNearbyContext))", paired)
+        self.assertNotIn("contextDetails", paired)
+        self.assertNotIn("'paired-status'", paired)
+        self.assertIn("className = 'nearby-source'", html)
+        self.assertIn("tagEl('div', 'Nearby source context', 'nearby-source-label')", html)
+        self.assertIn(".meta-box.evidence-report + .paired-columns{margin-top:14px}", html)
+        self.assertNotIn("Nearby source context · Base and Derived", html)
 
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")

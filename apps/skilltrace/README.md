@@ -150,9 +150,11 @@ of the relationship are selectable.
 - An aligned Base/Derived **Extracted evidence** explorer with **Unmatched only**
   and **Partial / unsupported only** filters.
 
-Each expandable group has **one shared toggle** for Base and Derived. The
-**Nearby source context** control also expands and collapses both sides together.
-Missing matches appear as explicitly empty cells. Alignment is a visual aid,
+Each expandable group has **one shared toggle** for Base and Derived. When
+expanded, each evidence record shows its nearby source context directly beneath
+the excerpt in smaller text, without an additional expander or repeated side
+labels. Missing matches appear as explicitly empty cells; no redundant
+"Unmatched on Base/Derived" label is shown. Alignment is a visual aid,
 not a security conclusion; redacted excerpts are never assumed identical.
 You can switch between Run scan and Inspect evidence inside the same dialog
 without another database request. Both **Copy report JSON** actions preserve

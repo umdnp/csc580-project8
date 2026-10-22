@@ -150,17 +150,16 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .paired-cell.base-only>.evidence-entry{background:var(--removed)}
 .paired-cell.derived-only>.evidence-entry{background:var(--added)}
 .paired-missing{border:1px dashed var(--border);border-radius:6px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:70px;color:var(--muted);font-size:13px;text-align:center}
-.paired-status{display:block;font-size:12px;font-weight:650;margin:0 0 5px}
-.paired-cell.base-only .paired-status{color:var(--orange)}
-.paired-cell.derived-only .paired-status{color:var(--green)}
 .paired-filter{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0}
 .paired-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-size:13px}
 .paired-inspection>h3{margin:6px 0 0}
 .paired-inspection .evidence-entry .entry-context{overflow-wrap:anywhere}
-.paired-context{grid-column:1 / -1;margin:7px 0 0;border-top:1px dashed var(--border)}
-.paired-context>summary{cursor:pointer;padding:8px 0;font-size:12px;font-weight:600;color:var(--muted)}
-.paired-context .paired-row{padding:6px 0;border-top:none}
-.paired-context pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;padding:8px;border-radius:5px;background:var(--panel);font:12px/1.5 ui-monospace,Consolas,monospace}
+/* Source context is visible within each expanded evidence card. */
+.evidence-entry .nearby-source{margin-top:9px;padding-top:7px;border-top:1px solid var(--border)}
+.evidence-entry .nearby-source-label{font-size:11px;font-weight:600;color:var(--muted)}
+.evidence-entry .nearby-source pre{font-size:11px;line-height:1.45;margin-top:5px}
+/* Leave breathing room below the evidence-coverage summary. */
+.meta-box.evidence-report + .paired-columns{margin-top:14px}
 .view-switch{margin:8px 0 12px;padding:8px 12px}
 
 @media(max-width:760px){.paired-columns,.paired-heading,.paired-row{grid-template-columns:1fr}.paired-heading{display:none}.paired-cell:before{content:attr(data-side);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:4px}}
@@ -1657,9 +1656,9 @@ function evidenceEntry(e, label = '', showNearbyContext = true) {
     (context.heading ? ` · ${context.heading}` : ''), 'entry-context'));
   node.append(tagEl('pre', e.excerpt || '(no excerpt)'));
   if (showNearbyContext && context.nearby_text && context.nearby_text !== e.excerpt) {
-    const details = document.createElement('details');
-    details.append(tagEl('summary', 'Nearby source context'), tagEl('pre', context.nearby_text));
-    node.append(details);
+    const nearby = document.createElement('div'); nearby.className = 'nearby-source';
+    nearby.append(tagEl('div', 'Nearby source context', 'nearby-source-label'), tagEl('pre', context.nearby_text));
+    node.append(nearby);
   }
   return node;
 }
@@ -1798,36 +1797,12 @@ function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, opti
         const cell = document.createElement('div'); cell.className = 'paired-cell'; cell.dataset.side = side === 'base' ? 'Base' : 'Derived';
         const record = pair[side];
         if (record) {
-          if (unmatched) {
-            cell.classList.add(side === 'base' ? 'base-only' : 'derived-only');
-            cell.append(tagEl('span', side === 'base' ? 'Unmatched on Base' : 'Unmatched on Derived', 'paired-status'));
-          }
-          cell.append(options.render(record, '', false));
+          if (unmatched) cell.classList.add(side === 'base' ? 'base-only' : 'derived-only');
+          cell.append(options.render(record, '', !!options.showNearbyContext));
         } else {
           cell.append(tagEl('div', 'No matching record on this side', 'paired-missing'));
         }
         row.append(cell);
-      }
-      // A single context expander controls both sides of an aligned evidence row.
-      // This prevents independent left/right context panels drifting out of sync.
-      if (options.showNearbyContext && [pair.base, pair.derived].some(record =>
-          record?.context?.nearby_text && record.context.nearby_text !== record.excerpt)) {
-        const contextDetails = document.createElement('details');
-        contextDetails.className = 'paired-context';
-        contextDetails.append(tagEl('summary', 'Nearby source context · Base and Derived'));
-        const contexts = document.createElement('div'); contexts.className = 'paired-row';
-        for (const side of ['base', 'derived']) {
-          const context = document.createElement('div'); context.className = 'paired-cell';
-          context.dataset.side = side === 'base' ? 'Base' : 'Derived';
-          const source = pair[side];
-          if (source?.context?.nearby_text) {
-            context.append(tagEl('pre', source.context.nearby_text));
-          } else {
-            context.append(tagEl('div', source ? 'No additional context' : 'No matching record on this side', 'paired-missing'));
-          }
-          contexts.append(context);
-        }
-        contextDetails.append(contexts); row.append(contextDetails);
       }
       details.append(row); rows.push(row);
     }
@@ -1999,7 +1974,7 @@ async function openComparisonEvidence() {
 
 function renderComparisonEvidence(result) {
   const body = $('#scan-body'); body.replaceChildren();
-  body.append(tagEl('p', 'All extracted evidence, including unchanged and partial records. Expand a group or nearby context once to inspect both sides together.', 'muted'));
+  body.append(tagEl('p', 'All extracted evidence, including unchanged and partial records. Expand a group to see Base and Derived records with nearby source context beneath each excerpt.', 'muted'));
   switchComparisonView(body, '← Back to scan results', () => renderScan(result));
   if (!result.scan_diff) {
     appendCoverage(body, result.coverage);
