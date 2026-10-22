@@ -287,7 +287,12 @@ class RiskAssessor:
                 before_hosts = {_host(u) for u in _urls(old)} if old else set()
                 current_hosts = {_host(u) for u in urls}
                 if not before_credential or before_hosts != current_hosts:
-                    add("RI-007", "Outbound operation directly references credential material", e, old=old)
+                    reason = (
+                        "Outbound network operation introduces a credential reference"
+                        if not before_credential else
+                        "Credential-bearing network operation changes destination"
+                    )
+                    add("RI-007", reason, e, old=old)
             if "SYS-002" in rules and _SYSTEM_CHANGE.search(text):
                 add("RI-008", "System or permissions modification introduced or changed", e, old=old)
             if rules & {"FS-001", "FS-002", "FS-003"} and target and (

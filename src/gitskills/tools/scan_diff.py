@@ -277,8 +277,11 @@ def _report_risk_indicators(
 
 def _log_risk_indicators(assessment: RiskAssessment) -> None:
     """Log observable indicator categories, with uncertainty kept separate."""
-    LOGGER.info("RISK INDICATORS (%d categories; %d findings)",
-                assessment.indicator_count, assessment.finding_count)
+    category_count = assessment.indicator_count
+    finding_count = assessment.finding_count
+    LOGGER.info("RISK INDICATORS (%d %s; %d %s)",
+                category_count, "category" if category_count == 1 else "categories",
+                finding_count, "finding" if finding_count == 1 else "findings")
     for indicator in assessment.supported:
         LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
     if assessment.uncertain:

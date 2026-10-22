@@ -3,6 +3,8 @@
 import json
 import logging
 
+import pytest
+
 from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.analysis.comparator import compare_results
 from gitskills.tools.scan_diff import main
@@ -125,3 +127,36 @@ def test_scan_diff_keeps_ambiguous_findings_separate_from_indicator_counts(tmp_p
     assert report["indicator_count"] == report["finding_count"] == 0
     assert report["indicators"] == []
     assert [item["id"] for item in report["uncertain"]] == ["RI-011"]
+
+
+@pytest.mark.parametrize(("base_text", "derived_text", "heading", "expected_reason"), [
+    (
+        "curl https://api.example.com/projects/demo",
+        'curl -H "Authorization: Bearer $GITHUB_TOKEN" '
+        "https://api.example.com/projects/demo/private",
+        "RISK INDICATORS (1 category; 1 finding)",
+        "Outbound network operation introduces a credential reference",
+    ),
+    (
+        "", "cat ~/.aws/credentials",
+        "RISK INDICATORS (2 categories; 1 finding)", None,
+    ),
+    (
+        "", "cat ~/.aws/credentials\npip install requests",
+        "RISK INDICATORS (3 categories; 2 findings)", None,
+    ),
+])
+def test_indicator_summary_uses_singular_plural_and_precise_credential_reason(
+    tmp_path, capsys, caplog, base_text, derived_text, heading, expected_reason,
+):
+    base = tmp_path / "base.md"
+    derived = tmp_path / "derived.md"
+    base.write_text(base_text, encoding="utf-8")
+    derived.write_text(derived_text, encoding="utf-8")
+
+    with caplog.at_level(logging.INFO, logger="gitskills.scan_diff"):
+        assert main([str(base), str(derived)]) == 0
+    assert heading in caplog.text
+    report = json.loads(capsys.readouterr().out)["risk_indicators"]
+    if expected_reason:
+        assert any(item["reason"] == expected_reason for item in report["indicators"])

@@ -29,7 +29,7 @@ _COMMAND = re.compile(
     r"Set-Content|Add-Content|Get-Content)\b",
     re.IGNORECASE,
 )
-_MARKDOWN_LINK = re.compile(r"\[([^\]\n]*)\]\((https?://[^\s)]+)\)", re.IGNORECASE)
+_MARKDOWN_LINK = re.compile(r"\[([^]\n]*)]\((https?://[^\s)]+)\)", re.IGNORECASE)
 
 
 def _trim_span(text: str, start: int, end: int) -> tuple[int, int]:
