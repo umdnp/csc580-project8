@@ -137,27 +137,31 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .paired-source{border:1px solid var(--border);border-radius:7px;background:var(--panel);padding:11px;min-width:0}
 .paired-source h3{margin:0 0 6px}
 .paired-source .evidence-stats{margin:6px 0}
-.paired-group{border:1px solid var(--border);border-radius:7px;min-width:0;overflow:hidden}
+.paired-group{border:0;border-bottom:1px solid var(--border);border-radius:0;min-width:0;overflow:hidden}
 .paired-row[hidden],.paired-group[hidden]{display:none}
-.paired-group>summary{cursor:pointer;padding:10px 12px;background:var(--panel);font-weight:600;overflow-wrap:anywhere}
+.paired-group>summary{cursor:pointer;padding:10px 6px;background:transparent;font-weight:600;overflow-wrap:anywhere}
 .paired-group>summary .paired-counts{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
-.paired-group[open]>summary{border-bottom:1px solid var(--border)}
+.paired-group[open]>summary{border-bottom:1px dotted var(--border)}
 .paired-heading{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:8px 10px;font-weight:600;font-size:13px;color:var(--muted)}
 .paired-heading>div{min-width:0}
-.paired-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:7px 10px;border-top:1px solid var(--border);min-width:0}
+.paired-heading+.paired-row{border-top:0}
+.paired-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:9px 6px;border-top:1px dotted var(--border);min-width:0}
 .paired-cell{min-width:0;display:flex;flex-direction:column}
-.paired-cell>.evidence-entry{margin:0;flex:1}
-.paired-cell.base-only>.evidence-entry{background:var(--removed)}
-.paired-cell.derived-only>.evidence-entry{background:var(--added)}
-.paired-missing{border:1px dashed var(--border);border-radius:6px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:70px;color:var(--muted);font-size:13px;text-align:center}
+.paired-cell>.evidence-entry{margin:0;flex:1;border:0;border-radius:0;padding:4px 6px;background:transparent}
+.paired-cell.base-only>.evidence-entry{background:var(--removed);border-left:3px solid var(--orange)}
+.paired-cell.derived-only>.evidence-entry{background:var(--added);border-left:3px solid var(--green)}
+.paired-missing{padding:12px;display:flex;align-items:center;justify-content:center;min-height:70px;color:var(--muted);font-size:13px;text-align:center;background:var(--panel)}
 .paired-filter{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0}
 .paired-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-size:13px}
+.paired-empty{margin:4px 0 10px;font-size:13px;color:var(--muted)}
 .paired-inspection>h3{margin:6px 0 0}
 .paired-inspection .evidence-entry .entry-context{overflow-wrap:anywhere}
 /* Source context is visible within each expanded evidence card. */
-.evidence-entry .nearby-source{margin-top:9px;padding-top:7px;border-top:1px solid var(--border)}
+.evidence-entry .nearby-source{margin-top:9px}
 .evidence-entry .nearby-source-label{font-size:11px;font-weight:600;color:var(--muted)}
-.evidence-entry .nearby-source pre{font-size:11px;line-height:1.45;margin-top:5px}
+.evidence-entry .entry-section{font-size:12px;color:var(--muted);margin:3px 0 6px}
+.evidence-entry .supported-indicators{font-size:12px;font-weight:600;color:var(--fg);margin:6px 0 0}
+.evidence-entry .nearby-source pre{font-size:11px;line-height:1.45;margin-top:5px;padding:0;background:transparent}
 /* Leave breathing room below the evidence-coverage summary. */
 .meta-box.evidence-report + .paired-columns{margin-top:14px}
 .view-switch{margin:8px 0 12px;padding:8px 12px}
@@ -334,6 +338,7 @@ let selectedRelationship = null;
 let selectedComparison = null;
 let currentDetails = null;
 let lastEvidenceReport = null;
+let pairedFilterSerial = 0;
 let hoveredCompareArtifactId = null;
 let box = [0, 0, 800, 560];
 let fitBox = box;
@@ -1652,10 +1657,15 @@ function evidenceEntry(e, label = '', showNearbyContext = true) {
   node.append(tagEl('div', (label ? label + ' · ' : '') + title, 'entry-title'));
   node.append(tagEl('div', position +
     (context.type ? ` · ${context.type}` : '') +
-    (context.language ? ` (${context.language})` : '') +
-    (context.heading ? ` · ${context.heading}` : ''), 'entry-context'));
+    (context.language ? ` (${context.language})` : ''), 'entry-context'));
+  if (context.heading) node.append(tagEl('div', `Document section: ${context.heading}`, 'entry-section'));
   node.append(tagEl('pre', e.excerpt || '(no excerpt)'));
-  if (showNearbyContext && context.nearby_text && context.nearby_text !== e.excerpt) {
+  if (e.supported_indicators?.length) {
+    node.append(tagEl('div', `Supported risk indicator${e.supported_indicators.length === 1 ? '' : 's'}: ${e.supported_indicators.join(', ')}`, 'supported-indicators'));
+  }
+  const normalizeDisplayText = value => String(value || '').trim().replace(/\s+/g, ' ');
+  if (showNearbyContext && normalizeDisplayText(context.nearby_text) &&
+      normalizeDisplayText(context.nearby_text) !== normalizeDisplayText(e.excerpt)) {
     const nearby = document.createElement('div'); nearby.className = 'nearby-source';
     nearby.append(tagEl('div', 'Nearby source context', 'nearby-source-label'), tagEl('pre', context.nearby_text));
     node.append(nearby);
@@ -1757,22 +1767,29 @@ function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, opti
   const section = document.createElement('section'); section.className = 'paired-inspection';
   section.append(tagEl('h3', `${title} · Base ${baseRecords.length} / Derived ${derivedRecords.length}`));
   const filter = document.createElement('div'); filter.className = 'paired-filter';
-  const differenceInput = document.createElement('input'); differenceInput.type = 'checkbox';
-  const differencesLabel = document.createElement('label');
-  differencesLabel.append(differenceInput, tagEl('span', 'Unmatched only'));
-  filter.append(differencesLabel);
-  let partialInput = null;
-  if (options.showPartialFilter) {
-    partialInput = document.createElement('input'); partialInput.type = 'checkbox';
-    const partialLabel = document.createElement('label');
-    partialLabel.append(partialInput, tagEl('span', 'Partial / unsupported only'));
-    filter.append(partialLabel);
+  filter.append(tagEl('span', 'Show:', 'muted'));
+  const radioName = `paired-inspection-${++pairedFilterSerial}`;
+  const choices = [
+    ['unmatched', 'Differences only'],
+    ['all', options.showPartialFilter ? 'All evidence' : 'All occurrences'],
+  ];
+  if (options.showPartialFilter) choices.push(['issues', 'Extraction issues']);
+  const filterInputs = [];
+  for (const [value, labelText] of choices) {
+    const input = document.createElement('input');
+    input.type = 'radio'; input.name = radioName; input.value = value;
+    input.checked = value === 'unmatched';
+    const label = document.createElement('label');
+    label.append(input, tagEl('span', labelText)); filter.append(label);
+    filterInputs.push(input);
   }
   section.append(filter);
   const left = groupedInspectionRecords(baseRecords, options.groupKey);
   const right = groupedInspectionRecords(derivedRecords, options.groupKey);
   const groupKeys = [...new Set([...left.keys(), ...right.keys()])].sort();
   if (!groupKeys.length) section.append(tagEl('p', 'No records on either side.', 'muted'));
+  const empty = tagEl('p', 'No differences found. Select All records to inspect matching entries.', 'paired-empty');
+  section.append(empty);
   const groups = [];
   for (const key of groupKeys) {
     const base = left.get(key) || [], derived = right.get(key) || [];
@@ -1782,7 +1799,7 @@ function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, opti
     const details = document.createElement('details'); details.className = 'paired-group';
     details.open = !!(baseOnly || derivedOnly);
     const summary = document.createElement('summary');
-    summary.append(tagEl('span', key), tagEl('span', `Base ${base.length} · Derived ${derived.length} · unmatched ${baseOnly} / ${derivedOnly}`, 'paired-counts'));
+    summary.append(tagEl('span', key), tagEl('span', `Base ${base.length} · Derived ${derived.length} · Base-only ${baseOnly} · Derived-only ${derivedOnly}`, 'paired-counts'));
     details.append(summary);
     const headings = document.createElement('div'); headings.className = 'paired-heading';
     headings.append(tagEl('div', 'Base'), tagEl('div', 'Derived'));
@@ -1809,22 +1826,58 @@ function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, opti
     section.append(details); groups.push({details, rows});
   }
   function applyFilters() {
+    const mode = filterInputs.find(input => input.checked)?.value || 'unmatched';
+    let visibleGroups = 0;
     for (const {details, rows} of groups) {
       let visible = 0;
       for (const row of rows) {
-        row.hidden = (differenceInput.checked && row.dataset.unmatched !== 'true') ||
-          (partialInput?.checked && row.dataset.partial !== 'true');
+        row.hidden = (mode === 'unmatched' && row.dataset.unmatched !== 'true') ||
+          (mode === 'issues' && row.dataset.partial !== 'true');
         if (!row.hidden) visible++;
       }
       details.hidden = visible === 0;
+      if (visible) visibleGroups++;
+    }
+    empty.hidden = !groupKeys.length || visibleGroups > 0;
+    if (!empty.hidden) {
+      empty.textContent = mode === 'unmatched'
+        ? `No differences found. Select ${options.showPartialFilter ? 'All evidence' : 'All occurrences'} to inspect matching entries.`
+        : mode === 'issues' ? 'No partial or unsupported evidence records.' : 'No records on either side.';
     }
   }
-  differenceInput.onchange = applyFilters;
-  if (partialInput) partialInput.onchange = applyFilters;
+  for (const input of filterInputs) input.onchange = applyFilters;
+  applyFilters();
   parent.append(section);
 }
 
-function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId, coverage = {}) {
+// Only cite supported risk indicators by their exact source spans.
+// Redacted or similar excerpts alone are not sufficient to associate findings.
+function evidenceLocationKey(e) {
+  const source = e?.source || {};
+  if (source.source_id === undefined || source.source_id === null ||
+      source.start_offset === undefined || source.start_offset === null ||
+      source.end_offset === undefined || source.end_offset === null ||
+      !source.filename || !e.type) return null;
+  return JSON.stringify([String(source.source_id), source.filename,
+    source.start_offset, source.end_offset, e.type]);
+}
+
+function indicatorEvidenceIndex(assessment = {}) {
+  const index = new Map();
+  for (const indicator of assessment.indicators || []) {
+    for (const side of ['added', 'removed']) {
+      for (const evidence of indicator.evidence?.[side] || []) {
+        const key = evidenceLocationKey(evidence);
+        if (key === null) continue;
+        if (!index.has(key)) index.set(key, new Set());
+        index.get(key).add(indicator.id);
+      }
+    }
+  }
+  return index;
+}
+
+function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId, coverage = {}, assessment = {}) {
   const sources = document.createElement('div'); sources.className = 'paired-columns';
   for (const [name, id, source] of [['Base', baseId, base], ['Derived', derivedId, derived]]) {
     const block = document.createElement('section'); block.className = 'paired-source';
@@ -1847,8 +1900,14 @@ function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId, co
   if (!base || !derived) {
     parent.append(tagEl('p', 'One-sided evidence is shown for inspection only. It does not establish when a file was introduced or removed.', 'warning'));
   }
-  parent.append(tagEl('p', 'Rows align by matching visible text, ignoring whitespace and line-number shifts. Unmatched records are not by themselves evidence of introduction or removal; redacted values are never assumed to match.', 'muted'));
-  pairedInspectionGroups(parent, 'Extracted evidence', base?.evidence || [], derived?.evidence || [], {
+  parent.append(tagEl('p', 'Differences only is the default. Alignment compares visible text, ignoring whitespace and line-number shifts; a visual difference does not establish introduced or removed behavior. Redacted values are never assumed to match.', 'muted'));
+  const indicatorIndex = indicatorEvidenceIndex(assessment);
+  const withIndicators = records => (records || []).map(record => {
+    const key = evidenceLocationKey(record);
+    const indicators = key === null ? null : indicatorIndex.get(key);
+    return indicators ? {...record, supported_indicators:[...indicators].sort()} : record;
+  });
+  pairedInspectionGroups(parent, 'Extracted evidence', withIndicators(base?.evidence), withIndicators(derived?.evidence), {
     groupKey:e => `${e.type || 'other'} · ${(e.rule_ids || []).slice().sort().join(', ') || 'no rule'}`,
     identity:e => inspectionIdentity(e.excerpt) === null ? null :
       JSON.stringify([e.type, (e.rule_ids || []).slice().sort(), inspectionIdentity(e.excerpt)]),
@@ -1857,7 +1916,7 @@ function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId, co
 }
 
 function appendPairedRuleOccurrences(parent, base, derived) {
-  parent.append(tagEl('p', 'Expand a rule to compare matching Base and Derived occurrences together. Missing-side markers are visual comparisons, not risk conclusions.', 'muted'));
+  parent.append(tagEl('p', 'Differences only is the default. Select All occurrences to inspect matching rule detections; visual differences are not risk conclusions.', 'muted'));
   pairedInspectionGroups(parent, 'Rule occurrences', base?.matches || [], derived?.matches || [], {
     groupKey:e => e.rule_id || 'Unknown rule',
     identity:e => inspectionIdentity(e.matched_text) === null ? null :
@@ -1974,7 +2033,7 @@ async function openComparisonEvidence() {
 
 function renderComparisonEvidence(result) {
   const body = $('#scan-body'); body.replaceChildren();
-  body.append(tagEl('p', 'All extracted evidence, including unchanged and partial records. Expand a group to see Base and Derived records with nearby source context beneath each excerpt.', 'muted'));
+  body.append(tagEl('p', 'Compare extracted evidence side by side. Differences only is the default; select All evidence for matching records or Extraction issues for partial/unsupported records. Expand a group to see source context.', 'muted'));
   switchComparisonView(body, '← Back to scan results', () => renderScan(result));
   if (!result.scan_diff) {
     appendCoverage(body, result.coverage);
@@ -1987,7 +2046,7 @@ function renderComparisonEvidence(result) {
   }
   appendCoverage(body, result.scan_diff.risk_indicators?.coverage);
   appendPairedSourceEvidence(body, result.scan_diff.base, result.scan_diff.derived,
-    result.base_id, result.derived_id);
+    result.base_id, result.derived_id, {}, result.scan_diff.risk_indicators);
   body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
   finishedScan(result);
 }

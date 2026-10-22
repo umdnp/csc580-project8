@@ -189,6 +189,21 @@ class EvidenceExtractor:
                 index += 1
             if not ids:
                 continue
+            context = contexts.at(candidate.start, candidate, filename)
+            status = candidate.status
+            if (status == ExtractionStatus.PARTIAL and
+                    candidate.kind == "shell_command" and
+                    context.kind == "code_block" and
+                    context.language in {"make", "makefile", "gnumake"}):
+                raw = text[candidate.start:candidate.end]
+                masked = re.sub(r"\$\([A-Za-z_][A-Za-z0-9_]*\)", "MAKE_VAR", raw)
+                # Only simple Make variables qualify; Make functions and
+                # potentially executable or ambiguous syntax remain partial.
+                if masked != raw and "$(" not in masked:
+                    probe = self._shell.extract(masked, 0, len(masked))
+                    if (probe.status == ExtractionStatus.COMPLETE and
+                            probe.start == 0 and probe.end == len(masked)):
+                        status = ExtractionStatus.COMPLETE
             results.append(Evidence(
                 kind=candidate.kind,
                 raw_text=text[candidate.start:candidate.end],
@@ -198,8 +213,8 @@ class EvidenceExtractor:
                 source_id=source_id,
                 start_offset=candidate.start,
                 end_offset=candidate.end,
-                context=contexts.at(candidate.start, candidate, filename),
-                extraction_status=candidate.status,
+                context=context,
+                extraction_status=status,
                 values=candidate.values,
             ))
         for index, match in enumerate(matches):

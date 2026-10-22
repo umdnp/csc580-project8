@@ -785,8 +785,8 @@ class ViewerTests(unittest.TestCase):
         for marker in ("function appendPairedSourceEvidence(",
                        "function pairedInspectionGroups(",
                        "function alignInspectionRecords(",
-                       "No matching record on this side", "Unmatched only",
-                       "Partial / unsupported only", ".paired-row"):
+                       "No matching record on this side", "Differences only",
+                       "All evidence", "Extraction issues", ".paired-row"):
             self.assertIn(marker, html)
         start = html.index("function renderComparisonEvidence(result)")
         end = html.index("async function openSiblingScan()", start)
@@ -811,6 +811,19 @@ class ViewerTests(unittest.TestCase):
         self.assertNotIn("'paired-status'", paired)
         self.assertIn("className = 'nearby-source'", html)
         self.assertIn("tagEl('div', 'Nearby source context', 'nearby-source-label')", html)
+        self.assertIn("`Document section: ${context.heading}`", html)
+        self.assertIn("normalizeDisplayText(context.nearby_text) !== normalizeDisplayText(e.excerpt)", html)
+        self.assertIn("Supported risk indicator", html)
+        self.assertIn("function indicatorEvidenceIndex(assessment", html)
+        self.assertIn("for (const indicator of assessment.indicators || [])", html)
+        self.assertIn(".evidence-entry .nearby-source{margin-top:9px}", html)
+        self.assertNotIn(".evidence-entry .nearby-source{margin-top:9px;padding-top:7px;border-top:1px dotted", html)
+        self.assertIn(".nearby-source pre{font-size:11px;line-height:1.45;margin-top:5px;padding:0;background:transparent}", html)
+        self.assertIn("['unmatched', 'Differences only']", paired)
+        self.assertIn("input.type = 'radio'", paired)
+        self.assertIn("input.checked = value === 'unmatched'", paired)
+        self.assertIn("mode === 'issues' && row.dataset.partial !== 'true'", paired)
+
         self.assertIn(".meta-box.evidence-report + .paired-columns{margin-top:14px}", html)
         self.assertNotIn("Nearby source context · Base and Derived", html)
 

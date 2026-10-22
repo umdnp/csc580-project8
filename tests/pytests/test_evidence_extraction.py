@@ -159,3 +159,27 @@ def test_repeated_command_references_survive_line_moves_without_new_evidence():
     assert assessment.coverage == 'complete'
     assert assessment.evidence_partial == 0
     assert assessment.indicator_count == 0
+
+
+def test_makefile_variable_references_are_complete_but_ambiguous_expressions_remain_partial():
+    source = (
+        "# Phase 2: Create root files\n"
+        "```makefile\n"
+        "@mkdir -p $(GOCACHE) $(GOMODCACHE)\n"
+        "@mkdir -p $(CACHE_DIR)\n"
+        "@mkdir -p $(shell pwd)\n"
+        "```\n"
+        "```bash\n"
+        "mkdir -p $(CACHE_DIR)\n"
+        "```\n"
+    )
+    result = SkillAnalyzer().scan(source)
+    records = [e for e in result.evidence if e.kind == "shell_command"]
+    assert result.rule_counts() == {"CMD-001": 1, "FS-001": 4}
+    assert len(records) == 4
+    assert [r.extraction_status for r in records] == [
+        ExtractionStatus.COMPLETE, ExtractionStatus.COMPLETE,
+        ExtractionStatus.PARTIAL, ExtractionStatus.PARTIAL,
+    ]
+    assert records[0].raw_text == "mkdir -p $(GOCACHE) $(GOMODCACHE)"
+    assert records[0].context.language == "makefile"

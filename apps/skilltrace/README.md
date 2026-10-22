@@ -147,15 +147,23 @@ of the relationship are selectable.
 - Complete, partial, and unsupported extraction counts;
 - Source filename and sibling ID, offsets, lines, associated rule IDs,
   Markdown/code context, and redacted excerpts;
-- An aligned Base/Derived **Extracted evidence** explorer with **Unmatched only**
-  and **Partial / unsupported only** filters.
+- An aligned Base/Derived **Extracted evidence** explorer. **Differences only**
+  is the default view; **All evidence** includes matching records, while
+  **Extraction issues** shows partial and unsupported records even when matched.
+
+The **Rule occurrences** explorer also defaults to **Differences only**;
+select **All occurrences** to inspect matching rule detections.
 
 Each expandable group has **one shared toggle** for Base and Derived. When
 expanded, each evidence record shows its nearby source context directly beneath
-the excerpt in smaller text, without an additional expander or repeated side
-labels. Missing matches appear as explicitly empty cells; no redundant
-"Unmatched on Base/Derived" label is shown. Alignment is a visual aid,
-not a security conclusion; redacted excerpts are never assumed identical.
+the excerpt in smaller text only when it adds information, without a
+separator, extra expander, or repeated side labels. The document-section
+heading appears on its own line and identifies its location within SKILL.md,
+not a project sprint. Missing matches appear as explicitly empty cells.
+Supported risk-indicator IDs appear next to the exact source evidence they
+cite (when available); evidence without an indicator remains inspectable.
+Alignment is a visual aid, not a security conclusion; redacted excerpts
+are never assumed identical.
 You can switch between Run scan and Inspect evidence inside the same dialog
 without another database request. Both **Copy report JSON** actions preserve
 the full scan payload for review.
