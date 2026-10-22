@@ -24,6 +24,7 @@ from gitskills.analysis.models import RiskCategory, RuleMatch
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
 from . import _output
+from ._redaction import redact_text, safe_excerpt
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -191,6 +192,12 @@ def _print_report(result: FamilyRiskAnalysis, *, verbose: bool) -> None:
     print(f"Pairs analyzed:          {result.pairs_analyzed}")
     print(f"Pairs flagged:           {result.pairs_flagged}")
     print(f"Pairs incomplete:        {result.pairs_incomplete}")
+    print(f"Pairs with evidence changes: {result.pairs_with_evidence_changes}")
+    print(f"Pairs with indicators:       {result.pairs_with_indicators}")
+    if result.indicator_frequency:
+        print("Indicator frequency (pairs):")
+        for indicator_id, count in result.indicator_frequency.items():
+            print(f"  {indicator_id}: {count}")
     print(f"Ambiguous edges skipped: {result.ambiguous_edges_skipped}")
     print("Scanner scope:           SKILL.md body + changed sibling files")
 
@@ -210,6 +217,7 @@ def _print_report(result: FamilyRiskAnalysis, *, verbose: bool) -> None:
         print(f"  Pairs analyzed:   {cluster.pairs_analyzed}")
         print(f"  Pairs flagged:    {cluster.pairs_flagged}")
         print(f"  Pairs incomplete: {cluster.pairs_incomplete}")
+        print(f"  Pairs with indicators: {cluster.pairs_with_indicators}")
         _print_flagged_pairs(cluster, verbose=verbose, indent="  ")
         _print_incomplete_pairs(cluster, indent="  ")
         print()
@@ -258,6 +266,32 @@ def _print_flagged_pair(
 
     for rule in pair.flagged_rules:
         _print_flagged_rule(rule, verbose=verbose, indent=f"{indent}  ")
+
+    for label, changes in (("SKILL.md", pair.skill_evidence),
+                           ("siblings", pair.sibling_evidence)):
+        count_added, count_removed = len(changes.added), len(changes.removed)
+        if count_added or count_removed:
+            print(f"{indent}  {label} evidence: +{count_added}, -{count_removed}")
+            if verbose:
+                for change_label, items in (("removed", changes.removed),
+                                            ("added", changes.added)):
+                    for item in items:
+                        print(f"{indent}    {change_label}: "
+                              f"[{', '.join(item.rule_ids)}] "
+                              f"{redact_text(item.filename)}: {safe_excerpt(item.raw_text)}")
+
+    assessment = pair.risk_assessment
+    if assessment.indicators:
+        categories, findings = assessment.indicator_count, assessment.finding_count
+        print(f"{indent}  Risk indicators: {categories} "
+              f"{'category' if categories == 1 else 'categories'}, "
+              f"{findings} {'finding' if findings == 1 else 'findings'}")
+        for indicator in assessment.supported:
+            print(f"{indent}    [{indicator.indicator_id}] {redact_text(indicator.reason)}")
+        if assessment.uncertain:
+            print(f"{indent}    Uncertain observations: {len(assessment.uncertain)}")
+    if assessment.coverage != "complete":
+        print(f"{indent}  Evidence coverage: incomplete")
 
     if pair.sibling_scan is not None and pair.sibling_scan.incomplete:
         _print_sibling_warning(pair.sibling_scan, indent=f"{indent}  ")
@@ -375,6 +409,8 @@ def _print_sibling_warning(summary: SiblingScanSummary, *, indent: str) -> None:
             "source SHA unknown="
             + ",".join(str(value) for value in summary.unknown_sha_source_ids)
         )
+    if summary.listing_incomplete:
+        details.append("sibling listing incomplete")
     if summary.unknown_sha_destination_ids:
         details.append(
             "derived SHA unknown="
@@ -391,7 +427,7 @@ def _safe_excerpt(rule_match: RuleMatch) -> str:
     if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
         return "[credential-related content redacted]"
 
-    text = " ".join((rule_match.matched_text or "").split())
+    text = safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
     if len(text) <= MAX_EXCERPT_LENGTH:
         return text
 

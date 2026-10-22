@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
 
@@ -25,6 +25,8 @@ from .family_risk_models import (
     SiblingScanSummary,
 )
 from .models import AnalysisResult, RiskProfile, RuleDelta, RuleMatch
+from .risk_assessor import RiskAssessor
+from .evidence_models import EvidenceChanges
 
 
 _SIBLING_CHANGE_TYPES = {
@@ -39,6 +41,14 @@ class _SiblingDifference:
     destination_only: tuple[SiblingFile, ...]
     unknown_sha_source: tuple[SiblingFile, ...]
     unknown_sha_destination: tuple[SiblingFile, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _SiblingReview:
+    rules: tuple[FlaggedRule, ...]
+    summary: SiblingScanSummary
+    source_changed: AnalysisResult
+    destination_changed: AnalysisResult
 
 
 class FamilyRiskAnalyzer:
@@ -57,6 +67,7 @@ class FamilyRiskAnalyzer:
         self._family_analyzer = family_analyzer or FamilyAnalyzer(policy)
         self._skill_analyzer = skill_analyzer or SkillAnalyzer()
         self._rule_catalog = _rule_catalog(self._skill_analyzer.rules)
+        self._risk_assessor = RiskAssessor()
 
     @property
     def policy(self) -> SimilarityPolicy:
@@ -78,6 +89,7 @@ class FamilyRiskAnalyzer:
         siblings = tuple(sibling_files)
         family = self._family_analyzer.analyze(artifacts)
         variants = {variant.file_sha: variant for variant in family.skill_variants}
+        artifacts_by_id = {artifact.artifact_id: artifact for artifact in artifacts}
 
         siblings_by_artifact: dict[int, tuple[SiblingFile, ...]] = {}
         sibling_lists: dict[int, list[SiblingFile]] = defaultdict(list)
@@ -126,19 +138,35 @@ class FamilyRiskAnalyzer:
 
                 sibling_rules: tuple[FlaggedRule, ...] = ()
                 sibling_summary: SiblingScanSummary | None = None
+                skill_evidence = comparison.evidence_changes
+                sibling_evidence = EvidenceChanges()
+                source_changed = _combine_results(())
+                destination_changed = _combine_results(())
                 if edge.change_type in _SIBLING_CHANGE_TYPES:
-                    sibling_rules, sibling_summary = self._analyze_siblings(
-                        source_files=siblings_by_artifact.get(
-                            edge.source_artifact_id,
-                            (),
-                        ),
-                        destination_files=siblings_by_artifact.get(
-                            edge.target_artifact_id,
-                            (),
-                        ),
+                    source_files = siblings_by_artifact.get(edge.source_artifact_id, ())
+                    destination_files = siblings_by_artifact.get(edge.target_artifact_id, ())
+                    sibling_review = self._analyze_siblings(
+                        source_files=source_files,
+                        destination_files=destination_files,
                         content_by_sha=sibling_content_by_sha,
                         scan_cache=sibling_scan_cache,
                     )
+                    sibling_rules = sibling_review.rules
+                    sibling_summary = sibling_review.summary
+                    source_changed = sibling_review.source_changed
+                    destination_changed = sibling_review.destination_changed
+                    # Missing sibling rows are not evidence of an empty bundle.
+                    source_artifact = artifacts_by_id[edge.source_artifact_id]
+                    destination_artifact = artifacts_by_id[edge.target_artifact_id]
+                    listing_incomplete = any(
+                        expected is None or len(available) < expected
+                        for expected, available in (
+                            (source_artifact.sibling_file_count, source_files),
+                            (destination_artifact.sibling_file_count, destination_files),
+                        )
+                    )
+                    if listing_incomplete:
+                        sibling_summary = replace(sibling_summary, listing_incomplete=True)
                     if sibling_summary.incomplete:
                         incomplete_pairs.append(
                             IncompletePair(
@@ -150,6 +178,32 @@ class FamilyRiskAnalyzer:
                                 sibling_scan=sibling_summary,
                             )
                         )
+                    sibling_evidence = compare_results(
+                        source_changed, destination_changed
+                    ).evidence_changes
+
+                # One assessment per directed pair: no double counting between
+                # SKILL.md and changed sibling constructs.
+                combined = compare_results(
+                    _combine_results((source_result, source_changed)),
+                    _combine_results((destination_result, destination_changed)),
+                )
+                assessment = self._risk_assessor.assess(
+                    combined,
+                    base_script_hashes=_sibling_hashes(
+                        siblings_by_artifact.get(edge.source_artifact_id, ())
+                    ),
+                    derived_script_hashes=_sibling_hashes(
+                        siblings_by_artifact.get(edge.target_artifact_id, ())
+                    ),
+                )
+                if sibling_summary is not None and sibling_summary.incomplete:
+                    assessment = replace(
+                        assessment,
+                        coverage="incomplete",
+                        coverage_notes=assessment.coverage_notes
+                        + ("Unavailable or unknown sibling data",),
+                    )
 
                 flagged_rules = tuple(
                     sorted(
@@ -157,7 +211,11 @@ class FamilyRiskAnalyzer:
                         key=lambda rule: (rule.rule_id, rule.surface.value),
                     )
                 )
-                if not flagged_rules:
+                # Flag evidence-only changes (including zero rule deltas) and
+                # supported/uncertain indicators, retaining legacy rule flags.
+                if not (flagged_rules or skill_evidence.added or skill_evidence.removed
+                        or sibling_evidence.added or sibling_evidence.removed
+                        or assessment.indicators):
                     continue
 
                 flagged_pairs.append(
@@ -173,6 +231,9 @@ class FamilyRiskAnalyzer:
                         shared_shingles=edge.shared_shingles,
                         flagged_rules=flagged_rules,
                         sibling_scan=sibling_summary,
+                        skill_evidence=skill_evidence,
+                        sibling_evidence=sibling_evidence,
+                        risk_assessment=assessment,
                     )
                 )
 
@@ -182,6 +243,9 @@ class FamilyRiskAnalyzer:
                     pairs_analyzed=len(directed_edges),
                     flagged_pairs=tuple(flagged_pairs),
                     incomplete_pairs=tuple(incomplete_pairs),
+                    direction_basis_counts=tuple(sorted(
+                        Counter(edge.basis for edge in directed_edges).items()
+                    )),
                 )
             )
 
@@ -259,7 +323,7 @@ class FamilyRiskAnalyzer:
         destination_files: tuple[SiblingFile, ...],
         content_by_sha: dict[str, str],
         scan_cache: dict[tuple[str, str, str], AnalysisResult],
-    ) -> tuple[tuple[FlaggedRule, ...], SiblingScanSummary]:
+    ) -> _SiblingReview:
         difference = _sibling_difference(source_files, destination_files)
 
         source_scans = self._scan_sibling_collection(
@@ -363,7 +427,22 @@ class FamilyRiskAnalyzer:
                 for sibling in difference.unknown_sha_destination
             ),
         )
-        return tuple(flagged), summary
+        source_only_ids = {item.sibling_id for item in difference.source_only}
+        destination_only_ids = {item.sibling_id for item in difference.destination_only}
+        # Fingerprint-matched siblings are unchanged even when moved or renamed.
+        # Preserve them for historical rule counts, not evidence changes.
+        return _SiblingReview(
+            rules=tuple(flagged),
+            summary=summary,
+            source_changed=_combine_results(
+                result for sibling, result in source_scans
+                if sibling.sibling_id in source_only_ids
+            ),
+            destination_changed=_combine_results(
+                result for sibling, result in destination_scans
+                if sibling.sibling_id in destination_only_ids
+            ),
+        )
 
     def _scan_sibling_collection(
         self,
@@ -409,7 +488,12 @@ class FamilyRiskAnalyzer:
                 exclude_frontmatter=False,
             )
             cache[cache_key] = cached
-        return replace(cached, source_id=f"sibling:{sibling.sibling_id}")
+        source_id = f"sibling:{sibling.sibling_id}"
+        return replace(
+            cached,
+            source_id=source_id,
+            evidence=tuple(replace(item, source_id=source_id) for item in cached.evidence),
+        )
 
 
 def _sibling_difference(
@@ -485,18 +569,29 @@ def _finding_sources_by_rule(
 
 
 def _combine_results(results: Iterable[AnalysisResult]) -> AnalysisResult:
-    rule_matches = tuple(
-        match
-        for result in results
-        for match in result.rule_matches
-    )
+    results = tuple(results)
+    rule_matches = tuple(match for result in results for match in result.rule_matches)
     return AnalysisResult(
-        profile=RiskProfile.from_categories(
-            match.category for match in rule_matches
-        ),
+        profile=RiskProfile.from_categories(match.category for match in rule_matches),
         rule_matches=rule_matches,
-        filename="<sibling-aggregate>",
+        filename="<aggregate>",
+        evidence=tuple(item for result in results for item in result.evidence),
     )
+
+
+def _sibling_hashes(siblings: tuple[SiblingFile, ...]) -> dict[str, str]:
+    """Use only known, unambiguous sibling hashes supplied by GitSkills."""
+    hashes: dict[str, str] = {}
+    ambiguous: set[str] = set()
+    for sibling in siblings:
+        name = sibling.entry_name.replace("\\", "/").removeprefix("./")
+        if sibling.entry_sha is None:
+            ambiguous.add(name)
+        elif name in hashes and hashes[name] != sibling.entry_sha:
+            ambiguous.add(name)
+        else:
+            hashes[name] = sibling.entry_sha
+    return {name: sha for name, sha in hashes.items() if name not in ambiguous}
 
 
 def _rule_catalog(rules: tuple[Rule, ...]) -> dict[str, ActiveRule]:
