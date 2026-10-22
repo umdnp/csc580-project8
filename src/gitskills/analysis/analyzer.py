@@ -8,6 +8,7 @@ from gitskills.rules.base import Rule
 from gitskills.rules.registry import DEFAULT_RULES
 
 from .content import mask_frontmatter
+from .evidence_extractor import EvidenceExtractor
 from .models import AnalysisResult, RiskProfile
 
 
@@ -17,6 +18,7 @@ class SkillAnalyzer:
     def __init__(self, rules: Iterable[Rule] | None = None) -> None:
         self._rules = tuple(DEFAULT_RULES if rules is None else rules)
         self._validate_rule_ids()
+        self._evidence_extractor = EvidenceExtractor()
 
     @property
     def rules(self) -> tuple[Rule, ...]:
@@ -57,6 +59,9 @@ class SkillAnalyzer:
             rule_matches=rule_matches,
             filename=filename,
             source_id=source_id,
+            evidence=self._evidence_extractor.extract(
+                scan_text, rule_matches, filename=filename, source_id=source_id,
+            ),
         )
 
     def _validate_rule_ids(self) -> None:
