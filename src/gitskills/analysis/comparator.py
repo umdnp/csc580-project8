@@ -1,5 +1,6 @@
 """Directional comparison helpers for artifact analysis results."""
 
+from .evidence_comparator import EvidenceComparator
 from .models import AnalysisComparison, AnalysisResult, RiskProfile, RuleDelta
 
 
@@ -32,4 +33,5 @@ def compare_results(
         derived=derived,
         introduced=introduced,
         rule_deltas=rule_deltas,
+        evidence_changes=EvidenceComparator().compare(base.evidence, derived.evidence),
     )

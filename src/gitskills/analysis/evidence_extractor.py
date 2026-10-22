@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import bisect
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from .evidence_extractors import (
     ApiCallExtractor,
@@ -14,6 +14,7 @@ from .evidence_extractors import (
     UrlExtractor,
 )
 from .evidence_models import Evidence, EvidenceContext, ExtractionStatus
+from .evidence_normalizer import EvidenceNormalizer
 from .models import RuleMatch
 
 
@@ -110,6 +111,7 @@ class EvidenceExtractor:
         self._url = UrlExtractor()
         self._api = ApiCallExtractor()
         self._reference = ReferenceExtractor()
+        self._normalizer = EvidenceNormalizer()
 
     def extract(
         self,
@@ -163,7 +165,7 @@ class EvidenceExtractor:
             results.append(Evidence(
                 kind=candidate.kind,
                 raw_text=text[candidate.start:candidate.end],
-                normalized_text=text[candidate.start:candidate.end],  # Phase 4 normalizes.
+                normalized_text=text[candidate.start:candidate.end],
                 rule_ids=tuple(sorted(ids)),
                 filename=filename,
                 source_id=source_id,
@@ -195,6 +197,8 @@ class EvidenceExtractor:
                     context=contexts.at(start, SourceSpan("unresolved_match", start, end), filename),
                     extraction_status=ExtractionStatus.PARTIAL,
                 ))
+        results = [replace(item, normalized_text=self._normalizer.normalize(item))
+                   for item in results]
         return tuple(sorted(results, key=lambda e: (e.start_offset if e.start_offset is not None else -1,
                                                   e.end_offset if e.end_offset is not None else -1)))
 
