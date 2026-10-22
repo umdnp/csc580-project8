@@ -119,6 +119,7 @@ Validation should include comparisons with and without supported indicators, plu
 - One comparison may trigger multiple indicators, so indicator counts must not be interpreted as separate incidents or a measure of danger.
 - Legitimate changes may trigger indicators, and some security-sensitive changes may be missed.
 - Missing content, uncertain context, and inferred direction limit what can be concluded.
+- Scan coverage indicates whether the available artifact content was processed completely. Even `complete` coverage does not mean the scanner can detect every possible security risk.
 - Static evidence does not establish execution, malicious intent, or actual supply-chain compromise.
 
 ## Follow-up Actions
