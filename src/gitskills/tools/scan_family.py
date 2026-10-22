@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import sys
+import time
+import tracemalloc
 from pathlib import Path
 from typing import Sequence
 
@@ -36,13 +39,30 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze one candidate family and scan its directed evolution edges "
+            "Analyze one or more candidate families and scan their directed evolution edges "
             "for security-rule findings in SKILL.md bodies and changed siblings."
         )
     )
-    parser.add_argument(
-        "name",
+    family_input = parser.add_mutually_exclusive_group(required=True)
+    family_input.add_argument(
+        "name", nargs="?",
         help="Exact candidate-family skill name, for example busybox-on-windows.",
+    )
+    family_input.add_argument(
+        "--input", type=Path, metavar="FILE",
+        help="UTF-8 file containing one candidate-family name per line (# comments allowed).",
+    )
+    parser.add_argument(
+        "--benchmark", action="store_true",
+        help="Write per-family timing and status to benchmarks.csv in the output directory.",
+    )
+    parser.add_argument(
+        "--tracemalloc", action="store_true",
+        help="With --benchmark, also measure peak Python allocations (affects timings; not native RSS).",
+    )
+    parser.add_argument(
+        "--limit", type=int, metavar="N",
+        help="With --input, scan only the first N names for a smoke test.",
     )
     parser.add_argument(
         "--db",
@@ -100,26 +120,37 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run candidate-family security review."""
+    """Run security scans for a named family or a pinned input list."""
 
-    args = build_parser().parse_args(argv)
-
-    try:
-        output_dir = _output.prepare_directory(args.output)
-    except _output.OutputError as exc:
-        print(exc, file=sys.stderr)
-        return 2
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.tracemalloc and not args.benchmark:
+        parser.error("--tracemalloc requires --benchmark")
+    if args.limit is not None and (args.input is None or args.limit < 1):
+        parser.error("--limit requires --input and a positive integer")
+    if args.input is not None and args.output is None:
+        parser.error("--input requires --output for per-family JSON reports")
 
     database = args.db or _database_from_environment()
-
     if database is None:
-        print(
-            f"Database path required: pass --db or set {DEFAULT_DB_ENV}.",
-            file=sys.stderr,
-        )
+        print(f"Database path required: pass --db or set {DEFAULT_DB_ENV}.", file=sys.stderr)
         return 2
 
     try:
+        names = _read_family_names(args.input, args.limit) if args.input else [args.name]
+        output_dir = _output.prepare_directory(
+            args.output if args.output is not None else _output.DEFAULT_OUTPUT_DIR if args.benchmark else None
+        )
+        if output_dir is not None:
+            for name in names:
+                _safe_output_name(name)
+        if args.input is not None:
+            if not database.is_file():
+                raise ValueError(f"Database not found: {database}")
+            assert output_dir is not None
+            if any(output_dir.glob("*.json")) or (output_dir / "benchmarks.csv").exists():
+                raise ValueError("Batch output already contains scan reports or benchmarks; "
+                                 "use a new output directory")
         policy = SimilarityPolicy(
             shingle_size=args.shingle_size,
             min_containment=args.min_containment,
@@ -127,59 +158,109 @@ def main(argv: Sequence[str] | None = None) -> int:
             min_shared_shingles=args.min_shared_shingles,
             direction_containment_margin=args.direction_margin,
         )
-        loaded = DuckDBFamilyRepository(database).load_available(args.name)
-        artifacts = loaded.artifacts
-        if not artifacts and not loaded.skipped_artifacts:
-            print(f"Candidate family not found: {args.name}", file=sys.stderr)
+    except (OSError, ValueError, _output.OutputError) as exc:
+        print(f"Invalid scan input: {exc}", file=sys.stderr)
+        return 2
+
+    rows = []
+    failed = False
+    for index, name in enumerate(names, 1):
+        if args.benchmark and args.tracemalloc:
+            tracemalloc.start()
+        started = time.perf_counter()
+        try:
+            result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose)
+            if output_dir is not None:
+                _output.write_json(output_dir, name, payload)
+            if args.input is None:
+                if args.json:
+                    print(json.dumps(payload, indent=2))
+                else:
+                    _print_input_summary(loaded, artifacts)
+                    _print_report(result, verbose=args.verbose)
+            status = "ok"
+        except (OSError, RuntimeError, ValueError, _output.OutputError) as exc:
+            print(f"Unable to scan candidate family {name!r}: {exc}", file=sys.stderr)
+            status = "failed"
+            failed = True
+        seconds = time.perf_counter() - started
+        peak = tracemalloc.get_traced_memory()[1] if args.benchmark and args.tracemalloc else None
+        if args.benchmark and args.tracemalloc:
+            tracemalloc.stop()
+        if args.benchmark:
+            rows.append({
+                "family": name, "seconds": f"{seconds:.3f}",
+                "peak_python_memory_mib": f"{peak / 1024 / 1024:.2f}" if peak is not None else "",
+                "status": status,
+            })
+        if args.input is not None:
+            print(f"[{index}/{len(names)}] {name}: {status}" +
+                  (f" in {seconds:.2f}s" if args.benchmark else ""), flush=True)
+
+    if args.benchmark:
+        assert output_dir is not None
+        try:
+            with (output_dir / "benchmarks.csv").open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(
+                    handle, fieldnames=("family", "seconds", "peak_python_memory_mib", "status")
+                )
+                writer.writeheader()
+                writer.writerows(rows)
+        except OSError as exc:
+            print(f"Unable to write benchmarks.csv: {exc}", file=sys.stderr)
             return 1
+        print(f"Benchmark log: {output_dir / 'benchmarks.csv'}", file=sys.stderr)
+    return 1 if failed else 0
 
-        sibling_files = DuckDBSiblingRepository(database).load(
-            artifact.artifact_id for artifact in artifacts
-        )
-        analyzer = FamilyRiskAnalyzer(policy=policy)
-        if artifacts:
-            result = analyzer.analyze(artifacts, sibling_files=sibling_files)
-        else:
-            result = FamilyRiskAnalysis(
-                name=args.name,
-                similarity_policy=policy,
-                active_rules=analyzer.active_rules,
-                clusters=(),
-                ambiguous_edges_skipped=0,
-            )
-    except (OSError, RuntimeError, ValueError) as exc:
-        print(f"Unable to scan candidate family: {exc}", file=sys.stderr)
-        return 1
 
-    payload = result.to_dict(verbose=args.verbose)
+def _safe_output_name(name: str) -> None:
+    if (not name or name in (".", "..") or any(char in name for char in '/\\\0<>:"|?*')
+            or name.endswith((".", " "))):
+        raise ValueError(f"Invalid family name for output file: {name!r}")
+
+
+def _read_family_names(path: Path, limit: int | None) -> list[str]:
+    names = [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines()
+             if line.strip() and not line.lstrip().startswith("#")]
+    if limit is not None:
+        names = names[:limit]
+    if not names or len(set(names)) != len(names):
+        raise ValueError("Family input must contain unique, nonempty names")
+    for name in names:
+        _safe_output_name(name)
+    return names
+
+
+def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool):
+    loaded = DuckDBFamilyRepository(database).load_available(name)
+    artifacts = loaded.artifacts
+    if not artifacts and not loaded.skipped_artifacts:
+        raise ValueError(f"Candidate family not found: {name}")
+    sibling_files = DuckDBSiblingRepository(database).load(
+        artifact.artifact_id for artifact in artifacts
+    )
+    analyzer = FamilyRiskAnalyzer(policy=policy)
+    result = analyzer.analyze(artifacts, sibling_files=sibling_files) if artifacts else FamilyRiskAnalysis(
+        name=name, similarity_policy=policy, active_rules=analyzer.active_rules,
+        clusters=(), ambiguous_edges_skipped=0,
+    )
+    payload = result.to_dict(verbose=verbose)
     payload["input_summary"] = {
         "artifacts_loaded": len(artifacts),
         "artifacts_skipped": len(loaded.skipped_artifacts),
         "incomplete": bool(loaded.skipped_artifacts),
     }
-    payload["skipped_artifacts"] = [
-        artifact.to_dict() for artifact in loaded.skipped_artifacts
-    ]
+    payload["skipped_artifacts"] = [artifact.to_dict() for artifact in loaded.skipped_artifacts]
+    return result, payload, loaded, artifacts
 
-    if output_dir is not None:
-        try:
-            _output.write_json(output_dir, args.name, payload)
-        except _output.OutputError as exc:
-            print(exc, file=sys.stderr)
-            return 1
 
-    if args.json:
-        print(json.dumps(payload, indent=2))
-    else:
-        print(f"Artifacts loaded:        {len(artifacts)}")
-        print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
-        for artifact in loaded.skipped_artifacts:
-            print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
-        if loaded.skipped_artifacts:
-            print("Input coverage incomplete; skipped artifacts have no scan result.")
-        _print_report(result, verbose=args.verbose)
-
-    return 0
+def _print_input_summary(loaded, artifacts) -> None:
+    print(f"Artifacts loaded:        {len(artifacts)}")
+    print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
+    for artifact in loaded.skipped_artifacts:
+        print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
+    if loaded.skipped_artifacts:
+        print("Input coverage incomplete; skipped artifacts have no scan result.")
 
 
 def _database_from_environment() -> Path | None:
