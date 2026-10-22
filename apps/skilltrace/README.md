@@ -144,14 +144,21 @@ Paths present only in the compared artifact are labeled accordingly. Inspection 
 
 The **Compare To → Run scan** action compares directed `SKILL.md` artifacts.
 The **Artifact Siblings → Run scan** action compares the selected sibling file
-at the same path across a directed pair. Both comparisons report:
+at the same path across a directed pair. Both comparisons focus on changes:
 
-- Original rule-count changes and source matches;
+- Original capability and rule-count changes;
 - Evidence added and removed, even where rule counts are unchanged;
-- All base and derived evidence, including unchanged partial records;
-- Supported and uncertain RDR-010 risk indicators, linked to their evidence;
+- Supported and uncertain RDR-010 risk indicators with supporting evidence;
 - Indicator and distinct-finding counts; and
 - Coverage and extraction counts.
+
+**Inspect evidence** in **Compare To** or **Artifact Siblings** opens the full
+base and derived evidence records and rule occurrences for the directed pair,
+including unchanged records and partial extractions. The **Selected Artifact →
+Inspect evidence** action still inspects just the selected `SKILL.md`. For a
+sibling without a directed comparison, **Inspect evidence** inspects one
+available file. Evidence is extracted during scanning; the separate UI actions
+make detailed records optional rather than duplicating them in the scan report.
 
 Scans remain limited to directed parent/derived relationships recorded by
 `analyze_family`. An ambiguous peer pair cannot support an introduction claim,

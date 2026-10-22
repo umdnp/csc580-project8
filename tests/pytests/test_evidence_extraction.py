@@ -108,3 +108,54 @@ def test_extended_rules_keep_complete_evidence_and_outbound_api_arguments():
     call, = upload.evidence
     assert call.rule_ids == ("NET-001", "NET-002")
     assert ("arguments", '"https://example.test/upload", data=report') in call.values
+
+
+def test_powershell_prose_and_placeholder_are_complete_references_not_commands():
+    text = (
+        'These are PowerShell commands, if you have a classic `cmd.exe` terminal, '
+        'then you must use `powershell -Command "..."` to run them.\n'
+        '3. Download a suitable build by running one of these PowerShell commands:\n'
+        '- x86: `Invoke-WebRequest -Uri https://example.test/busybox.exe -OutFile busybox.exe`\n'
+    )
+    result = SkillAnalyzer().scan(text)
+    assert result.rule_counts() == {"CMD-002": 3, "NET-001": 1, "NET-002": 1}
+    assert [(e.kind, e.extraction_status) for e in result.evidence] == [
+        ("command_reference", ExtractionStatus.COMPLETE),
+        ("command_template", ExtractionStatus.COMPLETE),
+        ("command_reference", ExtractionStatus.COMPLETE),
+        ("shell_command", ExtractionStatus.COMPLETE),
+    ]
+    assert result.evidence[1].raw_text == 'powershell -Command "..."'
+    assert result.evidence[-1].raw_text == (
+        "Invoke-WebRequest -Uri https://example.test/busybox.exe -OutFile busybox.exe"
+    )
+
+
+def test_actual_powershell_code_and_non_placeholder_commands_remain_commands():
+    source = (
+        'Run `powershell -Command "Get-Process"` when needed.\n'
+        '```powershell\nInvoke-WebRequest -Uri https://example.test/install.ps1 '
+        '-OutFile install.ps1\n```\n'
+    )
+    result = SkillAnalyzer().scan(source)
+    commands = [e for e in result.evidence if e.kind == "shell_command"]
+    assert any('powershell -Command "Get-Process"' in e.raw_text for e in commands)
+    assert any('Invoke-WebRequest -Uri https://example.test/install.ps1' in e.raw_text
+               for e in commands)
+    assert all(e.extraction_status == ExtractionStatus.COMPLETE for e in commands)
+
+
+def test_repeated_command_references_survive_line_moves_without_new_evidence():
+    from gitskills.analysis.comparator import compare_results
+    from gitskills.analysis.risk_assessor import RiskAssessor
+
+    line = ('These are PowerShell commands; use `powershell -Command "..."` '
+            'as a placeholder.\nPowerShell commands:\n')
+    scanner = SkillAnalyzer()
+    comparison = compare_results(scanner.scan(line), scanner.scan('\n' + line))
+    assert comparison.evidence_added == comparison.evidence_removed == ()
+    assert comparison.rule_deltas == ()
+    assessment = RiskAssessor().assess(comparison)
+    assert assessment.coverage == 'complete'
+    assert assessment.evidence_partial == 0
+    assert assessment.indicator_count == 0

@@ -257,6 +257,10 @@ class EvidenceExtractor:
         if (re.match(r"(?:requests\.|fs(?:\.promises)?\.|open\s*\(|\.[\w]+\s*\()", matched, re.I)
                 or match.rule_id == "FS-002"):
             return self._api.extract(text, start, end)
+        if match.rule_id == "CMD-002":
+            reference = self._shell.referenced_command(text, start, end)
+            if reference is not None:
+                return reference
         if match.rule_id in {"CMD-002", "NET-002", "FS-001", "FS-003", "EXT-001", "EXT-002", "SYS-001", "SYS-002"}:
             return self._shell.extract(text, start, end)
         if match.rule_id == "NET-001":

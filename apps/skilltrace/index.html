@@ -226,6 +226,7 @@ th{background:var(--panel)}
       <div class="detail-actions">
         <button id="view-diff" hidden>View diff</button>
         <button id="scan-diff" hidden>Run scan</button>
+        <button id="inspect-comparison" hidden>Inspect evidence</button>
       </div>
       <p id="compare-note" class="muted"></p>
     </section>
@@ -235,8 +236,8 @@ th{background:var(--panel)}
       <div class="detail-actions">
         <button id="view-sibling-content" hidden>View content</button>
         <button id="view-sibling-diff" hidden>View diff</button>
-        <button id="inspect-sibling" hidden>Inspect evidence</button>
         <button id="scan-sibling" hidden>Run scan</button>
+        <button id="inspect-sibling" hidden>Inspect evidence</button>
       </div>
       <p id="sibling-note" class="muted"></p>
     </section>
@@ -358,6 +359,7 @@ function clearState() {
   $('#selection-panels').hidden = true;
   $('#view-content').hidden = true;
   $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
+  $('#inspect-comparison').hidden = true;
   $('#inspect-artifact').hidden = true; $('#inspect-sibling').hidden = true; $('#scan-sibling').hidden = true;
   $('#compare-note').textContent = ''; $('#sibling-note').textContent = '';
   $('#report-summary').replaceChildren(); $('#report-summary').hidden = true;
@@ -1214,6 +1216,7 @@ async function loadDetails(compareId = null) {
   $('#detail-content').textContent = 'Loading artifact metadata…';
   $('#view-content').hidden = true;
   $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
+  $('#inspect-comparison').hidden = true;
   $('#inspect-artifact').hidden = true; $('#inspect-sibling').hidden = true; $('#scan-sibling').hidden = true;
   $('#selection-panels').hidden = true;
   selectedRelationship = null; selectedComparison = null; currentDetails = null;
@@ -1234,7 +1237,9 @@ function updateComparisonActions() {
   const hasComparison = Boolean(comparison);
   $('#view-diff').hidden = !hasComparison;
   $('#scan-diff').hidden = !(comparison?.kind === 'parent');
+  $('#inspect-comparison').hidden = !(comparison?.kind === 'parent');
   const dbReady = Boolean(currentDetails?.database?.available);
+  $('#inspect-comparison').disabled = !dbReady;
   $('#inspect-artifact').hidden = false;
   $('#inspect-artifact').disabled = !dbReady;
   $('#inspect-artifact').title = dbReady ? 'Show all rule matches and complete/partial evidence.' : 'DuckDB is unavailable.';
@@ -1728,8 +1733,17 @@ async function openArtifactEvidence() {
 }
 
 async function openSiblingEvidence() {
-  if (selected === null || !currentDetails?.siblings?.length) return;
+  if (selected === null || !$('#sibling').value) return;
   const entryName = $('#sibling').value;
+  if (selectedRelationship && selectedComparison?.kind === 'parent') {
+    const {source, target} = selectedRelationship;
+    showScanDialog(`Sibling evidence · ${source} → ${target} · ${entryName}`);
+    try {
+      const result = await api(route() + `/sibling-scan/${source}/${target}?entry_name=${encodeURIComponent(entryName)}`, {method:'POST'});
+      renderComparisonEvidence(result);
+    } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+    return;
+  }
   const artifactId = currentDetails?.siblings?.some(s => s.entry_name === entryName)
     ? selected : selectedComparison?.id;
   if (artifactId === null || artifactId === undefined) return;
@@ -1737,7 +1751,7 @@ async function openSiblingEvidence() {
   try {
     const result = await api(route() + `/artifacts/${artifactId}/siblings/evidence?entry_name=${encodeURIComponent(entryName)}`);
     const body = $('#scan-body'); body.replaceChildren();
-    body.append(tagEl('p', 'Single-file observations; risk indicators require a directed comparison.', 'muted'));
+    body.append(tagEl('p', 'Single-file observations; introduced behavior requires a directed comparison.', 'muted'));
     appendSourceEvidence(body, result.scan, `Sibling of ${artifactId}`);
     finishedScan(result);
   } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
@@ -1751,6 +1765,38 @@ async function openScan() {
     const result = await api(route() + `/scan/${source}/${target}`, {method: 'POST'});
     renderScan(result);
   } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+}
+
+async function openComparisonEvidence() {
+  if (!selectedRelationship || selectedComparison?.kind !== 'parent') return;
+  const {source, target} = selectedRelationship;
+  showScanDialog(`SKILL.md evidence · ${source} → ${target}`);
+  try {
+    const result = await api(route() + `/scan/${source}/${target}`, {method:'POST'});
+    renderComparisonEvidence(result);
+  } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+}
+
+function renderComparisonEvidence(result) {
+  const body = $('#scan-body'); body.replaceChildren();
+  body.append(tagEl('p', 'All detected evidence, including unchanged records and partial extractions. Run scan to review changes and risk indicators.', 'muted'));
+  if (!result.scan_diff) {
+    appendCoverage(body, result.coverage);
+    if (result.available_scan) {
+      appendSourceEvidence(body, result.available_scan, `Available ${result.available_side} sibling`);
+    } else {
+      body.append(tagEl('p', 'No source content available for evidence inspection.', 'warning'));
+    }
+    finishedScan(result);
+    return;
+  }
+  appendCoverage(body, result.scan_diff.risk_indicators?.coverage);
+  for (const side of ['base', 'derived']) {
+    appendSourceEvidence(body, result.scan_diff[side],
+      `${side === 'base' ? 'Base' : 'Derived'} ${result[side === 'base' ? 'base_id' : 'derived_id']}`);
+  }
+  body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
+  finishedScan(result);
 }
 
 async function openSiblingScan() {
@@ -1768,9 +1814,7 @@ function renderScan(result) {
   if (!result.scan_diff) {
     body.append(tagEl('p', 'This comparison has unavailable source content. Directional security conclusions cannot be made.', 'warning'));
     appendCoverage(body, result.coverage);
-    if (result.available_scan) {
-      appendSourceEvidence(body, result.available_scan, `Available ${result.available_side} sibling`);
-    }
+    body.append(tagEl('p', 'Use Inspect evidence to review the available sibling content.', 'muted'));
     finishedScan(result); return;
   }
   const scan = result.scan_diff;
@@ -1805,12 +1849,7 @@ function renderScan(result) {
     }
     table.append(tbody); body.append(table);
   } else body.append(tagEl('p', 'No rule match counts changed.'));
-  for (const side of ['base', 'derived']) {
-    const details = document.createElement('details'); details.className = 'evidence-report';
-    details.append(tagEl('summary', `${side === 'base' ? 'Base' : 'Derived'} full evidence and rule occurrences`));
-    appendSourceEvidence(details, scan[side], side === 'base' ? `Base ${result.base_id}` : `Derived ${result.derived_id}`);
-    body.append(details);
-  }
+  body.append(tagEl('p', 'Use Inspect evidence to review all base and derived records, including unchanged and partial evidence.', 'muted'));
   body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
   finishedScan(result);
 }
@@ -1841,6 +1880,7 @@ $('#view-sibling-content').onclick = openSiblingContent;
 $('#view-sibling-diff').onclick = openSiblingDiff;
 $('#view-diff').onclick = openDiff;
 $('#scan-diff').onclick = openScan;
+$('#inspect-comparison').onclick = openComparisonEvidence;
 $('#inspect-artifact').onclick = openArtifactEvidence;
 $('#inspect-sibling').onclick = openSiblingEvidence;
 $('#scan-sibling').onclick = openSiblingScan;

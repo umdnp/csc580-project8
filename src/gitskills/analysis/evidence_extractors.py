@@ -29,7 +29,7 @@ _COMMAND = re.compile(
     r"Set-Content|Add-Content|Get-Content)\b",
     re.IGNORECASE,
 )
-_MARKDOWN_LINK = re.compile(r"\[([^]\n]*)]\((https?://[^\s)]+)\)", re.IGNORECASE)
+_MARKDOWN_LINK = re.compile(r"\[([^\]\n]*)\]\((https?://[^\s)]+)\)", re.IGNORECASE)
 
 
 def _trim_span(text: str, start: int, end: int) -> tuple[int, int]:
@@ -42,6 +42,33 @@ def _trim_span(text: str, start: int, end: int) -> tuple[int, int]:
 
 class ShellExtractor:
     """Recover common shell commands and pipelines around existing matches."""
+
+    @staticmethod
+    def referenced_command(text: str, start: int, end: int) -> SourceSpan | None:
+        """Separate explanatory command mentions/templates from executable syntax.
+
+        Only use this for CMD-002 matches. Rule detections remain unchanged,
+        and other technical constructs on the same line are still extracted.
+        """
+        matched = text[start:end]
+        if not re.fullmatch(r"(?:PowerShell|pwsh|cmd\.exe)", matched, re.I):
+            return None
+        line_end = text.find("\n", end)
+        if line_end == -1:
+            line_end = len(text)
+        following = text[end:line_end]
+        # "These are PowerShell commands" and "PowerShell commands:" are
+        # descriptions, not commands with incomplete arguments.
+        if re.match(r"\s+commands?\b(?!\.(?:ps1|cmd|bat|exe)\b)", following, re.I):
+            return SourceSpan("command_reference", start, end,
+                              values=(("reference", matched),))
+        # A self-contained placeholder is a complete template/reference,
+        # not a partly recovered runnable PowerShell command.
+        template = re.match(r"\s+-Command\s+([\"'])(?:\.{3}|…|<[^>\n]+>)\1", following, re.I)
+        if template:
+            return SourceSpan("command_template", start, end + template.end(),
+                              values=(("interpreter", matched), ("placeholder", "true")))
+        return None
 
     def extract(self, text: str, start: int, end: int) -> SourceSpan:
         left = text.rfind("\n", 0, start) + 1

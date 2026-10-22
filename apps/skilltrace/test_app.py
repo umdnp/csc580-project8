@@ -716,6 +716,20 @@ class ViewerTests(unittest.TestCase):
 
         fake_uvicorn.run.assert_called_once_with(server.app, host="127.0.0.1", port=8000)
 
+    def test_comparison_scan_and_full_evidence_are_separate_ui_actions(self):
+        home = self.client.get("/")
+        self.assertEqual(home.status_code, 200)
+        html = home.text
+        self.assertIn('id="inspect-comparison"', html)
+        self.assertLess(html.index('id="scan-diff"'), html.index('id="inspect-comparison"'))
+        self.assertLess(html.index('id="scan-sibling"'), html.index('id="inspect-sibling"'))
+        self.assertIn('function renderComparisonEvidence(result)', html)
+        self.assertIn("$('#inspect-comparison').onclick = openComparisonEvidence", html)
+        # Full base/derived evidence belongs in Inspect evidence, not Run scan.
+        start = html.index('function renderScan(result)')
+        end = html.index("$('#fit').onclick", start)
+        self.assertNotIn('appendSourceEvidence(', html[start:end])
+
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")
         self.assertIs(package.app, server.app)
