@@ -10,6 +10,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Sequence
 
+from gitskills.analysis.evidence_models import Evidence
+
 from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.analysis.comparator import compare_results
 from gitskills.analysis.models import (
@@ -18,6 +20,7 @@ from gitskills.analysis.models import (
     RuleMatch,
 )
 from . import _output
+from ._redaction import redact_text, safe_excerpt
 
 
 LOGGER = logging.getLogger("gitskills.scan_diff")
@@ -81,8 +84,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     comparison = compare_results(base_result, derived_result)
 
     _log_rule_changes(comparison, verbose=args.verbose)
+    _log_evidence_changes(comparison, base_text=base_text, derived_text=derived_text)
 
     payload = comparison.to_dict(verbose=args.verbose)
+    payload["evidence_comparison"] = {
+        "removed": [
+            _report_evidence(item, base_text) for item in comparison.evidence_removed
+        ],
+        "added": [
+            _report_evidence(item, derived_text) for item in comparison.evidence_added
+        ],
+    }
     if output_dir is not None:
         try:
             _output.write_json(
@@ -126,6 +138,7 @@ def _log_rule_changes(
     for rule_match in comparison.derived.rule_matches:
         matches_by_rule[rule_match.rule_id].append(rule_match)
 
+    LOGGER.info("RULE COMPARISON")
     for rule_delta in comparison.rule_deltas:
         rule_matches = matches_by_rule.get(rule_delta.rule_id, [])
         description = _rule_description(
@@ -163,15 +176,67 @@ def _rule_description(
     return "Rule match count changed"
 
 
+def _source_line(text: str, offset: int | None) -> int | None:
+    """Return a 1-based line number for an evidence source span."""
+
+    if offset is None:
+        return None
+    return text.count("\n", 0, offset) + 1
+
+
+def _report_evidence(evidence: Evidence, source_text: str) -> dict[str, object]:
+    """Build a safe JSON view without exporting raw or normalized evidence."""
+
+    context = evidence.context
+    return {
+        "type": evidence.kind,
+        "rule_ids": list(evidence.rule_ids),
+        "source": {
+            "filename": redact_text(evidence.filename),
+            "start_line": _source_line(source_text, evidence.start_offset),
+            "end_line": _source_line(
+                source_text,
+                evidence.end_offset - 1 if evidence.end_offset is not None else None,
+            ),
+        },
+        "context": {
+            "type": context.kind,
+            "language": context.language,
+            "heading": redact_text(context.heading) if context.heading else None,
+        },
+        "extraction_status": evidence.extraction_status.value,
+        "excerpt": safe_excerpt(evidence.raw_text),
+    }
+
+
+def _log_evidence_changes(
+    comparison: AnalysisComparison, *, base_text: str, derived_text: str,
+) -> None:
+    """Print redacted evidence once per source construct, grouped by change."""
+
+    LOGGER.info("EVIDENCE COMPARISON")
+    for label, evidence_list, source in (
+        ("REMOVED", comparison.evidence_removed, base_text),
+        ("ADDED", comparison.evidence_added, derived_text),
+    ):
+        LOGGER.info("%s (%d)", label, len(evidence_list))
+        for evidence in evidence_list:
+            report = _report_evidence(evidence, source)
+            position = report["source"]
+            LOGGER.info(
+                "  [%s] %s (%s:%s): %s",
+                ", ".join(evidence.rule_ids),
+                evidence.kind,
+                position["filename"],
+                position["start_line"] or "?",
+                report["excerpt"],
+            )
+
+
 def _safe_excerpt(rule_match: RuleMatch) -> str:
     if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
         return "[credential-related content redacted]"
-
-    text = " ".join((rule_match.matched_text or "").split())
-    if len(text) <= MAX_EXCERPT_LENGTH:
-        return text
-
-    return f"{text[:MAX_EXCERPT_LENGTH - 3]}..."
+    return safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
 
 
 if __name__ == "__main__":
