@@ -730,6 +730,22 @@ class ViewerTests(unittest.TestCase):
         end = html.index("$('#fit').onclick", start)
         self.assertNotIn('appendSourceEvidence(', html[start:end])
 
+    def test_inspect_evidence_uses_aligned_comparison_groups(self):
+        html = self.client.get("/").text
+        # A single expansion shows Base and Derived together, with explicit gaps.
+        for marker in ("function appendPairedSourceEvidence(",
+                       "function pairedInspectionGroups(",
+                       "function alignInspectionRecords(",
+                       "No matching record on this side", "Unmatched only",
+                       "Partial / unsupported only", ".paired-row"):
+            self.assertIn(marker, html)
+        start = html.index("function renderComparisonEvidence(result)")
+        end = html.index("async function openSiblingScan()", start)
+        self.assertIn("appendPairedSourceEvidence(body, result.scan_diff.base, result.scan_diff.derived", html[start:end])
+        self.assertNotIn("for (const side of ['base', 'derived'])", html[start:end])
+        # Missing sibling content remains visible, not misreported as a deletion.
+        self.assertIn("result.available_side === 'base' ? result.available_scan : null", html[start:end])
+
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")
         self.assertIs(package.app, server.app)

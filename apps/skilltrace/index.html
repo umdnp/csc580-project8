@@ -131,6 +131,34 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .evidence-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px}
 .evidence-report details>summary{font-weight:600;cursor:pointer;margin:8px 0}
 
+/* Paired inspection keeps the two sources aligned within each expandable group. */
+.paired-inspection{display:grid;gap:14px;margin:12px 0 18px;min-width:0}
+.paired-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.paired-source{border:1px solid var(--border);border-radius:7px;background:var(--panel);padding:11px;min-width:0}
+.paired-source h3{margin:0 0 6px}
+.paired-source .evidence-stats{margin:6px 0}
+.paired-group{border:1px solid var(--border);border-radius:7px;min-width:0;overflow:hidden}
+.paired-row[hidden],.paired-group[hidden]{display:none}
+.paired-group>summary{cursor:pointer;padding:10px 12px;background:var(--panel);font-weight:600;overflow-wrap:anywhere}
+.paired-group>summary .paired-counts{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
+.paired-group[open]>summary{border-bottom:1px solid var(--border)}
+.paired-heading{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:8px 10px;font-weight:600;font-size:13px;color:var(--muted)}
+.paired-heading>div{min-width:0}
+.paired-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:7px 10px;border-top:1px solid var(--border);min-width:0}
+.paired-cell{min-width:0;display:flex;flex-direction:column}
+.paired-cell>.evidence-entry{margin:0;flex:1}
+.paired-cell.base-only>.evidence-entry{background:var(--removed)}
+.paired-cell.derived-only>.evidence-entry{background:var(--added)}
+.paired-missing{border:1px dashed var(--border);border-radius:6px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:70px;color:var(--muted);font-size:13px;text-align:center}
+.paired-status{display:block;font-size:12px;font-weight:650;margin:0 0 5px}
+.paired-cell.base-only .paired-status{color:var(--orange)}
+.paired-cell.derived-only .paired-status{color:var(--green)}
+.paired-filter{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0}
+.paired-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-size:13px}
+.paired-inspection>h3{margin:6px 0 0}
+.paired-inspection .evidence-entry .entry-context{overflow-wrap:anywhere}
+@media(max-width:760px){.paired-columns,.paired-heading,.paired-row{grid-template-columns:1fr}.paired-heading{display:none}.paired-cell:before{content:attr(data-side);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:4px}}
+
 /* Dialogs */
 dialog{width:min(96vw,1500px);height:min(92vh,980px);padding:0;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg)}
 dialog.health-dialog{position:fixed;inset:0;margin:auto;width:min(92vw,620px);height:auto;max-height:min(80vh,560px)}
@@ -1680,6 +1708,159 @@ function appendSourceEvidence(parent, source, title) {
   parent.append(section);
 }
 
+// Align only identical visible constructs; never treat redacted excerpts as proven equal.
+// These pairs are for inspection, not the evidence comparator's security conclusions.
+function inspectionIdentity(text) {
+  const value = String(text ?? '').trim().replace(/\s+/g, ' ');
+  return !value || value.includes('[REDACTED]') ? null : value;
+}
+
+function alignInspectionRecords(base, derived, identity) {
+  const waiting = new Map();
+  derived.forEach((record, index) => {
+    const key = identity(record);
+    if (key === null) return;
+    if (!waiting.has(key)) waiting.set(key, []);
+    waiting.get(key).push(index);
+  });
+  const consumed = new Set();
+  const pairs = base.map(record => {
+    const key = identity(record);
+    const indices = key === null ? [] : (waiting.get(key) || []);
+    const index = indices.length ? indices.shift() : undefined;
+    if (index === undefined) return {base:record, derived:null};
+    consumed.add(index);
+    return {base:record, derived:derived[index]};
+  });
+  derived.forEach((record, index) => {
+    if (!consumed.has(index)) pairs.push({base:null, derived:record});
+  });
+  return pairs;
+}
+
+function groupedInspectionRecords(records, groupKey) {
+  const groups = new Map();
+  for (const record of records || []) {
+    const key = groupKey(record);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(record);
+  }
+  return groups;
+}
+
+function ruleOccurrenceEntry(match) {
+  const node = document.createElement('article'); node.className = 'evidence-entry';
+  node.append(tagEl('div', `[${match.rule_id}] ${match.matched_text || match.description || 'Rule match'}`, 'entry-title'));
+  node.append(tagEl('div', `${match.category || 'unknown category'} · line ${match.line_number ?? '?'} · ${match.description || ''}`, 'entry-context'));
+  return node;
+}
+
+function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, options) {
+  const section = document.createElement('section'); section.className = 'paired-inspection';
+  section.append(tagEl('h3', `${title} · Base ${baseRecords.length} / Derived ${derivedRecords.length}`));
+  const filter = document.createElement('div'); filter.className = 'paired-filter';
+  const differenceInput = document.createElement('input'); differenceInput.type = 'checkbox';
+  const differencesLabel = document.createElement('label');
+  differencesLabel.append(differenceInput, tagEl('span', 'Unmatched only'));
+  filter.append(differencesLabel);
+  let partialInput = null;
+  if (options.showPartialFilter) {
+    partialInput = document.createElement('input'); partialInput.type = 'checkbox';
+    const partialLabel = document.createElement('label');
+    partialLabel.append(partialInput, tagEl('span', 'Partial / unsupported only'));
+    filter.append(partialLabel);
+  }
+  section.append(filter);
+  const left = groupedInspectionRecords(baseRecords, options.groupKey);
+  const right = groupedInspectionRecords(derivedRecords, options.groupKey);
+  const groupKeys = [...new Set([...left.keys(), ...right.keys()])].sort();
+  if (!groupKeys.length) section.append(tagEl('p', 'No records on either side.', 'muted'));
+  const groups = [];
+  for (const key of groupKeys) {
+    const base = left.get(key) || [], derived = right.get(key) || [];
+    const pairs = alignInspectionRecords(base, derived, options.identity);
+    const baseOnly = pairs.filter(p => p.base && !p.derived).length;
+    const derivedOnly = pairs.filter(p => !p.base && p.derived).length;
+    const details = document.createElement('details'); details.className = 'paired-group';
+    details.open = !!(baseOnly || derivedOnly);
+    const summary = document.createElement('summary');
+    summary.append(tagEl('span', key), tagEl('span', `Base ${base.length} · Derived ${derived.length} · unmatched ${baseOnly} / ${derivedOnly}`, 'paired-counts'));
+    details.append(summary);
+    const headings = document.createElement('div'); headings.className = 'paired-heading';
+    headings.append(tagEl('div', 'Base'), tagEl('div', 'Derived'));
+    details.append(headings);
+    const rows = [];
+    for (const pair of pairs) {
+      const row = document.createElement('div'); row.className = 'paired-row';
+      const unmatched = !pair.base || !pair.derived;
+      row.dataset.unmatched = String(unmatched);
+      row.dataset.partial = String([pair.base, pair.derived].some(r => r && r.extraction_status && r.extraction_status !== 'complete'));
+      for (const side of ['base', 'derived']) {
+        const cell = document.createElement('div'); cell.className = 'paired-cell'; cell.dataset.side = side === 'base' ? 'Base' : 'Derived';
+        const record = pair[side];
+        if (record) {
+          if (unmatched) {
+            cell.classList.add(side === 'base' ? 'base-only' : 'derived-only');
+            cell.append(tagEl('span', side === 'base' ? 'Unmatched on Base' : 'Unmatched on Derived', 'paired-status'));
+          }
+          cell.append(options.render(record));
+        } else {
+          cell.append(tagEl('div', 'No matching record on this side', 'paired-missing'));
+        }
+        row.append(cell);
+      }
+      details.append(row); rows.push(row);
+    }
+    section.append(details); groups.push({details, rows});
+  }
+  function applyFilters() {
+    for (const {details, rows} of groups) {
+      let visible = 0;
+      for (const row of rows) {
+        row.hidden = (differenceInput.checked && row.dataset.unmatched !== 'true') ||
+          (partialInput?.checked && row.dataset.partial !== 'true');
+        if (!row.hidden) visible++;
+      }
+      details.hidden = visible === 0;
+    }
+  }
+  differenceInput.onchange = applyFilters;
+  if (partialInput) partialInput.onchange = applyFilters;
+  parent.append(section);
+}
+
+function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId) {
+  const sources = document.createElement('div'); sources.className = 'paired-columns';
+  for (const [name, id, source] of [['Base', baseId, base], ['Derived', derivedId, derived]]) {
+    const block = document.createElement('section'); block.className = 'paired-source';
+    block.append(tagEl('h3', `${name} ${id} · ${source?.filename || 'source content'}`));
+    if (source) {
+      appendExtractionSummary(block, source.extraction, source.evidence_count);
+      block.append(tagEl('p', `${source.rule_match_count ?? 0} rule matches · capabilities: ${profileList(source.profile)}`, 'muted'));
+    } else {
+      block.append(tagEl('p', 'Content unavailable. This does not establish that the file was deleted or introduced.', 'warning'));
+    }
+    sources.append(block);
+  }
+  parent.append(sources);
+  if (!base || !derived) {
+    parent.append(tagEl('p', 'The unavailable side cannot be compared. Unmatched records below are for inspection only.', 'warning'));
+  }
+  parent.append(tagEl('p', 'Rows align by matching visible text, ignoring whitespace and line-number shifts. Unmatched records are not by themselves evidence of introduction or removal; redacted values are never assumed to match.', 'muted'));
+  pairedInspectionGroups(parent, 'Extracted evidence', base?.evidence || [], derived?.evidence || [], {
+    groupKey:e => `${e.type || 'other'} · ${(e.rule_ids || []).slice().sort().join(', ') || 'no rule'}`,
+    identity:e => inspectionIdentity(e.excerpt) === null ? null :
+      JSON.stringify([e.type, (e.rule_ids || []).slice().sort(), inspectionIdentity(e.excerpt)]),
+    render:evidenceEntry, showPartialFilter:true,
+  });
+  pairedInspectionGroups(parent, 'Rule occurrences', base?.matches || [], derived?.matches || [], {
+    groupKey:e => e.rule_id || 'Unknown rule',
+    identity:e => inspectionIdentity(e.matched_text) === null ? null :
+      JSON.stringify([e.rule_id, e.category, e.description, inspectionIdentity(e.matched_text)]),
+    render:ruleOccurrenceEntry,
+  });
+}
+
 function appendCoverage(parent, coverage = {}) {
   const block = document.createElement('section'); block.className = 'meta-box evidence-report';
   block.append(tagEl('h3', `Evidence coverage: ${coverage.status || 'unknown'}`));
@@ -1782,19 +1963,16 @@ function renderComparisonEvidence(result) {
   body.append(tagEl('p', 'All detected evidence, including unchanged records and partial extractions. Run scan to review changes and risk indicators.', 'muted'));
   if (!result.scan_diff) {
     appendCoverage(body, result.coverage);
-    if (result.available_scan) {
-      appendSourceEvidence(body, result.available_scan, `Available ${result.available_side} sibling`);
-    } else {
-      body.append(tagEl('p', 'No source content available for evidence inspection.', 'warning'));
-    }
+    appendPairedSourceEvidence(body,
+      result.available_side === 'base' ? result.available_scan : null,
+      result.available_side === 'derived' ? result.available_scan : null,
+      result.base_id, result.derived_id);
     finishedScan(result);
     return;
   }
   appendCoverage(body, result.scan_diff.risk_indicators?.coverage);
-  for (const side of ['base', 'derived']) {
-    appendSourceEvidence(body, result.scan_diff[side],
-      `${side === 'base' ? 'Base' : 'Derived'} ${result[side === 'base' ? 'base_id' : 'derived_id']}`);
-  }
+  appendPairedSourceEvidence(body, result.scan_diff.base, result.scan_diff.derived,
+    result.base_id, result.derived_id);
   body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
   finishedScan(result);
 }

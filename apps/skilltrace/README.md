@@ -154,11 +154,23 @@ at the same path across a directed pair. Both comparisons focus on changes:
 
 **Inspect evidence** in **Compare To** or **Artifact Siblings** opens the full
 base and derived evidence records and rule occurrences for the directed pair,
-including unchanged records and partial extractions. The **Selected Artifact →
-Inspect evidence** action still inspects just the selected `SKILL.md`. For a
-sibling without a directed comparison, **Inspect evidence** inspects one
-available file. Evidence is extracted during scanning; the separate UI actions
-make detailed records optional rather than duplicating them in the scan report.
+including unchanged records and partial extractions. Paired inspection
+uses **Base** and **Derived** columns within each expandable evidence type or
+rule ID, so opening a group reveals both sides together. Matching visible
+records are aligned regardless of line-number shifts; unpaired records show an
+explicit blank counterpart and can be isolated with **Unmatched only**. The
+evidence groups also have a **Partial / unsupported only** filter. Alignment is
+for reviewing source observations and does not replace the scanner's evidence
+comparison or establish that behavior was introduced. In particular, redacted
+excerpts are never assumed identical.
+
+The **Selected Artifact → Inspect evidence** action still inspects just the
+selected `SKILL.md`. For a sibling without a directed comparison, **Inspect
+evidence** inspects one available file. Where only one sibling's content is
+available for a directed comparison, the other side remains visibly unavailable;
+this is not treated as a proven addition or deletion. Evidence is extracted
+during scanning; the separate UI actions make detailed records optional rather
+than duplicating them in the scan report.
 
 Scans remain limited to directed parent/derived relationships recorded by
 `analyze_family`. An ambiguous peer pair cannot support an introduction claim,
