@@ -126,22 +126,66 @@ You can:
 
 Diff panes contain alignment rows for side-by-side display. Use **Copy Contents** when you need the original database text; it copies the raw content rather than the rendered diff pane.
 
-## Security Scanning
+## Evidence and Risk-Indicator Inspection
 
-For a directed parent-to-derived relationship, **Run scan** performs the project's static security comparison on demand.
+The **Selected Artifact** panel offers **Inspect evidence** to statically scan the
+stored `SKILL.md`. The **Artifact Siblings** panel offers **Inspect evidence**
+for the selected content-bearing sibling file. The sibling dropdown includes paths
+from **both** selected and compared artifacts, so you can investigate evidence
+removed from an earlier sibling as well as evidence added to a later one.
+Paths present only in the compared artifact are labeled accordingly. Inspection displays:
 
-The scan reports changes in security-sensitive behavior such as:
+- Rule matches and detected capabilities;
+- **all** extracted evidence records, including unchanged observations;
+- Complete, partial, and unsupported extraction counts;
+- Source filename, available sibling ID, offsets, line numbers, rule IDs,
+  Markdown/code context and a redacted source excerpt; and
+- A **Partial / unsupported only** filter for investigating extraction gaps.
 
-- command execution;
-- network access;
-- file-system operations;
-- credential or secret references;
-- external package or script execution; and
-- other configured security-rule matches.
+The **Compare To → Run scan** action compares directed `SKILL.md` artifacts.
+The **Artifact Siblings → Run scan** action compares the selected sibling file
+at the same path across a directed pair. Both comparisons report:
 
-SkillTrace scans stored text only. It does not execute artifact or sibling content.
+- Original rule-count changes and source matches;
+- Evidence added and removed, even where rule counts are unchanged;
+- All base and derived evidence, including unchanged partial records;
+- Supported and uncertain RDR-010 risk indicators, linked to their evidence;
+- Indicator and distinct-finding counts; and
+- Coverage and extraction counts.
 
-A scan finding identifies behavior that warrants review; it does not establish malicious intent.
+Scans remain limited to directed parent/derived relationships recorded by
+`analyze_family`. An ambiguous peer pair cannot support an introduction claim,
+so **Run scan** is disabled for those pairs. Artifact scans analyze `SKILL.md`
+only; sibling scans analyze the selected sibling file only. These on-demand
+scans do **not** reproduce the full family-level sibling change assessment in
+`scan_family`, including its RI-010 invocation/hash correlation.
+
+If a sibling is present in the available content rows on only one side,
+SkillTrace displays the available source evidence and **incomplete coverage**;
+it does not treat the missing row as proof that the file was newly introduced.
+Sibling inspection and sibling comparisons use the content-bearing files
+available in DuckDB, not a complete inventory of unavailable sibling text.
+
+**Copy report JSON** copies the current evidence inspection or comparison as
+structured JSON, including extraction status and nearby source context, so
+partial examples can be reviewed independently. These reports use best-effort
+secret redaction; **review copied excerpts before sharing them**. The raw
+file-content viewer and its **Copy Contents** action remain intentionally
+unredacted.
+
+These are static observations and indicators for manual review, not proof of
+malicious behavior or of complete security coverage. SkillTrace never executes,
+downloads, or fetches any stored skill or sibling script.
+
+### On-demand API endpoints
+
+- `GET /api/reports/{filename}/artifacts/{id}/evidence`
+- `GET /api/reports/{filename}/artifacts/{id}/siblings/evidence?entry_name=...`
+- `POST /api/reports/{filename}/scan/{base_id}/{derived_id}`
+- `POST /api/reports/{filename}/sibling-scan/{base_id}/{derived_id}?entry_name=...`
+
+All endpoints require the selected artifact(s) to belong to the current
+`analyze_family` report. The sibling pair scan requires a directed edge.
 
 ## DuckDB Availability
 

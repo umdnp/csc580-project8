@@ -37,6 +37,16 @@ class RiskAssessment:
     policy_version: str = POLICY_VERSION
     coverage: str = "complete"
     coverage_notes: tuple[str, ...] = ()
+    evidence_complete: int = 0
+    evidence_partial: int = 0
+    evidence_unsupported: int = 0
+    missing_sibling_content: int = 0
+    unknown_sibling_hashes: int = 0
+    sibling_listing_incomplete: bool = False
+
+    @property
+    def evidence_total(self) -> int:
+        return self.evidence_complete + self.evidence_partial + self.evidence_unsupported
 
     @property
     def supported(self) -> tuple[RiskIndicator, ...]:

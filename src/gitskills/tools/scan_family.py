@@ -291,7 +291,21 @@ def _print_flagged_pair(
         if assessment.uncertain:
             print(f"{indent}    Uncertain observations: {len(assessment.uncertain)}")
     if assessment.coverage != "complete":
-        print(f"{indent}  Evidence coverage: incomplete")
+        sibling_incomplete = (assessment.missing_sibling_content
+                              or assessment.unknown_sibling_hashes
+                              or assessment.sibling_listing_incomplete)
+        label = "incomplete" if sibling_incomplete else "partial"
+        print(f"{indent}  Evidence coverage: {label}")
+        print(f"{indent}    {assessment.evidence_complete} of {assessment.evidence_total} "
+              "evidence records fully extracted")
+        print(f"{indent}    Partially extracted: {assessment.evidence_partial}")
+        print(f"{indent}    Unsupported: {assessment.evidence_unsupported}")
+        missing = str(assessment.missing_sibling_content) if assessment.missing_sibling_content else "none"
+        print(f"{indent}    Missing sibling content: {missing}")
+        if assessment.unknown_sibling_hashes:
+            print(f"{indent}    Unknown sibling hashes: {assessment.unknown_sibling_hashes}")
+        if assessment.sibling_listing_incomplete:
+            print(f"{indent}    Sibling listing incomplete")
 
     if pair.sibling_scan is not None and pair.sibling_scan.incomplete:
         _print_sibling_warning(pair.sibling_scan, indent=f"{indent}  ")

@@ -327,13 +327,18 @@ class RiskAssessor:
             if script and script in base_scripts and base_hashes.get(script) and derived_hashes.get(script):
                 if base_hashes[script] != derived_hashes[script]:
                     add("RI-010", "Invoked sibling script content changed", e, old=base_scripts[script])
-        incomplete = any(e.extraction_status != ExtractionStatus.COMPLETE
-                         for result in (comparison.base, comparison.derived)
-                         for e in result.evidence)
+        evidence = (*comparison.base.evidence, *comparison.derived.evidence)
+        complete = sum(e.extraction_status == ExtractionStatus.COMPLETE for e in evidence)
+        partial = sum(e.extraction_status == ExtractionStatus.PARTIAL for e in evidence)
+        unsupported = sum(e.extraction_status == ExtractionStatus.UNSUPPORTED for e in evidence)
+        incomplete = bool(partial or unsupported)
         return RiskAssessment(
             indicators=tuple(results),
             coverage="incomplete" if incomplete else "complete",
             coverage_notes=("Partial or unsupported evidence extraction",) if incomplete else (),
+            evidence_complete=complete,
+            evidence_partial=partial,
+            evidence_unsupported=unsupported,
         )
 
     @staticmethod

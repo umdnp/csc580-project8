@@ -197,12 +197,20 @@ class FamilyRiskAnalyzer:
                         siblings_by_artifact.get(edge.target_artifact_id, ())
                     ),
                 )
-                if sibling_summary is not None and sibling_summary.incomplete:
+                if sibling_summary is not None:
+                    missing_content = (len(sibling_summary.unavailable_source_ids)
+                                       + len(sibling_summary.unavailable_destination_ids))
+                    unknown_hashes = (len(sibling_summary.unknown_sha_source_ids)
+                                      + len(sibling_summary.unknown_sha_destination_ids))
                     assessment = replace(
                         assessment,
-                        coverage="incomplete",
-                        coverage_notes=assessment.coverage_notes
-                        + ("Unavailable or unknown sibling data",),
+                        missing_sibling_content=missing_content,
+                        unknown_sibling_hashes=unknown_hashes,
+                        sibling_listing_incomplete=sibling_summary.listing_incomplete,
+                        coverage="incomplete" if sibling_summary.incomplete else assessment.coverage,
+                        coverage_notes=(assessment.coverage_notes
+                                        + ("Unavailable or unknown sibling data",))
+                        if sibling_summary.incomplete else assessment.coverage_notes,
                     )
 
                 flagged_rules = tuple(
