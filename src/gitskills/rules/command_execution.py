@@ -26,4 +26,9 @@ class CommandInvocationRule(RegexRule):
         r"(?<![\w.-])(?:bash|sh|zsh|fish|python(?:\d+(?:\.\d+)*)?|"
         r"node|bun|uv|uvx|npm|npx|pnpm|yarn|pip(?:\d+(?:\.\d+)*)?|docker|"
         r"powershell(?:\.exe)?|pwsh(?:\.exe)?|cmd\.exe)[ \t]+(?=[^\s`])",
+        # A local script at the start of a command line. Requiring a script
+        # extension and line-start avoids treating inline path references as
+        # invocations (e.g., "See `./scripts/install.sh`").
+        r"^[ \t]*\./(?:[\w.-]+/)*[\w.-]+\.(?:sh|bash|py|js|mjs|ps1)"
+        r"(?=$|[ \t;|&])",
     )

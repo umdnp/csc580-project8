@@ -20,7 +20,8 @@ class SourceSpan:
 _URL = re.compile(r"https?://[^\s<>()\"']+", re.IGNORECASE)
 _API = re.compile(r"(?:\b(?:requests|fs(?:\.promises)?)\.[\w]+|\bopen|\.[\w]+)\s*\(")
 _COMMAND = re.compile(
-    r"(?<![\w.-])(?:sudo|su|curl|wget|python(?:\d+(?:\.\d+)*)?|bash|sh|zsh|"
+    r"(?<![\w.-])(?:\./(?:[\w.-]+/)*[\w.-]+\.(?:sh|bash|py|js|mjs|ps1)|"
+    r"sudo|su|curl|wget|python(?:\d+(?:\.\d+)*)?|bash|sh|zsh|"
     r"node|bun|uvx?|npm|npx|pnpm|yarn|pip\d*|docker|pwsh|powershell|cmd\.exe|"
     r"rm|mv|cp|mkdir|touch|cat|less|more|chmod|chown|setfacl|systemctl|"
     r"service|crontab|apt(?:-get)?|dnf|yum|brew|"

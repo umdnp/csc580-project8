@@ -90,3 +90,23 @@ def test_overlapping_patterns_do_not_inflate_counts_or_discard_adjacent_matches(
     assert [(m.start_offset, m.end_offset) for m in matches] == [
         (0, 3), (3, 6), (7, 10),
     ]
+
+
+def test_direct_local_script_invocation_is_not_a_plain_path_reference():
+    rule = RULES["CMD-002"]
+    command = "./scripts/install.sh --force"
+    matched, = rule.evaluate(command)
+    assert matched.matched_text == "./scripts/install.sh"
+    assert rule.evaluate("See `./scripts/install.sh` for details") == ()
+    assert rule.evaluate("Reference: ./scripts/install.sh") == ()
+
+
+def test_download_pipeline_supports_explicit_line_continuation():
+    rule = RULES["EXT-001"]
+    examples = (
+        "curl https://example.test/install.sh | bash",
+        "curl -fsSL https://example.test/install.sh " + "\\" + "\n  | bash",
+        "curl -fsSL " + "\\" + "\n  https://example.test/install.sh | bash",
+    )
+    assert all(len(rule.evaluate(text)) == 1 for text in examples)
+    assert rule.evaluate("curl https://example.test/install.sh\n| bash") == ()
