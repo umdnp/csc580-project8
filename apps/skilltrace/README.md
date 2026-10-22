@@ -128,49 +128,49 @@ Diff panes contain alignment rows for side-by-side display. Use **Copy Contents*
 
 ## Evidence and Risk-Indicator Inspection
 
-The **Selected Artifact** panel offers **Inspect evidence** to statically scan the
-stored `SKILL.md`. The **Artifact Siblings** panel offers **Inspect evidence**
-for the selected content-bearing sibling file. The sibling dropdown includes paths
-from **both** selected and compared artifacts, so you can investigate evidence
-removed from an earlier sibling as well as evidence added to a later one.
-Paths present only in the compared artifact are labeled accordingly. Inspection displays:
+The **Selected Artifact** panel offers **Inspect evidence** for its stored
+`SKILL.md`. The **Artifact Siblings** panel offers **Run scan** and
+**Inspect evidence** for the chosen sibling path. Paths recorded on either side
+of the relationship are selectable.
 
-- Rule matches and detected capabilities;
-- **all** extracted evidence records, including unchanged observations;
+**Run scan** is the comparison summary:
+
+- Base and Derived rule matches and capabilities;
+- A synchronized Base/Derived **Rule occurrences** explorer organized by rule ID;
+- Rule-count changes, evidence-change totals (without repeating evidence details);
+- Supported and uncertain RDR-010 risk indicators with counts and reasons; and
+- Evidence extraction and sibling-comparison coverage.
+
+**Inspect evidence** is the supporting detail:
+
+- All extracted evidence records, including unchanged observations;
 - Complete, partial, and unsupported extraction counts;
-- Source filename, available sibling ID, offsets, line numbers, rule IDs,
-  Markdown/code context and a redacted source excerpt; and
-- A **Partial / unsupported only** filter for investigating extraction gaps.
+- Source filename and sibling ID, offsets, lines, associated rule IDs,
+  Markdown/code context, and redacted excerpts;
+- An aligned Base/Derived **Extracted evidence** explorer with **Unmatched only**
+  and **Partial / unsupported only** filters.
 
-The **Compare To → Run scan** action compares directed `SKILL.md` artifacts.
-The **Artifact Siblings → Run scan** action compares the selected sibling file
-at the same path across a directed pair. Both comparisons focus on changes:
+Each expandable group has **one shared toggle** for Base and Derived. The
+**Nearby source context** control also expands and collapses both sides together.
+Missing matches appear as explicitly empty cells. Alignment is a visual aid,
+not a security conclusion; redacted excerpts are never assumed identical.
+You can switch between Run scan and Inspect evidence inside the same dialog
+without another database request. Both **Copy report JSON** actions preserve
+the full scan payload for review.
 
-- Original capability and rule-count changes;
-- Evidence added and removed, even where rule counts are unchanged;
-- Supported and uncertain RDR-010 risk indicators with supporting evidence;
-- Indicator and distinct-finding counts; and
-- Coverage and extraction counts.
+A one-sided sibling scan now distinguishes:
 
-**Inspect evidence** in **Compare To** or **Artifact Siblings** opens the full
-base and derived evidence records and rule occurrences for the directed pair,
-including unchanged records and partial extractions. Paired inspection
-uses **Base** and **Derived** columns within each expandable evidence type or
-rule ID, so opening a group reveals both sides together. Matching visible
-records are aligned regardless of line-number shifts; unpaired records show an
-explicit blank counterpart and can be isolated with **Unmatched only**. The
-evidence groups also have a **Partial / unsupported only** filter. Alignment is
-for reviewing source observations and does not replace the scanner's evidence
-comparison or establish that behavior was introduced. In particular, redacted
-excerpts are never assumed identical.
+- **Available:** recorded sibling with readable content;
+- **Absent:** absent from an explicitly complete stored composition listing
+  with zero siblings, not proof of its historical absence;
+- **Unavailable:** a sibling record exists but its content cannot be read;
+- **Not recorded:** no matching record, with insufficient information to verify
+  the completeness of the stored listing.
 
-The **Selected Artifact → Inspect evidence** action still inspects just the
-selected `SKILL.md`. For a sibling without a directed comparison, **Inspect
-evidence** inspects one available file. Where only one sibling's content is
-available for a directed comparison, the other side remains visibly unavailable;
-this is not treated as a proven addition or deletion. Evidence is extracted
-during scanning; the separate UI actions make detailed records optional rather
-than duplicating them in the scan report.
+The one-sided view preserves available-side rule matches and evidence, but makes
+no directional introduction/deletion claim. `scan_family` additionally reports
+paths recorded only on one side separately from sibling records whose content
+could not be scanned.
 
 Scans remain limited to directed parent/derived relationships recorded by
 `analyze_family`. An ambiguous peer pair cannot support an introduction claim,

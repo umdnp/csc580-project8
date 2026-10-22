@@ -418,9 +418,13 @@ class FamilyRiskAnalyzer:
             )
         )
 
+        source_paths = {sibling.entry_name for sibling in source_files}
+        destination_paths = {sibling.entry_name for sibling in destination_files}
         summary = SiblingScanSummary(
             source_files=len(source_files),
             destination_files=len(destination_files),
+            recorded_base_only_paths=tuple(sorted(source_paths - destination_paths)),
+            recorded_derived_only_paths=tuple(sorted(destination_paths - source_paths)),
             new_or_changed_destination_ids=tuple(
                 sorted(destination_only_ids)
             ),

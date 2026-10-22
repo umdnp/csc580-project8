@@ -486,6 +486,8 @@ _ARTIFACT_FIELDS = (
     "file_sha",
     "discovered_at",
     "content_fetched",
+    "composition_fetched",
+    "sibling_count",
     "frontmatter_valid",
     "name",
     "description",
@@ -599,8 +601,9 @@ def fetch_sibling_records(
     *,
     entry_name: str | None = None,
     include_content: bool = False,
+    require_content: bool = True,
 ) -> list[dict]:
-    """Read content-bearing file siblings for one artifact from DuckDB."""
+    """Read stored file siblings; optionally retain rows with missing content."""
 
     database = database_path()
     if not database.exists():
@@ -639,7 +642,12 @@ def fetch_sibling_records(
             fields.append("content")
 
         selections = [f'"{field}"' for field in fields]
-        conditions = ["artifact_id = ?", "entry_type = 'file'", "content IS NOT NULL"]
+        if not include_content:
+            selections.append('(content IS NOT NULL) AS content_available')
+            fields.append('content_available')
+        conditions = ["artifact_id = ?", "entry_type = 'file'"]
+        if require_content:
+            conditions.append("content IS NOT NULL")
         parameters: list[object] = [int(artifact_id)]
         if entry_name is not None:
             conditions.append("entry_name = ?")
@@ -1063,7 +1071,8 @@ def _artifact_source(artifact_id: int) -> tuple[dict, str]:
 
 def _sibling_source(artifact_id: int, entry_name: str) -> dict | None:
     try:
-        rows = fetch_sibling_records(artifact_id, entry_name=entry_name, include_content=True)
+        rows = fetch_sibling_records(artifact_id, entry_name=entry_name,
+                                     include_content=True, require_content=False)
     except DatabaseAccessError as exc:
         raise HTTPException(503, str(exc)) from exc
     return rows[0] if rows else None
@@ -1197,7 +1206,7 @@ def artifact_details(
     siblings = []
     siblings_error = None
     try:
-        siblings = fetch_sibling_records(artifact_id)
+        siblings = fetch_sibling_records(artifact_id, require_content=False)
     except DatabaseAccessError as exc:
         siblings_error = str(exc)
         database_errors.append(siblings_error)
@@ -1205,7 +1214,7 @@ def artifact_details(
     compare_siblings = []
     if selected_comparison is not None:
         try:
-            compare_siblings = fetch_sibling_records(selected_comparison["id"])
+            compare_siblings = fetch_sibling_records(selected_comparison["id"], require_content=False)
         except DatabaseAccessError as exc:
             database_errors.append(str(exc))
 
@@ -1357,8 +1366,10 @@ def sibling_diff(
     comparison = _comparison_for(report, compare_id, selected_id)
 
     try:
-        left_rows = fetch_sibling_records(compare_id, entry_name=entry_name, include_content=True)
-        right_rows = fetch_sibling_records(selected_id, entry_name=entry_name, include_content=True)
+        left_rows = fetch_sibling_records(compare_id, entry_name=entry_name,
+                                         include_content=True, require_content=False)
+        right_rows = fetch_sibling_records(selected_id, entry_name=entry_name,
+                                          include_content=True, require_content=False)
     except DatabaseAccessError as exc:
         raise HTTPException(503, str(exc)) from exc
 
@@ -1407,6 +1418,22 @@ def scan_diff(filename: str, base_id: int, derived_id: int):
     }
 
 
+def _sibling_status(sibling: dict | None, artifact: dict | None) -> str:
+    """Distinguish recorded absence from a file whose content is missing.
+
+    A missing row is only classified as absent when the artifact explicitly
+    reports zero siblings from a complete composition. Even this establishes
+    absence from the stored snapshot, not historical absence from a repository.
+    """
+    if sibling is not None:
+        return "available" if isinstance(sibling.get("content"), str) else "unavailable"
+    if (artifact is not None and artifact.get("sibling_count") == 0
+            and artifact.get("composition_fetched") in (1, True)
+            and not artifact.get("composition_truncated")):
+        return "absent"
+    return "not_recorded"
+
+
 @app.post("/api/reports/{filename}/sibling-scan/{base_id}/{derived_id}")
 def scan_sibling_diff(filename: str, base_id: int, derived_id: int,
                       entry_name: str = Query(min_length=1)):
@@ -1416,27 +1443,57 @@ def scan_sibling_diff(filename: str, base_id: int, derived_id: int,
     base = _sibling_source(base_id, entry_name)
     derived = _sibling_source(derived_id, entry_name)
     if base is None and derived is None:
-        raise HTTPException(404, "Sibling content is not available for either artifact.")
-    # One missing content-bearing row does not prove the file was absent in the
-    # repository. Never infer newly introduced behavior from an unknown side.
+        raise HTTPException(404, "Sibling is not recorded for either artifact.")
+    # Query artifact metadata only when a sibling row is missing. In particular,
+    # no matching row is not interchangeable with a row whose content is NULL.
+    artifact_metadata = {}
     if base is None or derived is None:
-        available = derived if base is None else base
-        available_artifact_id = derived_id if base is None else base_id
-        observation = SkillAnalyzer().scan(
-            available["content"], filename=entry_name,
-            source_id=str(available.get("id") or f"{available_artifact_id}:{entry_name}"),
+        try:
+            artifact_metadata = fetch_artifact_records((base_id, derived_id))
+        except DatabaseAccessError as exc:
+            raise HTTPException(503, str(exc)) from exc
+    base_status = _sibling_status(base, artifact_metadata.get(base_id))
+    derived_status = _sibling_status(derived, artifact_metadata.get(derived_id))
+    if base_status != "available" or derived_status != "available":
+        available_side = "base" if base_status == "available" else (
+            "derived" if derived_status == "available" else None
         )
+        available = base if available_side == "base" else (
+            derived if available_side == "derived" else None
+        )
+        available_artifact_id = base_id if available_side == "base" else derived_id
+        observation = None
+        if available is not None:
+            scan = SkillAnalyzer().scan(
+                available["content"], filename=entry_name,
+                source_id=str(available.get("id") or f"{available_artifact_id}:{entry_name}"),
+            )
+            observation = _source_scan(scan, available["content"])
+        notes = ["One-sided sibling comparison; no directional security claims made."]
+        if "unavailable" in (base_status, derived_status):
+            notes.append("A sibling record exists but its content could not be retrieved.")
+        if "absent" in (base_status, derived_status):
+            notes.append("No sibling is recorded on one side of a complete stored composition; this does not prove historical introduction or deletion.")
+        if "not_recorded" in (base_status, derived_status):
+            notes.append("No sibling row was found and listing completeness could not be established.")
         return {
             "base_id": base_id, "derived_id": derived_id, "surface": "sibling",
             "entry_name": entry_name, "relationship": relationship,
             "scan_diff": None,
-            "available_side": "derived" if base is None else "base",
-            "available_scan": _source_scan(observation, available["content"]),
+            "available_side": available_side,
+            "available_scan": observation,
             "coverage": {
-                "status": "incomplete",
-                "notes": ["Sibling content unavailable for one artifact; no directional claims made."],
-                "base_available": base is not None,
-                "derived_available": derived is not None,
+                "status": "one-sided" if "absent" in (base_status, derived_status)
+                          and "unavailable" not in (base_status, derived_status)
+                          and "not_recorded" not in (base_status, derived_status)
+                          else "incomplete",
+                "comparison_status": "one-sided",
+                "notes": notes,
+                "base_status": base_status, "derived_status": derived_status,
+                "base_available": base_status == "available",
+                "derived_available": derived_status == "available",
+                "missing_sibling_content": int(base_status == "unavailable") + int(derived_status == "unavailable"),
+                "sibling_listing_incomplete": "not_recorded" in (base_status, derived_status),
             },
         }
     base_text, derived_text = base["content"], derived["content"]

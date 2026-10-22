@@ -128,6 +128,10 @@ class SiblingScanSummary:
     source_files: int
     destination_files: int
     new_or_changed_destination_ids: tuple[int, ...] = ()
+    # Paths with stored file rows on only one side are observations about the
+    # dataset snapshot, not proof of historical creation or deletion.
+    recorded_base_only_paths: tuple[str, ...] = ()
+    recorded_derived_only_paths: tuple[str, ...] = ()
     unavailable_source_ids: tuple[int, ...] = ()
     unavailable_destination_ids: tuple[int, ...] = ()
     unknown_sha_source_ids: tuple[int, ...] = ()
@@ -151,6 +155,8 @@ class SiblingScanSummary:
             "new_or_changed_destination_ids": list(
                 self.new_or_changed_destination_ids
             ),
+            "recorded_base_only_paths": list(self.recorded_base_only_paths),
+            "recorded_derived_only_paths": list(self.recorded_derived_only_paths),
             "unavailable_source_ids": list(self.unavailable_source_ids),
             "unavailable_destination_ids": list(
                 self.unavailable_destination_ids

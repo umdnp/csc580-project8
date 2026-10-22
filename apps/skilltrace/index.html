@@ -157,6 +157,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .paired-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-size:13px}
 .paired-inspection>h3{margin:6px 0 0}
 .paired-inspection .evidence-entry .entry-context{overflow-wrap:anywhere}
+.paired-context{grid-column:1 / -1;margin:7px 0 0;border-top:1px dashed var(--border)}
+.paired-context>summary{cursor:pointer;padding:8px 0;font-size:12px;font-weight:600;color:var(--muted)}
+.paired-context .paired-row{padding:6px 0;border-top:none}
+.paired-context pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;padding:8px;border-radius:5px;background:var(--panel);font:12px/1.5 ui-monospace,Consolas,monospace}
+.view-switch{margin:8px 0 12px;padding:8px 12px}
+
 @media(max-width:760px){.paired-columns,.paired-heading,.paired-row{grid-template-columns:1fr}.paired-heading{display:none}.paired-cell:before{content:attr(data-side);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:4px}}
 
 /* Dialogs */
@@ -1274,8 +1280,8 @@ function updateComparisonActions() {
 
 
   const selectedName = $('#sibling').value;
-  const selectedSiblingAvailable = Boolean(currentDetails?.siblings?.some(s => s.entry_name === selectedName));
-  const comparedSiblingAvailable = Boolean(currentDetails?.comparison_siblings?.some(s => s.entry_name === selectedName));
+  const selectedSiblingAvailable = Boolean(currentDetails?.siblings?.some(s => s.entry_name === selectedName && s.content_available !== false));
+  const comparedSiblingAvailable = Boolean(currentDetails?.comparison_siblings?.some(s => s.entry_name === selectedName && s.content_available !== false));
   const hasSiblings = selectedSiblingAvailable || comparedSiblingAvailable;
   const siblingContentButton = $('#view-sibling-content');
   siblingContentButton.hidden = !hasSiblings;
@@ -1351,7 +1357,7 @@ function renderDetails(result) {
       $('#sibling').add(new Option(label, name));
     }
     $('#sibling').disabled = false;
-    $('#sibling-note').textContent = `${entries.length} content-bearing sibling path${entries.length === 1 ? '' : 's'} across the selected and compared artifact. Rows missing on one side are treated as unavailable, not proof of deletion.`;
+    $('#sibling-note').textContent = `${entries.length} recorded sibling path${entries.length === 1 ? '' : 's'} across the selected and compared artifact. Missing rows are distinguished from recorded files whose content is unavailable; neither proves historical deletion.`;
   } else {
     $('#sibling').add(new Option('NONE', ''));
     $('#sibling').disabled = true;
@@ -1634,7 +1640,7 @@ function finishedScan(payload) {
   $('#scan-copy').textContent = 'Copy report JSON';
 }
 
-function evidenceEntry(e, label = '') {
+function evidenceEntry(e, label = '', showNearbyContext = true) {
   const node = document.createElement('article');
   const status = e.extraction_status || 'unknown';
   node.className = `evidence-entry ${status}`;
@@ -1650,7 +1656,7 @@ function evidenceEntry(e, label = '') {
     (context.language ? ` (${context.language})` : '') +
     (context.heading ? ` · ${context.heading}` : ''), 'entry-context'));
   node.append(tagEl('pre', e.excerpt || '(no excerpt)'));
-  if (context.nearby_text && context.nearby_text !== e.excerpt) {
+  if (showNearbyContext && context.nearby_text && context.nearby_text !== e.excerpt) {
     const details = document.createElement('details');
     details.append(tagEl('summary', 'Nearby source context'), tagEl('pre', context.nearby_text));
     node.append(details);
@@ -1698,13 +1704,6 @@ function appendSourceEvidence(parent, source, title) {
   appendExtractionSummary(section, source.extraction, source.evidence_count);
   section.append(tagEl('p', `${source.rule_match_count ?? 0} rule matches · capabilities: ${profileList(source.profile)}`, 'muted'));
   section.append(evidenceList('All extracted evidence (including unchanged)', source.evidence, {open:true}));
-  const matches = document.createElement('details'); matches.className = 'metadata';
-  matches.append(tagEl('summary', `Rule occurrences (${(source.matches || []).length})`));
-  if (!(source.matches || []).length) matches.append(tagEl('p', 'No rule matches.'));
-  for (const match of source.matches || []) {
-    matches.append(tagEl('div', `[${match.rule_id}] ${match.category} · line ${match.line_number ?? '?'} · ${match.description}${match.matched_text ? ` · ${match.matched_text}` : ''}`));
-  }
-  section.append(matches);
   parent.append(section);
 }
 
@@ -1803,11 +1802,32 @@ function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, opti
             cell.classList.add(side === 'base' ? 'base-only' : 'derived-only');
             cell.append(tagEl('span', side === 'base' ? 'Unmatched on Base' : 'Unmatched on Derived', 'paired-status'));
           }
-          cell.append(options.render(record));
+          cell.append(options.render(record, '', false));
         } else {
           cell.append(tagEl('div', 'No matching record on this side', 'paired-missing'));
         }
         row.append(cell);
+      }
+      // A single context expander controls both sides of an aligned evidence row.
+      // This prevents independent left/right context panels drifting out of sync.
+      if (options.showNearbyContext && [pair.base, pair.derived].some(record =>
+          record?.context?.nearby_text && record.context.nearby_text !== record.excerpt)) {
+        const contextDetails = document.createElement('details');
+        contextDetails.className = 'paired-context';
+        contextDetails.append(tagEl('summary', 'Nearby source context · Base and Derived'));
+        const contexts = document.createElement('div'); contexts.className = 'paired-row';
+        for (const side of ['base', 'derived']) {
+          const context = document.createElement('div'); context.className = 'paired-cell';
+          context.dataset.side = side === 'base' ? 'Base' : 'Derived';
+          const source = pair[side];
+          if (source?.context?.nearby_text) {
+            context.append(tagEl('pre', source.context.nearby_text));
+          } else {
+            context.append(tagEl('div', source ? 'No additional context' : 'No matching record on this side', 'paired-missing'));
+          }
+          contexts.append(context);
+        }
+        contextDetails.append(contexts); row.append(contextDetails);
       }
       details.append(row); rows.push(row);
     }
@@ -1829,7 +1849,7 @@ function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, opti
   parent.append(section);
 }
 
-function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId) {
+function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId, coverage = {}) {
   const sources = document.createElement('div'); sources.className = 'paired-columns';
   for (const [name, id, source] of [['Base', baseId, base], ['Derived', derivedId, derived]]) {
     const block = document.createElement('section'); block.className = 'paired-source';
@@ -1838,27 +1858,44 @@ function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId) {
       appendExtractionSummary(block, source.extraction, source.evidence_count);
       block.append(tagEl('p', `${source.rule_match_count ?? 0} rule matches · capabilities: ${profileList(source.profile)}`, 'muted'));
     } else {
-      block.append(tagEl('p', 'Content unavailable. This does not establish that the file was deleted or introduced.', 'warning'));
+      const status = coverage[name === 'Base' ? 'base_status' : 'derived_status'];
+      const descriptions = {
+        absent:'Absent from the stored sibling listing (not proof of historical absence).',
+        unavailable:'Sibling is recorded, but its content is unavailable.',
+        not_recorded:'No sibling row found; listing completeness is unverified.',
+      };
+      block.append(tagEl('p', descriptions[status] || 'Content unavailable; no directional claim can be made.', 'warning'));
     }
     sources.append(block);
   }
   parent.append(sources);
   if (!base || !derived) {
-    parent.append(tagEl('p', 'The unavailable side cannot be compared. Unmatched records below are for inspection only.', 'warning'));
+    parent.append(tagEl('p', 'One-sided evidence is shown for inspection only. It does not establish when a file was introduced or removed.', 'warning'));
   }
   parent.append(tagEl('p', 'Rows align by matching visible text, ignoring whitespace and line-number shifts. Unmatched records are not by themselves evidence of introduction or removal; redacted values are never assumed to match.', 'muted'));
   pairedInspectionGroups(parent, 'Extracted evidence', base?.evidence || [], derived?.evidence || [], {
     groupKey:e => `${e.type || 'other'} · ${(e.rule_ids || []).slice().sort().join(', ') || 'no rule'}`,
     identity:e => inspectionIdentity(e.excerpt) === null ? null :
       JSON.stringify([e.type, (e.rule_ids || []).slice().sort(), inspectionIdentity(e.excerpt)]),
-    render:evidenceEntry, showPartialFilter:true,
+    render:evidenceEntry, showPartialFilter:true, showNearbyContext:true,
   });
+}
+
+function appendPairedRuleOccurrences(parent, base, derived) {
+  parent.append(tagEl('p', 'Expand a rule to compare matching Base and Derived occurrences together. Missing-side markers are visual comparisons, not risk conclusions.', 'muted'));
   pairedInspectionGroups(parent, 'Rule occurrences', base?.matches || [], derived?.matches || [], {
     groupKey:e => e.rule_id || 'Unknown rule',
     identity:e => inspectionIdentity(e.matched_text) === null ? null :
       JSON.stringify([e.rule_id, e.category, e.description, inspectionIdentity(e.matched_text)]),
     render:ruleOccurrenceEntry,
   });
+}
+
+function switchComparisonView(parent, label, action) {
+  const button = document.createElement('button');
+  button.type = 'button'; button.className = 'view-switch'; button.textContent = label;
+  button.onclick = action;
+  parent.append(button);
 }
 
 function appendCoverage(parent, coverage = {}) {
@@ -1873,8 +1910,12 @@ function appendCoverage(parent, coverage = {}) {
   }
   if (coverage.missing_sibling_content !== undefined) addKv(dl, 'Missing sibling content', coverage.missing_sibling_content || 'none');
   if (coverage.unknown_sibling_hashes) addKv(dl, 'Unknown sibling hashes', coverage.unknown_sibling_hashes);
-  if (coverage.base_available !== undefined) addKv(dl, 'Source content', coverage.base_available ? 'available' : 'unavailable');
-  if (coverage.derived_available !== undefined) addKv(dl, 'Destination content', coverage.derived_available ? 'available' : 'unavailable');
+  const statusLabels = {available:'available', absent:'absent from stored listing', unavailable:'recorded, content unavailable', not_recorded:'not recorded / listing unverified'};
+  if (coverage.base_status) addKv(dl, 'Base sibling', statusLabels[coverage.base_status] || coverage.base_status);
+  else if (coverage.base_available !== undefined) addKv(dl, 'Base content', coverage.base_available ? 'available' : 'unavailable');
+  if (coverage.derived_status) addKv(dl, 'Derived sibling', statusLabels[coverage.derived_status] || coverage.derived_status);
+  else if (coverage.derived_available !== undefined) addKv(dl, 'Derived content', coverage.derived_available ? 'available' : 'unavailable');
+  if (coverage.comparison_status) addKv(dl, 'Comparison', coverage.comparison_status);
   addKv(dl, 'Notes', (coverage.notes || []).join('; ') || 'Available evidence processed; not a guarantee of complete security detection.');
   block.append(dl); parent.append(block);
 }
@@ -1890,10 +1931,8 @@ function appendIndicators(parent, assessment = {}) {
     for (const indicator of items) {
       const entry = document.createElement('section'); entry.className = 'indicator-entry';
       entry.append(tagEl('strong', `${indicator.id} · ${indicator.reason}`));
-      for (const side of ['added', 'removed']) {
-        const records = indicator.evidence?.[side] || [];
-        if (records.length) entry.append(evidenceList(`${side === 'added' ? 'Supporting derived' : 'Previous'} evidence`, records, {open:false}));
-      }
+      const supportCount = (indicator.evidence?.added || []).length + (indicator.evidence?.removed || []).length;
+      if (supportCount) entry.append(tagEl('p', `${supportCount} supporting evidence record(s) · open Inspect evidence for full source details.`, 'muted'));
       parent.append(entry);
     }
   }
@@ -1960,13 +1999,14 @@ async function openComparisonEvidence() {
 
 function renderComparisonEvidence(result) {
   const body = $('#scan-body'); body.replaceChildren();
-  body.append(tagEl('p', 'All detected evidence, including unchanged records and partial extractions. Run scan to review changes and risk indicators.', 'muted'));
+  body.append(tagEl('p', 'All extracted evidence, including unchanged and partial records. Expand a group or nearby context once to inspect both sides together.', 'muted'));
+  switchComparisonView(body, '← Back to scan results', () => renderScan(result));
   if (!result.scan_diff) {
     appendCoverage(body, result.coverage);
     appendPairedSourceEvidence(body,
       result.available_side === 'base' ? result.available_scan : null,
       result.available_side === 'derived' ? result.available_scan : null,
-      result.base_id, result.derived_id);
+      result.base_id, result.derived_id, result.coverage);
     finishedScan(result);
     return;
   }
@@ -1990,9 +2030,16 @@ async function openSiblingScan() {
 function renderScan(result) {
   const body = $('#scan-body'); body.replaceChildren();
   if (!result.scan_diff) {
-    body.append(tagEl('p', 'This comparison has unavailable source content. Directional security conclusions cannot be made.', 'warning'));
+    body.append(tagEl('p', 'A sibling is not available on both sides. Rule observations from the available side are shown, but no directional risk claim is made.', 'warning'));
     appendCoverage(body, result.coverage);
-    body.append(tagEl('p', 'Use Inspect evidence to review the available sibling content.', 'muted'));
+    const source = result.available_scan;
+    if (source) {
+      body.append(tagEl('h3', `Rule occurrences · ${result.available_side === 'base' ? 'Base' : 'Derived'} only (${(source.matches || []).length})`));
+      appendPairedRuleOccurrences(body,
+        result.available_side === 'base' ? source : null,
+        result.available_side === 'derived' ? source : null);
+    }
+    switchComparisonView(body, 'Inspect extracted evidence →', () => renderComparisonEvidence(result));
     finishedScan(result); return;
   }
   const scan = result.scan_diff;
@@ -2008,9 +2055,7 @@ function renderScan(result) {
   appendIndicators(body, indicators);
 
   const changes = scan.evidence_comparison || {};
-  body.append(tagEl('h3', `Evidence changes · +${(changes.added || []).length} added / −${(changes.removed || []).length} removed`));
-  body.append(evidenceList('Added evidence', changes.added, {open:true}));
-  body.append(evidenceList('Removed evidence', changes.removed, {open:true}));
+  body.append(tagEl('p', `Evidence changes: +${(changes.added || []).length} added / −${(changes.removed || []).length} removed. Open Inspect evidence to examine full records.`, 'muted'));
 
   const ruleIds = Object.keys(scan.rule_deltas || {});
   body.append(tagEl('h3', 'Changed rule counts'));
@@ -2027,7 +2072,8 @@ function renderScan(result) {
     }
     table.append(tbody); body.append(table);
   } else body.append(tagEl('p', 'No rule match counts changed.'));
-  body.append(tagEl('p', 'Use Inspect evidence to review all base and derived records, including unchanged and partial evidence.', 'muted'));
+  appendPairedRuleOccurrences(body, scan.base, scan.derived);
+  switchComparisonView(body, 'Inspect extracted evidence →', () => renderComparisonEvidence(result));
   body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
   finishedScan(result);
 }

@@ -307,8 +307,16 @@ def _print_flagged_pair(
         if assessment.sibling_listing_incomplete:
             print(f"{indent}    Sibling listing incomplete")
 
-    if pair.sibling_scan is not None and pair.sibling_scan.incomplete:
-        _print_sibling_warning(pair.sibling_scan, indent=f"{indent}  ")
+    if pair.sibling_scan is not None:
+        summary = pair.sibling_scan
+        if summary.recorded_base_only_paths or summary.recorded_derived_only_paths:
+            print(f"{indent}  Sibling paths recorded on one side (not proof of historical introduction/removal):")
+            for label, paths in (("base only", summary.recorded_base_only_paths),
+                                 ("derived only", summary.recorded_derived_only_paths)):
+                if paths:
+                    print(f"{indent}    {label}: {', '.join(json.dumps(path) for path in paths)}")
+        if summary.incomplete:
+            _print_sibling_warning(summary, indent=f"{indent}  ")
 
 
 def _print_flagged_rule(

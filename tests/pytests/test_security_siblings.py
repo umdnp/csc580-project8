@@ -32,6 +32,9 @@ def test_added_sibling_scan_is_extension_independent_and_traceable(entry_name):
     rule, = pair["flagged_rules"]
     assert (rule["rule_id"], rule["category"], rule["surface"]) == ("NET-001", "network_access", "sibling")
     assert (rule["source"], rule["destination"]) == (0, 1)
+    assert pair["sibling_scan"]["recorded_base_only_paths"] == []
+    assert pair["sibling_scan"]["recorded_derived_only_paths"] == [entry_name]
+    assert pair["sibling_scan"]["unavailable_destination_ids"] == []
     source, = rule["finding_sources"]
     assert source == {
         "surface": "sibling", "id": 20, "entry_name": entry_name,
@@ -65,6 +68,7 @@ def test_unavailable_sibling_does_not_suppress_available_findings():
     assert result.pairs_incomplete == 1
     coverage = result.to_dict()["clusters"][0]["incomplete_pairs"][0]["sibling_scan"]
     assert coverage["unavailable_destination_ids"] == [20]
+    assert sorted(coverage["recorded_derived_only_paths"]) == ["available.md", "missing.py"]
     assert coverage["incomplete"] is True
 
 
