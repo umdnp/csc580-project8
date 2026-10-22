@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Sequence
 
 from gitskills.analysis.evidence_models import Evidence
+from gitskills.analysis.risk_assessor import RiskAssessor
+from gitskills.analysis.risk_models import RiskAssessment, RiskIndicator
 
 from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.analysis.comparator import compare_results
@@ -82,9 +84,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         derived_text, filename=args.derived.name, source_id=str(args.derived.resolve(strict=False))
     )
     comparison = compare_results(base_result, derived_result)
+    assessment = RiskAssessor().assess(comparison)
 
     _log_rule_changes(comparison, verbose=args.verbose)
     _log_evidence_changes(comparison, base_text=base_text, derived_text=derived_text)
+    _log_risk_indicators(assessment)
 
     payload = comparison.to_dict(verbose=args.verbose)
     payload["evidence_comparison"] = {
@@ -95,6 +99,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             _report_evidence(item, derived_text) for item in comparison.evidence_added
         ],
     }
+    payload["risk_indicators"] = _report_risk_indicators(
+        assessment, base_text=base_text, derived_text=derived_text,
+    )
     if output_dir is not None:
         try:
             _output.write_json(
@@ -238,6 +245,48 @@ def _safe_excerpt(rule_match: RuleMatch) -> str:
         return "[credential-related content redacted]"
     return safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
 
+
+
+
+def _report_risk_indicators(
+    assessment: RiskAssessment, *, base_text: str, derived_text: str,
+) -> dict[str, object]:
+    """Export only redacted references, never internal Evidence objects."""
+    def report(item: RiskIndicator) -> dict[str, object]:
+        return {
+            "id": item.indicator_id,
+            "reason": redact_text(item.reason),
+            "evidence": {
+                "added": [_report_evidence(e, derived_text) for e in item.added],
+                "removed": [_report_evidence(e, base_text) for e in item.removed],
+            },
+        }
+
+    return {
+        "policy_version": assessment.policy_version,
+        "indicator_count": assessment.indicator_count,
+        "finding_count": assessment.finding_count,
+        "indicators": [report(item) for item in assessment.supported],
+        "uncertain": [report(item) for item in assessment.uncertain],
+        "coverage": {
+            "status": assessment.coverage,
+            "notes": [redact_text(note) for note in assessment.coverage_notes],
+        },
+    }
+
+
+def _log_risk_indicators(assessment: RiskAssessment) -> None:
+    """Log observable indicator categories, with uncertainty kept separate."""
+    LOGGER.info("RISK INDICATORS (%d categories; %d findings)",
+                assessment.indicator_count, assessment.finding_count)
+    for indicator in assessment.supported:
+        LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
+    if assessment.uncertain:
+        LOGGER.info("UNCERTAIN OBSERVATIONS (%d)", len(assessment.uncertain))
+        for indicator in assessment.uncertain:
+            LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
+    if assessment.coverage != "complete":
+        LOGGER.info("COVERAGE: %s", assessment.coverage)
 
 if __name__ == "__main__":
     raise SystemExit(main())

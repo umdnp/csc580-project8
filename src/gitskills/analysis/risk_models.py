@@ -8,7 +8,7 @@ from enum import Enum
 from .evidence_models import Evidence
 
 
-POLICY_VERSION = "RDR-010-phase7"
+POLICY_VERSION = "RDR-010-indicators-v1"
 
 
 class IndicatorStatus(str, Enum):
@@ -31,10 +31,12 @@ class RiskIndicator:
 
 @dataclass(frozen=True, slots=True)
 class RiskAssessment:
-    """Phase 7 indicator observations; classification is deferred to Phase 8."""
+    """Observed indicators and coverage, without an overall risk label."""
 
     indicators: tuple[RiskIndicator, ...] = ()
     policy_version: str = POLICY_VERSION
+    coverage: str = "complete"
+    coverage_notes: tuple[str, ...] = ()
 
     @property
     def supported(self) -> tuple[RiskIndicator, ...]:
@@ -43,3 +45,15 @@ class RiskAssessment:
     @property
     def uncertain(self) -> tuple[RiskIndicator, ...]:
         return tuple(i for i in self.indicators if i.status == IndicatorStatus.UNCERTAIN)
+
+    @property
+    def indicator_count(self) -> int:
+        """Number of distinct supported indicator categories, not matches."""
+        return len({i.indicator_id for i in self.supported})
+
+    @property
+    def finding_count(self) -> int:
+        """Number of distinct derived evidence constructs supporting indicators."""
+        return len({(e.source_id, e.filename, e.kind, e.start_offset, e.end_offset,
+                     e.normalized_text)
+                    for indicator in self.supported for e in indicator.added})

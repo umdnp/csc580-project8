@@ -8,6 +8,7 @@ from collections.abc import Mapping
 from urllib.parse import urlsplit
 
 from .evidence_models import Evidence, ExtractionStatus
+from .external_instructions import InstructionRole, instruction_role
 from .models import AnalysisComparison
 from .risk_models import IndicatorStatus, RiskAssessment, RiskIndicator
 
@@ -312,6 +313,8 @@ class RiskAssessor:
                     add("RI-010", "Local script invocation changed without clear correspondence", e,
                         status=IndicatorStatus.UNCERTAIN)
 
+        self._external_instructions(comparison, add)
+
         # Identical invocation evidence may still reference a modified sibling.
         base_scripts = {_script(e): e for e in previous if _script(e)}
         for e in comparison.derived.evidence:
@@ -319,7 +322,71 @@ class RiskAssessor:
             if script and script in base_scripts and base_hashes.get(script) and derived_hashes.get(script):
                 if base_hashes[script] != derived_hashes[script]:
                     add("RI-010", "Invoked sibling script content changed", e, old=base_scripts[script])
-        return RiskAssessment(indicators=tuple(results))
+        incomplete = any(e.extraction_status != ExtractionStatus.COMPLETE
+                         for result in (comparison.base, comparison.derived)
+                         for e in result.evidence)
+        return RiskAssessment(
+            indicators=tuple(results),
+            coverage="incomplete" if incomplete else "complete",
+            coverage_notes=("Partial or unsupported evidence extraction",) if incomplete else (),
+        )
+
+    @staticmethod
+    def _external_instructions(comparison: AnalysisComparison, add) -> None:
+        """Evaluate changed URL roles, including unchanged URLs with new directives."""
+        def references(evidence: tuple[Evidence, ...]) -> list[Evidence]:
+            return [e for e in evidence if e.kind in {"url_reference", "markdown_link"}
+                    and "NET-001" in e.rule_ids and e.filename.lower().endswith(".md")
+                    and e.context.kind in {"markdown_prose", "markdown_link"}]
+
+        earlier = references(comparison.base.evidence)
+        later = references(comparison.derived.evidence)
+        for current in later:
+            role = instruction_role(current)
+            url = _urls(current)
+            if not url:
+                continue
+            same_url = [e for e in earlier if e.filename == current.filename and _urls(e) == url]
+            if any(instruction_role(e) == InstructionRole.DEPENDENCY for e in same_url):
+                continue  # An existing directive (or repeated occurrence) is not new behavior.
+            if same_url:
+                old = same_url[0] if len(same_url) == 1 else None
+                if any(instruction_role(e) == InstructionRole.UNCERTAIN for e in same_url):
+                    # Earlier wording might already have been a directive.
+                    if role == InstructionRole.DEPENDENCY:
+                        add("RI-011", "External instruction role became explicit; prior wording uncertain",
+                            current, old=old, status=IndicatorStatus.UNCERTAIN)
+                    continue
+                if role == InstructionRole.DEPENDENCY:
+                    add("RI-011", "External reference became an explicit instruction dependency",
+                        current, old=old)
+                elif role == InstructionRole.UNCERTAIN:
+                    add("RI-011", "Changed URL context is ambiguous", current, old=old,
+                        status=IndicatorStatus.UNCERTAIN)
+                continue
+
+            # An unrelated added URL must not be guessed to replace an old one.
+            prior_directives = [e for e in earlier if e.filename == current.filename
+                                and instruction_role(e) == InstructionRole.DEPENDENCY
+                                and e.context.heading == current.context.heading
+                                and not any(d.filename == e.filename and _urls(d) == _urls(e)
+                                            and instruction_role(d) == InstructionRole.DEPENDENCY
+                                            for d in later)]
+            new_directives = [e for e in later if e.filename == current.filename
+                              and e.context.heading == current.context.heading
+                              and instruction_role(e) == InstructionRole.DEPENDENCY
+                              and not any(b.filename == e.filename and _urls(b) == _urls(e)
+                                          and instruction_role(b) == InstructionRole.DEPENDENCY
+                                          for b in earlier)]
+            prior = (prior_directives[0] if len(prior_directives) == len(new_directives) == 1
+                     else None)
+            if role == InstructionRole.DEPENDENCY:
+                add("RI-011", "External instruction source changed" if prior else
+                    "External instruction dependency introduced", current, old=prior)
+            elif role == InstructionRole.UNCERTAIN:
+                # Only report new ambiguous references, not already-known URLs.
+                add("RI-011", "Possible external instruction reference is ambiguous",
+                    current, status=IndicatorStatus.UNCERTAIN)
 
     @staticmethod
     def _network(e: Evidence) -> bool:

@@ -75,7 +75,7 @@ class _SourceContext:
         stripped = line.content.lstrip()
         if span.kind == "shell_code_block":
             kind = "code_fence"
-        elif span.kind == "markdown_link":
+        elif span.kind == "markdown_link" and not line.in_fence:
             kind = "markdown_link"
         elif self._markdown:
             if line.in_fence:
@@ -96,7 +96,34 @@ class _SourceContext:
                 kind = "source_comment" if stripped.startswith("//") else "source_code"
             else:
                 kind = "source_text"
-        return EvidenceContext(kind=kind, language=line.language, heading=line.heading, nearby_text=line.content.strip()[:160])
+        nearby = line.content.strip()[:160]
+        if (self._markdown and span.kind in {"url_reference", "markdown_link"}
+                and kind in {"markdown_prose", "markdown_link"}):
+            nearby = self._url_context(index)
+        return EvidenceContext(kind=kind, language=line.language, heading=line.heading,
+                               nearby_text=nearby)
+
+    def _url_context(self, index: int) -> str:
+        """Keep a short, connected Markdown sentence, not an entire document."""
+        current = self._lines[index].content.strip()
+        if index == 0:
+            return current[:320]
+        previous = self._lines[index - 1]
+        preceding = previous.content.strip()
+        if previous.in_fence or previous.fence_marker or preceding.startswith(("#", ">")):
+            return current[:320]
+        if not preceding and index >= 2:
+            earlier = self._lines[index - 2]
+            earlier_text = earlier.content.strip()
+            if (not earlier.in_fence and not earlier.fence_marker and
+                    earlier_text.endswith(":") and not earlier_text.startswith(("#", ">"))):
+                return (earlier_text + " " + current)[:320]
+        # Wrapped instructions frequently end in "at" or "from" just before
+        # the URL. Do not pull in unrelated preceding paragraphs.
+        if (preceding and (re.search(r"(?:at|from|in|on|:)\s*$", preceding, re.I)
+                           or current.lower().startswith(("at http", "at [", "from http", "from [")))):
+            return (preceding + " " + current)[:320]
+        return current[:320]
 
 
 def _inside_inline_code(line: str, relative_position: int) -> bool:
