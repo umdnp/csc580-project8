@@ -141,9 +141,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_dir = _output.prepare_directory(
             args.output if args.output is not None else _output.DEFAULT_OUTPUT_DIR if args.benchmark else None
         )
-        if output_dir is not None:
-            for name in names:
-                _safe_output_name(name)
+        output_stems = _output.report_stems(names) if output_dir is not None else {}
         if args.input is not None:
             if not database.is_file():
                 raise ValueError(f"Database not found: {database}")
@@ -171,7 +169,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose)
             if output_dir is not None:
-                _output.write_json(output_dir, name, payload)
+                _output.write_json(output_dir, output_stems[name], payload)
             if args.input is None:
                 if args.json:
                     print(json.dumps(payload, indent=2))
@@ -213,12 +211,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 1 if failed else 0
 
 
-def _safe_output_name(name: str) -> None:
-    if (not name or name in (".", "..") or any(char in name for char in '/\\\0<>:"|?*')
-            or name.endswith((".", " "))):
-        raise ValueError(f"Invalid family name for output file: {name!r}")
-
-
 def _read_family_names(path: Path, limit: int | None) -> list[str]:
     names = [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines()
              if line.strip() and not line.lstrip().startswith("#")]
@@ -226,8 +218,6 @@ def _read_family_names(path: Path, limit: int | None) -> list[str]:
         names = names[:limit]
     if not names or len(set(names)) != len(names):
         raise ValueError("Family input must contain unique, nonempty names")
-    for name in names:
-        _safe_output_name(name)
     return names
 
 
