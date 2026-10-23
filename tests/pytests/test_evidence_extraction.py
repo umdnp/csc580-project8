@@ -250,3 +250,34 @@ def test_separate_markdown_inline_code_spans_and_fenced_code_remain_distinct():
     ]
     assert all(item.extraction_status == ExtractionStatus.COMPLETE
                for item in result.evidence)
+
+
+def test_markdown_backticks_do_not_turn_urls_into_partial_unresolved_evidence():
+    source = (
+        "> Read `https://www.cometchat.com/docs/mcp` for details.\n"
+        "Download from `https://preview.cometchat.com/downloads/cometchat-builder-react.zip`.\n"
+    )
+    result = SkillAnalyzer().scan(source)
+    assert result.rule_counts() == {"NET-001": 2}
+    assert [(e.kind, e.extraction_status, e.raw_text) for e in result.evidence] == [
+        ("url_reference", ExtractionStatus.COMPLETE, "https://www.cometchat.com/docs/mcp"),
+        ("url_reference", ExtractionStatus.COMPLETE,
+         "https://preview.cometchat.com/downloads/cometchat-builder-react.zip"),
+    ]
+
+
+def test_pinned_install_command_stays_inside_inline_markdown_not_surrounding_prose():
+    source = (
+        "> Use `npm install @cometchat/chat-uikit-react@6.4.3 "
+        "@cometchat/calls-sdk-javascript@4.2.5` — **pinned versions from the "
+        "canonical repo's README**. Older/newer versions may drift."
+    )
+    result = SkillAnalyzer().scan(source)
+    assert result.rule_counts() == {"CMD-002": 1, "EXT-002": 1}
+    commands = [e for e in result.evidence if e.kind == "shell_command"]
+    assert len(commands) == 1
+    assert commands[0].raw_text == (
+        "npm install @cometchat/chat-uikit-react@6.4.3 "
+        "@cometchat/calls-sdk-javascript@4.2.5"
+    )
+    assert commands[0].extraction_status == ExtractionStatus.COMPLETE

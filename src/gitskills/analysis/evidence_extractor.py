@@ -273,7 +273,7 @@ class EvidenceExtractor:
             # semicolon separator. Preserve its count but attribute it to the
             # actual URL inside the extracted command.
             fragment = text[match.start_offset:match_end]
-            match_end -= len(fragment) - len(fragment.rstrip(".,;!?]"))
+            match_end -= len(fragment) - len(fragment.rstrip(".,;!?]`"))
         return start <= match.start_offset and match_end <= end
 
     @staticmethod
