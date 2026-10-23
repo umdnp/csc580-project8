@@ -474,6 +474,29 @@ class ViewerTests(unittest.TestCase):
                        'id="scan-sibling"', 'id="scan-copy"', 'Partial / unsupported only'):
             self.assertIn(marker, page.text)
 
+    def test_sibling_picker_labels_come_from_comparison_direction(self):
+        html = self.client.get("/").text
+        self.assertIn("function siblingOptionLabel(name, inSelected, inCompared, comparison, selectedId)", html)
+        self.assertIn("if (!comparison || inSelected === inCompared) return name;", html)
+        self.assertIn("comparison.kind === 'parent' || comparison.kind === 'related'", html)
+        self.assertIn("selectedRole = 'base'; comparedRole = 'derived'", html)
+        self.assertIn("selectedRole = 'derived'; comparedRole = 'base'", html)
+        self.assertIn("inSelected ? selectedRole : comparedRole", html)
+        self.assertIn("ownNames.has(name), comparisonNames.has(name), result.comparison, result.artifact.id", html)
+        self.assertNotIn("(compared artifact only)", html)
+
+    def test_sibling_diff_ui_allows_comparison_only_file(self):
+        html = self.client.get("/").text
+        handler = html.split("async function openSiblingDiff() {", 1)[1].split(
+            "\nfunction renderDiff(", 1
+        )[0]
+        # The sibling picker is a union of both artifacts' entries. A file
+        # present only on the compared artifact must still open its diff.
+        self.assertIn("if (!selectedComparison || selected === null) return;", handler)
+        self.assertNotIn("currentDetails?.siblings?.length", handler)
+        self.assertIn("/sibling-diff/${compareId}/${selected}", handler)
+        self.assertIn("renderDiff(result, true)", handler)
+
     def test_sibling_diff_matches_entry_name_and_handles_missing_side(self):
         def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
             self.assertEqual(entry_name, "scripts/install.sh")
@@ -500,6 +523,30 @@ class ViewerTests(unittest.TestCase):
         self.assertFalse(payload["left_exists"])
         self.assertTrue(payload["right_exists"])
         self.assertTrue(any(row["derived_kind"] == "added" for row in payload["rows"]))
+
+    def test_sibling_diff_handles_file_only_on_compared_artifact(self):
+        def siblings(artifact_id, *, entry_name=None, include_content=False,
+                     require_content=True):
+            if artifact_id != 10:
+                return []
+            row = {"artifact_id": 10, "entry_name": entry_name,
+                   "entry_type": "file", "entry_sha": "base-sha"}
+            if include_content:
+                row["content"] = "rm -rf old-directory\n"
+            return [row]
+
+        with patch.object(server, "fetch_sibling_records", side_effect=siblings):
+            response = self.client.get(
+                "/api/reports/example.json/sibling-diff/10/20",
+                params={"entry_name": "scripts/removed.sh"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertTrue(result["left_exists"])
+        self.assertFalse(result["right_exists"])
+        self.assertEqual(result["entry_name"], "scripts/removed.sh")
+        self.assertTrue(any(row["base_kind"] == "removed" for row in result["rows"]))
 
     def test_sibling_content_endpoint_returns_selected_file_contents(self):
         def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
@@ -826,6 +873,74 @@ class ViewerTests(unittest.TestCase):
 
         self.assertIn(".meta-box.evidence-report + .paired-columns{margin-top:14px}", html)
         self.assertNotIn("Nearby source context · Base and Derived", html)
+
+    def test_diff_highlights_cover_full_scrollable_line(self):
+        html = self.client.get("/").text
+        # Each highlighted row must extend over its entire text width, even
+        # when the code continues beyond the visible diff pane.
+        self.assertIn(
+            ".diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);"
+            "width:max-content;min-width:100%;",
+            html,
+        )
+        for kind in ("added", "removed", "changed"):
+            self.assertIn(f".diff-line.{kind}{{background:", html)
+
+    def test_diff_intraline_highlighting_is_bounded_and_safe(self):
+        html = self.client.get("/").text
+        self.assertIn("function singleTextEdit(baseText, derivedText)", html)
+        self.assertIn("const simple = singleTextEdit(baseText, derivedText)", html)
+        self.assertIn("singleTextEdit(block.base, block.derived)", html)
+        self.assertIn("function intralineSegments(baseText, derivedText, budget)", html)
+        self.assertIn("baseText.length > 1600 || derivedText.length > 1600", html)
+        self.assertIn("cells > 50000 || cells > budget.remaining", html)
+        self.assertIn("const intralineBudget = {remaining:750000}", html)
+        self.assertIn("row.base_kind === 'changed' && row.derived_kind === 'changed'", html)
+        self.assertIn("highlight.textContent = segment.text", html)
+        self.assertIn(".diff-line.changed .intraline-change{background:var(--changed-detail)}", html)
+
+    def test_diff_pairs_long_markdown_rewrite_for_intraline_highlighting(self):
+        # The diff viewer must pass long, substantially edited Markdown lines
+        # to the intraline matcher rather than treating them as unrelated rows.
+        base = (
+            "2. Clear caches and reinstall dependencies: reset Metro cache, "
+            "`watchman watch-del-all`, remove `node_modules` + lockfile, "
+            "`npm install`, then `cd ios && rm -rf build Pods "
+            "Podfile.lock && pod install --repo-update`"
+        )
+        derived = (
+            "2. Clear caches and reinstall dependencies **without deleting lockfiles**: "
+            "reset Metro cache, `watchman watch-del-all`, remove `node_modules`, "
+            "reinstall from the lockfile (`npm ci`, or the package manager's "
+            "frozen/immutable install), then `cd ios && rm -rf build Pods && "
+            "pod install` — keep `Podfile.lock`. Deleting lockfiles re-resolves "
+            "dependency versions and changes the build; do it only as a last "
+            "resort with explicit user approval."
+        )
+        rows = server.build_side_by_side_diff(base, derived)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["base_kind"], "changed")
+        self.assertEqual(rows[0]["derived_kind"], "changed")
+        self.assertEqual(rows[0]["base_text"], base)
+        self.assertEqual(rows[0]["derived_text"], derived)
+        html = self.client.get("/").text
+        self.assertIn("base.length > 260 || derived.length > 260", html)
+        self.assertIn("cells > 50000 || cells > budget.remaining", html)
+
+    def test_diff_aligns_character_insertions_and_deletions_as_changed_lines(self):
+        additions = server.build_side_by_side_diff(
+            "before abc after\nstable\n", "before abcd after\nstable\n"
+        )
+        removals = server.build_side_by_side_diff(
+            "before abcd after\nstable\n", "before abc after\nstable\n"
+        )
+        for rows in (additions, removals):
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(rows[0]["base_kind"], "changed")
+            self.assertEqual(rows[0]["derived_kind"], "changed")
+            self.assertEqual(rows[1]["base_kind"], "equal")
+        self.assertEqual(additions[0]["derived_text"], "before abcd after")
+        self.assertEqual(removals[0]["base_text"], "before abcd after")
 
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")

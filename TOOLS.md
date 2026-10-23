@@ -116,6 +116,14 @@ scan_diff sample_skills/base/SKILL.md sample_skills/derived/SKILL.md --verbose
 scan_diff sample_skills/base/SKILL.md sample_skills/derived/SKILL.md --output results
 ```
 
+**All directionally supported relationships for research:**
+
+```powershell
+uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/all-edges --edges all
+```
+
+Use separate output directories for `primary` and `all` runs. They describe different populations and should not be combined in one research summary.
+
 ### Interpretation
 
 A positive rule delta means the derived file contains more matches for that rule. An introduced capability means a capability category appears in the derived file but not the base file. Added or removed evidence can identify a meaningful source change even when the rule counts are unchanged. Supported risk indicators identify evidence-based changes warranting review; uncertain observations and incomplete coverage are reported separately. None of these results establishes malicious intent, execution, or exploitability.
@@ -276,7 +284,7 @@ analyze_family busybox-on-windows --min-containment 0.90 --min-jaccard 0.50
 
 ### Purpose
 
-`scan_family` runs family analysis and static security scanning for **one candidate family** or **multiple families from an input file**. It compares supported **directed relationships** between artifacts, including related directed candidates that were not selected as the parent edge. Equivalent and direction-unknown relationships are not treated as base-to-derived comparisons.
+`scan_family` runs family analysis and static security scanning for **one candidate family** or **multiple families from an input file**. By default, it scans only **primary** predecessor relationships selected for the inferred evolution graph. With `--edges all`, it also scans additional related artifact pairs with supported direction. Equivalent, direction-unknown, and unrelated relationships are not treated as base-to-derived comparisons.
 
 The scanner examines the `SKILL.md` body and relevant changed sibling content. It records changes in rule counts, **added or removed extracted evidence**, and supported or uncertain **risk indicators (RI-001–RI-011)**. Indicators are evidence-based review signals, not conclusions that a skill is malicious.
 
@@ -296,6 +304,7 @@ Supply **either** `NAME` **or** `--input FILE`, not both. The first form runs a 
 | `NAME` | — | Exact candidate-family skill name, such as `busybox-on-windows` (single-family mode). |
 | `--input FILE` | Off | Read UTF-8 candidate-family names from a file, one per line. Blank lines and lines beginning with `#` are ignored. Names must be unique. Requires `--output`. |
 | `--limit N` | Off | In `--input` mode, scan only the first `N` names (positive integer); useful for a pilot run. |
+| `--edges {primary,all}` | `primary` | `primary` scans edges designated as predecessor relationships in the inferred evolution graph; `all` also scans additional directionally supported related edges. Neither mode includes ambiguous or equivalent pairs as directed changes. |
 | `--db PATH` | `$GITSKILLS_DB` | GitSkills DuckDB database path. |
 | `--shingle-size N` | `5` | Tokens per similarity shingle. |
 | `--min-containment FLOAT` | `0.80` | Minimum directional containment. |
@@ -316,7 +325,7 @@ All family-analysis threshold flags apply equally in single-family and batch mod
 For each family, `scan_family`:
 
 1. Loads artifacts, similarity/direction information, and stored sibling records from DuckDB.
-2. Analyzes directed candidate relationships. Relationships without supported direction are counted separately and are **not** labeled as introduced changes.
+2. Selects primary directed evolution edges (default) or primary plus additional directionally supported related edges (`--edges all`), scanning any repeated directed pair only once. Relationships without supported direction are counted separately and are **not** labeled as introduced changes.
 3. Runs the rule-based scanner and evidence extractor against the base and derived `SKILL.md` bodies, plus relevant changed sibling files. Scanned content is **not executed**.
 4. Compares evidence constructs, including changes that do not alter rule-match counts, and evaluates the 11 evidence-based risk indicators.
 5. Preserves distinct coverage information for partial/unsupported extraction, unavailable sibling content, unknown hashes, and incomplete sibling listings.
@@ -328,6 +337,8 @@ Top-of-file `SKILL.md` frontmatter is excluded from behavioral scanning. Sibling
 **Single-family mode:** Prints a human-readable summary by default; `--json` prints the structured report. With `--output`, also saves a family JSON report, using a safe filename when needed.
 
 **Batch mode:** Requires `--output`, writes one JSON report per successfully scanned family, and prints per-family progress/status rather than a stream of JSON reports. A failed family does not prevent later families from running, but the command returns a nonzero status if any fail. To avoid mixing research cohorts, batch mode rejects an output directory already containing `*.json` reports or `benchmarks.csv`; use a fresh directory for each run.
+
+Every directed pair is labeled `primary` or `additional` in the JSON; reports also record the `edge_selection` setting. Pair counts and indicator findings are not interchangeable with independent historical events, since comparisons can share artifacts.
 
 A **flagged pair** can result from rule/evidence changes or supported/uncertain indicators. A flagged pair is not necessarily a pair with a supported risk indicator. **`Pairs incomplete`** refers to sibling-data limitations; **evidence coverage** also reflects partial or unsupported extraction. Complete evidence coverage does not imply that every security risk can be detected.
 
@@ -366,11 +377,19 @@ busybox-on-windows
 uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/pilot --limit 2 --benchmark
 ```
 
-**Complete input list (no benchmarking):**
+**Complete input list using the default primary edges (no benchmarking):**
 
 ```powershell
 uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/scans
 ```
+
+**All directionally supported relationships for research:**
+
+```powershell
+uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/all-edges --edges all
+```
+
+Use separate output directories for `primary` and `all` runs. They describe different populations and should not be combined in one research summary.
 
 ### Interpretation
 
@@ -415,7 +434,7 @@ summarize_scans REPORTS... --output DIR [OPTIONS]
 
 ### Input Requirements
 
-Provide JSON reports generated by `scan_family`. The tool rejects duplicate family reports, inconsistent pair counts, and reports generated with different similarity policies, rule catalogs, or scanner scopes. Run separate summaries for different settings. `benchmarks.csv` may coexist in the input directory; it is not read as a scan report.
+Provide JSON reports generated by `scan_family`. The tool rejects duplicate family reports, inconsistent pair counts, and reports generated with different similarity policies, rule catalogs, scanner scopes, or edge-selection modes. Run separate summaries for `--edges primary` and `--edges all`. `benchmarks.csv` may coexist in the input directory; it is not read as a scan report.
 
 A pair's direction must be supported to enter the directed-pair denominator. Direction-unknown/ambiguous edges are tracked separately as counts rather than treated as negative pairs.
 
@@ -428,6 +447,8 @@ All runs generate:
 | `summary.json` | Cohort totals, supported-indicator frequencies, coverage statistics, direction/denominator notes, and optional sampling/annotation metrics. |
 | `families.csv` | Counts by scanned family, including loaded/skipped artifacts and ambiguous-edge counts. |
 | `directed_pairs.csv` | Every directed pair, including unflagged pairs, with indicator IDs, evidence-change counts, and coverage fields. |
+| `edge_types.csv` | Counts of scanned, flagged, indicator-positive, and coverage-limited comparisons by primary versus additional edge type. |
+| `indicator_frequency_by_edge_type.csv` | Risk-indicator counts and percentages calculated separately for primary and additional directed pairs. |
 | `indicator_frequency.csv` | Counts and percentages for RI-001 through RI-011, using analyzed directed pairs as the denominator. |
 | `direction_basis.csv` | Counts grouped by direction-evidence basis. |
 | `indicator_frequency.svg` | Reproducible indicator-frequency chart. |
@@ -439,7 +460,9 @@ Only when `--per-stratum` is supplied, it also generates:
 | `validation_sample.csv` | A deterministic, deduplicated sample selected across review categories (indicators, coverage limitations, uncertain cases, sibling changes, other flagged cases, and unflagged directed pairs). |
 | `validation_annotations_template.csv` | The sample with blank manual-review fields; copy it before recording review judgments. |
 
-Each indicator is counted at most once per directed pair; pairs may support more than one indicator. Therefore, indicator percentages can overlap and need not sum to 100%. Review samples should **not** be interpreted as statistically representative prevalence estimates.
+The main summary includes an `edge_type_breakdown` as well as overall cohort totals, and `families.csv` identifies primary and additional counts per family. The `--per-stratum` sample size affects neither.
+
+Each indicator is counted at most once per directed pair; pairs may support more than one indicator. Therefore, indicator percentages can overlap and need not sum to 100%. Review samples should **not** be interpreted as statistically representative prevalence estimates. Multiple directed comparisons may reuse the same artifact and are not independent historical events.
 
 With `--annotations`, `summary.json` also reports reviewed-sample confusion counts and precision/recall by indicator, excluding unresolved categories. These are **review-sample measures**, not corpus-wide accuracy estimates.
 

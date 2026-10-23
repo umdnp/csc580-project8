@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import csv
 import json
 import os
@@ -51,6 +52,10 @@ def build_parser() -> argparse.ArgumentParser:
     family_input.add_argument(
         "--input", type=Path, metavar="FILE",
         help="UTF-8 file containing one candidate-family name per line (# comments allowed).",
+    )
+    parser.add_argument(
+        "--edges", choices=("primary", "all"), default="primary",
+        help="Relationships to scan: primary evolution edges (default) or all direction-supported related edges.",
     )
     parser.add_argument(
         "--benchmark", action="store_true",
@@ -167,7 +172,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             tracemalloc.start()
         started = time.perf_counter()
         try:
-            result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose)
+            result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose, edges=args.edges)
             if output_dir is not None:
                 _output.write_json(output_dir, output_stems[name], payload)
             if args.input is None:
@@ -221,7 +226,7 @@ def _read_family_names(path: Path, limit: int | None) -> list[str]:
     return names
 
 
-def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool):
+def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool, edges: str = "primary"):
     loaded = DuckDBFamilyRepository(database).load_available(name)
     artifacts = loaded.artifacts
     if not artifacts and not loaded.skipped_artifacts:
@@ -229,10 +234,10 @@ def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: b
     sibling_files = DuckDBSiblingRepository(database).load(
         artifact.artifact_id for artifact in artifacts
     )
-    analyzer = FamilyRiskAnalyzer(policy=policy)
+    analyzer = FamilyRiskAnalyzer(policy=policy, edges=edges)
     result = analyzer.analyze(artifacts, sibling_files=sibling_files) if artifacts else FamilyRiskAnalysis(
         name=name, similarity_policy=policy, active_rules=analyzer.active_rules,
-        clusters=(), ambiguous_edges_skipped=0,
+        clusters=(), ambiguous_edges_skipped=0, edge_selection=edges,
     )
     payload = result.to_dict(verbose=verbose)
     payload["input_summary"] = {
@@ -260,7 +265,11 @@ def _database_from_environment() -> Path | None:
 
 def _print_report(result: FamilyRiskAnalysis, *, verbose: bool) -> None:
     print(f"Candidate family:        {result.name}")
+    print(f"Edge selection:          {result.edge_selection}")
     print(f"Pairs analyzed:          {result.pairs_analyzed}")
+    edge_counts = Counter(item.edge_type for cluster in result.clusters
+                          for item in cluster.pair_observations)
+    print(f"  Primary: {edge_counts['primary']}; additional: {edge_counts['additional']}")
     print(f"Pairs flagged:           {result.pairs_flagged}")
     print(f"Pairs incomplete:        {result.pairs_incomplete}")
     print(f"Pairs with evidence changes: {result.pairs_with_evidence_changes}")
@@ -318,7 +327,7 @@ def _print_flagged_pair(
     print(
         f"{indent}base: {pair.source_artifact_id}, "
         f"derived: {pair.destination_artifact_id}, "
-        f"change: {pair.change_type.value}, "
+        f"edge: {pair.edge_type}, change: {pair.change_type.value}, "
         f"basis: {pair.direction_basis}"
     )
 
@@ -477,7 +486,7 @@ def _print_incomplete_pairs(
         print(
             f"{indent}  base: {pair.source_artifact_id}, "
             f"derived: {pair.destination_artifact_id}, "
-            f"change: {pair.change_type.value}, "
+            f"edge: {pair.edge_type}, change: {pair.change_type.value}, "
             f"basis: {pair.direction_basis}"
         )
         _print_sibling_warning(pair.sibling_scan, indent=f"{indent}    ")

@@ -85,7 +85,7 @@ class _SourceContext:
                 kind = "blockquote"
             elif re.match(r"^#{1,6}\s", stripped):
                 kind = "markdown_heading"
-            elif _inside_inline_code(line.content, position - line.start):
+            elif self.inline_code_bounds(position) is not None:
                 kind = "inline_code"
             else:
                 kind = "markdown_prose"
@@ -102,6 +102,29 @@ class _SourceContext:
             nearby = self._url_context(index)
         return EvidenceContext(kind=kind, language=line.language, heading=line.heading,
                                nearby_text=nearby)
+
+    def inline_code_bounds(self, position: int) -> tuple[int, int] | None:
+        """Return Markdown inline-code content bounds enclosing a source position."""
+        index = max(0, bisect.bisect_right(self._starts, position) - 1)
+        line = self._lines[index]
+        if not self._markdown or line.in_fence or line.fence_marker:
+            return None
+        relative = position - line.start
+        runs = list(re.finditer(r"`+", line.content))
+        i = 0
+        while i < len(runs):
+            opening = runs[i]
+            j = i + 1
+            while j < len(runs) and len(runs[j].group()) != len(opening.group()):
+                j += 1
+            if j >= len(runs):
+                i += 1
+                continue
+            closing = runs[j]
+            if opening.end() <= relative < closing.start():
+                return line.start + opening.end(), line.start + closing.start()
+            i = j + 1
+        return None
 
     def _url_context(self, index: int) -> str:
         """Keep a short, connected Markdown sentence, not an entire document."""
@@ -124,10 +147,6 @@ class _SourceContext:
                            or current.lower().startswith(("at http", "at [", "from http", "from [")))):
             return (preceding + " " + current)[:320]
         return current[:320]
-
-
-def _inside_inline_code(line: str, relative_position: int) -> bool:
-    return line[:max(0, relative_position)].count("`") % 2 == 1
 
 
 class EvidenceExtractor:
@@ -155,7 +174,7 @@ class EvidenceExtractor:
         for match in matches:
             if not self._valid_offsets(text, match):
                 continue
-            candidates.append(self._candidate(text, match))
+            candidates.append(self._candidate(text, match, contexts))
         # Prefer the complete containing construct, rather than one URL or
         # credential record for each regex match inside the same command.
         priority = {"shell_command": 0, "api_call": 1, "markdown_link": 2}
@@ -262,7 +281,9 @@ class EvidenceExtractor:
         return (match.start_offset is not None and match.end_offset is not None
                 and 0 <= match.start_offset < match.end_offset <= len(text))
 
-    def _candidate(self, text: str, match: RuleMatch) -> SourceSpan:
+    def _candidate(
+        self, text: str, match: RuleMatch, contexts: _SourceContext,
+    ) -> SourceSpan:
         start, end = match.start_offset, match.end_offset
         assert start is not None and end is not None
         if match.rule_id == "CMD-001":
@@ -277,6 +298,14 @@ class EvidenceExtractor:
             if reference is not None:
                 return reference
         if match.rule_id in {"CMD-002", "NET-002", "FS-001", "FS-003", "EXT-001", "EXT-002", "SYS-001", "SYS-002"}:
+            bounds = contexts.inline_code_bounds(start)
+            if bounds is not None and end <= bounds[1]:
+                # Isolate a command from neighboring backtick spans and prose.
+                # Otherwise an apostrophe or earlier command on the same
+                # Markdown line can corrupt extraction and completeness.
+                left, right = bounds
+                span = self._shell.extract(text[left:right], start - left, end - left)
+                return replace(span, start=span.start + left, end=span.end + left)
             return self._shell.extract(text, start, end)
         if match.rule_id == "NET-001":
             return self._url.extract(text, start, end)

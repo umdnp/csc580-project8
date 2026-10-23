@@ -175,3 +175,27 @@ def test_single_unsafe_family_name_is_saved_safely(mock_repos, tmp_path, capsys)
     assert json.loads(capsys.readouterr().out)["candidate_family"] == name
     assert (output / f"{report_stem(name)}.json").is_file()
     assert _rows(output / "benchmarks.csv")[0]["family"] == name
+
+
+def test_edge_selection_option_in_single_and_batch_modes(mock_repos, tmp_path, capsys):
+    single = tmp_path / "single"
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "all",
+                             "--json", "--output", str(single)]) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["edge_selection"] == "all"
+    assert (single / "alpha.json").is_file()
+
+    source = tmp_path / "names.txt"
+    source.write_text("alpha\n", encoding="utf-8")
+    batch = tmp_path / "batch"
+    assert scan_family.main(["--input", str(source), "--db", str(mock_repos),
+                             "--edges", "all", "--output", str(batch)]) == 0
+    assert json.loads((batch / "alpha.json").read_text())["edge_selection"] == "all"
+
+    default = tmp_path / "default"
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--json",
+                             "--output", str(default)]) == 0
+    assert json.loads((default / "alpha.json").read_text())["edge_selection"] == "primary"
+
+    with pytest.raises(SystemExit, match="2"):
+        scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "ambiguous"])

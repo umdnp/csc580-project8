@@ -183,3 +183,70 @@ def test_makefile_variable_references_are_complete_but_ambiguous_expressions_rem
     ]
     assert records[0].raw_text == "mkdir -p $(GOCACHE) $(GOMODCACHE)"
     assert records[0].context.language == "makefile"
+
+
+def test_markdown_inline_commands_are_separate_even_with_long_prose_and_apostrophes():
+    """Do not merge two backtick commands with the prose between them."""
+    from gitskills.analysis.comparator import compare_results
+    from gitskills.analysis.risk_assessor import RiskAssessor
+
+    base = (
+        '2. Clear caches and reinstall dependencies: reset Metro cache, '
+        '`watchman watch-del-all`, remove `node_modules` + lockfile, '
+        '`npm install`, then '
+        '`cd ios && rm -rf build Pods Podfile.lock && pod install --repo-update`'
+    )
+    derived = (
+        '2. Clear caches and reinstall dependencies **without deleting lockfiles**: '
+        'reset Metro cache, `watchman watch-del-all`, remove `node_modules`, '
+        "reinstall from the lockfile (`npm ci`, or the package manager's "
+        'frozen/immutable install), then '
+        '`cd ios && rm -rf build Pods && pod install` — keep `Podfile.lock`. '
+        'Deleting lockfiles re-resolves dependency versions and changes the build; '
+        'do it only as a last resort with explicit user approval.'
+    )
+    analyzer = SkillAnalyzer()
+    initial = analyzer.scan(base)
+    later = analyzer.scan(derived)
+    assert initial.rule_counts() == {'CMD-002': 1, 'EXT-002': 1, 'FS-001': 1}
+    assert later.rule_counts() == {'CMD-002': 1, 'FS-001': 1}
+    assert [(e.raw_text, e.rule_ids) for e in initial.evidence] == [
+        ('npm install', ('CMD-002', 'EXT-002')),
+        ('rm -rf build Pods Podfile.lock', ('FS-001',)),
+    ]
+    assert [(e.raw_text, e.rule_ids) for e in later.evidence] == [
+        ('npm ci', ('CMD-002',)),
+        ('rm -rf build Pods', ('FS-001',)),
+    ]
+    assert all(e.extraction_status == ExtractionStatus.COMPLETE
+               and e.context.kind == 'inline_code'
+               for e in (*initial.evidence, *later.evidence))
+
+    comparison = compare_results(initial, later)
+    assert [e.raw_text for e in comparison.evidence_removed] == [
+        'npm install', 'rm -rf build Pods Podfile.lock',
+    ]
+    assert [e.raw_text for e in comparison.evidence_added] == [
+        'npm ci', 'rm -rf build Pods',
+    ]
+    assessment = RiskAssessor().assess(comparison)
+    assert assessment.coverage == 'complete'
+    assert not any(indicator.indicator_id == 'RI-006' for indicator in assessment.supported)
+
+
+def test_separate_markdown_inline_code_spans_and_fenced_code_remain_distinct():
+    source = (
+        'Use `npm ci`, then `rm -rf build Pods`; the manager\'s note is prose.\n'
+        'Or use ``rm -rf ./cache`` without deleting dependencies.\n'
+        '```bash\nrm -rf /tmp/cache\n```\n'
+    )
+    result = SkillAnalyzer().scan(source)
+    assert [(item.raw_text, item.context.kind) for item in result.evidence
+            if item.kind == 'shell_command'] == [
+        ('npm ci', 'inline_code'),
+        ('rm -rf build Pods', 'inline_code'),
+        ('rm -rf ./cache', 'inline_code'),
+        ('rm -rf /tmp/cache', 'code_block'),
+    ]
+    assert all(item.extraction_status == ExtractionStatus.COMPLETE
+               for item in result.evidence)

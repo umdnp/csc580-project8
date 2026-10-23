@@ -20,6 +20,7 @@ from .family_risk_models import (
     FlaggedPair,
     FlaggedRule,
     IncompletePair,
+    PairObservation,
     ScanSurface,
     SiblingFile,
     SiblingScanSummary,
@@ -60,10 +61,14 @@ class FamilyRiskAnalyzer:
         policy: SimilarityPolicy | None = None,
         family_analyzer: FamilyAnalyzer | None = None,
         skill_analyzer: SkillAnalyzer | None = None,
+        edges: str = "primary",
     ) -> None:
         if family_analyzer is not None and policy is not None:
             raise ValueError("Pass either policy or family_analyzer, not both")
 
+        if edges not in ("primary", "all"):
+            raise ValueError("edges must be primary or all")
+        self._edges = edges
         self._family_analyzer = family_analyzer or FamilyAnalyzer(policy)
         self._skill_analyzer = skill_analyzer or SkillAnalyzer()
         self._rule_catalog = _rule_catalog(self._skill_analyzer.rules)
@@ -83,7 +88,7 @@ class FamilyRiskAnalyzer:
         *,
         sibling_files: Iterable[SiblingFile] = (),
     ) -> FamilyRiskAnalysis:
-        """Analyze directed evolution edges and return pairs needing manual review."""
+        """Analyze primary or all direction-supported family relationships."""
 
         artifacts = tuple(artifacts)
         siblings = tuple(sibling_files)
@@ -111,14 +116,28 @@ class FamilyRiskAnalyzer:
         clusters: list[ClusterRiskAnalysis] = []
 
         for cluster in family.family.clusters:
-            directed_edges = cluster.evolution.directed_edges
-            if not directed_edges:
+            primary = cluster.evolution.directed_edges
+            # The reduced evolution graph contains preferred predecessor edges;
+            # related_edges contain other directionally supported comparisons.
+            # Deduplicate by artifact IDs, preferring primary classification.
+            seen_pairs: set[tuple[int, int]] = set()
+            edges_to_scan = []
+            candidates = [(edge, "primary") for edge in primary]
+            if self._edges == "all":
+                candidates.extend((edge, "additional") for edge in cluster.evolution.related_edges)
+            for edge, edge_type in candidates:
+                key = (edge.source_artifact_id, edge.target_artifact_id)
+                if key not in seen_pairs:
+                    seen_pairs.add(key)
+                    edges_to_scan.append((edge, edge_type))
+            if not edges_to_scan:
                 continue
 
             flagged_pairs: list[FlaggedPair] = []
             incomplete_pairs: list[IncompletePair] = []
+            pair_observations: list[PairObservation] = []
 
-            for edge in directed_edges:
+            for edge, edge_type in edges_to_scan:
                 source_result = self._scan_variant(
                     edge.source.file_sha,
                     variants,
@@ -171,6 +190,7 @@ class FamilyRiskAnalyzer:
                         incomplete_pairs.append(
                             IncompletePair(
                                 cluster_number=cluster.number,
+                                edge_type=edge_type,
                                 source_artifact_id=edge.source_artifact_id,
                                 destination_artifact_id=edge.target_artifact_id,
                                 change_type=edge.change_type,
@@ -219,16 +239,40 @@ class FamilyRiskAnalyzer:
                         key=lambda rule: (rule.rule_id, rule.surface.value),
                     )
                 )
-                # Flag evidence-only changes (including zero rule deltas) and
-                # supported/uncertain indicators, retaining legacy rule flags.
-                if not (flagged_rules or skill_evidence.added or skill_evidence.removed
-                        or sibling_evidence.added or sibling_evidence.removed
-                        or assessment.indicators):
+                # Keep every directed edge for unbiased validation denominators.
+                flagged = bool(flagged_rules or skill_evidence.added or skill_evidence.removed
+                               or sibling_evidence.added or sibling_evidence.removed
+                               or assessment.indicators)
+                pair_observations.append(PairObservation(
+                    edge_type=edge_type,
+                    source_artifact_id=edge.source_artifact_id,
+                    destination_artifact_id=edge.target_artifact_id,
+                    direction_basis=edge.basis,
+                    change_type=edge.change_type,
+                    flagged=flagged,
+                    rule_flagged=bool(flagged_rules),
+                    skill_evidence_added=len(skill_evidence.added),
+                    skill_evidence_removed=len(skill_evidence.removed),
+                    sibling_evidence_added=len(sibling_evidence.added),
+                    sibling_evidence_removed=len(sibling_evidence.removed),
+                    indicator_ids=tuple(sorted({i.indicator_id for i in assessment.supported})),
+                    uncertain_indicator_ids=tuple(sorted({i.indicator_id for i in assessment.uncertain})),
+                    finding_count=assessment.finding_count,
+                    coverage=assessment.coverage,
+                    evidence_complete=assessment.evidence_complete,
+                    evidence_partial=assessment.evidence_partial,
+                    evidence_unsupported=assessment.evidence_unsupported,
+                    missing_sibling_content=assessment.missing_sibling_content,
+                    unknown_sibling_hashes=assessment.unknown_sibling_hashes,
+                    sibling_listing_incomplete=assessment.sibling_listing_incomplete,
+                ))
+                if not flagged:
                     continue
 
                 flagged_pairs.append(
                     FlaggedPair(
                         cluster_number=cluster.number,
+                        edge_type=edge_type,
                         source_artifact_id=edge.source_artifact_id,
                         destination_artifact_id=edge.target_artifact_id,
                         direction_basis=edge.basis,
@@ -248,11 +292,12 @@ class FamilyRiskAnalyzer:
             clusters.append(
                 ClusterRiskAnalysis(
                     cluster_number=cluster.number,
-                    pairs_analyzed=len(directed_edges),
+                    pairs_analyzed=len(edges_to_scan),
                     flagged_pairs=tuple(flagged_pairs),
                     incomplete_pairs=tuple(incomplete_pairs),
+                    pair_observations=tuple(pair_observations),
                     direction_basis_counts=tuple(sorted(
-                        Counter(edge.basis for edge in directed_edges).items()
+                        Counter(edge.basis for edge, _ in edges_to_scan).items()
                     )),
                 )
             )
@@ -262,6 +307,7 @@ class FamilyRiskAnalyzer:
             similarity_policy=family.policy,
             active_rules=self.active_rules,
             clusters=tuple(clusters),
+            edge_selection=self._edges,
             ambiguous_edges_skipped=family.family.ambiguous_edge_count,
         )
 

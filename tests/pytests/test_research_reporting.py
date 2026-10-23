@@ -1,7 +1,8 @@
-"""Phase 10: complete denominators, manual sample, and reproducible research tables."""
+"""Complete denominators, manual samples, and reproducible research tables."""
 
 import csv
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -37,7 +38,9 @@ def _report():
 def test_every_directed_edge_including_unflagged_is_serialized():
     report = _report()
     all_pairs = [p for cluster in report["clusters"] for p in cluster["pair_observations"]]
-    assert report["report_schema_version"] == "gitskills-family-scan-v2"
+    assert report["report_type"] == "gitskills-family-scan"
+    assert "report_schema_version" not in report
+    assert "indicator_policy_version" not in report
     assert len(all_pairs) == report["summary"]["pairs_analyzed"]
     assert any(not p["flagged"] for p in all_pairs)
     assert any(p["flagged"] for p in all_pairs)
@@ -62,16 +65,27 @@ def test_reproducible_tables_and_sample_including_nonflagged(tmp_path: Path):
     assert (first / "validation_annotations_template.csv").is_file()
 
 
-def test_reconcile_catches_summary_mismatch_and_stale_schema(tmp_path: Path):
+def test_reconcile_catches_summary_mismatch(tmp_path: Path):
     result = _report()
     path = tmp_path / "input.json"
     result["summary"]["pairs_analyzed"] += 1
     path.write_text(json.dumps(result), encoding="utf-8")
     with pytest.raises(ResearchInputError, match="family pair count mismatch"):
         summarize([path], tmp_path / "out")
-    result["report_schema_version"] = "old-report"
-    path.write_text(json.dumps(result), encoding="utf-8")
-    with pytest.raises(ResearchInputError, match="regenerate"):
+
+
+def test_rejects_non_scan_reports_and_missing_required_pair_data(tmp_path: Path):
+    path = tmp_path / "input.json"
+    report = _report()
+    report.pop("report_type")
+    path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ResearchInputError, match="expected a scan_family report"):
+        summarize([path], tmp_path / "out")
+
+    report = _report()
+    report["clusters"][0].pop("pair_observations")
+    path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ResearchInputError, match="missing pair_observations"):
         summarize([path], tmp_path / "out")
 
 
@@ -116,3 +130,32 @@ def test_default_research_summary_does_not_select_review_sample(tmp_path: Path):
     assert (output / "indicator_frequency.svg").is_file()
     assert not (output / "validation_sample.csv").exists()
     assert not (output / "validation_annotations_template.csv").exists()
+
+
+def test_serializing_cluster_with_missing_observations_fails_at_source():
+    analysis = FamilyRiskAnalyzer().analyze([
+        _a(1, PREFIX + "One step.\n"),
+        _a(2, PREFIX + "Two steps.\n"),
+    ])
+    cluster = analysis.clusters[0]
+    incomplete = replace(cluster, pairs_analyzed=cluster.pairs_analyzed + 1)
+    with pytest.raises(ValueError, match=r"pairs_analyzed=2, pair_observations=1"):
+        incomplete.to_dict()
+
+
+def test_pair_mismatch_message_gives_counts_and_remediation(tmp_path: Path):
+    report = _report()
+    cluster = report["clusters"][0]
+    cluster["pairs_analyzed"] += 1
+    input_path = tmp_path / "report.json"
+    input_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ResearchInputError, match=r"pairs_analyzed=\d+, pair_observations=\d+.*regenerate"):
+        summarize([input_path], tmp_path / "summary")
+
+
+def test_cluster_requires_explicit_pair_observations():
+    # Keep old analyzer implementations from silently emitting missing all-pairs data.
+    from gitskills.analysis.family_risk_models import ClusterRiskAnalysis
+
+    with pytest.raises(TypeError, match="pair_observations"):
+        ClusterRiskAnalysis(cluster_number=1, pairs_analyzed=1, flagged_pairs=())

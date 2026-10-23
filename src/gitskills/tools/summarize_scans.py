@@ -1,4 +1,4 @@
-"""Aggregate versioned scan_family JSON into reproducible research tables."""
+"""Aggregate scan_family reports into reproducible research tables."""
 
 from __future__ import annotations
 
@@ -11,9 +11,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-from gitskills.analysis.risk_models import POLICY_VERSION
+from gitskills.analysis.family_risk_models import FAMILY_SCAN_REPORT_TYPE
 
-SCHEMA = "gitskills-family-scan-v2"
 INDICATORS = tuple(f"RI-{index:03d}" for index in range(1, 12))
 SAMPLE_STRATA = (
     "supported-indicator",
@@ -25,7 +24,7 @@ SAMPLE_STRATA = (
 )
 PAIR_FIELDS = (
     "family", "cluster", "base_artifact_id", "derived_artifact_id",
-    "direction_basis", "change_type", "flagged", "rule_flagged",
+    "edge_type", "direction_basis", "change_type", "flagged", "rule_flagged",
     "skill_added", "skill_removed", "sibling_added", "sibling_removed",
     "indicator_ids", "uncertain_indicator_ids", "finding_count", "coverage_status",
     "evidence_complete", "evidence_partial", "evidence_unsupported",
@@ -48,14 +47,18 @@ def _read_report(path: Path) -> dict:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ResearchInputError(f"Cannot load {path}: {exc}") from exc
-    _require(isinstance(data, dict) and data.get("report_schema_version") == SCHEMA,
-             f"{path}: expected report_schema_version={SCHEMA}; regenerate with updated scan_family")
-    _require(isinstance(data.get("clusters"), list) and isinstance(data.get("summary"), dict),
-             f"{path}: missing clusters or summary")
+    _require(isinstance(data, dict) and data.get("report_type") == FAMILY_SCAN_REPORT_TYPE,
+             f"{path}: expected a scan_family report (report_type={FAMILY_SCAN_REPORT_TYPE})")
     _require(isinstance(data.get("candidate_family"), str) and data["candidate_family"],
              f"{path}: missing candidate_family")
-    _require(data.get("indicator_policy_version") == POLICY_VERSION,
-             f"{path}: expected indicator_policy_version={POLICY_VERSION}")
+    _require(isinstance(data.get("clusters"), list) and isinstance(data.get("summary"), dict),
+             f"{path}: missing clusters or summary")
+    _require(data.get("edge_selection") in ("primary", "all"),
+             f"{path}: missing or invalid edge_selection")
+    _require(isinstance(data.get("similarity_policy"), dict) and
+             isinstance(data.get("active_rules"), list) and
+             isinstance(data.get("scanner_scope"), str),
+             f"{path}: missing scan settings")
     return data
 
 
@@ -67,18 +70,29 @@ def _rows(report: dict) -> list[dict]:
     all_keys = set()
     counted_bases: Counter = Counter()
     indicator_counts: Counter = Counter()
+    edge_counts: Counter = Counter()
     for cluster in report["clusters"]:
         number = cluster["cluster"]
         observations = cluster.get("pair_observations")
         _require(isinstance(observations, list), f"{family}: missing pair_observations in cluster {number}")
         _require(len(observations) == cluster["pairs_analyzed"],
-                 f"{family}: pair count mismatch in cluster {number}")
+                 f"{family}: pair count mismatch in cluster {number}: "
+                 f"pairs_analyzed={cluster['pairs_analyzed']}, "
+                 f"pair_observations={len(observations)}. "
+                 "This JSON is internally inconsistent; regenerate this family's report with scan_family.")
+        _require(dict(Counter(p.get("edge_type") for p in observations)) == cluster.get("edge_type_counts"),
+                 f"{family}: edge types mismatch in cluster {number}")
         _require(sum(bool(p["flagged"]) for p in observations) == cluster["pairs_flagged"],
                  f"{family}: flagged count mismatch in cluster {number}")
         for item in observations:
             key = (number, item["source_artifact_id"], item["destination_artifact_id"])
             _require(key not in all_keys, f"{family}: duplicate directed edge {key}")
             all_keys.add(key)
+            edge_type = item.get("edge_type")
+            _require(edge_type in ("primary", "additional"), f"{family}: invalid edge_type at {key}")
+            _require(report["edge_selection"] == "all" or edge_type == "primary",
+                     f"{family}: additional edge in primary scan at {key}")
+            edge_counts[edge_type] += 1
             basis = item["direction_basis"]
             counted_bases[basis] += 1
             ids = tuple(sorted(set(item["indicator_ids"])))
@@ -93,7 +107,7 @@ def _rows(report: dict) -> list[dict]:
                      f"{family}: extraction record totals disagree at {key}")
             ec = item["evidence_comparison"]
             rows.append({
-                "family": family, "cluster": number,
+                "family": family, "cluster": number, "edge_type": edge_type,
                 "base_artifact_id": item["source_artifact_id"],
                 "derived_artifact_id": item["destination_artifact_id"],
                 "direction_basis": basis, "change_type": item["change_type"],
@@ -125,6 +139,8 @@ def _rows(report: dict) -> list[dict]:
         _require(dict(Counter(i for p in observations for i in set(p["indicator_ids"])))
                  == cluster["indicator_frequency"],
                  f"{family}: indicator frequency mismatch in cluster {number}")
+    _require(dict(edge_counts) == summary.get("edge_type_counts"),
+             f"{family}: family edge type counts mismatch")
     _require(len(rows) == summary["pairs_analyzed"], f"{family}: family pair count mismatch")
     _require(len(flagged_keys) == summary["pairs_flagged"], f"{family}: family flagged count mismatch")
     _require(sum(bool(row["indicator_ids"]) for row in rows) == summary["pairs_with_indicators"],
@@ -170,7 +186,7 @@ def _sample(rows: list[dict], per_stratum: int, seed: int) -> list[dict]:
             "supported-indicator": bool(row["indicator_ids"]),
             "coverage-limited": row["coverage_status"] != "complete",
             "uncertain-indicator": bool(row["uncertain_indicator_ids"]),
-            "sibling-change": row["change_type"] != "skill-only",
+            "sibling-change": row["change_type"] in ("siblings-only", "skill+siblings"),
             "flagged-no-indicator": bool(row["flagged"] and not row["indicator_ids"]),
             "unflagged-directed": not row["flagged"],
         }[label]
@@ -243,7 +259,7 @@ def _svg_frequency(path: Path, frequency: Counter, total: int) -> None:
 
 def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None,
               seed: int = 580, annotations: Path | None = None) -> dict:
-    """Summarize versioned family reports; reject incompatible or duplicate inputs."""
+    """Summarize family reports; reject malformed or duplicate inputs."""
     _require(bool(paths), "At least one report is required")
     reports = [_read_report(path) for path in sorted(paths)]
     names = [r["candidate_family"] for r in reports]
@@ -251,8 +267,9 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
     policies = {json.dumps(r["similarity_policy"], sort_keys=True) for r in reports}
     rules = {json.dumps(r["active_rules"], sort_keys=True) for r in reports}
     scopes = {r["scanner_scope"] for r in reports}
-    _require(len(policies) == len(rules) == len(scopes) == 1,
-             "Reports have different similarity policies, rules or scopes; analyze separate cohorts")
+    selections = {r["edge_selection"] for r in reports}
+    _require(len(policies) == len(rules) == len(scopes) == len(selections) == 1,
+             "Reports have different similarity policies, rules, scanner scopes, or edge selections; analyze separate cohorts")
     all_rows = sorted((row for report in reports for row in _rows(report)),
                       key=lambda r: (r["family"], r["cluster"], r["base_artifact_id"],
                                      r["derived_artifact_id"]))
@@ -261,27 +278,47 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
                                            for i in row["indicator_ids"].split(";") if i)
     family_rows = []
     direction = defaultdict(lambda: Counter())
+    type_stats = {kind: Counter() for kind in ("primary", "additional")}
+    type_indicators = {kind: Counter() for kind in ("primary", "additional")}
     for report in sorted(reports, key=lambda r: r["candidate_family"]):
         count = report["summary"]
         family_rows.append({"family": report["candidate_family"],
                             "artifacts_loaded": report.get("input_summary", {}).get("artifacts_loaded", ""),
                             "artifacts_skipped": report.get("input_summary", {}).get("artifacts_skipped", ""),
+                            "primary_pairs": count["edge_type_counts"].get("primary", 0),
+                            "additional_pairs": count["edge_type_counts"].get("additional", 0),
                             **{k: count[k] for k in ("pairs_analyzed", "pairs_flagged", "pairs_incomplete",
                                                    "pairs_with_evidence_changes", "pairs_with_indicators",
                                                    "pairs_evidence_coverage_incomplete", "ambiguous_edges_skipped")}})
     for row in all_rows:
+        category = type_stats[row["edge_type"]]
+        category["pairs_analyzed"] += 1
+        category["pairs_flagged"] += row["flagged"]
+        category["pairs_with_indicators"] += bool(row["indicator_ids"])
+        category["pairs_coverage_incomplete"] += row["coverage_status"] != "complete"
+        category["finding_count"] += row["finding_count"]
+        type_indicators[row["edge_type"]].update(filter(None, row["indicator_ids"].split(";")))
         ct = direction[row["direction_basis"]]
         ct["pairs_analyzed"] += 1
         ct["pairs_flagged"] += row["flagged"]
         ct["pairs_with_indicators"] += bool(row["indicator_ids"])
         ct["pairs_coverage_incomplete"] += row["coverage_status"] != "complete"
     summary = {
-        "report_schema_version": SCHEMA,
-        "policy_version": POLICY_VERSION,
+        "report_type": "gitskills-research-summary",
         "similarity_policy": reports[0]["similarity_policy"],
         "scanner_scope": reports[0]["scanner_scope"],
+        "edge_selection": reports[0]["edge_selection"],
         "family_count": len(reports),
         "directed_pairs_analyzed": pairs,
+        "edge_type_breakdown": {
+            kind: {"pairs_analyzed": type_stats[kind]["pairs_analyzed"],
+                   "pairs_flagged": type_stats[kind]["pairs_flagged"],
+                   "pairs_with_indicators": type_stats[kind]["pairs_with_indicators"],
+                   "pairs_coverage_incomplete": type_stats[kind]["pairs_coverage_incomplete"],
+                   "finding_count": type_stats[kind]["finding_count"],
+                   "indicator_frequency_pairs": {iid: type_indicators[kind][iid] for iid in INDICATORS}}
+            for kind in ("primary", "additional")
+        },
         "flagged_pairs": sum(r["flagged"] for r in all_rows),
         "pairs_with_supported_indicators": sum(bool(r["indicator_ids"]) for r in all_rows),
         "supported_findings": sum(r["finding_count"] for r in all_rows),
@@ -294,7 +331,7 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
         "sibling_incomplete_pairs": sum(r["pairs_incomplete"] for r in family_rows),
         "ambiguous_edges_skipped": sum(r["ambiguous_edges_skipped"] for r in family_rows),
         "indicator_frequency_pairs": {iid: indicator_frequency[iid] for iid in INDICATORS},
-        "denominator_note": "Percentages for each indicator use directed_pairs_analyzed; categories overlap. Undirected ambiguous edges are excluded.",
+        "denominator_note": "Percentages use directed_pairs_analyzed (or the corresponding edge-type denominator); categories overlap. Ambiguous edges are excluded. Comparisons can share artifacts and are not independent historical events.",
     }
     chosen = _sample(all_rows, per_stratum, seed) if per_stratum is not None else []
     if annotations is not None and annotations.resolve() == (output / "validation_annotations_template.csv").resolve():
@@ -304,6 +341,22 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
     _write_csv(output / "families.csv", family_rows, tuple(family_rows[0].keys()))
     _write_csv(output / "direction_basis.csv", [dict(direction_basis=k, **v) for k, v in sorted(direction.items())],
                ("direction_basis", "pairs_analyzed", "pairs_flagged", "pairs_with_indicators", "pairs_coverage_incomplete"))
+    _write_csv(output / "edge_types.csv", [
+        {"edge_type": kind,
+         **{field: type_stats[kind][field] for field in (
+             "pairs_analyzed", "pairs_flagged", "pairs_with_indicators",
+             "pairs_coverage_incomplete", "finding_count")}}
+        for kind in ("primary", "additional")
+    ], ("edge_type", "pairs_analyzed", "pairs_flagged", "pairs_with_indicators",
+        "pairs_coverage_incomplete", "finding_count"))
+    _write_csv(output / "indicator_frequency_by_edge_type.csv", [
+        {"edge_type": kind, "indicator_id": iid, "pairs": type_indicators[kind][iid],
+         "directed_pairs": type_stats[kind]["pairs_analyzed"],
+         "percent_of_directed_pairs":
+             round(100 * type_indicators[kind][iid] / type_stats[kind]["pairs_analyzed"], 3)
+             if type_stats[kind]["pairs_analyzed"] else 0}
+        for kind in ("primary", "additional") for iid in INDICATORS
+    ], ("edge_type", "indicator_id", "pairs", "directed_pairs", "percent_of_directed_pairs"))
     _write_csv(output / "indicator_frequency.csv", [
         {"indicator_id": iid, "pairs": indicator_frequency[iid], "directed_pairs": pairs,
          "percent_of_directed_pairs": round(100 * indicator_frequency[iid] / pairs, 3) if pairs else 0}
