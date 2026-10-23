@@ -827,6 +827,18 @@ class ViewerTests(unittest.TestCase):
         self.assertIn(".meta-box.evidence-report + .paired-columns{margin-top:14px}", html)
         self.assertNotIn("Nearby source context · Base and Derived", html)
 
+    def test_diff_highlights_cover_full_scrollable_line(self):
+        html = self.client.get("/").text
+        # Each highlighted row must extend over its entire text width, even
+        # when the code continues beyond the visible diff pane.
+        self.assertIn(
+            ".diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);"
+            "width:max-content;min-width:100%;",
+            html,
+        )
+        for kind in ("added", "removed", "changed"):
+            self.assertIn(f".diff-line.{kind}{{background:", html)
+
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")
         self.assertIs(package.app, server.app)

@@ -186,7 +186,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .diff-heading button{font-size:12px;padding:4px 7px;flex:0 0 auto}
 .diff-panes{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:calc(100% - 34px);min-height:300px}
 .diff-pane{border:1px solid var(--border);border-radius:6px;overflow:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg)}
-.diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);min-height:1.45em;white-space:pre}
+.diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);width:max-content;min-width:100%;min-height:1.45em;white-space:pre}
 .diff-line .ln{user-select:none;text-align:right;padding:0 9px;color:var(--muted);border-right:1px solid var(--border)}
 .diff-line .code{padding:0 8px;min-width:max-content}
 .diff-line.added{background:var(--added)}
