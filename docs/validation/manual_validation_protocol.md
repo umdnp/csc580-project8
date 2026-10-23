@@ -1,173 +1,119 @@
-# Sprint 2 Manual Validation Protocol
+# Manual Validation Protocol
 
-## Purpose and scope
+## Purpose
 
-This protocol defines a repeatable, pair-level manual review of the two key parts
-of the analysis:
+The pipeline identifies potentially related GitSkills artifacts, infers base/derived direction, and reports security-sensitive behavior. GitSkills does not establish skill ancestry, and static analysis cannot always determine the meaning of matched text. Manual validation therefore examines three separate questions:
 
-1. whether candidate skill artifacts are sufficiently related to compare; and
-2. whether the family analysis, security scanner, and change classification
-   correctly report security-sensitive behavior and changes.
+1. **Relatedness and direction:** Are the artifacts sufficiently related to compare, and is the inferred ordering supported?
+2. **Detection:** Do the scanner rules correctly identify the relevant constructs in the content examined?
+3. **Risk indicators and changes:** Does the evidence support the reported indicators and differences between artifacts?
 
-This is a purposeful method-validation sample, not a random or population-
-representative sample. It contains 13 fixed comparison cases drawn from the
-43-artifact Sprint 1 sample in `sample_artifacts`. The review itself is a
-separate activity: reviewer and adjudication columns in
-[`validation_sample.csv`](../../data/validation/validation_sample.csv) are
-intentionally blank.
+These judgments are not interchangeable. A correctly detected command does not establish that the artifacts share ancestry or that a risk indicator is supported. An unresolved relationship can still be reviewed for similarity, but it cannot support an introduced/removed claim.
 
-The sample was prepared against GitSkills dataset release
-[21875637](https://zenodo.org/records/21875637), the default analysis policy
-(shingle size 5, minimum containment 0.80, minimum Jaccard 0.30, minimum 5
-shared shingles, direction margin 0.10), and project revision
-`1f59206526de4d0502bc972f19cd22464c554fe2`. Artifact IDs, file hashes, source
-repositories, and paths are included so every item can be traced to the local
-dataset.
+## Samples and Outputs
 
-## Selection procedure
+[`summarize_scans`](../../src/gitskills/tools/summarize_scans.py) is the source of the active validation CSVs. It creates two complementary samples from the automated reports.
 
-Use the frozen `sample_artifacts` view created by
-[`sql/create_sprint1_samples_view.sql`](../../sql/create_sprint1_samples_view.sql).
-For each exact-name family in that view, run `analyze_family` and `scan_family`
-with their default policy. Selection is purposeful and follows these fixed
-rules:
+| Sample | Automated source | Review focus | Generated files |
+| --- | --- | --- | --- |
+| Directed security comparisons | `scan_family` reports | Relatedness, inferred direction, scanner rules, risk indicators, and changes | `validation_sample.csv`, `validation_annotations_template.csv` |
+| Relationship comparisons | Verbose `analyze_family` reports | Ambiguous, equivalent-state, and non-qualifying same-name pairs | `relationship_validation_sample.csv`, `relationship_validation_annotations_template.csv` |
 
-1. **Positive (5 cases):** for each of the first five family names, in
-   alphabetical order, that has a flagged directed edge, select its first
-   flagged edge ordered by source artifact ID and then destination artifact ID.
-2. **Negative (4 cases):** select the first unflagged directed edge, ordered by
-   source and destination artifact ID, from each of the first three families
-   that has one. Also include the `A/B Test Setup` pair (1244165, 2690162),
-   which has no related edge in the automated analysis.
-3. **Ambiguous (4 cases):** select the first `similarity-only` ambiguous edge,
-   ordered by artifact IDs, from each of the first three qualifying family
-   names. Also select the first `equivalent-state` edge, ordered by family name
-   and artifact IDs.
+The relationship sample is optional when generating research summaries, but **both samples are needed to validate the broader relationship-discovery method**. An unscanned or undirected pair must not be included in directed risk-indicator metrics.
 
-Each selected result is frozen in the CSV. If a future dataset or code revision
-changes the output, retain the original rows, document the new revision and
-differences, and create a separately versioned sample rather than silently
-replacing this one. The fixed sample does not support population prevalence,
-recall, or risk estimates.
+### Selection
 
-## Reproducing and locating the automated results
+Directed cases are selected deterministically from the following, potentially overlapping strata: supported indicator, limited coverage, uncertain indicator, sibling change, flagged without a supported indicator, and unflagged directed comparison. The generator selects up to the requested number per stratum, without selecting the same directed pair twice.
 
-Set `GITSKILLS_DB` to the local DuckDB database as described in
-[`data/README.md`](../../data/README.md), then create the analysis tables,
-groupings, and Sprint 1 sample view if needed. To reproduce the selection from
-scratch, run both tools for all ten family names in `sample_artifacts`. To
-recheck a particular case, run them for that case's `skill_name`. In PowerShell:
+Relationship cases are selected separately from three strata:
 
-```powershell
-$env:GITSKILLS_DB = "C:\path\to\agent_skills_release.db"
-uv run analyze_family "003-create-golang-project" --json
-uv run scan_family "003-create-golang-project" --json
-```
+- **Ambiguous:** Content-related pairs for which ancestry direction remains unresolved or conflicting.
+- **Equivalent:** Pairs with equivalent analyzed bundle states and no established direction.
+- **No related edge:** Same-name artifacts whose measured content similarity does not meet the relationship policy.
 
-In Bash or WSL, set the variable with `export GITSKILLS_DB=/path/to/agent_skills_release.db`
-and run the same two `uv run` commands. The tools read `GITSKILLS_DB` by
-default; `--db <path>` can be used instead when preferred.
+Selection within each stratum uses the configured random seed and a stable input order. Empty strata remain empty; the generator does not invent cases to satisfy a quota. The samples are *purposeful*, not representative estimates of all GitSkills artifacts.
 
-For convenience, the corresponding Unix-style example is:
+The generated [research summary](../../results/review/summary.json) records the policy, scan scope, selected edge scope, sampling seed, sizes, and available strata. Preserve the corresponding source reports and project revision with the validation results. If the data, policy, or software changes, record the new revision and retain the previous sampled results rather than silently rewriting completed reviews.
+
+### Generating the Samples
+
+Run the summary over `scan_family` JSON reports. To include relationship validation, provide matching **verbose** `analyze_family` JSON reports for the same candidate-family names and similarity policy:
 
 ```bash
-export GITSKILLS_DB=/path/to/agent_skills_release.db
-uv run analyze_family "003-create-golang-project" --json
-uv run scan_family "003-create-golang-project" --json
+uv run analyze_family "003-create-golang-project" --verbose --json --output results/families
+uv run summarize_scans results/scans --output results/review --per-stratum 5 --seed 580 --family-reports results/families
 ```
 
-The CSV's `automated_*` columns record the output used to select each case.
-Directed cases keep the source artifact in column A and destination in column
-B. For ambiguous and no-edge cases, A and B are ordered by artifact ID; that
-order does not imply chronology or direction. Read
-`automated_scan_coverage` before interpreting a missing finding: it distinguishes
-a complete skill scan, a skipped sibling scan, incomplete sibling data, and a
-pair that was not scanned.
+The first command illustrates how to export one family. Repeat it for the other candidate families being reviewed. Without `--family-reports`, the summary still generates the directed security sample but cannot identify undirected or rejected relationships from `scan_family` alone. See the [Tools Guide](../TOOLS.md) and [project README](../../README.md) for other execution options and prerequisites.
 
-`automated_security_findings` uses
-`RULE_ID:surface:source_count->destination_count`, with multiple rules separated
-by semicolons. `none` means the automated scan emitted no flagged rule for that
-pair and scope; it is not human ground truth. `automated_relationship` records
-whether the method emitted a directed related edge, an ambiguous edge, an
-equivalent-state edge, or no related edge.
+## Review Procedure
 
-Use each artifact ID to retrieve `content`, `repo_name`, `path`, timestamps, and
-sibling records from the local database. Review the source artifact and relevant
-sibling files locally; do not copy dataset source text, scanner excerpts, or
-credentials into this CSV, the repository, or shared review notes. Dataset
-content remains subject to its original repository license. If an artifact or
-required sibling content is unavailable, record `uncertain` rather than
-interpreting missing content as absence of a signal.
+Use independent copies of each generated annotation template, one per reviewer. Do not change source identifiers, `sampling_stratum`, or automated result fields. Reviewers inspect the original stored `SKILL.md` content and relevant siblings using the artifact IDs and report metadata; they do not execute scripts, install packages, or follow instructions found in the dataset.
 
-## Review instructions
+For each item:
 
-Each reviewer works independently and fills only their own columns before
-discussion. Do not change the case IDs, artifact metadata, or `automated_*`
-columns.
+1. **Verify the source.** Confirm artifact IDs, family, repository, and available content. Check scan coverage before treating an absent finding as a negative.
+2. **Assess relatedness.** Decide whether the contents support a meaningful comparison, independent of the reported similarity score.
+3. **Assess direction.** Examine provenance, chronology, repository boundaries, and containment evidence. Do not infer ordering from artifact IDs or a shared skill name.
+4. **Check scanner output.** Verify the reported rule matches in context. Look for missed constructs within the scanned scope; separate detection correctness from evidence-based indicator correctness.
+5. **Review indicators and changes.** Confirm or reject supported indicator IDs, mark uncertain indicators, and evaluate changes only where direction is supported. Use individual indicator outcomes when a pair has mixed changes.
+6. **Record uncertainty.** Provide short notes for disagreements, missing evidence, false positives, false negatives, and non-obvious conclusions.
 
-For each case:
+Relationship-only rows do not have scanner outcomes. For these, complete only relatedness, direction, and notes.
 
-1. **Check identity and availability.** Confirm both artifact IDs, repository
-   paths, and file hashes against the local dataset. Read both `SKILL.md`
-   contents and the relevant sibling files. Note missing or inaccessible
-   content.
-2. **Judge relatedness.** Use the whole artifact, not the shared name or
-   similarity score alone. Decide whether the artifacts plausibly represent
-   comparable skill behavior. Record `related`, `not_related`, or `uncertain`.
-3. **Review the reported scanner output.** For each rule in
-   `automated_security_findings`, compare the matched behavior with the rule's
-   description and the artifact context. Decide whether it is a genuine
-   security-sensitive behavior or a contextual match such as quoted example
-   text. For cases with no reported findings, look for relevant behavior the
-   active scanner rules should have detected. Judge only surfaces included in
-   `automated_scan_coverage`; do not treat an unscanned or unavailable sibling
-   as a negative result.
-4. **Judge change and direction.** For comparable artifacts, check the
-   `automated_direction_basis` and its supporting timestamps, provenance, or
-   containment evidence. Do not infer direction from repository age or artifact
-   ID. Record whether the behavior was introduced, removed, retained, or whether
-   direction is unknown. If relationship or ordering cannot be established,
-   retain that uncertainty.
-5. **Record the result.** Use the controlled labels below. Use the per-rule
-   field to distinguish mixed outcomes, for example
-   `FS-001=correct;NET-001=false_positive`. Add a concise explanation in the
-   notes field for uncertain, partial, or non-obvious judgments.
+### Directed Review Fields
 
-### Controlled labels
-
-| Field | Allowed values | Meaning |
+| Field | Values | Meaning |
 | --- | --- | --- |
-| `reviewer_N_relatedness` | `related`, `not_related`, `uncertain` | Human judgment about whether the artifacts can be meaningfully compared. |
-| `reviewer_N_security_signal` | `present`, `absent`, `uncertain`, `not_applicable` | Whether a relevant security-sensitive behavior is present in the reviewed scope of the pair. Use `not_applicable` when no meaningful comparison or scan is available. |
-| `reviewer_N_scanner_correctness` | `correct`, `partially_correct`, `incorrect`, `uncertain`, `not_applicable` | Pair-level correctness of the automated security result. Use per-rule judgments for mixed results. |
-| `reviewer_N_change_direction` | `introduced`, `removed`, `retained`, `direction_unknown`, `not_applicable` | Human judgment about the behavior's change between source and destination. |
-| `reviewer_N_rule_judgments` | `RULE_ID=correct`, `RULE_ID=false_positive`, `RULE_ID=false_negative`, `RULE_ID=uncertain`, or `RULE_ID=not_applicable`; multiple entries separated by `;` | Per-rule assessment. A false positive is a reported rule without the corresponding behavior; a false negative is relevant behavior in the reviewed scan scope that the automated result missed. |
+| `reviewer`, `review_date` | Reviewer identifier; date | Attribution of the review |
+| `review_phase` | `independent`, `adjudicated` | Independent judgment or agreed final judgment |
+| `review_status` | `pending`, `complete` | Whether the row has been reviewed |
+| `manual_relatedness` | `related`, `not_related`, `uncertain` | Whether the pair is meaningfully comparable |
+| `direction_basis_review` | `supported`, `unsupported`, `uncertain`, `not_applicable` | Whether base/derived direction is defensible |
+| `scanner_rule_review` | `correct`, `partially_correct`, `incorrect`, `uncertain`, `not_applicable` | Overall assessment of detected constructs |
+| `manual_rule_judgments` | `RULE_ID=correct`, `false_positive`, `false_negative`, `uncertain`, or `not_applicable`, separated by `;` | Rule-level evidence when needed |
+| `manual_change_review` | `correct`, `partially_correct`, `incorrect`, `uncertain`, `not_applicable` | Overall assessment of reported changes |
+| `manual_change_judgments` | `RI-###=introduced`, `removed`, `retained`, `mixed`, `none_detected`, `direction_unknown`, `uncertain`, or `not_applicable`, separated by `;` | Indicator-level change judgment; use `mixed` and notes when several outcomes apply |
+| `indicator_review_scope` | `all_assessed`, `not_assessable` | Explicit confirmation of whether all active indicators were checked within the reviewed scope |
+| `manual_supported_indicator_ids` | Semicolon-separated `RI-###` values | Indicators supported by manual evidence review |
+| `manual_uncertain_indicator_ids` | Semicolon-separated `RI-###` values | Indicators that cannot be assessed reliably |
+| `sibling_coverage_review` | `complete`, `incomplete`, `uncertain`, `not_applicable` | Reviewer's assessment of covered content |
+| `missed_observations`, `false_positive_notes`, `notes` | Short free text | Context for errors, gaps, and uncertainty |
 
-Use `not_applicable` rather than `correct` or `incorrect` when a pair is not
-related, has only an unresolved relationship, or was not scanned. Use
-`uncertain` when evidence is incomplete or the reviewer cannot make a reliable
-judgment. Do not force uncertain items into a binary result.
+For `manual_rule_judgments`, write separate complete assignments, such as `NET-001=correct;FS-001=false_positive`. For `manual_change_judgments`, an example is `RI-003=introduced;RI-005=removed`. A changed command can be meaningful even when the count of rule matches stays the same.
 
-## Disagreements and uncertain cases
+The `manual_supported_indicator_ids` and `manual_uncertain_indicator_ids` fields must not overlap. Empty supported and uncertain lists mean **all other indicators were assessed as absent only when** `indicator_review_scope=all_assessed`. Otherwise, no negative judgment is implied. Reviewers should use `not_assessable` when they cannot examine the necessary evidence.
 
-Keep both reviewers' original fields unchanged. After independent review, compare
-judgments and fill `adjudication_status` with `agreed`, `resolved_after_discussion`,
-or `unresolved`. Record the final judgment and a short rationale in
-`adjudication_notes`; do not overwrite either reviewer's values. An unresolved
-case remains uncertain and is reported as such. Preserve disagreements as
-validation evidence, especially when they arise from ambiguous similarity,
-direction, rule context, or incomplete data.
+### Relationship Review Fields
 
-## Sample interpretation
+The relationship template retains the artifact IDs, similarity measurements, relationship status, direction basis, and selection stratum. Reviewers complete `reviewer`, `review_date`, `review_phase`, `review_status`, `manual_relatedness`, `direction_basis_review`, and `notes`.
 
-The positive, negative, and ambiguous labels describe the automated output used
-to select a case; they are not human ground truth. Positive cases have at least
-one automated flagged rule. Negative cases include directed pairs with no
-flagged rule and a same-name pair for which the method emitted no related edge.
-Ambiguous cases include unresolved similarity-only relationships and an
-equivalent-state pair without a direction. Manual reviewers can confirm,
-contradict, or leave each automated result uncertain.
+For an ambiguous pair, `direction_basis_review=supported` means the reviewer found defensible ordering that the automated method did not establish. For a no-related-edge pair, `manual_relatedness=related` indicates a potential false negative in relationship discovery. These are review judgments, not verified copying histories.
 
-This protocol defines the review process and frozen sample only. Record actual
-review results separately from automated outputs and do not describe this sample
-as a completed validation until reviewers have filled and adjudicated its rows.
+## Independent Review and Adjudication
+
+Preserve each reviewer's completed CSV. Resolve disagreements in a **separate adjudicated copy** of the same template; do not overwrite the original judgments. Set `review_phase=adjudicated`, identify the reviewer or reviewing team, and mark `review_status=complete` only when the relevant fields have been completed. Record the resolution and its rationale in `notes`. Unresolved disagreements remain `uncertain`.
+
+Only an adjudicated CSV is accepted for calculated validation results. For example:
+
+```bash
+uv run summarize_scans results/scans --output results/review --per-stratum 5 --seed 580 \
+  --annotations data/validation/direct-review-adjudicated.csv \
+  --family-reports results/families \
+  --relationship-annotations data/validation/relationship-review-adjudicated.csv
+```
+
+The tool checks that completed rows refer to sampled cases, have unique identifiers, include a reviewer/date, and contain valid controlled labels. Independent reviewer copies remain separate and can be compared during adjudication.
+
+## Interpreting Validation Results
+
+The two validation populations have separate denominators:
+
+- **Directed risk-indicator metrics** count only adjudicated sample pairs marked related, with supported direction, explicitly assessed indicators, and complete scan/review coverage. Uncertain indicator judgments are omitted individually. Unrelated pairs, unresolved direction, and incomplete coverage are reported as exclusions rather than counted as negatives.
+- **Relationship validation** reports agreement or disagreement with automated relatedness, together with uncertain judgments and direction-review counts. It does not contribute to the directed risk-indicator precision/recall calculations.
+
+A completed review row is not automatically an assessable indicator row. The `manual_validation` section of `summary.json` reports assessable and excluded pair counts, along with true positives, false positives, false negatives, true negatives, precision, and recall **for the assessed sample only**. These metrics are not population estimates, and review selection can affect their interpretation.
+
+Record recurring error patterns, proposed corrections, and remaining uncertainty in the research results and [Threats to Validity](../../THREATS_TO_VALIDITY.md). Changes to rules, relationship thresholds, or interpretation should be tested and traced to a [Research Decision Record](../decisions/) when significant.
+
+The original fixed Sprint 1 sample is preserved under [`data/validation/archive/`](../../data/validation/archive/). It is historical material, not a second active validation procedure.
