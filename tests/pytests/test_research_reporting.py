@@ -2,6 +2,7 @@
 
 import csv
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -129,3 +130,24 @@ def test_default_research_summary_does_not_select_review_sample(tmp_path: Path):
     assert (output / "indicator_frequency.svg").is_file()
     assert not (output / "validation_sample.csv").exists()
     assert not (output / "validation_annotations_template.csv").exists()
+
+
+def test_serializing_cluster_with_missing_observations_fails_at_source():
+    analysis = FamilyRiskAnalyzer().analyze([
+        _a(1, PREFIX + "One step.\n"),
+        _a(2, PREFIX + "Two steps.\n"),
+    ])
+    cluster = analysis.clusters[0]
+    incomplete = replace(cluster, pairs_analyzed=cluster.pairs_analyzed + 1)
+    with pytest.raises(ValueError, match=r"pairs_analyzed=2, pair_observations=1"):
+        incomplete.to_dict()
+
+
+def test_pair_mismatch_message_gives_counts_and_remediation(tmp_path: Path):
+    report = _report()
+    cluster = report["clusters"][0]
+    cluster["pairs_analyzed"] += 1
+    input_path = tmp_path / "report.json"
+    input_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ResearchInputError, match=r"pairs_analyzed=\d+, pair_observations=\d+.*regenerate"):
+        summarize([input_path], tmp_path / "summary")

@@ -73,7 +73,10 @@ def _rows(report: dict) -> list[dict]:
         observations = cluster.get("pair_observations")
         _require(isinstance(observations, list), f"{family}: missing pair_observations in cluster {number}")
         _require(len(observations) == cluster["pairs_analyzed"],
-                 f"{family}: pair count mismatch in cluster {number}")
+                 f"{family}: pair count mismatch in cluster {number}: "
+                 f"pairs_analyzed={cluster['pairs_analyzed']}, "
+                 f"pair_observations={len(observations)}. "
+                 "This JSON is internally inconsistent; regenerate this family's report with scan_family.")
         _require(sum(bool(p["flagged"]) for p in observations) == cluster["pairs_flagged"],
                  f"{family}: flagged count mismatch in cluster {number}")
         for item in observations:

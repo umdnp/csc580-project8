@@ -340,6 +340,13 @@ class ClusterRiskAnalysis:
         return dict(sorted(counts.items()))
 
     def to_dict(self, *, verbose: bool = False) -> dict[str, object]:
+        # Never serialize a partial cohort as if every directed pair was scanned.
+        if len(self.pair_observations) != self.pairs_analyzed:
+            raise ValueError(
+                f"Cluster {self.cluster_number}: pairs_analyzed={self.pairs_analyzed}, "
+                f"pair_observations={len(self.pair_observations)}; "
+                "cannot write an incomplete family scan report"
+            )
         return {
             "cluster": self.cluster_number,
             "pairs_analyzed": self.pairs_analyzed,
