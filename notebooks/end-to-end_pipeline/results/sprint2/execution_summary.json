@@ -1,0 +1,15 @@
+{
+  "pipeline_status": "success",
+  "sample_artifacts": 43,
+  "sample_name_groups": 10,
+  "membership_sha256": "edacbd69b656321189677e807c33cdbe88cbe4b63ec0e9c615370ddd6c7b11fa",
+  "security_profiles_scanned": 43,
+  "security_profiles_skipped": 0,
+  "security_profiles_errors": 0,
+  "candidate_comparisons": 33,
+  "comparisons_scanned": 33,
+  "comparisons_skipped": 0,
+  "comparisons_errors": 0,
+  "flagged_comparisons": 14,
+  "generated_at_utc": "2026-10-23T17:26:38.495909+00:00"
+}

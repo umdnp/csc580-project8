@@ -35,7 +35,7 @@ if SRC_DIR.is_dir() and str(SRC_DIR) not in sys.path:
 
 from gitskills import RiskCategory, SkillAnalyzer, compare_results  # noqa: E402
 from gitskills.analysis.risk_assessor import RiskAssessor  # noqa: E402
-from gitskills.tools._redaction import redact_text, safe_excerpt  # noqa: E402
+from gitskills.reporting.redaction import redact_text, safe_excerpt  # noqa: E402
 
 REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
@@ -78,8 +78,6 @@ def database_source() -> str:
     if _database_path_override is not None:
         return "--db"
     return "default"
-
-
 
 
 def database_source_label() -> str:
@@ -165,8 +163,8 @@ def _is_analyze_family_report(raw: object) -> bool:
     if not isinstance(raw.get("policy"), dict) or not isinstance(raw.get("summary"), dict):
         return False
 
-    # Compact analyze_family reports intentionally omit verbose diagnostic
-    # collections. When present, validate their types; do not require them.
+    # The standard report has source artifacts and similarities. Optional
+    # verbose diagnostics are validated when present for older report support.
     for key in (
         "groups",
         "skill_variants",

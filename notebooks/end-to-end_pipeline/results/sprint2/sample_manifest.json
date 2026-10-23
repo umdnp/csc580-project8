@@ -1,0 +1,10 @@
+{
+  "view": "sample_artifacts",
+  "sample_origin": "Sprint 1 reused for Sprint 2",
+  "artifacts": 43,
+  "name_groups": 10,
+  "distinct_file_shas": 43,
+  "ordered_membership_sha256": "edacbd69b656321189677e807c33cdbe88cbe4b63ec0e9c615370ddd6c7b11fa",
+  "database_filename": "agent_skills_release.db",
+  "pairing": "adjacent within exact name in view-returned order; not proven ancestry"
+}

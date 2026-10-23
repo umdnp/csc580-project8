@@ -12,12 +12,12 @@ These judgments are not interchangeable. A correctly detected command does not e
 
 ## Samples and Outputs
 
-[`summarize_scans`](../../src/gitskills/tools/summarize_scans.py) is the source of the active validation CSVs. It creates two complementary samples from the automated reports.
+[`scan_summary`](../../src/gitskills/reporting/scan_summary.py) implements the validation CSV generation, shared by the `summarize_scans` CLI and the end-to-end notebook. It creates two complementary samples from the automated reports.
 
 | Sample | Automated source | Review focus | Generated files |
 | --- | --- | --- | --- |
 | Directed security comparisons | `scan_family` reports | Relatedness, inferred direction, scanner rules, risk indicators, and changes | `validation_sample.csv`, `validation_annotations_template.csv` |
-| Relationship comparisons | Verbose `analyze_family` reports | Ambiguous, equivalent-state, and non-qualifying same-name pairs | `relationship_validation_sample.csv`, `relationship_validation_annotations_template.csv` |
+| Relationship comparisons | Standard `analyze_family` reports | Ambiguous, equivalent-state, and non-qualifying same-name pairs | `relationship_validation_sample.csv`, `relationship_validation_annotations_template.csv` |
 
 The relationship sample is optional when generating research summaries, but **both samples are needed to validate the broader relationship-discovery method**. An unscanned or undirected pair must not be included in directed risk-indicator metrics.
 
@@ -33,18 +33,19 @@ Relationship cases are selected separately from three strata:
 
 Selection within each stratum uses the configured random seed and a stable input order. Empty strata remain empty; the generator does not invent cases to satisfy a quota. The samples are *purposeful*, not representative estimates of all GitSkills artifacts.
 
-The generated [research summary](../../results/review/summary.json) records the policy, scan scope, selected edge scope, sampling seed, sizes, and available strata. Preserve the corresponding source reports and project revision with the validation results. If the data, policy, or software changes, record the new revision and retain the previous sampled results rather than silently rewriting completed reviews.
+The generated `review/summary.json` (under the chosen results directory) records the policy, scan scope, selected edge scope, sampling seed, sizes, and available strata. Preserve the corresponding source reports and project revision with the validation results. If the data, policy, or software changes, record the new revision and retain the previous sampled results rather than silently rewriting completed reviews.
 
 ### Generating the Samples
 
-Run the summary over `scan_family` JSON reports. To include relationship validation, provide matching **verbose** `analyze_family` JSON reports for the same candidate-family names and similarity policy:
+Run the summary over `scan_family` JSON reports. To include relationship validation, provide matching `analyze_family` JSON reports for the same candidate-family names and similarity policy:
 
 ```bash
-uv run analyze_family "003-create-golang-project" --verbose --json --output results/families
-uv run summarize_scans results/scans --output results/review --per-stratum 5 --seed 580 --family-reports results/families
+uv run analyze_family "003-create-golang-project" --json --output apps/skilltrace/reports
+uv run scan_family "003-create-golang-project" --edges all --output results/scans
+uv run summarize_scans results/scans/003-create-golang-project.json --output results/review --per-stratum 5 --seed 580 --family-reports apps/skilltrace/reports/003-create-golang-project.json
 ```
 
-The first command illustrates how to export one family. Repeat it for the other candidate families being reviewed. Without `--family-reports`, the summary still generates the directed security sample but cannot identify undirected or rejected relationships from `scan_family` alone. See the [Tools Guide](../TOOLS.md) and [project README](../../README.md) for other execution options and prerequisites.
+The first command illustrates how to export one family. The standard JSON includes the artifact metadata and similarity records needed for relationship sampling. Repeat for the other candidate families, or use the [end-to-end notebook](../../notebooks/end_to_end_pipeline/README.md) to run and summarize the selected cohort directly through the library. Without `--family-reports`, the summary still generates the directed security sample but cannot identify undirected or rejected relationships from `scan_family` alone. See the [Tools Guide](../../TOOLS.md) and [project README](../../README.md) for other execution options and prerequisites.
 
 ## Review Procedure
 
@@ -97,9 +98,9 @@ Preserve each reviewer's completed CSV. Resolve disagreements in a **separate ad
 Only an adjudicated CSV is accepted for calculated validation results. For example:
 
 ```bash
-uv run summarize_scans results/scans --output results/review --per-stratum 5 --seed 580 \
+uv run summarize_scans results/scans/003-create-golang-project.json --output results/review --per-stratum 5 --seed 580 \
   --annotations data/validation/direct-review-adjudicated.csv \
-  --family-reports results/families \
+  --family-reports apps/skilltrace/reports/003-create-golang-project.json \
   --relationship-annotations data/validation/relationship-review-adjudicated.csv
 ```
 

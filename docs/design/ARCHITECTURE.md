@@ -4,7 +4,7 @@
 
 This document describes how the project's data preparation, analysis pipeline, shared Python library, research tools, notebooks, and SkillTrace application work together to address **Research Question 4 (RQ4): Skill security and supply-chain risk**.
 
-The focus is on architectural responsibilities and data flow. The [Design Guide](DESIGN.md) covers implementation details; the [project README](../../README.md) and [Tools Guide](../TOOLS.md) cover setup and usage.
+The focus is on architectural responsibilities and data flow. The [Design Guide](DESIGN.md) covers implementation details; the [project README](../../README.md) and [Tools Guide](../../TOOLS.md) cover setup and usage.
 
 ## Research Challenge
 
@@ -47,14 +47,21 @@ The command-line tools, SkillTrace, and research notebooks need consistent relat
 flowchart TB
     subgraph LIB["gitskills - shared Python package"]
         direction TB
-        TOOLS["tools - command-line and reporting"]
-        DATA["data - database access"]
+        TOOLS["tools - CLI entry points"]
+        PIPE["pipelines - reproducible family and cohort runs"]
+        REPORT["reporting - serialization, summaries, redaction"]
+        DATA["data - read-only DuckDB access"]
         ANALYSIS["analysis - similarity, lineage, evidence, and risk"]
         RULES["rules - static detection definitions"]
 
         TOOLS -.-> DATA
         TOOLS -.-> ANALYSIS
+        TOOLS -.-> REPORT
+        PIPE -.-> DATA
+        PIPE -.-> ANALYSIS
+        PIPE -.-> REPORT
         ANALYSIS -.-> RULES
+        ANALYSIS -.-> REPORT
     end
 
     CLI["Command-line entry points"] -.-> TOOLS
@@ -62,7 +69,7 @@ flowchart TB
     NOTE["Research notebooks"] -.-> LIB
 ```
 
-Dashed arrows show **conceptual use of shared capabilities**, not every source-code import. The package separates database access, analytical methods, detection rules, and tool interfaces. Command-line analysis runs through its tool modules, while SkillTrace and notebooks reuse shared capabilities instead of maintaining separate implementations. The [Design Guide](DESIGN.md) describes the internal components and their interactions.
+Dashed arrows show **conceptual use of shared capabilities**, not every source-code import. The package separates database access, analytical methods, detection rules, reporting, reusable pipelines, and CLI entry points. The end-to-end notebook calls `gitskills.pipelines` directly; it does not invoke command-line processes. SkillTrace consumes saved relationship reports and uses the same analysis library for focused reviews. The [Design Guide](DESIGN.md) describes the internal components and their interactions.
 
 ## Data Foundation
 
@@ -111,9 +118,9 @@ The result is **evidence for review**, not a finding of malicious intent. For de
 
 ### Reporting and Research Outputs
 
-Individual artifact comparisons must be combined to evaluate RQ4 across the selected population. Command-line tools produce **family relationship reports** (`analyze_family`), **family security reports** (`scan_family`), and focused direct comparisons (`scan_diff`). Reports retain inferred direction, supporting evidence, assessment results, and coverage information.
+Individual artifact comparisons must be combined to evaluate RQ4 across the selected population. The shared library and its command-line adapters produce **family relationship reports** (`analyze_family`), **family security reports** (`scan_family`), and focused direct comparisons (`scan_diff`). Reports retain inferred direction, supporting evidence, assessment results, and coverage information.
 
-The `summarize_scans` tool aggregates family security reports into research tables, figures, and manual-review samples. Relationships with unknown direction and incomplete coverage remain distinguishable from negative scan results. Notebooks support exploration and reproducible analysis using the same prepared data and shared library.
+The `summarize_scans` reporting library aggregates selected family security reports into research tables, figures, and manual-review samples. The `notebooks/end_to_end_pipeline/` notebook calls `gitskills.pipelines.family.run_family()` per candidate family and `gitskills.pipelines.cohort.summarize_cohort()` for the selected cohort. Relationship reports remain in `apps/skilltrace/reports/`; scan results, manifests, audits, and review outputs are saved under the notebook's `results/sprint2/` or `results/final/`. The shared cohort code verifies source traceability and report consistency and records exclusions. Relationships with unknown direction and incomplete coverage remain distinguishable from negative scan results. Human review and adjudication follow the generated templates; the pipeline does not supply those judgments.
 
 These outputs connect the reconstructed relationships to the evidence needed to answer RQ4: **where inferred derived artifacts contain security-sensitive behavior not observed in their base artifacts, and how often the defined indicators occur**.
 
@@ -141,4 +148,4 @@ For environment and execution requirements, see the [project README](../../READM
 - [Research Question](../../RESEARCH_QUESTION.md) — study scope, variables, and outcome measures.
 - [Data Dictionary](../../DATA_DICTIONARY.md) — source schema and project-derived relationships.
 - [Research Decision Records](../decisions/README.md) — rationale behind the analysis methods.
-- [Tools Guide](../TOOLS.md) and [SkillTrace Guide](../../apps/skilltrace/README.md) — detailed behavior and usage.
+- [Tools Guide](../../TOOLS.md) and [SkillTrace Guide](../../apps/skilltrace/README.md) — detailed behavior and usage.

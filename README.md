@@ -80,6 +80,10 @@ For additional details about the local DuckDB setup, see the [data setup documen
 
 The [Data Dictionary](DATA_DICTIONARY.md) documents the database structure, including the fields used by the project and modifications made by the team for the analysis.
 
+## End-to-End Sprint 2 Pipeline
+
+Use the [family pipeline notebook](notebooks/end_to_end_pipeline/README.md) to reproduce the current family comparison, directed security analysis, research summary, and manual-review samples. It calls the `gitskills` library directly, uses `GITSKILLS_DB`, and stores scan/summary outputs under `notebooks/end_to_end_pipeline/results/sprint2/` (or `final/`). Family-analysis reports remain under `apps/skilltrace/reports/`. The older `end-to-end_pipeline` notebook documents the Sprint 1 approach.
+
 ## Running the Project
 
 ### Reproduce the Sprint 1 notebook output
