@@ -1,4 +1,4 @@
-"""Aggregate scan_family reports into reproducible research tables."""
+"""Aggregate family scans and prepare reproducible manual validation samples."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import argparse
 import csv
 import json
 import random
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -21,6 +22,23 @@ SAMPLE_STRATA = (
     "sibling-change",
     "flagged-no-indicator",
     "unflagged-directed",
+)
+RELATIONSHIP_STRATA = ("ambiguous", "equivalent", "no-related-edge")
+RELATIONSHIP_FIELDS = (
+    "family", "cluster", "artifact_a_id", "artifact_b_id", "relationship_status",
+    "direction_basis", "change_type", "similarity_jaccard", "similarity_containment",
+    "similarity_shared_shingles", "sampling_stratum",
+)
+DIRECTED_REVIEW_FIELDS = (
+    "reviewer", "review_phase", "review_status", "review_date",
+    "manual_relatedness", "direction_basis_review", "scanner_rule_review",
+    "manual_rule_judgments", "manual_change_review", "manual_change_judgments", "indicator_review_scope",
+    "manual_supported_indicator_ids", "manual_uncertain_indicator_ids",
+    "sibling_coverage_review", "missed_observations", "false_positive_notes", "notes",
+)
+RELATIONSHIP_REVIEW_FIELDS = (
+    "reviewer", "review_phase", "review_status", "review_date",
+    "manual_relatedness", "direction_basis_review", "notes",
 )
 PAIR_FIELDS = (
     "family", "cluster", "base_artifact_id", "derived_artifact_id",
@@ -202,41 +220,220 @@ def _sample(rows: list[dict], per_stratum: int, seed: int) -> list[dict]:
     return selected
 
 
-def _annotation_metrics(path: Path, rows: list[dict]) -> dict:
-    lookup = {(str(row["family"]), str(row["cluster"]), str(row["base_artifact_id"]),
-               str(row["derived_artifact_id"])): row for row in rows}
-    totals = Counter()
-    per_indicator = {iid: Counter() for iid in INDICATORS}
+def _split_ids(value: str, *, key: tuple, field: str) -> set[str]:
+    values = [part.strip() for part in value.split(";") if part.strip()]
+    _require(len(values) == len(set(values)), f"Duplicate {field} at {key}")
+    _require(set(values) <= set(INDICATORS), f"Unknown {field} at {key}")
+    return set(values)
+
+
+def _read_adjudicated(path: Path, lookup: dict[tuple[str, ...], dict],
+                      key_fields: tuple[str, ...], required_fields: tuple[str, ...]):
+    """Read final decisions only; independently completed reviewer copies stay separate."""
     reviewed = set()
     with path.open(encoding="utf-8", newline="") as handle:
-        for row in csv.DictReader(handle):
-            if row.get("review_status", "").strip().lower() != "complete":
+        reader = csv.DictReader(handle)
+        _require(reader.fieldnames is not None and
+                 set((*key_fields, *required_fields)) <= set(reader.fieldnames),
+                 f"{path}: missing review columns: "
+                 f"{sorted(set((*key_fields, *required_fields)) - set(reader.fieldnames or []))}")
+        for row in reader:
+            status = (row["review_status"] or "").strip().lower()
+            _require(status in ("pending", "complete"),
+                     f"{path}: review_status must be pending or complete")
+            if status != "complete":
                 continue
-            key = (row["family"], row["cluster"], row["base_artifact_id"], row["derived_artifact_id"])
-            _require(key in lookup, f"Unknown reviewed pair: {key}")
+            key = tuple(row[field].strip() for field in key_fields)
+            _require(key in lookup, f"Unknown or unsampled reviewed pair: {key}")
             _require(key not in reviewed, f"Duplicate reviewed pair: {key}")
             reviewed.add(key)
-            observed = set(filter(None, row["manual_supported_indicator_ids"].split(";")))
-            _require(observed <= set(INDICATORS), f"Unrecognized manual indicator at {key}")
-            uncertain = set(filter(None, row.get("manual_uncertain_indicator_ids", "").split(";")))
-            _require(uncertain <= set(INDICATORS) and not (uncertain & observed),
-                     f"Invalid manual uncertain indicators at {key}")
-            predicted = set(filter(None, lookup[key]["indicator_ids"].split(";")))
+            _require(row["review_phase"].strip() == "adjudicated",
+                     f"{key}: metrics require review_phase=adjudicated")
+            _require(bool(row["reviewer"].strip()) and bool(row["review_date"].strip()),
+                     f"{key}: completed review requires reviewer and review_date")
+            yield key, row, lookup[key]
+
+
+def _label(row: dict, field: str, options: tuple[str, ...], key: tuple) -> str:
+    value = row.get(field, "").strip()
+    _require(value in options, f"{key}: {field} must be one of {', '.join(options)}")
+    return value
+
+
+def _annotation_metrics(path: Path, selected_rows: list[dict]) -> dict:
+    """Calculate indicator metrics only after explicit comprehensive review."""
+    key_fields = ("family", "cluster", "base_artifact_id", "derived_artifact_id")
+    lookup = {tuple(str(row[field]) for field in key_fields): row for row in selected_rows}
+    totals = Counter()
+    per_indicator = {iid: Counter() for iid in INDICATORS}
+    reasons = Counter()
+    reviewed_count = 0
+    for key, row, reference in _read_adjudicated(path, lookup, key_fields, DIRECTED_REVIEW_FIELDS):
+        reviewed_count += 1
+        related = _label(row, "manual_relatedness", ("related", "not_related", "uncertain"), key)
+        direction = _label(row, "direction_basis_review",
+                           ("supported", "unsupported", "uncertain", "not_applicable"), key)
+        _label(row, "scanner_rule_review",
+               ("correct", "partially_correct", "incorrect", "uncertain", "not_applicable"), key)
+        _label(row, "manual_change_review",
+               ("correct", "partially_correct", "incorrect", "uncertain", "not_applicable"), key)
+        rule_judgments = [entry.strip() for entry in row["manual_rule_judgments"].split(";") if entry.strip()]
+        for judgment in rule_judgments:
+            _require(re.fullmatch(r"[A-Z]+-\d{3}=(correct|false_positive|false_negative|uncertain|not_applicable)",
+                                  judgment) is not None,
+                     f"{key}: invalid rule judgment {judgment!r}")
+        _require(len(rule_judgments) == len({entry.split("=", 1)[0] for entry in rule_judgments}),
+                 f"{key}: duplicate rule judgment")
+        coverage = _label(row, "sibling_coverage_review",
+                          ("complete", "incomplete", "uncertain", "not_applicable"), key)
+        _label(row, "indicator_review_scope", ("all_assessed", "not_assessable"), key)
+        supported = _split_ids(row["manual_supported_indicator_ids"], key=key, field="manual supported indicators")
+        uncertain = _split_ids(row["manual_uncertain_indicator_ids"], key=key, field="manual uncertain indicators")
+        _require(not supported & uncertain, f"{key}: overlapping supported and uncertain indicators")
+        change_judgments = [entry.strip() for entry in row["manual_change_judgments"].split(";") if entry.strip()]
+        for judgment in change_judgments:
+            pieces = judgment.split("=", 1)
+            _require(len(pieces) == 2 and pieces[0] in INDICATORS and pieces[1] in
+                     ("introduced", "removed", "retained", "mixed", "none_detected",
+                      "direction_unknown", "uncertain", "not_applicable"),
+                     f"{key}: invalid change judgment {judgment!r}")
+        _require(len(change_judgments) == len({entry.split('=', 1)[0] for entry in change_judgments}),
+                 f"{key}: duplicate indicator change judgment")
+        if row["indicator_review_scope"] != "all_assessed":
+            reasons["not_assessable"] += 1
+        elif related != "related":
+            reasons["unrelated_or_uncertain"] += 1
+        elif direction != "supported":
+            reasons["direction_not_supported"] += 1
+        elif reference["coverage_status"] != "complete" or coverage != "complete":
+            reasons["incomplete_coverage"] += 1
+        else:
+            reasons["assessable_pairs"] += 1
+            predicted = set(filter(None, reference["indicator_ids"].split(";")))
             for iid in INDICATORS:
                 if iid in uncertain:
+                    reasons["uncertain_indicator_judgments"] += 1
                     continue
-                outcome = ("tp" if iid in predicted and iid in observed else
-                           "fp" if iid in predicted else "fn" if iid in observed else "tn")
+                outcome = ("tp" if iid in predicted and iid in supported else
+                           "fp" if iid in predicted else "fn" if iid in supported else "tn")
                 totals[outcome] += 1
                 per_indicator[iid][outcome] += 1
+
     def rates(ct: Counter) -> dict:
         return {"tp": ct["tp"], "fp": ct["fp"], "fn": ct["fn"], "tn": ct["tn"],
                 "precision": round(ct["tp"] / (ct["tp"] + ct["fp"]), 4)
                 if ct["tp"] + ct["fp"] else None,
                 "recall": round(ct["tp"] / (ct["tp"] + ct["fn"]), 4)
                 if ct["tp"] + ct["fn"] else None}
-    return {"reviewed_pairs": len(reviewed), "scope": "reviewed sample only; not population estimates",
+    return {"reviewed_pairs": reviewed_count, "assessable_pairs": reasons["assessable_pairs"],
+            "excluded_pairs": {name: reasons[name] for name in
+                               ("not_assessable", "unrelated_or_uncertain",
+                                "direction_not_supported", "incomplete_coverage")},
+            "uncertain_indicator_judgments": reasons["uncertain_indicator_judgments"],
+            "scope": "adjudicated, assessable sample only; not population estimates",
             "micro": rates(totals), "by_indicator": {i: rates(ct) for i, ct in per_indicator.items()}}
+
+
+def _read_family_report(path: Path, policies: set[str], allowed_names: set[str]) -> dict:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ResearchInputError(f"Cannot load {path}: {exc}") from exc
+    _require(isinstance(data, dict) and data.get("name") in allowed_names,
+             f"{path}: analyze_family report must correspond to a scanned family")
+    _require(json.dumps(data.get("policy"), sort_keys=True) in policies,
+             f"{path}: analyze_family similarity policy differs from scan reports")
+    _require(isinstance(data.get("artifacts"), list) and
+             isinstance(data.get("similarities"), list) and
+             isinstance(data.get("family", {}).get("clusters"), list),
+             f"{path}: requires analyze_family --verbose --json output")
+    return data
+
+
+def _relationship_candidates(reports: list[dict]) -> list[dict]:
+    """Select unresolved edges and measured non-qualifying, same-name comparisons."""
+    output = []
+    for report in reports:
+        family = report["name"]
+        for cluster in report["family"]["clusters"]:
+            for edge in cluster["evolution"]["ambiguous_edges"]:
+                left, right = sorted((edge["left_artifact_id"], edge["right_artifact_id"]))
+                label = ("equivalent" if edge["relationship_status"] == "equivalent" else "ambiguous")
+                output.append({"family": family, "cluster": cluster["cluster"],
+                               "artifact_a_id": left, "artifact_b_id": right,
+                               "relationship_status": edge["relationship_status"],
+                               "direction_basis": edge["basis"], "change_type": edge["change_type"],
+                               "similarity_jaccard": edge["jaccard"],
+                               "similarity_containment": max(edge["containment_left_to_right"],
+                                                             edge["containment_right_to_left"]),
+                               "similarity_shared_shingles": edge["shared_shingles"],
+                               "sampling_stratum": label})
+        policy = report["policy"]
+        seen = set()
+        for sim in report["similarities"]:
+            if (max(sim["left_to_right_containment"], sim["right_to_left_containment"])
+                    >= policy["min_containment"] and sim["jaccard"] >= policy["min_jaccard"]
+                    and sim["shared_shingles"] >= policy["min_shared_shingles"]):
+                continue
+            # Identical content occurrences are not treated as negative relationships.
+            if sim["left_file_sha"] == sim["right_file_sha"]:
+                continue
+            for left in sim["left_artifact_ids"]:
+                for right in sim["right_artifact_ids"]:
+                    a, b = sorted((left, right))
+                    if a == b or (a, b) in seen:
+                        continue
+                    seen.add((a, b))
+                    output.append({"family": family, "cluster": "",
+                                   "artifact_a_id": a, "artifact_b_id": b,
+                                   "relationship_status": "no-related-edge",
+                                   "direction_basis": "not_applicable", "change_type": "not_applicable",
+                                   "similarity_jaccard": sim["jaccard"],
+                                   "similarity_containment": max(sim["left_to_right_containment"],
+                                                                 sim["right_to_left_containment"]),
+                                   "similarity_shared_shingles": sim["shared_shingles"],
+                                   "sampling_stratum": "no-related-edge"})
+    return sorted(output, key=lambda r: (r["family"], str(r["cluster"]), r["artifact_a_id"],
+                                         r["artifact_b_id"], r["sampling_stratum"]))
+
+
+def _relationship_sample(reports: list[dict], per_stratum: int, seed: int) -> list[dict]:
+    candidates = _relationship_candidates(reports)
+    rng = random.Random(seed)
+    chosen = set()
+    output = []
+    for label in RELATIONSHIP_STRATA:
+        eligible = [row for row in candidates if row["sampling_stratum"] == label and
+                    (row["family"], row["artifact_a_id"], row["artifact_b_id"]) not in chosen]
+        rng.shuffle(eligible)
+        for row in eligible[:per_stratum]:
+            chosen.add((row["family"], row["artifact_a_id"], row["artifact_b_id"]))
+            output.append(row)
+    return output
+
+
+def _relationship_metrics(path: Path, selected: list[dict]) -> dict:
+    key_fields = ("family", "artifact_a_id", "artifact_b_id")
+    lookup = {tuple(str(row[field]) for field in key_fields): row for row in selected}
+    counts = Counter()
+    for key, row, ref in _read_adjudicated(path, lookup, key_fields, RELATIONSHIP_REVIEW_FIELDS):
+        related = _label(row, "manual_relatedness", ("related", "not_related", "uncertain"), key)
+        direction = _label(row, "direction_basis_review",
+                           ("supported", "unsupported", "uncertain", "not_applicable"), key)
+        counts["reviewed_pairs"] += 1
+        counts[f"relatedness_{related}"] += 1
+        counts[f"direction_{direction}"] += 1
+        predicted_related = ref["relationship_status"] != "no-related-edge"
+        if related != "uncertain":
+            counts["relatedness_agree" if (related == "related") == predicted_related
+                   else "relatedness_disagree"] += 1
+    return {"reviewed_pairs": counts["reviewed_pairs"],
+            "relatedness_agree": counts["relatedness_agree"],
+            "relatedness_disagree": counts["relatedness_disagree"],
+            "relatedness_uncertain": counts["relatedness_uncertain"],
+            "direction_review": {label: counts[f"direction_{label}"] for label in
+                                 ("supported", "unsupported", "uncertain", "not_applicable")},
+            "scope": "adjudicated relationship review sample; excludes directed indicator metrics"}
 
 
 def _svg_frequency(path: Path, frequency: Counter, total: int) -> None:
@@ -258,7 +455,9 @@ def _svg_frequency(path: Path, frequency: Counter, total: int) -> None:
 
 
 def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None,
-              seed: int = 580, annotations: Path | None = None) -> dict:
+              seed: int = 580, annotations: Path | None = None,
+              family_reports: list[Path] | None = None,
+              relationship_annotations: Path | None = None) -> dict:
     """Summarize family reports; reject malformed or duplicate inputs."""
     _require(bool(paths), "At least one report is required")
     reports = [_read_report(path) for path in sorted(paths)]
@@ -334,8 +533,21 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
         "denominator_note": "Percentages use directed_pairs_analyzed (or the corresponding edge-type denominator); categories overlap. Ambiguous edges are excluded. Comparisons can share artifacts and are not independent historical events.",
     }
     chosen = _sample(all_rows, per_stratum, seed) if per_stratum is not None else []
+    _require(not family_reports or per_stratum is not None,
+             "--family-reports requires --per-stratum")
+    _require(relationship_annotations is None or bool(family_reports),
+             "--relationship-annotations requires --family-reports")
+    family_data = ([_read_family_report(path, policies, set(names)) for path in sorted(family_reports)]
+                   if family_reports else [])
+    family_names = [r["name"] for r in family_data]
+    _require(len(family_names) == len(set(family_names)), "Duplicate analyze_family report")
+    relationship_selected = (_relationship_sample(family_data, per_stratum, seed)
+                             if family_data else [])
     if annotations is not None and annotations.resolve() == (output / "validation_annotations_template.csv").resolve():
         raise ResearchInputError("Copy the template to a separate reviewed CSV before using --annotations")
+    if (relationship_annotations is not None and relationship_annotations.resolve() ==
+            (output / "relationship_validation_annotations_template.csv").resolve()):
+        raise ResearchInputError("Copy the relationship template before using --relationship-annotations")
     output.mkdir(parents=True, exist_ok=True)
     _write_csv(output / "directed_pairs.csv", all_rows, PAIR_FIELDS)
     _write_csv(output / "families.csv", family_rows, tuple(family_rows[0].keys()))
@@ -364,21 +576,32 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
     if per_stratum is not None:
         _write_csv(output / "validation_sample.csv", chosen, (*PAIR_FIELDS, "sampling_stratum"))
         _write_csv(output / "validation_annotations_template.csv", [
-            {**row, "reviewer": "", "review_status": "pending", "review_date": "",
-             "manual_supported_indicator_ids": "", "manual_uncertain_indicator_ids": "",
-             "direction_basis_review": "", "sibling_coverage_review": "",
-             "missed_observations": "", "false_positive_notes": "", "notes": ""}
-            for row in chosen], (*PAIR_FIELDS, "sampling_stratum", "reviewer", "review_status",
-                                "review_date", "manual_supported_indicator_ids", "manual_uncertain_indicator_ids",
-                                "direction_basis_review", "sibling_coverage_review",
-                                "missed_observations", "false_positive_notes", "notes"))
+            {**row, **{field: "" for field in DIRECTED_REVIEW_FIELDS},
+             "review_phase": "independent", "review_status": "pending"}
+            for row in chosen], (*PAIR_FIELDS, "sampling_stratum", *DIRECTED_REVIEW_FIELDS))
+    if family_data:
+        _write_csv(output / "relationship_validation_sample.csv", relationship_selected, RELATIONSHIP_FIELDS)
+        _write_csv(output / "relationship_validation_annotations_template.csv", [
+            {**row, **{field: "" for field in RELATIONSHIP_REVIEW_FIELDS},
+             "review_phase": "independent", "review_status": "pending"}
+            for row in relationship_selected], (*RELATIONSHIP_FIELDS, *RELATIONSHIP_REVIEW_FIELDS))
     _svg_frequency(output / "indicator_frequency.svg", indicator_frequency, pairs)
     if per_stratum is not None:
         summary["sampling"] = {"seed": seed, "per_stratum": per_stratum,
                                "sampled_pairs": len(chosen),
                                "strata_counts": dict(sorted(Counter(row["sampling_stratum"] for row in chosen).items()))}
+    if family_data:
+        summary["relationship_sampling"] = {
+            "seed": seed, "per_stratum": per_stratum, "sampled_pairs": len(relationship_selected),
+            "strata_counts": dict(sorted(Counter(row["sampling_stratum"]
+                                                for row in relationship_selected).items())),
+            "families_supplied": len(family_data),
+        }
     if annotations is not None:
-        summary["manual_validation"] = _annotation_metrics(annotations, all_rows)
+        summary["manual_validation"] = _annotation_metrics(annotations, chosen)
+    if relationship_annotations is not None:
+        summary["relationship_validation"] = _relationship_metrics(
+            relationship_annotations, relationship_selected)
     (output / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summary
 
@@ -393,17 +616,32 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=580)
     parser.add_argument("--annotations", type=Path,
                         help="Optional completed validation_annotations.csv for sample-only metrics")
+    parser.add_argument("--family-reports", nargs="+", type=Path,
+                        help="Optional verbose analyze_family JSON files or directories for relationship review")
+    parser.add_argument("--relationship-annotations", type=Path,
+                        help="Adjudicated relationship validation CSV for descriptive relationship metrics")
     args = parser.parse_args(argv)
     if args.per_stratum is not None and args.per_stratum < 1:
         parser.error("--per-stratum must be at least 1")
     if args.annotations is not None and args.per_stratum is None:
         parser.error("--annotations requires --per-stratum to select a review sample")
+    if args.family_reports and args.per_stratum is None:
+        parser.error("--family-reports requires --per-stratum")
+    if args.relationship_annotations and not args.family_reports:
+        parser.error("--relationship-annotations requires --family-reports")
     paths = []
     for path in args.reports:
         paths.extend(sorted(path.glob("*.json")) if path.is_dir() else [path])
+    family_paths = []
+    for path in args.family_reports or []:
+        family_paths.extend(sorted(path.glob("*.json")) if path.is_dir() else [path])
+    if args.family_reports and not family_paths:
+        parser.error("--family-reports did not contain any JSON reports")
     try:
         result = summarize(paths, args.output, per_stratum=args.per_stratum,
-                           seed=args.seed, annotations=args.annotations)
+                           seed=args.seed, annotations=args.annotations,
+                           family_reports=family_paths,
+                           relationship_annotations=args.relationship_annotations)
     except (OSError, KeyError, TypeError, ResearchInputError) as exc:
         print(f"Unable to summarize reports: {exc}", file=sys.stderr)
         return 1
