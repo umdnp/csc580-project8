@@ -173,9 +173,10 @@ class SiblingScanSummary:
 
 @dataclass(frozen=True, slots=True)
 class FlaggedPair:
-    """One directed evolution edge with at least one security finding."""
+    """One directed edge with at least one security finding."""
 
     cluster_number: int
+    edge_type: str
     source_artifact_id: int
     destination_artifact_id: int
     direction_basis: str
@@ -197,6 +198,7 @@ class FlaggedPair:
 
     def to_dict(self, *, verbose: bool = False) -> dict[str, object]:
         output: dict[str, object] = {
+            "edge_type": self.edge_type,
             "source_artifact_id": self.source_artifact_id,
             "destination_artifact_id": self.destination_artifact_id,
             "direction_basis": self.direction_basis,
@@ -232,6 +234,7 @@ class IncompletePair:
     """One directed pair whose changed sibling content could not be fully scanned."""
 
     cluster_number: int
+    edge_type: str
     source_artifact_id: int
     destination_artifact_id: int
     change_type: ChangeType
@@ -240,6 +243,7 @@ class IncompletePair:
 
     def to_dict(self) -> dict[str, object]:
         return {
+            "edge_type": self.edge_type,
             "source_artifact_id": self.source_artifact_id,
             "destination_artifact_id": self.destination_artifact_id,
             "change_type": self.change_type.value,
@@ -252,6 +256,7 @@ class IncompletePair:
 class PairObservation:
     """Compact observation for every directed edge, including unflagged peers."""
 
+    edge_type: str
     source_artifact_id: int
     destination_artifact_id: int
     direction_basis: str
@@ -275,6 +280,7 @@ class PairObservation:
 
     def to_dict(self) -> dict[str, object]:
         return {
+            "edge_type": self.edge_type,
             "source_artifact_id": self.source_artifact_id,
             "destination_artifact_id": self.destination_artifact_id,
             "direction_basis": self.direction_basis,
@@ -350,6 +356,7 @@ class ClusterRiskAnalysis:
         return {
             "cluster": self.cluster_number,
             "pairs_analyzed": self.pairs_analyzed,
+            "edge_type_counts": dict(sorted(Counter(item.edge_type for item in self.pair_observations).items())),
             "pairs_flagged": self.pairs_flagged,
             "pairs_incomplete": self.pairs_incomplete,
             "pairs_with_evidence_changes": self.pairs_with_evidence_changes,
@@ -373,6 +380,7 @@ class FamilyRiskAnalysis:
     active_rules: tuple[ActiveRule, ...]
     clusters: tuple[ClusterRiskAnalysis, ...]
     ambiguous_edges_skipped: int
+    edge_selection: str = "primary"
 
     @property
     def pairs_analyzed(self) -> int:
@@ -412,10 +420,13 @@ class FamilyRiskAnalysis:
             "report_type": FAMILY_SCAN_REPORT_TYPE,
             "candidate_family": self.name,
             "scanner_scope": "skill-body-and-changed-siblings",
+            "edge_selection": self.edge_selection,
             "similarity_policy": self.similarity_policy.to_dict(),
             "active_rules": [rule.to_dict() for rule in self.active_rules],
             "summary": {
                 "pairs_analyzed": self.pairs_analyzed,
+                "edge_type_counts": dict(sorted(Counter(item.edge_type for cluster in self.clusters
+                                                        for item in cluster.pair_observations).items())),
                 "pairs_flagged": self.pairs_flagged,
                 "pairs_incomplete": self.pairs_incomplete,
                 "pairs_evidence_coverage_incomplete": sum(
