@@ -136,7 +136,7 @@ def test_batch_requires_output_and_tracemalloc_requires_benchmark(mock_repos, tm
 
 
 def test_batch_accepts_exact_names_with_filename_special_characters(mock_repos, tmp_path):
-    from gitskills.tools._output import report_stem
+    from gitskills.reporting.files import report_stem
 
     families = ["A/B Test Setup", "A:B Test Setup", "A_B Test Setup", "CON", "../escape"]
     source = tmp_path / "families.txt"
@@ -166,7 +166,7 @@ def test_batch_resolves_case_insensitive_filename_collisions(mock_repos, tmp_pat
 
 
 def test_single_unsafe_family_name_is_saved_safely(mock_repos, tmp_path, capsys):
-    from gitskills.tools._output import report_stem
+    from gitskills.reporting.files import report_stem
 
     name = "A/B Test Setup"
     output = tmp_path / "reports"

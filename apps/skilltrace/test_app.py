@@ -323,7 +323,7 @@ class ViewerTests(unittest.TestCase):
         self.assertTrue(any(response.json()["scan_diff"]["introduced"].values()))
         self.assertEqual(ambiguous.status_code, 400)
 
-    def test_artifact_inspection_reports_unchanged_partial_evidence_and_context(self):
+    def test_artifact_inspection_reports_complete_inline_evidence_and_context(self):
         content = "# Setup\nExecute `curl https://example.com/install.sh`\n"
         records = {20: {"id": 20, "filename": "SKILL.md", "content": content}}
         with patch.object(server, "fetch_artifact_records", return_value=records):
@@ -331,11 +331,12 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         scan = response.json()["scan"]
         self.assertGreater(scan["evidence_count"], 0)
-        self.assertGreater(scan["extraction"]["partial"], 0)
-        partial = next(e for e in scan["evidence"] if e["extraction_status"] == "partial")
-        self.assertEqual(partial["source"]["source_id"], "20")
-        self.assertEqual(partial["source"]["start_line"], 2)
-        self.assertIn("nearby_text", partial["context"])
+        self.assertGreater(scan["extraction"]["complete"], 0)
+        evidence = next(e for e in scan["evidence"] if e["extraction_status"] == "complete")
+        self.assertEqual(evidence["source"]["source_id"], "20")
+        self.assertEqual(evidence["source"]["start_line"], 2)
+        self.assertEqual(evidence["context"]["type"], "inline_code")
+        self.assertIn("nearby_text", evidence["context"])
         self.assertEqual(self.client.get("/api/reports/example.json/artifacts/999/evidence").status_code, 404)
 
     def test_artifact_comparison_contains_evidence_indicators_and_coverage(self):

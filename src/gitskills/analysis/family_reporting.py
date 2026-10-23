@@ -15,7 +15,8 @@ from gitskills.data.families import FamilyLoad
 def implementation_fingerprint() -> str:
     """Fingerprint analysis and rule implementations for incremental report reuse."""
     root = Path(__file__).resolve().parents[1]
-    files = sorted((*root.glob("analysis/*.py"), *root.glob("rules/*.py")))
+    files = sorted((*root.glob("analysis/*.py"), *root.glob("rules/*.py"),
+                    root / "reporting" / "redaction.py"))
     digest = hashlib.sha256()
     for path in files:
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))

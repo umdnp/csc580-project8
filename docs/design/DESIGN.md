@@ -4,7 +4,7 @@
 
 This guide describes how the `gitskills` library and its consumers implement the analysis for Research Question 4 (RQ4). It covers the principal data models, object-oriented relationships, and interactions behind similarity analysis, inferred lineage, static scanning, evidence comparison, risk assessment, and manual validation.
 
-The [Solution Architecture](ARCHITECTURE.md) describes the overall research system and data flow. The [project README](../../README.md) and [Tools Guide](../TOOLS.md) cover setup, commands, and outputs.
+The [Solution Architecture](ARCHITECTURE.md) describes the overall research system and data flow. The [project README](../../README.md) and [Tools Guide](../../TOOLS.md) cover setup, commands, and outputs.
 
 ## Component Organization
 
@@ -18,7 +18,9 @@ GitSkills does not supply reliable revision histories or copying relationships b
 | Evidence analysis | `analysis.evidence_*`, `comparator` | Extract, normalize, and compare source constructs |
 | Risk assessment | `analysis.risk_assessor`, `risk_models` | Evaluate evidence changes against review indicators |
 | Family security analysis | `analysis.family_risk` | Coordinate directed comparisons, including sibling files |
-| Tools and visual review | `gitskills.tools`, `apps/skilltrace` | Produce research reports and support manual inspection |
+| Report generation | `gitskills.reporting`, `analysis.family_reporting` | Build consistent JSON reports, research summaries, and redacted excerpts |
+| End-to-end orchestration | `gitskills.pipelines.family`, `cohort`, `provenance` | Run selected families, check report identity, and record cohort audits |
+| CLI and visual review | `gitskills.tools`, `apps/skilltrace` | Expose shared analysis methods and support manual inspection |
 
 ## Family Relationship Design
 
@@ -343,9 +345,9 @@ sequenceDiagram
 
 ## Research Reporting and Validation
 
-Individual pair results must also support population-level research. `summarize_scans` reads saved `scan_family` reports and produces aggregated measures, review tables, figures, and validation samples without rescanning artifacts. Reports preserve the direction basis, selected edge, indicator identity, and coverage required to interpret an observation.
+Individual pair results must also support population-level research. `gitskills.reporting.scan_summary.summarize()` reads selected `scan_family` reports and corresponding `analyze_family` reports to produce aggregated measures, review tables, figures, and directed/relationship validation samples without rescanning artifacts. The default `analyze_family` report includes artifact identity and pairwise similarities needed for relationship sampling; verbose mode adds diagnostics, not required downstream fields. Reports preserve direction basis, edge type (primary or additional), indicator identity, and coverage.
 
-Validation includes pairs with and without supported indicators. Human annotations remain separate from generated findings, allowing reviewers to check both potential false positives and missed behavior. The [Tools Guide](../TOOLS.md) describes the reporting outputs and sampling process.
+The notebook calls `run_family()` independently for each selected name (using `edges="all"`), then `summarize_cohort()` over exactly that cohort. Canonical relationship reports are stored in `apps/skilltrace/reports/`, while scan reports, a sample manifest, execution summary, skipped-record audit, and review templates are stored under `notebooks/end_to_end_pipeline/results/{sprint2,final}/`. Report fingerprints and artifact identifiers protect against mixing incompatible analyses. Validation includes pairs with and without supported indicators. Human annotations and adjudication remain separate from generated findings, allowing reviewers to check both potential false positives and missed behavior. The [Tools Guide](../../TOOLS.md) describes the reporting outputs and sampling process.
 
 ## SkillTrace Design
 
@@ -402,4 +404,4 @@ Tests under `tests/pytests/` exercise the detection, similarity, chronology, evi
 - [Research Question](../../RESEARCH_QUESTION.md) — study scope and outcome measures.
 - [Data Dictionary](../../DATA_DICTIONARY.md) and [database preparation SQL](../../sql/create_gitskills_duckdb.sql) — source and derived data structures.
 - [Research Decision Records](../decisions/README.md) — reasoning behind the analysis policies.
-- [Tools Guide](../TOOLS.md) and [SkillTrace Guide](../../apps/skilltrace/README.md) — execution, reports, and interactive review.
+- [Tools Guide](../../TOOLS.md) and [SkillTrace Guide](../../apps/skilltrace/README.md) — execution, reports, and interactive review.

@@ -128,7 +128,7 @@ def test_edge_count_disagreement_is_rejected(tmp_path):
 
 
 def test_unknown_sibling_state_is_not_sampled_as_confirmed_sibling_change():
-    from gitskills.tools.summarize_scans import _sample
+    from gitskills.reporting.scan_summary import _sample
     row = {"family": "f", "cluster": 1, "base_artifact_id": 1, "derived_artifact_id": 2,
            "indicator_ids": "", "uncertain_indicator_ids": "", "coverage_status": "complete",
            "change_type": "unknown", "flagged": 1}

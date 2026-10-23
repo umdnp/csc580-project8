@@ -7,7 +7,7 @@ from pathlib import Path
 
 from gitskills.reporting.files import (
     DEFAULT_OUTPUT_DIR, OutputError, prepare_directory,
-    report_stem, report_stems, write_json,
+    report_stems, write_json,
 )
 
 

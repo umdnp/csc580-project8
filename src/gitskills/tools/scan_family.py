@@ -28,7 +28,7 @@ from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
 from gitskills.analysis.family_reporting import scan_family_report
 from . import _output
-from ._redaction import redact_text, safe_excerpt
+from gitskills.reporting.redaction import redact_text, safe_excerpt
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -520,11 +520,7 @@ def _safe_excerpt(rule_match: RuleMatch) -> str:
     if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
         return "[credential-related content redacted]"
 
-    text = safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
-    if len(text) <= MAX_EXCERPT_LENGTH:
-        return text
-
-    return f"{text[:MAX_EXCERPT_LENGTH - 3]}..."
+    return safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
 
 
 if __name__ == "__main__":

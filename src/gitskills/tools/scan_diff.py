@@ -22,7 +22,7 @@ from gitskills.analysis.models import (
     RuleMatch,
 )
 from . import _output
-from ._redaction import redact_text, safe_excerpt
+from gitskills.reporting.redaction import redact_text, safe_excerpt
 
 
 LOGGER = logging.getLogger("gitskills.scan_diff")

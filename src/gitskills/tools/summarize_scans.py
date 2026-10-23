@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from gitskills.reporting.scan_summary import ResearchInputError, summarize, _sample
+from gitskills.reporting.scan_summary import ResearchInputError, summarize
 
 
 def main(argv: list[str] | None = None) -> int:

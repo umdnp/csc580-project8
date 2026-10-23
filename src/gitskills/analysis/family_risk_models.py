@@ -10,7 +10,7 @@ from .family_models import ChangeType, SimilarityPolicy
 from .models import RiskCategory, RuleMatch
 from .evidence_models import Evidence, EvidenceChanges
 from .risk_models import RiskAssessment
-from gitskills.tools._redaction import redact_text, safe_excerpt
+from gitskills.reporting.redaction import redact_text, safe_excerpt
 
 
 FAMILY_SCAN_REPORT_TYPE = "gitskills-family-scan"
