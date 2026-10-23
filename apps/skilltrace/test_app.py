@@ -474,6 +474,17 @@ class ViewerTests(unittest.TestCase):
                        'id="scan-sibling"', 'id="scan-copy"', 'Partial / unsupported only'):
             self.assertIn(marker, page.text)
 
+    def test_sibling_picker_labels_come_from_comparison_direction(self):
+        html = self.client.get("/").text
+        self.assertIn("function siblingOptionLabel(name, inSelected, inCompared, comparison, selectedId)", html)
+        self.assertIn("if (!comparison || inSelected === inCompared) return name;", html)
+        self.assertIn("comparison.kind === 'parent' || comparison.kind === 'related'", html)
+        self.assertIn("selectedRole = 'base'; comparedRole = 'derived'", html)
+        self.assertIn("selectedRole = 'derived'; comparedRole = 'base'", html)
+        self.assertIn("inSelected ? selectedRole : comparedRole", html)
+        self.assertIn("ownNames.has(name), comparisonNames.has(name), result.comparison, result.artifact.id", html)
+        self.assertNotIn("(compared artifact only)", html)
+
     def test_sibling_diff_ui_allows_comparison_only_file(self):
         html = self.client.get("/").text
         handler = html.split("async function openSiblingDiff() {", 1)[1].split(

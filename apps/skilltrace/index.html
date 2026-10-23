@@ -1294,7 +1294,7 @@ function updateComparisonActions() {
   siblingContentButton.hidden = !hasSiblings;
   siblingContentButton.disabled = !(selectedSiblingAvailable && currentDetails?.database?.available);
   siblingContentButton.title = !currentDetails?.database?.available ? 'DuckDB is unavailable.' :
-    (selectedSiblingAvailable ? '' : 'This sibling has content on the compared artifact only. Use View diff or Inspect evidence.');
+    (selectedSiblingAvailable ? '' : 'This sibling has no available content on the selected artifact. Use View diff or Inspect evidence.');
 
   const siblingButton = $('#view-sibling-diff');
   siblingButton.hidden = !hasSiblings;
@@ -1330,6 +1330,26 @@ function updateComparisonActions() {
   }
 }
 
+function siblingOptionLabel(name, inSelected, inCompared, comparison, selectedId) {
+  if (!comparison || inSelected === inCompared) return name;
+
+  let selectedRole = 'selected';
+  let comparedRole = 'compared';
+  const relationship = comparison.relationship;
+  if (comparison.kind === 'parent' || comparison.kind === 'related') {
+    const source = Number(relationship?.source);
+    const target = Number(relationship?.target);
+    const own = Number(selectedId);
+    const other = Number(comparison.id);
+    if (source === own && target === other) {
+      selectedRole = 'base'; comparedRole = 'derived';
+    } else if (source === other && target === own) {
+      selectedRole = 'derived'; comparedRole = 'base';
+    }
+  }
+  return `${name} (${inSelected ? selectedRole : comparedRole} only)`;
+}
+
 function renderDetails(result) {
   const content = $('#detail-content'); content.replaceChildren();
   selectedComparison = result.comparison;
@@ -1360,7 +1380,9 @@ function renderDetails(result) {
   const entries = [...new Set([...ownNames, ...comparisonNames])].sort();
   if (entries.length) {
     for (const name of entries) {
-      const label = !ownNames.has(name) ? `${name} (compared artifact only)` : name;
+      const label = siblingOptionLabel(
+        name, ownNames.has(name), comparisonNames.has(name), result.comparison, result.artifact.id
+      );
       $('#sibling').add(new Option(label, name));
     }
     $('#sibling').disabled = false;
