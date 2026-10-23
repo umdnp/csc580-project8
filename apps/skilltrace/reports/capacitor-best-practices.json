@@ -1,0 +1,104 @@
+{
+  "name": "capacitor-best-practices",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2627824,
+          2630854,
+          2630982
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2627824
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2627824,
+              "target_artifact_id": 2630854,
+              "basis": "chronology",
+              "containment": 0.966996699669967,
+              "jaccard": 0.9361022364217252,
+              "shared_shingles": 879,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                465490
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2630854,
+              "target_artifact_id": 2630982,
+              "basis": "chronology",
+              "containment": 0.9955995599559956,
+              "jaccard": 0.9901531728665208,
+              "shared_shingles": 905,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                465490
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": [
+            {
+              "source_artifact_id": 2627824,
+              "target_artifact_id": 2630982,
+              "basis": "chronology",
+              "containment": 0.9625962596259626,
+              "jaccard": 0.926906779661017,
+              "shared_shingles": 875,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                465490
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": []
+}
