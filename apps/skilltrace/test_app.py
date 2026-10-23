@@ -839,6 +839,62 @@ class ViewerTests(unittest.TestCase):
         for kind in ("added", "removed", "changed"):
             self.assertIn(f".diff-line.{kind}{{background:", html)
 
+    def test_diff_intraline_highlighting_is_bounded_and_safe(self):
+        html = self.client.get("/").text
+        self.assertIn("function singleTextEdit(baseText, derivedText)", html)
+        self.assertIn("const simple = singleTextEdit(baseText, derivedText)", html)
+        self.assertIn("singleTextEdit(block.base, block.derived)", html)
+        self.assertIn("function intralineSegments(baseText, derivedText, budget)", html)
+        self.assertIn("baseText.length > 1600 || derivedText.length > 1600", html)
+        self.assertIn("cells > 50000 || cells > budget.remaining", html)
+        self.assertIn("const intralineBudget = {remaining:750000}", html)
+        self.assertIn("row.base_kind === 'changed' && row.derived_kind === 'changed'", html)
+        self.assertIn("highlight.textContent = segment.text", html)
+        self.assertIn(".diff-line.changed .intraline-change{background:var(--changed-detail)}", html)
+
+    def test_diff_pairs_long_markdown_rewrite_for_intraline_highlighting(self):
+        # The diff viewer must pass long, substantially edited Markdown lines
+        # to the intraline matcher rather than treating them as unrelated rows.
+        base = (
+            "2. Clear caches and reinstall dependencies: reset Metro cache, "
+            "`watchman watch-del-all`, remove `node_modules` + lockfile, "
+            "`npm install`, then `cd ios && rm -rf build Pods "
+            "Podfile.lock && pod install --repo-update`"
+        )
+        derived = (
+            "2. Clear caches and reinstall dependencies **without deleting lockfiles**: "
+            "reset Metro cache, `watchman watch-del-all`, remove `node_modules`, "
+            "reinstall from the lockfile (`npm ci`, or the package manager's "
+            "frozen/immutable install), then `cd ios && rm -rf build Pods && "
+            "pod install` — keep `Podfile.lock`. Deleting lockfiles re-resolves "
+            "dependency versions and changes the build; do it only as a last "
+            "resort with explicit user approval."
+        )
+        rows = server.build_side_by_side_diff(base, derived)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["base_kind"], "changed")
+        self.assertEqual(rows[0]["derived_kind"], "changed")
+        self.assertEqual(rows[0]["base_text"], base)
+        self.assertEqual(rows[0]["derived_text"], derived)
+        html = self.client.get("/").text
+        self.assertIn("base.length > 260 || derived.length > 260", html)
+        self.assertIn("cells > 50000 || cells > budget.remaining", html)
+
+    def test_diff_aligns_character_insertions_and_deletions_as_changed_lines(self):
+        additions = server.build_side_by_side_diff(
+            "before abc after\nstable\n", "before abcd after\nstable\n"
+        )
+        removals = server.build_side_by_side_diff(
+            "before abcd after\nstable\n", "before abc after\nstable\n"
+        )
+        for rows in (additions, removals):
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(rows[0]["base_kind"], "changed")
+            self.assertEqual(rows[0]["derived_kind"], "changed")
+            self.assertEqual(rows[1]["base_kind"], "equal")
+        self.assertEqual(additions[0]["derived_text"], "before abcd after")
+        self.assertEqual(removals[0]["base_text"], "before abcd after")
+
     def test_package_exports_fastapi_app(self):
         package = importlib.import_module("apps.skilltrace")
         self.assertIs(package.app, server.app)

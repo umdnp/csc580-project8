@@ -22,6 +22,7 @@
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
+  --changed-detail:light-dark(#ffdb87,#856822);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
@@ -192,6 +193,8 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .diff-line.added{background:var(--added)}
 .diff-line.removed{background:var(--removed)}
 .diff-line.changed{background:var(--changed)}
+.diff-line.changed .intraline-change{background:var(--changed-detail)}
+.intraline-change{border-radius:2px}
 .diff-line.empty{opacity:.45}
 .missing-file{display:flex;align-items:center;justify-content:center;height:100%;min-height:300px;padding:24px;color:var(--muted);font-style:italic;text-align:center}
 .scan-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
@@ -1445,10 +1448,129 @@ async function openArtifactContent() {
   }
 }
 
-function addDiffLine(pane, lineNumber, text, kind) {
+// Detect a single insertion or deletion within an otherwise matching line,
+// including within words (e.g. "abc" -> "abcd"). Keep Unicode characters intact.
+function singleTextEdit(baseText, derivedText) {
+  const base = Array.from(baseText);
+  const derived = Array.from(derivedText);
+  let prefix = 0;
+  while (prefix < base.length && prefix < derived.length && base[prefix] === derived[prefix]) prefix++;
+  let suffix = 0;
+  while (suffix < base.length - prefix && suffix < derived.length - prefix &&
+         base[base.length - suffix - 1] === derived[derived.length - suffix - 1]) suffix++;
+
+  const deleted = base.slice(prefix, base.length - suffix).join('');
+  const inserted = derived.slice(prefix, derived.length - suffix).join('');
+  if ((!deleted && !inserted) || (deleted && inserted)) return null;
+  const before = base.slice(0, prefix).join('');
+  const after = base.slice(base.length - suffix).join('');
+  // With almost no common context, matching a single character may be accidental.
+  if ((before + after).replace(/\s/g, '').length < 2) return null;
+
+  const segments = changedText => [
+    {text:before, changed:false},
+    {text:changedText, changed:true},
+    {text:after, changed:false},
+  ].filter(segment => segment.text);
+  return {base:segments(deleted), derived:segments(inserted)};
+}
+
+// Compare paired modified lines, retaining whole-line shading if lines are
+// unrelated or too large. Token alignment is bounded; short inserted or removed
+// portions within a token are refined to their actual characters.
+function intralineSegments(baseText, derivedText, budget) {
+  if (!baseText || !derivedText || baseText === derivedText ||
+      baseText.length > 1600 || derivedText.length > 1600) return null;
+
+  const simple = singleTextEdit(baseText, derivedText);
+  if (simple) return simple;
+
+  const tokenize = text => text.match(/\s+|[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]/gu) || [];
+  const base = tokenize(baseText);
+  const derived = tokenize(derivedText);
+  const cells = base.length * derived.length;
+  if (!cells || base.length > 260 || derived.length > 260 ||
+      cells > 50000 || cells > budget.remaining) return null;
+  budget.remaining -= cells;
+
+  const lengths = Array.from({length:base.length + 1}, () => new Uint16Array(derived.length + 1));
+  for (let i = base.length - 1; i >= 0; i--) {
+    for (let j = derived.length - 1; j >= 0; j--) {
+      lengths[i][j] = base[i] === derived[j] ? lengths[i + 1][j + 1] + 1 :
+        Math.max(lengths[i + 1][j], lengths[i][j + 1]);
+    }
+  }
+
+  const operations = [];
+  let i = 0, j = 0, shared = 0;
+  while (i < base.length && j < derived.length) {
+    if (base[i] === derived[j]) {
+      operations.push({base:base[i], derived:derived[j], equal:true});
+      if (!/^\s+$/.test(base[i])) shared += base[i].length;
+      i++; j++;
+    } else if (lengths[i + 1][j] >= lengths[i][j + 1]) {
+      operations.push({base:base[i++], derived:'', equal:false});
+    } else {
+      operations.push({base:'', derived:derived[j++], equal:false});
+    }
+  }
+  while (i < base.length) operations.push({base:base[i++], derived:'', equal:false});
+  while (j < derived.length) operations.push({base:'', derived:derived[j++], equal:false});
+  const nonWhitespace = text => text.replace(/\s/g, '').length;
+  if (shared / Math.max(nonWhitespace(baseText), nonWhitespace(derivedText)) < 0.3) return null;
+
+  const result = {base:[], derived:[]};
+  const append = (side, text, changed) => {
+    if (!text) return;
+    const parts = result[side];
+    const last = parts[parts.length - 1];
+    if (last && last.changed === changed) last.text += text;
+    else parts.push({text, changed});
+  };
+  let block = {base:'', derived:'', equal:null};
+  const flush = () => {
+    if (block.equal === null) return;
+    if (block.equal) {
+      append('base', block.base, false);
+      append('derived', block.derived, false);
+    } else {
+      const refined = block.base && block.derived ? singleTextEdit(block.base, block.derived) : null;
+      if (refined) {
+        for (const side of ['base', 'derived']) {
+          for (const segment of refined[side]) append(side, segment.text, segment.changed);
+        }
+      } else {
+        append('base', block.base, true);
+        append('derived', block.derived, true);
+      }
+    }
+  };
+  for (const op of operations) {
+    if (op.equal !== block.equal) {
+      flush();
+      block = {base:'', derived:'', equal:op.equal};
+    }
+    block.base += op.base;
+    block.derived += op.derived;
+  }
+  flush();
+  return result;
+}
+
+function addDiffLine(pane, lineNumber, text, kind, segments = null) {
   const row = document.createElement('div'); row.className = 'diff-line ' + kind;
   const line = document.createElement('span'); line.className = 'ln'; line.textContent = lineNumber ?? '';
-  const code = document.createElement('span'); code.className = 'code'; code.textContent = text || ' ';
+  const code = document.createElement('span'); code.className = 'code';
+  if (segments) {
+    for (const segment of segments) {
+      if (segment.changed) {
+        const highlight = document.createElement('span');
+        highlight.className = 'intraline-change';
+        highlight.textContent = segment.text;
+        code.append(highlight);
+      } else code.append(document.createTextNode(segment.text));
+    }
+  } else code.textContent = text || ' ';
   row.append(line, code); pane.append(row);
 }
 
@@ -1590,9 +1712,12 @@ function renderDiff(result, sibling = false) {
   const left = document.createElement('div'); left.className = 'diff-pane';
   const right = document.createElement('div'); right.className = 'diff-pane';
 
+  const intralineBudget = {remaining:750000};
   for (const row of result.rows) {
-    addDiffLine(left, row.base_line, row.base_text, row.base_kind);
-    addDiffLine(right, row.derived_line, row.derived_text, row.derived_kind);
+    const segments = row.base_kind === 'changed' && row.derived_kind === 'changed'
+      ? intralineSegments(row.base_text, row.derived_text, intralineBudget) : null;
+    addDiffLine(left, row.base_line, row.base_text, row.base_kind, segments?.base);
+    addDiffLine(right, row.derived_line, row.derived_text, row.derived_kind, segments?.derived);
   }
 
   if (sibling && result.left_exists === false) {
