@@ -8,7 +8,8 @@ import pytest
 
 from gitskills.analysis.family_models import Artifact, SimilarityPolicy
 from gitskills.data.families import FamilyLoad, SkippedArtifact
-from gitskills.pipeline import run_family, summarize_cohort
+from gitskills.pipelines.family import run_family
+from gitskills.pipelines.cohort import summarize_cohort
 
 
 BASE = ("Read and document the available source project configuration. " * 18)
@@ -27,7 +28,7 @@ def make_artifact(name, artifact_id, content):
 
 @pytest.fixture
 def repositories(monkeypatch, tmp_path):
-    from gitskills import pipeline
+    from gitskills.pipelines import family as pipeline
 
     class FakeFamilies:
         def __init__(self, database):
@@ -177,3 +178,74 @@ def test_stale_analysis_implementation_is_refreshed(repositories):
                            scans=results / "scans")
     assert refreshed["family_report_updated"] is True
     assert json.loads(family_path.read_text())["implementation_fingerprint"] != "old-version"
+
+
+def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch, tmp_path):
+    """Regression: all must accept valid additional edges, not just primary."""
+    from gitskills.data.families import FamilyLoad
+    from gitskills.pipelines import family as module
+
+    prefix = ("The agent skill performs safe and documented analysis of software artifacts "
+              "and security patterns. " * 15) + "\n"
+    suffixes = (
+        "Prepare the project.",
+        "Prepare the project.\nmkdir cache",
+        "Prepare the project.\nmkdir cache\nrm -rf cache",
+        "Prepare the project.\nmkdir cache\nrm -rf cache\ncat ~/.ssh/id_rsa",
+    )
+    artifacts = tuple(make_artifact("edges", 101 + i, prefix + suffix)
+                      for i, suffix in enumerate(suffixes))
+
+    class Families:
+        def __init__(self, database):
+            pass
+
+        def load_available(self, name):
+            return FamilyLoad(artifacts, ())
+
+    class Siblings:
+        def __init__(self, database):
+            pass
+
+        def load(self, ids):
+            return ()
+
+    monkeypatch.setattr(module, "DuckDBFamilyRepository", Families)
+    monkeypatch.setattr(module, "DuckDBSiblingRepository", Siblings)
+    db = tmp_path / "prepared.duckdb"
+    db.touch()
+    reports = tmp_path / "apps" / "skilltrace" / "reports"
+    results = tmp_path / "results"
+    run_family("edges", database=db, skilltrace_reports=reports, scans=results / "scans")
+    result = summarize_cohort(["edges"], database=db, skilltrace_reports=reports, results=results)
+    assert result["directed_pairs_analyzed"] == 6
+    scan_file = results / "scans" / "edges.json"
+    scan = json.loads(scan_file.read_text())
+    additional = [pair for cluster in scan["clusters"] for pair in cluster["pair_observations"]
+                  if pair["edge_type"] == "additional"]
+    assert len(additional) == 3
+
+    # A pair cannot falsely claim primary status if it is an additional edge.
+    additional[0]["edge_type"] = "primary"
+    scan_file.write_text(json.dumps(scan))
+    with pytest.raises(ValueError, match="not traceable"):
+        summarize_cohort(["edges"], database=db, skilltrace_reports=reports, results=results)
+
+
+def test_fresh_family_analysis_is_reused_for_security_scan(repositories, monkeypatch):
+    """Avoid calculating similarities twice when a new family report is built."""
+    from gitskills.analysis.family import FamilyAnalyzer
+
+    db, reports, results = repositories
+    original = FamilyAnalyzer.analyze
+    calls = []
+
+    def count(self, artifacts):
+        calls.append(1)
+        return original(self, artifacts)
+
+    monkeypatch.setattr(FamilyAnalyzer, "analyze", count)
+    run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
+    assert len(calls) == 1
+    run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
+    assert len(calls) == 2  # Cached JSON cannot supply the full in-memory analysis.

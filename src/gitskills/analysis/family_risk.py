@@ -11,7 +11,7 @@ from gitskills.rules.base import Rule
 from .analyzer import SkillAnalyzer
 from .comparator import compare_results
 from .family import FamilyAnalyzer
-from .family_models import Artifact, ChangeType, SimilarityPolicy, SkillVariant
+from .family_models import Artifact, ChangeType, FamilyAnalysis, SimilarityPolicy, SkillVariant
 from .family_risk_models import (
     ActiveRule,
     ClusterRiskAnalysis,
@@ -87,12 +87,18 @@ class FamilyRiskAnalyzer:
         artifacts: Iterable[Artifact],
         *,
         sibling_files: Iterable[SiblingFile] = (),
+        family_analysis: FamilyAnalysis | None = None,
     ) -> FamilyRiskAnalysis:
         """Analyze primary or all direction-supported family relationships."""
 
         artifacts = tuple(artifacts)
         siblings = tuple(sibling_files)
-        family = self._family_analyzer.analyze(artifacts)
+        if family_analysis is not None:
+            if family_analysis.policy != self.policy:
+                raise ValueError("Existing family analysis must use the same similarity policy")
+            if {a.artifact_id for a in family_analysis.artifacts} != {a.artifact_id for a in artifacts}:
+                raise ValueError("Existing family analysis must use the same artifacts")
+        family = family_analysis or self._family_analyzer.analyze(artifacts)
         variants = {variant.file_sha: variant for variant in family.skill_variants}
         artifacts_by_id = {artifact.artifact_id: artifact for artifact in artifacts}
 

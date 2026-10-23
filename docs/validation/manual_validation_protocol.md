@@ -12,7 +12,7 @@ These judgments are not interchangeable. A correctly detected command does not e
 
 ## Samples and Outputs
 
-[`summarize_scans`](../../src/gitskills/tools/summarize_scans.py) is the source of the active validation CSVs. It creates two complementary samples from the automated reports.
+[`scan_summary`](../../src/gitskills/reporting/scan_summary.py) implements the validation CSV generation, shared by the `summarize_scans` CLI and the end-to-end notebook. It creates two complementary samples from the automated reports.
 
 | Sample | Automated source | Review focus | Generated files |
 | --- | --- | --- | --- |

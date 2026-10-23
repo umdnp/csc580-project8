@@ -76,14 +76,16 @@ def analyze_family_report(name: str, loaded: FamilyLoad, *,
 def scan_family_report(name: str, loaded: FamilyLoad,
                        sibling_files: tuple[SiblingFile, ...] = (), *,
                        policy: SimilarityPolicy | None = None,
-                       edges: str = "all", verbose: bool = False
+                       edges: str = "all", verbose: bool = False,
+                       family_analysis: FamilyAnalysis | None = None
                        ) -> tuple[FamilyRiskAnalysis, dict]:
     """Scan direction-supported edges using the same input contract as family analysis."""
     if not loaded.artifacts and not loaded.skipped_artifacts:
         raise ValueError(f"Candidate family not found: {name}")
     policy = policy or SimilarityPolicy()
     analyzer = FamilyRiskAnalyzer(policy=policy, edges=edges)
-    result = (analyzer.analyze(loaded.artifacts, sibling_files=sibling_files)
+    result = (analyzer.analyze(loaded.artifacts, sibling_files=sibling_files,
+                               family_analysis=family_analysis)
               if loaded.artifacts else FamilyRiskAnalysis(
                   name=name, similarity_policy=policy,
                   active_rules=analyzer.active_rules, clusters=(),
