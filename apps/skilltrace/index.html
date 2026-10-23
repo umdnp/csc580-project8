@@ -1657,7 +1657,7 @@ async function openSiblingContent() {
 }
 
 async function openSiblingDiff() {
-  if (!selectedComparison || selected === null || !currentDetails?.siblings?.length) return;
+  if (!selectedComparison || selected === null) return;
   const entryName = $('#sibling').value;
   if (!entryName) return;
   const compareId = selectedComparison.id;

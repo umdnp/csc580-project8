@@ -474,6 +474,18 @@ class ViewerTests(unittest.TestCase):
                        'id="scan-sibling"', 'id="scan-copy"', 'Partial / unsupported only'):
             self.assertIn(marker, page.text)
 
+    def test_sibling_diff_ui_allows_comparison_only_file(self):
+        html = self.client.get("/").text
+        handler = html.split("async function openSiblingDiff() {", 1)[1].split(
+            "\nfunction renderDiff(", 1
+        )[0]
+        # The sibling picker is a union of both artifacts' entries. A file
+        # present only on the compared artifact must still open its diff.
+        self.assertIn("if (!selectedComparison || selected === null) return;", handler)
+        self.assertNotIn("currentDetails?.siblings?.length", handler)
+        self.assertIn("/sibling-diff/${compareId}/${selected}", handler)
+        self.assertIn("renderDiff(result, true)", handler)
+
     def test_sibling_diff_matches_entry_name_and_handles_missing_side(self):
         def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
             self.assertEqual(entry_name, "scripts/install.sh")
@@ -500,6 +512,30 @@ class ViewerTests(unittest.TestCase):
         self.assertFalse(payload["left_exists"])
         self.assertTrue(payload["right_exists"])
         self.assertTrue(any(row["derived_kind"] == "added" for row in payload["rows"]))
+
+    def test_sibling_diff_handles_file_only_on_compared_artifact(self):
+        def siblings(artifact_id, *, entry_name=None, include_content=False,
+                     require_content=True):
+            if artifact_id != 10:
+                return []
+            row = {"artifact_id": 10, "entry_name": entry_name,
+                   "entry_type": "file", "entry_sha": "base-sha"}
+            if include_content:
+                row["content"] = "rm -rf old-directory\n"
+            return [row]
+
+        with patch.object(server, "fetch_sibling_records", side_effect=siblings):
+            response = self.client.get(
+                "/api/reports/example.json/sibling-diff/10/20",
+                params={"entry_name": "scripts/removed.sh"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertTrue(result["left_exists"])
+        self.assertFalse(result["right_exists"])
+        self.assertEqual(result["entry_name"], "scripts/removed.sh")
+        self.assertTrue(any(row["base_kind"] == "removed" for row in result["rows"]))
 
     def test_sibling_content_endpoint_returns_selected_file_contents(self):
         def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
