@@ -304,7 +304,7 @@ Supply **either** `NAME` **or** `--input FILE`, not both. The first form runs a 
 | `--direction-margin FLOAT` | `0.10` | Minimum containment difference when stronger direction evidence is unavailable. |
 | `--json` | Off | In single-family mode, print structured JSON rather than the human-readable report. Batch mode writes JSON files automatically. |
 | `--verbose` | Off | Include more direction, similarity, sibling, evidence, and rule-match details. |
-| `--output [DIR]` | Off | Save one `<NAME>.json` report per family. If `DIR` is omitted, use `./output`. Required in batch mode. |
+| `--output [DIR]` | Off | Save one JSON report per family; special characters in family names are converted to safe, collision-resistant filenames. If `DIR` is omitted, use `./output`. Required in batch mode. |
 | `--benchmark` | Off | For either single or batch scans, generate `benchmarks.csv` with per-family elapsed time and success/failure status. |
 | `--tracemalloc` | Off | With `--benchmark`, also measure peak **Python-traced allocations** in MiB. Not process RSS or DuckDB native memory; adds measurement overhead. |
 | `-h`, `--help` | — | Display full CLI help. |
@@ -325,11 +325,9 @@ Top-of-file `SKILL.md` frontmatter is excluded from behavioral scanning. Sibling
 
 ### Output
 
-**Single-family mode:** Prints a human-readable summary by default; `--json` prints the structured report. With `--output`, also saves `<NAME>.json`.
+**Single-family mode:** Prints a human-readable summary by default; `--json` prints the structured report. With `--output`, also saves a family JSON report, using a safe filename when needed.
 
-**Batch mode:** Requires `--output`, writes one `<NAME>.json` per successfully scanned family, and prints per-family progress/status rather than a stream of JSON reports. A failed family does not prevent later families from running, but the command returns a nonzero status if any fail. To avoid mixing research cohorts, batch mode rejects an output directory already containing `*.json` reports or `benchmarks.csv`; use a fresh directory for each run.
-
-The **Phase 10 JSON schema** (`gitskills-family-scan-v2`) includes compact `pair_observations` for **all** analyzed directed pairs, including pairs without findings. Detailed flagged-pair records include rule findings, evidence changes, indicators, and coverage. This all-pairs structure is required by `summarize_scans`; older `scan_family` reports must be regenerated for research aggregation.
+**Batch mode:** Requires `--output`, writes one JSON report per successfully scanned family, and prints per-family progress/status rather than a stream of JSON reports. A failed family does not prevent later families from running, but the command returns a nonzero status if any fail. To avoid mixing research cohorts, batch mode rejects an output directory already containing `*.json` reports or `benchmarks.csv`; use a fresh directory for each run.
 
 A **flagged pair** can result from rule/evidence changes or supported/uncertain indicators. A flagged pair is not necessarily a pair with a supported risk indicator. **`Pairs incomplete`** refers to sibling-data limitations; **evidence coverage** also reflects partial or unsupported extraction. Complete evidence coverage does not imply that every security risk can be detected.
 
@@ -352,7 +350,7 @@ uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duc
 **Single family with JSON report and benchmarking:**
 
 ```powershell
-uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duckdb/agent_skills_release.db --json --output output/phase10/single --benchmark
+uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duckdb/agent_skills_release.db --json --output output/single --benchmark
 ```
 
 **Example `data/validation/families.txt`:**
@@ -365,13 +363,13 @@ busybox-on-windows
 **Batch pilot with benchmarking:**
 
 ```powershell
-uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/phase10/pilot --limit 2 --benchmark
+uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/pilot --limit 2 --benchmark
 ```
 
 **Complete input list (no benchmarking):**
 
 ```powershell
-uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/phase10/scans
+uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/scans
 ```
 
 ### Interpretation
@@ -417,7 +415,7 @@ summarize_scans REPORTS... --output DIR [OPTIONS]
 
 ### Input Requirements
 
-Input JSON must use the current `gitskills-family-scan-v2` schema, including observations for **all directed pairs**. The tool rejects duplicate family reports, inconsistent pair counts, and cohorts that mix similarity policies, rule catalogs, or scanner scopes. Run separate summaries for different policy settings. `benchmarks.csv` may coexist in the scan directory; it is not a JSON input.
+Provide JSON reports generated by `scan_family`. The tool rejects duplicate family reports, inconsistent pair counts, and reports generated with different similarity policies, rule catalogs, or scanner scopes. Run separate summaries for different settings. `benchmarks.csv` may coexist in the input directory; it is not read as a scan report.
 
 A pair's direction must be supported to enter the directed-pair denominator. Direction-unknown/ambiguous edges are tracked separately as counts rather than treated as negative pairs.
 
@@ -450,13 +448,13 @@ With `--annotations`, `summary.json` also reports reviewed-sample confusion coun
 **Aggregate all scanned pairs without sampling:**
 
 ```powershell
-uv run python -m gitskills.tools.summarize_scans output/phase10/scans --output output/phase10/research
+uv run python -m gitskills.tools.summarize_scans output/scans --output output/research
 ```
 
 **Create the same complete research statistics plus a manual-review sample:**
 
 ```powershell
-uv run python -m gitskills.tools.summarize_scans output/phase10/scans --output output/phase10/review --per-stratum 5 --seed 580
+uv run python -m gitskills.tools.summarize_scans output/scans --output output/review --per-stratum 5 --seed 580
 ```
 
 Here, `--per-stratum 5` means **up to five pairs per validation category for human review**. It does **not** limit how many pairs were scanned or included in the research statistics.
@@ -464,7 +462,7 @@ Here, `--per-stratum 5` means **up to five pairs per validation category for hum
 **Recalculate reviewed-sample metrics after annotating a copy of the template:**
 
 ```powershell
-uv run python -m gitskills.tools.summarize_scans output/phase10/scans --output output/phase10/review --per-stratum 5 --seed 580 --annotations data/validation/validation_annotations_reviewed.csv
+uv run python -m gitskills.tools.summarize_scans output/scans --output output/review --per-stratum 5 --seed 580 --annotations data/validation/validation_annotations_reviewed.csv
 ```
 
 ### Exit Status

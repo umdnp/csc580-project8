@@ -99,10 +99,10 @@ def test_batch_failure_is_recorded_and_remaining_scans_continue(mock_repos, tmp_
     assert "not found" in capsys.readouterr().err
 
 
-def test_batch_input_preflight_rejects_stale_duplicate_and_traversal(mock_repos, tmp_path):
+def test_batch_input_preflight_rejects_stale_and_duplicate(mock_repos, tmp_path):
     inputs = tmp_path / "names.txt"
     output = tmp_path / "reports"
-    for text in ("alpha\nalpha\n", "../escape\n", "alpha/beta\n"):
+    for text in ("alpha\nalpha\n",):
         inputs.write_text(text, encoding="utf-8")
         assert scan_family.main(["--input", str(inputs), "--db", str(mock_repos),
                                  "--output", str(output)]) == 2
@@ -133,3 +133,45 @@ def test_batch_requires_output_and_tracemalloc_requires_benchmark(mock_repos, tm
         scan_family.main(["--input", str(inputs), "--db", str(mock_repos)])
     with pytest.raises(SystemExit, match="2"):
         scan_family.main(["alpha", "--db", str(mock_repos), "--tracemalloc"])
+
+
+def test_batch_accepts_exact_names_with_filename_special_characters(mock_repos, tmp_path):
+    from gitskills.tools._output import report_stem
+
+    families = ["A/B Test Setup", "A:B Test Setup", "A_B Test Setup", "CON", "../escape"]
+    source = tmp_path / "families.txt"
+    source.write_text("\n".join(families) + "\n", encoding="utf-8")
+    output = tmp_path / "output"
+    assert scan_family.main(["--input", str(source), "--db", str(mock_repos),
+                             "--output", str(output)]) == 0
+    files = list(output.glob("*.json"))
+    assert len(files) == len(families)
+    for name in families:
+        path = output / f"{report_stem(name)}.json"
+        assert path.is_file()
+        assert json.loads(path.read_text(encoding="utf-8"))["candidate_family"] == name
+    assert all(path.parent == output for path in files)
+
+
+def test_batch_resolves_case_insensitive_filename_collisions(mock_repos, tmp_path):
+    source = tmp_path / "families.txt"
+    source.write_text("alpha\nALPHA\n", encoding="utf-8")
+    output = tmp_path / "output"
+    assert scan_family.main(["--input", str(source), "--db", str(mock_repos),
+                             "--output", str(output)]) == 0
+    names = [path.name.casefold() for path in output.glob("*.json")]
+    assert len(names) == 2 and len(set(names)) == 2
+    assert {json.loads(path.read_text())["candidate_family"]
+            for path in output.glob("*.json")} == {"alpha", "ALPHA"}
+
+
+def test_single_unsafe_family_name_is_saved_safely(mock_repos, tmp_path, capsys):
+    from gitskills.tools._output import report_stem
+
+    name = "A/B Test Setup"
+    output = tmp_path / "reports"
+    assert scan_family.main([name, "--db", str(mock_repos), "--json",
+                             "--output", str(output), "--benchmark"]) == 0
+    assert json.loads(capsys.readouterr().out)["candidate_family"] == name
+    assert (output / f"{report_stem(name)}.json").is_file()
+    assert _rows(output / "benchmarks.csv")[0]["family"] == name
