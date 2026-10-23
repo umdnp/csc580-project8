@@ -1,0 +1,389 @@
+[
+  {
+    "artifact_key": "618973:348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
+    "artifact_id": "618973",
+    "file_sha": "348f7a56f87d01cb9c10b9aac82b04dbdd8c163d",
+    "name": "003-create-golang-project",
+    "repository_id": "162936",
+    "repository_name": "flaviostutz/filedist",
+    "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md"
+  },
+  {
+    "artifact_key": "480004:4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
+    "artifact_id": "480004",
+    "file_sha": "4c64854a9b7b41777cf7ff7aafaf882e1609a83f",
+    "name": "003-create-golang-project",
+    "repository_id": "165213",
+    "repository_name": "flaviostutz/agentme",
+    "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md"
+  },
+  {
+    "artifact_key": "618973:2941934ac0db60b9a3888ee9da82396ef063af07",
+    "artifact_id": "618973",
+    "file_sha": "2941934ac0db60b9a3888ee9da82396ef063af07",
+    "name": "003-create-golang-project",
+    "repository_id": "162284",
+    "repository_name": "flaviostutz/testprompt",
+    "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md"
+  },
+  {
+    "artifact_key": "618973:cc5c501649ef678b79dc30b98c62462981ea1b4f",
+    "artifact_id": "618973",
+    "file_sha": "cc5c501649ef678b79dc30b98c62462981ea1b4f",
+    "name": "003-create-golang-project",
+    "repository_id": "204279",
+    "repository_name": "flaviostutz/deepworkflow",
+    "path": ".xdrs/agentme/edrs/application/skills/003-create-golang-project/SKILL.md"
+  },
+  {
+    "artifact_key": "373553:676a02971f9b8575506f6d628150f35dd3936f09",
+    "artifact_id": "373553",
+    "file_sha": "676a02971f9b8575506f6d628150f35dd3936f09",
+    "name": "1k-defi-module-integration",
+    "repository_id": "63828",
+    "repository_name": "wanghaisheng/web3-scaffold-app-monorepo",
+    "path": ".claude/skills/1k-defi-module-integration/SKILL.md"
+  },
+  {
+    "artifact_key": "422274:dc438bccc86934026118a6bf27980698d5789456",
+    "artifact_id": "422274",
+    "file_sha": "dc438bccc86934026118a6bf27980698d5789456",
+    "name": "1k-defi-module-integration",
+    "repository_id": "261",
+    "repository_name": "lxyeternal/MalSkillBench",
+    "path": "Dataset/Skills/malware/1k-defi-module-integration/SKILL.md"
+  },
+  {
+    "artifact_key": "422274:442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+    "artifact_id": "422274",
+    "file_sha": "442effea7c7b6ccf9cef7e4d59bcfacce74d9d08",
+    "name": "1k-defi-module-integration",
+    "repository_id": "3936",
+    "repository_name": "MikeCheng1208/BattleTree",
+    "path": ".agents/skills/1k-defi-module-integration/SKILL.md"
+  },
+  {
+    "artifact_key": "268864:c6949d376537f3d07c306268572d98265a0fff88",
+    "artifact_id": "268864",
+    "file_sha": "c6949d376537f3d07c306268572d98265a0fff88",
+    "name": "1k-defi-module-integration",
+    "repository_id": "78873",
+    "repository_name": "OneKeyHQ/app-monorepo",
+    "path": ".skillshare/skills/1k-defi-module-integration/SKILL.md"
+  },
+  {
+    "artifact_key": "443341:ed296841d6309ef9b0db917097b2f9f1c266fd87",
+    "artifact_id": "443341",
+    "file_sha": "ed296841d6309ef9b0db917097b2f9f1c266fd87",
+    "name": "A/B Test Setup",
+    "repository_id": "47889",
+    "repository_name": "ChatAndBuild/chatchat-skills",
+    "path": "skills/ab-test-setup/SKILL.md"
+  },
+  {
+    "artifact_key": "24200:2c6007053f203da30f40b2017a75181a608c1b65",
+    "artifact_id": "24200",
+    "file_sha": "2c6007053f203da30f40b2017a75181a608c1b65",
+    "name": "A/B Test Setup",
+    "repository_id": "58628",
+    "repository_name": "aashutosh396/mindpalace",
+    "path": "mindpalace/skills/global/marketing/ab-test-setup/SKILL.md"
+  },
+  {
+    "artifact_key": "277334:eba0c797519ec7eab8d6b3e9ec5905b604a26a76",
+    "artifact_id": "277334",
+    "file_sha": "eba0c797519ec7eab8d6b3e9ec5905b604a26a76",
+    "name": "argent-react-native-app-workflow",
+    "repository_id": "25717",
+    "repository_name": "felipejh/MyFrench",
+    "path": ".claude/skills/argent-react-native-app-workflow/SKILL.md"
+  },
+  {
+    "artifact_key": "277334:d4e0a4bad3649052d52c70bf695caba5c7e7d258",
+    "artifact_id": "277334",
+    "file_sha": "d4e0a4bad3649052d52c70bf695caba5c7e7d258",
+    "name": "argent-react-native-app-workflow",
+    "repository_id": "128522",
+    "repository_name": "TrainLCD/MobileApp",
+    "path": ".claude/skills/argent-react-native-app-workflow/SKILL.md"
+  },
+  {
+    "artifact_key": "277334:0861656372406937987d36f189179badb1b1f8a4",
+    "artifact_id": "277334",
+    "file_sha": "0861656372406937987d36f189179badb1b1f8a4",
+    "name": "argent-react-native-app-workflow",
+    "repository_id": "25536",
+    "repository_name": "Uniswap/interface",
+    "path": ".agents/skills/argent-react-native-app-workflow/SKILL.md"
+  },
+  {
+    "artifact_key": "277334:cd167e2bba1ee61eeafeb40a25e19424910973fb",
+    "artifact_id": "277334",
+    "file_sha": "cd167e2bba1ee61eeafeb40a25e19424910973fb",
+    "name": "argent-react-native-app-workflow",
+    "repository_id": "110840",
+    "repository_name": "edwardloopez/travel-app-repack-example",
+    "path": ".cursor/skills/argent-react-native-app-workflow/SKILL.md"
+  },
+  {
+    "artifact_key": "277334:93b380a100ec34220845a61e268d205267183d88",
+    "artifact_id": "277334",
+    "file_sha": "93b380a100ec34220845a61e268d205267183d88",
+    "name": "argent-react-native-app-workflow",
+    "repository_id": "25696",
+    "repository_name": "salemkode/chat",
+    "path": ".agents/skills/argent-react-native-app-workflow/SKILL.md"
+  },
+  {
+    "artifact_key": "463587:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+    "artifact_id": "463587",
+    "file_sha": "97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+    "name": "capacitor-best-practices",
+    "repository_id": "7771",
+    "repository_name": "SufficientDaikon/archon",
+    "path": "skills/capacitor-best-practices/SKILL.md"
+  },
+  {
+    "artifact_key": "463587:83b4cd4f10d581081bf8334b838a382da6f2949b",
+    "artifact_id": "463587",
+    "file_sha": "83b4cd4f10d581081bf8334b838a382da6f2949b",
+    "name": "capacitor-best-practices",
+    "repository_id": "1772",
+    "repository_name": "Peter-code-bot/PROJECT-VICINO",
+    "path": ".claude/skills/capacitor-best-practices/SKILL.md"
+  },
+  {
+    "artifact_key": "463587:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+    "artifact_id": "463587",
+    "file_sha": "7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+    "name": "capacitor-best-practices",
+    "repository_id": "1790",
+    "repository_name": "Bigdrops/bigdrops-app",
+    "path": ".claude/skills/capacitor-best-practices/SKILL.md"
+  },
+  {
+    "artifact_key": "463690:6d50b2a26d91f5379998e01aa0588aad59d47658",
+    "artifact_id": "463690",
+    "file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+    "name": "cometchat-core",
+    "repository_id": "240727",
+    "repository_name": "MAX5271/CometChat",
+    "path": ".claude/skills/cometchat-core/SKILL.md"
+  },
+  {
+    "artifact_key": "463690:6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+    "artifact_id": "463690",
+    "file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+    "name": "cometchat-core",
+    "repository_id": "240736",
+    "repository_name": "AgamPandey133/Take_Home",
+    "path": "cometchat-app/.claude/skills/cometchat-core/SKILL.md"
+  },
+  {
+    "artifact_key": "463690:8845d257f4cd36b181f8f920e437a30fe28686f7",
+    "artifact_id": "463690",
+    "file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+    "name": "cometchat-core",
+    "repository_id": "130791",
+    "repository_name": "cometchat/cometchat-skills",
+    "path": "skills/cometchat-core/SKILL.md"
+  },
+  {
+    "artifact_key": "463690:a066c884d6a957cecf81a22521bd6a7e9b12813c",
+    "artifact_id": "463690",
+    "file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+    "name": "cometchat-core",
+    "repository_id": "249243",
+    "repository_name": "cometchat/cometchat-replit-template",
+    "path": ".agents/skills/cometchat-core/SKILL.md"
+  },
+  {
+    "artifact_key": "463690:8d4b7e95915a5d1b782d30823961c4381cabe87f",
+    "artifact_id": "463690",
+    "file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+    "name": "cometchat-core",
+    "repository_id": "249245",
+    "repository_name": "cometchat/cometchat-cursor-plugin",
+    "path": "plugins/cometchat/skills/cometchat-core/SKILL.md"
+  },
+  {
+    "artifact_key": "326360:8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+    "artifact_id": "326360",
+    "file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+    "name": "cursor-subagent-creator",
+    "repository_id": "13732",
+    "repository_name": "Matheusrlr/payment-orchestrator",
+    "path": "skills-catalog/skills/(creation)/cursor-subagent-creator/SKILL.md"
+  },
+  {
+    "artifact_key": "186039:038153122ff4267b7c53bf019abc56d5d2c82d48",
+    "artifact_id": "186039",
+    "file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+    "name": "cursor-subagent-creator",
+    "repository_id": "17956",
+    "repository_name": "DevOficinaBrasil/backend-promotor",
+    "path": ".claude/skills/cursor-subagent-creator/SKILL.md"
+  },
+  {
+    "artifact_key": "326360:63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+    "artifact_id": "326360",
+    "file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+    "name": "cursor-subagent-creator",
+    "repository_id": "15167",
+    "repository_name": "guilhermemarketing/esc-skills",
+    "path": "skills/cursor-subagent-creator/SKILL.md"
+  },
+  {
+    "artifact_key": "32411:abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+    "artifact_id": "32411",
+    "file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+    "name": "cursor-subagent-creator",
+    "repository_id": "83020",
+    "repository_name": "diegosouzapw/awesome-omni-skills",
+    "path": "skills/cursor-subagent-creator/SKILL.md"
+  },
+  {
+    "artifact_key": "32411:fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+    "artifact_id": "32411",
+    "file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+    "name": "cursor-subagent-creator",
+    "repository_id": "83020",
+    "repository_name": "diegosouzapw/awesome-omni-skills",
+    "path": "skills_omni/cursor-subagent-creator/SKILL.md"
+  },
+  {
+    "artifact_key": "437007:d4887c6b0d8ffce5faf13816cd45554dff22b640",
+    "artifact_id": "437007",
+    "file_sha": "d4887c6b0d8ffce5faf13816cd45554dff22b640",
+    "name": "databricks-upgrade-migration",
+    "repository_id": "1333",
+    "repository_name": "Dicklesworthstone/pi_agent_rust",
+    "path": "tests/ext_conformance/artifacts/plugins-community/plugins/saas-packs/databricks-pack/skills/databricks-upgrade-migration/SKILL.md"
+  },
+  {
+    "artifact_key": "437007:e207a66d907506bd28e34f016bcf03625d2b7e73",
+    "artifact_id": "437007",
+    "file_sha": "e207a66d907506bd28e34f016bcf03625d2b7e73",
+    "name": "databricks-upgrade-migration",
+    "repository_id": "157230",
+    "repository_name": "jukeyman/jukeyman-skills",
+    "path": "skills/saas-packs--databricks-pack--databricks-upgrade-migration/SKILL.md"
+  },
+  {
+    "artifact_key": "437007:107f798fcab1f2abc876872572a3d9ba248f695a",
+    "artifact_id": "437007",
+    "file_sha": "107f798fcab1f2abc876872572a3d9ba248f695a",
+    "name": "databricks-upgrade-migration",
+    "repository_id": "611",
+    "repository_name": "ComeOnOliver/skillshub",
+    "path": "skills/jeremylongshore/claude-code-plugins-plus-skills/databricks-upgrade-migration/SKILL.md"
+  },
+  {
+    "artifact_key": "437007:9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
+    "artifact_id": "437007",
+    "file_sha": "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
+    "name": "databricks-upgrade-migration",
+    "repository_id": "45599",
+    "repository_name": "nickloveinvesting/nick-love-plugins",
+    "path": "plugins/databricks-pack/skills/databricks-upgrade-migration/SKILL.md"
+  },
+  {
+    "artifact_key": "437007:2d8a202ecd04369690fd31ec8188949ec096fccd",
+    "artifact_id": "437007",
+    "file_sha": "2d8a202ecd04369690fd31ec8188949ec096fccd",
+    "name": "databricks-upgrade-migration",
+    "repository_id": "27554",
+    "repository_name": "flight505/skill-forge",
+    "path": "plugins/saas-packs/databricks-pack/skills/databricks-upgrade-migration/SKILL.md"
+  },
+  {
+    "artifact_key": "530620:8e13142db6911e65d10603ec1a0fcd2210c60ce7",
+    "artifact_id": "530620",
+    "file_sha": "8e13142db6911e65d10603ec1a0fcd2210c60ce7",
+    "name": "ghostclaw",
+    "repository_id": "614",
+    "repository_name": "modbender/skill-library-mcp",
+    "path": "data/ghostclaw/SKILL.md"
+  },
+  {
+    "artifact_key": "530620:d412ca54003ae7cbfee59fd7cd06b637297ae563",
+    "artifact_id": "530620",
+    "file_sha": "d412ca54003ae7cbfee59fd7cd06b637297ae563",
+    "name": "ghostclaw",
+    "repository_id": "180",
+    "repository_name": "LJT-520/openClaw-backup",
+    "path": "skills/ev3lynx727/ghostclaw/SKILL.md"
+  },
+  {
+    "artifact_key": "530620:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+    "artifact_id": "530620",
+    "file_sha": "20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+    "name": "ghostclaw",
+    "repository_id": "120",
+    "repository_name": "GeorgeDoors888/GB-Power-Market-JJ",
+    "path": "openclaw-skills/skills/ev3lynx727/ghostclaw/SKILL.md"
+  },
+  {
+    "artifact_key": "530620:e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+    "artifact_id": "530620",
+    "file_sha": "e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+    "name": "ghostclaw",
+    "repository_id": "277267",
+    "repository_name": "Ev3lynx727/ghostclaw",
+    "path": "SKILL.md"
+  },
+  {
+    "artifact_key": "530620:0885651db2f29df8d825d95c765c6a11315d1127",
+    "artifact_id": "530620",
+    "file_sha": "0885651db2f29df8d825d95c765c6a11315d1127",
+    "name": "ghostclaw",
+    "repository_id": "267",
+    "repository_name": "dvcrn/openclaw-skills-marketplace",
+    "path": "plugins/ev3lynx727--ghostclaw/skills/ghostclaw/SKILL.md"
+  },
+  {
+    "artifact_key": "380686:3a6c068f72dfa9ba488970a49824a6678fdc5c02",
+    "artifact_id": "380686",
+    "file_sha": "3a6c068f72dfa9ba488970a49824a6678fdc5c02",
+    "name": "legacy-migration-planner",
+    "repository_id": "17956",
+    "repository_name": "DevOficinaBrasil/backend-promotor",
+    "path": ".claude/skills/legacy-migration-planner/SKILL.md"
+  },
+  {
+    "artifact_key": "380686:d754619ab18137b3fe9e9a7217bcee234d66aefa",
+    "artifact_id": "380686",
+    "file_sha": "d754619ab18137b3fe9e9a7217bcee234d66aefa",
+    "name": "legacy-migration-planner",
+    "repository_id": "2448",
+    "repository_name": "onfire7777/universal-ai-skills-library",
+    "path": "skills/legacy-migration-planner/SKILL.md"
+  },
+  {
+    "artifact_key": "537381:13e3b887d6615f365e4e5da51fdfe23dad410320",
+    "artifact_id": "537381",
+    "file_sha": "13e3b887d6615f365e4e5da51fdfe23dad410320",
+    "name": "legacy-migration-planner",
+    "repository_id": "13732",
+    "repository_name": "Matheusrlr/payment-orchestrator",
+    "path": "skills-catalog/skills/(architecture)/legacy-migration-planner/SKILL.md"
+  },
+  {
+    "artifact_key": "194722:e87edf4a287bdfd84c8dfacccbd06ecf069ad660",
+    "artifact_id": "194722",
+    "file_sha": "e87edf4a287bdfd84c8dfacccbd06ecf069ad660",
+    "name": "legacy-migration-planner",
+    "repository_id": "83020",
+    "repository_name": "diegosouzapw/awesome-omni-skills",
+    "path": "skills/legacy-migration-planner/SKILL.md"
+  },
+  {
+    "artifact_key": "194722:be0a25e57e23822fe76b14431a31a39206b5c8cf",
+    "artifact_id": "194722",
+    "file_sha": "be0a25e57e23822fe76b14431a31a39206b5c8cf",
+    "name": "legacy-migration-planner",
+    "repository_id": "83020",
+    "repository_name": "diegosouzapw/awesome-omni-skills",
+    "path": "skills_omni/legacy-migration-planner/SKILL.md"
+  }
+]
