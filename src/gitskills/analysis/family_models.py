@@ -745,11 +745,31 @@ class FamilyAnalysis:
                     for change_type, count in self.family.change_counts.items()
                 },
             },
-            "family": self.family.to_dict(compact=not verbose),
+            "family": self.family.to_dict(),
             "chronology_proxies": [
                 proxy.to_dict() for proxy in self.chronology_proxies
             ],
         }
+
+        # The standard report is a complete interchange format for SkillTrace
+        # and relationship sampling; verbose adds optional diagnostics only.
+        output["similarities"] = self._similarities_to_dict()
+        output["artifacts"] = [
+            {
+                "artifact_id": artifact.artifact_id,
+                "group_id": artifact.group_id,
+                "repo_id": artifact.repo_id,
+                "repo_full_name": artifact.repo_full_name,
+                "path": artifact.path,
+                "file_sha": artifact.file_sha,
+                "provenance": artifact.provenance.to_dict(),
+                "first_commit_at": artifact.first_commit_at,
+                "repo_created_at": artifact.repo_created_at,
+                "sibling_file_count": artifact.sibling_file_count,
+                "sibling_content_sha": artifact.sibling_content_sha,
+            }
+            for artifact in self.artifacts
+        ]
 
         if verbose:
             output["groups"] = [group.to_dict() for group in self.groups]
@@ -783,23 +803,7 @@ class FamilyAnalysis:
                 for artifact in self.artifacts
                 if artifact.provenance.has_values()
             ]
-            output["similarities"] = self._similarities_to_dict()
-            output["artifacts"] = [
-                {
-                    "artifact_id": artifact.artifact_id,
-                    "group_id": artifact.group_id,
-                    "repo_id": artifact.repo_id,
-                    "repo_full_name": artifact.repo_full_name,
-                    "path": artifact.path,
-                    "file_sha": artifact.file_sha,
-                    "provenance": artifact.provenance.to_dict(),
-                    "first_commit_at": artifact.first_commit_at,
-                    "repo_created_at": artifact.repo_created_at,
-                    "sibling_file_count": artifact.sibling_file_count,
-                    "sibling_content_sha": artifact.sibling_content_sha,
-                }
-                for artifact in self.artifacts
-            ]
+
 
         return output
 

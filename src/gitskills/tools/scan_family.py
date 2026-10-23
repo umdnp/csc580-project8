@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Sequence
 
 from gitskills.analysis.family_models import SimilarityPolicy
-from gitskills.analysis.family_risk import FamilyRiskAnalyzer
 from gitskills.analysis.family_risk_models import (
     ClusterRiskAnalysis,
     FamilyRiskAnalysis,
@@ -27,6 +26,7 @@ from gitskills.analysis.family_risk_models import (
 from gitskills.analysis.models import RiskCategory, RuleMatch
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
+from gitskills.analysis.family_reporting import scan_family_report
 from . import _output
 from ._redaction import redact_text, safe_excerpt
 
@@ -234,18 +234,9 @@ def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: b
     sibling_files = DuckDBSiblingRepository(database).load(
         artifact.artifact_id for artifact in artifacts
     )
-    analyzer = FamilyRiskAnalyzer(policy=policy, edges=edges)
-    result = analyzer.analyze(artifacts, sibling_files=sibling_files) if artifacts else FamilyRiskAnalysis(
-        name=name, similarity_policy=policy, active_rules=analyzer.active_rules,
-        clusters=(), ambiguous_edges_skipped=0, edge_selection=edges,
+    result, payload = scan_family_report(
+        name, loaded, sibling_files, policy=policy, edges=edges, verbose=verbose
     )
-    payload = result.to_dict(verbose=verbose)
-    payload["input_summary"] = {
-        "artifacts_loaded": len(artifacts),
-        "artifacts_skipped": len(loaded.skipped_artifacts),
-        "incomplete": bool(loaded.skipped_artifacts),
-    }
-    payload["skipped_artifacts"] = [artifact.to_dict() for artifact in loaded.skipped_artifacts]
     return result, payload, loaded, artifacts
 
 

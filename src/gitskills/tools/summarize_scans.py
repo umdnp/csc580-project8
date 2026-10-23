@@ -346,7 +346,7 @@ def _read_family_report(path: Path, policies: set[str], allowed_names: set[str])
     _require(isinstance(data.get("artifacts"), list) and
              isinstance(data.get("similarities"), list) and
              isinstance(data.get("family", {}).get("clusters"), list),
-             f"{path}: requires analyze_family --verbose --json output")
+             f"{path}: requires a complete analyze_family report (artifacts and similarities); regenerate this family")
     return data
 
 
@@ -617,7 +617,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--annotations", type=Path,
                         help="Optional completed validation_annotations.csv for sample-only metrics")
     parser.add_argument("--family-reports", nargs="+", type=Path,
-                        help="Optional verbose analyze_family JSON files or directories for relationship review")
+                        help="Matching analyze_family JSON files or directories for relationship review")
     parser.add_argument("--relationship-annotations", type=Path,
                         help="Adjudicated relationship validation CSV for descriptive relationship metrics")
     args = parser.parse_args(argv)

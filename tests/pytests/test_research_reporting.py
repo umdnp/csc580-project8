@@ -278,14 +278,14 @@ def test_relationship_sample_includes_ambiguous_equivalent_and_no_edge(tmp_path:
     assert metrics["relatedness_agree"] == 1
 
 
-def test_relationship_reports_require_matching_policy_and_verbose(tmp_path: Path):
+def test_relationship_reports_require_matching_policy_and_complete_data(tmp_path: Path):
     path = tmp_path / "scan.json"
     path.write_text(json.dumps(_report()), encoding="utf-8")
     report = _relationship_report()
     family = tmp_path / "family.json"
     report.pop("similarities")
     family.write_text(json.dumps(report), encoding="utf-8")
-    with pytest.raises(ResearchInputError, match="--verbose"):
+    with pytest.raises(ResearchInputError, match="complete analyze_family report"):
         summarize([path], tmp_path / "out", per_stratum=1, family_reports=[family])
     report = _relationship_report()
     report["policy"]["min_jaccard"] = 0.9

@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import (
     ChangeType,
     ClusterAnalysis,
@@ -18,6 +17,7 @@ from gitskills.analysis.family_models import (
     SimilarityPolicy,
 )
 from gitskills.data.families import DuckDBFamilyRepository
+from gitskills.analysis.family_reporting import analyze_family_report
 from . import _output
 
 
@@ -79,8 +79,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--verbose",
         action="store_true",
         help=(
-            "Show artifact metadata, the full pairwise similarity matrix, and "
-            "detailed relationship evidence."
+            "Include additional group, variant, and provenance diagnostics. "
+            "The default JSON already includes artifacts and similarities."
         ),
     )
     parser.add_argument(
@@ -119,20 +119,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             min_shared_shingles=args.min_shared_shingles,
             direction_containment_margin=args.direction_margin,
         )
-        artifacts = DuckDBFamilyRepository(database).load(args.name)
-        if not artifacts:
-            print(
-                f"Candidate family not found: {args.name}",
-                file=sys.stderr,
-            )
-            return 1
-
-        result = FamilyAnalyzer(policy).analyze(artifacts)
+        loaded = DuckDBFamilyRepository(database).load_available(args.name)
+        result, payload = analyze_family_report(
+            args.name, loaded, policy=policy, verbose=args.verbose
+        )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"Unable to analyze candidate family: {exc}", file=sys.stderr)
         return 1
-
-    payload = result.to_dict(verbose=args.verbose)
 
     output_path = None
     if output_dir is not None:
@@ -148,8 +141,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         _print_report(result, verbose=args.verbose)
         if output_path is not None:
             print()
-            suffix = " (verbose)" if args.verbose else ""
-            print(f"JSON report:      {output_path.resolve()}{suffix}")
+            print(f"JSON report:      {output_path.resolve()}")
 
     return 0
 
