@@ -151,3 +151,11 @@ def test_pair_mismatch_message_gives_counts_and_remediation(tmp_path: Path):
     input_path.write_text(json.dumps(report), encoding="utf-8")
     with pytest.raises(ResearchInputError, match=r"pairs_analyzed=\d+, pair_observations=\d+.*regenerate"):
         summarize([input_path], tmp_path / "summary")
+
+
+def test_cluster_requires_explicit_pair_observations():
+    # Keep old analyzer implementations from silently emitting missing all-pairs data.
+    from gitskills.analysis.family_risk_models import ClusterRiskAnalysis
+
+    with pytest.raises(TypeError, match="pair_observations"):
+        ClusterRiskAnalysis(cluster_number=1, pairs_analyzed=1, flagged_pairs=())

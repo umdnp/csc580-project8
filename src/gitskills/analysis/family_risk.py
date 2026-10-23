@@ -20,6 +20,7 @@ from .family_risk_models import (
     FlaggedPair,
     FlaggedRule,
     IncompletePair,
+    PairObservation,
     ScanSurface,
     SiblingFile,
     SiblingScanSummary,
@@ -117,6 +118,7 @@ class FamilyRiskAnalyzer:
 
             flagged_pairs: list[FlaggedPair] = []
             incomplete_pairs: list[IncompletePair] = []
+            pair_observations: list[PairObservation] = []
 
             for edge in directed_edges:
                 source_result = self._scan_variant(
@@ -219,11 +221,33 @@ class FamilyRiskAnalyzer:
                         key=lambda rule: (rule.rule_id, rule.surface.value),
                     )
                 )
-                # Flag evidence-only changes (including zero rule deltas) and
-                # supported/uncertain indicators, retaining legacy rule flags.
-                if not (flagged_rules or skill_evidence.added or skill_evidence.removed
-                        or sibling_evidence.added or sibling_evidence.removed
-                        or assessment.indicators):
+                # Keep every directed edge for unbiased validation denominators.
+                flagged = bool(flagged_rules or skill_evidence.added or skill_evidence.removed
+                               or sibling_evidence.added or sibling_evidence.removed
+                               or assessment.indicators)
+                pair_observations.append(PairObservation(
+                    source_artifact_id=edge.source_artifact_id,
+                    destination_artifact_id=edge.target_artifact_id,
+                    direction_basis=edge.basis,
+                    change_type=edge.change_type,
+                    flagged=flagged,
+                    rule_flagged=bool(flagged_rules),
+                    skill_evidence_added=len(skill_evidence.added),
+                    skill_evidence_removed=len(skill_evidence.removed),
+                    sibling_evidence_added=len(sibling_evidence.added),
+                    sibling_evidence_removed=len(sibling_evidence.removed),
+                    indicator_ids=tuple(sorted({i.indicator_id for i in assessment.supported})),
+                    uncertain_indicator_ids=tuple(sorted({i.indicator_id for i in assessment.uncertain})),
+                    finding_count=assessment.finding_count,
+                    coverage=assessment.coverage,
+                    evidence_complete=assessment.evidence_complete,
+                    evidence_partial=assessment.evidence_partial,
+                    evidence_unsupported=assessment.evidence_unsupported,
+                    missing_sibling_content=assessment.missing_sibling_content,
+                    unknown_sibling_hashes=assessment.unknown_sibling_hashes,
+                    sibling_listing_incomplete=assessment.sibling_listing_incomplete,
+                ))
+                if not flagged:
                     continue
 
                 flagged_pairs.append(
@@ -251,6 +275,7 @@ class FamilyRiskAnalyzer:
                     pairs_analyzed=len(directed_edges),
                     flagged_pairs=tuple(flagged_pairs),
                     incomplete_pairs=tuple(incomplete_pairs),
+                    pair_observations=tuple(pair_observations),
                     direction_basis_counts=tuple(sorted(
                         Counter(edge.basis for edge in directed_edges).items()
                     )),

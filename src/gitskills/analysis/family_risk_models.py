@@ -313,9 +313,9 @@ class ClusterRiskAnalysis:
     cluster_number: int
     pairs_analyzed: int
     flagged_pairs: tuple[FlaggedPair, ...]
+    pair_observations: tuple[PairObservation, ...]
     incomplete_pairs: tuple[IncompletePair, ...] = ()
     direction_basis_counts: tuple[tuple[str, int], ...] = ()
-    pair_observations: tuple[PairObservation, ...] = ()
 
     @property
     def pairs_flagged(self) -> int:
