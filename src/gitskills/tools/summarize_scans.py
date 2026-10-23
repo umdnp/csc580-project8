@@ -1,4 +1,4 @@
-"""Aggregate versioned scan_family JSON into reproducible research tables."""
+"""Aggregate scan_family reports into reproducible research tables."""
 
 from __future__ import annotations
 
@@ -11,9 +11,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-from gitskills.analysis.risk_models import POLICY_VERSION
+from gitskills.analysis.family_risk_models import FAMILY_SCAN_REPORT_TYPE
 
-SCHEMA = "gitskills-family-scan-v2"
 INDICATORS = tuple(f"RI-{index:03d}" for index in range(1, 12))
 SAMPLE_STRATA = (
     "supported-indicator",
@@ -48,14 +47,16 @@ def _read_report(path: Path) -> dict:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ResearchInputError(f"Cannot load {path}: {exc}") from exc
-    _require(isinstance(data, dict) and data.get("report_schema_version") == SCHEMA,
-             f"{path}: expected report_schema_version={SCHEMA}; regenerate with updated scan_family")
-    _require(isinstance(data.get("clusters"), list) and isinstance(data.get("summary"), dict),
-             f"{path}: missing clusters or summary")
+    _require(isinstance(data, dict) and data.get("report_type") == FAMILY_SCAN_REPORT_TYPE,
+             f"{path}: expected a scan_family report (report_type={FAMILY_SCAN_REPORT_TYPE})")
     _require(isinstance(data.get("candidate_family"), str) and data["candidate_family"],
              f"{path}: missing candidate_family")
-    _require(data.get("indicator_policy_version") == POLICY_VERSION,
-             f"{path}: expected indicator_policy_version={POLICY_VERSION}")
+    _require(isinstance(data.get("clusters"), list) and isinstance(data.get("summary"), dict),
+             f"{path}: missing clusters or summary")
+    _require(isinstance(data.get("similarity_policy"), dict) and
+             isinstance(data.get("active_rules"), list) and
+             isinstance(data.get("scanner_scope"), str),
+             f"{path}: missing scan settings")
     return data
 
 
@@ -243,7 +244,7 @@ def _svg_frequency(path: Path, frequency: Counter, total: int) -> None:
 
 def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None,
               seed: int = 580, annotations: Path | None = None) -> dict:
-    """Summarize versioned family reports; reject incompatible or duplicate inputs."""
+    """Summarize family reports; reject malformed or duplicate inputs."""
     _require(bool(paths), "At least one report is required")
     reports = [_read_report(path) for path in sorted(paths)]
     names = [r["candidate_family"] for r in reports]
@@ -276,8 +277,7 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
         ct["pairs_with_indicators"] += bool(row["indicator_ids"])
         ct["pairs_coverage_incomplete"] += row["coverage_status"] != "complete"
     summary = {
-        "report_schema_version": SCHEMA,
-        "policy_version": POLICY_VERSION,
+        "report_type": "gitskills-research-summary",
         "similarity_policy": reports[0]["similarity_policy"],
         "scanner_scope": reports[0]["scanner_scope"],
         "family_count": len(reports),

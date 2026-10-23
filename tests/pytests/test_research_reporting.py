@@ -1,4 +1,4 @@
-"""Phase 10: complete denominators, manual sample, and reproducible research tables."""
+"""Complete denominators, manual samples, and reproducible research tables."""
 
 import csv
 import json
@@ -37,7 +37,9 @@ def _report():
 def test_every_directed_edge_including_unflagged_is_serialized():
     report = _report()
     all_pairs = [p for cluster in report["clusters"] for p in cluster["pair_observations"]]
-    assert report["report_schema_version"] == "gitskills-family-scan-v2"
+    assert report["report_type"] == "gitskills-family-scan"
+    assert "report_schema_version" not in report
+    assert "indicator_policy_version" not in report
     assert len(all_pairs) == report["summary"]["pairs_analyzed"]
     assert any(not p["flagged"] for p in all_pairs)
     assert any(p["flagged"] for p in all_pairs)
@@ -62,16 +64,27 @@ def test_reproducible_tables_and_sample_including_nonflagged(tmp_path: Path):
     assert (first / "validation_annotations_template.csv").is_file()
 
 
-def test_reconcile_catches_summary_mismatch_and_stale_schema(tmp_path: Path):
+def test_reconcile_catches_summary_mismatch(tmp_path: Path):
     result = _report()
     path = tmp_path / "input.json"
     result["summary"]["pairs_analyzed"] += 1
     path.write_text(json.dumps(result), encoding="utf-8")
     with pytest.raises(ResearchInputError, match="family pair count mismatch"):
         summarize([path], tmp_path / "out")
-    result["report_schema_version"] = "old-report"
-    path.write_text(json.dumps(result), encoding="utf-8")
-    with pytest.raises(ResearchInputError, match="regenerate"):
+
+
+def test_rejects_non_scan_reports_and_missing_required_pair_data(tmp_path: Path):
+    path = tmp_path / "input.json"
+    report = _report()
+    report.pop("report_type")
+    path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ResearchInputError, match="expected a scan_family report"):
+        summarize([path], tmp_path / "out")
+
+    report = _report()
+    report["clusters"][0].pop("pair_observations")
+    path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ResearchInputError, match="missing pair_observations"):
         summarize([path], tmp_path / "out")
 
 

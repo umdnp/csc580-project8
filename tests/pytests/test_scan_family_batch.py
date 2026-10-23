@@ -63,6 +63,7 @@ def test_single_scan_benchmark_is_opt_in(mock_repos, tmp_path, capsys):
     assert scan_family.main(args) == 0
     printed = json.loads(capsys.readouterr().out)
     assert printed["candidate_family"] == "alpha"
+    assert printed["report_type"] == "gitskills-family-scan"
     assert (output / "alpha.json").is_file()
     assert not (output / "benchmarks.csv").exists()
 
@@ -84,7 +85,9 @@ def test_batch_writes_individual_reports_and_uses_custom_policy(mock_repos, tmp_
     assert "[1/2] alpha: ok" in progress and "[2/2] beta: ok" in progress
     assert len(_rows(output / "benchmarks.csv")) == 2
     assert json.loads((output / "alpha.json").read_text())["similarity_policy"]["min_containment"] == 0.65
-    assert json.loads((output / "beta.json").read_text())["candidate_family"] == "beta"
+    beta = json.loads((output / "beta.json").read_text())
+    assert beta["candidate_family"] == "beta"
+    assert beta["report_type"] == "gitskills-family-scan"
 
 
 def test_batch_failure_is_recorded_and_remaining_scans_continue(mock_repos, tmp_path, capsys):
