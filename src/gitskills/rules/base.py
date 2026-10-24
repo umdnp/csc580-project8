@@ -40,16 +40,22 @@ class RegexRule(Rule):
 
         unique_matches = _deduplicate_overlaps(candidates)
 
-        return tuple(
-            RuleMatch(
-                rule_id=self.rule_id,
-                category=self.category,
-                message=self.description,
-                line_number=_line_number(text, start),
-                matched_text=matched_text,
+        results = []
+        for start, end, matched_text in unique_matches:
+            raw_match = text[start:end]
+            start_offset = start + len(raw_match) - len(raw_match.lstrip())
+            results.append(
+                RuleMatch(
+                    rule_id=self.rule_id,
+                    category=self.category,
+                    message=self.description,
+                    line_number=_line_number(text, start),
+                    matched_text=matched_text,
+                    start_offset=start_offset,
+                    end_offset=start_offset + len(matched_text),
+                )
             )
-            for start, _, matched_text in unique_matches
-        )
+        return tuple(results)
 
 
 def _deduplicate_overlaps(

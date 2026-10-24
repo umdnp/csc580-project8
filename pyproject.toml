@@ -13,11 +13,11 @@ license = { file = "LICENSE" }
 readme = "README.md"
 
 dependencies = [
-    "duckdb",
-    "fastapi>=0.141.1",
-    "ipykernel>=7.3.0",
+    "duckdb==2.0.0",
+    "fastapi==0.159.1",
+    "ipykernel==7.4.0",
     "matplotlib>=3.11.2",
-    "numpy>=2.5.3",
+    "numpy==2.5.4",
     "pandas",
     "seaborn>=0.13.2",
     "uvicorn>=0.54.0",
@@ -37,3 +37,4 @@ dev = [
 analyze_family = "gitskills.tools.analyze_family:main"
 scan_diff = "gitskills.tools.scan_diff:main"
 scan_family = "gitskills.tools.scan_family:main"
+summarize_scans = "gitskills.tools.summarize_scans:main"

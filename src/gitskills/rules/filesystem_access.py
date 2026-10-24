@@ -37,7 +37,10 @@ class FileReadRule(RegexRule):
     category = RiskCategory.FILESYSTEM_ACCESS
     description = "File-reading command or API detected"
     patterns = (
-        r"(?<![\w.-])(?:cat|less|more|Get-Content)[ \t]+(?=[^\s`])",
+        r"(?<![\w.-])(?:cat|Get-Content)[ \t]+(?=[^\s`])",
+        # Read-only viewers are frequent words in prose. Require an explicit
+        # path or a filename with an extension before treating them as commands.
+        r"(?<![\w.-])(?:less|more)[ \t]+(?=(?:[~./\\$-][^\s`]|[\w-]+\.[\w-]+))",
         r"\.(?:read_text|read_bytes)[ \t]*\(",
         r"\bfs(?:\.promises)?\.(?:readFile|readFileSync|createReadStream)[ \t]*\(",
     )

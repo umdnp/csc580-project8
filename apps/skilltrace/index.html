@@ -22,6 +22,7 @@
   --added:light-dark(#e5f5e8,#173c25);
   --removed:light-dark(#fde7e7,#482222);
   --changed:light-dark(#fff4cf,#493f1b);
+  --changed-detail:light-dark(#ffdb87,#856822);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
@@ -114,6 +115,60 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .policy-status .policy-separator{color:var(--muted);margin:0 6px}
 .db-status{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;overflow-wrap:anywhere}
 
+
+/* Evidence explorer: keep complete source records inspectable, not just deltas. */
+.evidence-report{margin-top:14px}
+.evidence-stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.evidence-stat{padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--panel)}
+.evidence-entry{margin:8px 0;padding:9px 12px;border:1px solid var(--border);border-radius:6px;overflow-wrap:anywhere}
+.evidence-entry.partial,.evidence-entry.unsupported{border-left:4px solid var(--orange)}
+.evidence-entry .entry-title{font-weight:600}
+.evidence-entry .entry-context{font-size:12px;color:var(--muted);margin:5px 0}
+.evidence-entry pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0;padding:7px;background:var(--panel);border-radius:4px;font:12px/1.5 ui-monospace,Consolas,monospace}
+.evidence-delta.added{color:var(--green)}
+.evidence-delta.removed{color:var(--orange)}
+.indicator-entry{border-left:3px solid var(--orange);margin:10px 0;padding:6px 10px;background:var(--panel)}
+.evidence-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.evidence-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px}
+.evidence-report details>summary{font-weight:600;cursor:pointer;margin:8px 0}
+
+/* Paired inspection keeps the two sources aligned within each expandable group. */
+.paired-inspection{display:grid;gap:14px;margin:12px 0 18px;min-width:0}
+.paired-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.paired-source{border:1px solid var(--border);border-radius:7px;background:var(--panel);padding:11px;min-width:0}
+.paired-source h3{margin:0 0 6px}
+.paired-source .evidence-stats{margin:6px 0}
+.paired-group{border:0;border-bottom:1px solid var(--border);border-radius:0;min-width:0;overflow:hidden}
+.paired-row[hidden],.paired-group[hidden]{display:none}
+.paired-group>summary{cursor:pointer;padding:10px 6px;background:transparent;font-weight:600;overflow-wrap:anywhere}
+.paired-group>summary .paired-counts{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
+.paired-group[open]>summary{border-bottom:1px dotted var(--border)}
+.paired-heading{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:8px 10px;font-weight:600;font-size:13px;color:var(--muted)}
+.paired-heading>div{min-width:0}
+.paired-heading+.paired-row{border-top:0}
+.paired-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:9px 6px;border-top:1px dotted var(--border);min-width:0}
+.paired-cell{min-width:0;display:flex;flex-direction:column}
+.paired-cell>.evidence-entry{margin:0;flex:1;border:0;border-radius:0;padding:4px 6px;background:transparent}
+.paired-cell.base-only>.evidence-entry{background:var(--removed);border-left:3px solid var(--orange)}
+.paired-cell.derived-only>.evidence-entry{background:var(--added);border-left:3px solid var(--green)}
+.paired-missing{padding:12px;display:flex;align-items:center;justify-content:center;min-height:70px;color:var(--muted);font-size:13px;text-align:center;background:var(--panel)}
+.paired-filter{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0}
+.paired-filter label{display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-size:13px}
+.paired-empty{margin:4px 0 10px;font-size:13px;color:var(--muted)}
+.paired-inspection>h3{margin:6px 0 0}
+.paired-inspection .evidence-entry .entry-context{overflow-wrap:anywhere}
+/* Source context is visible within each expanded evidence card. */
+.evidence-entry .nearby-source{margin-top:9px}
+.evidence-entry .nearby-source-label{font-size:11px;font-weight:600;color:var(--muted)}
+.evidence-entry .entry-section{font-size:12px;color:var(--muted);margin:3px 0 6px}
+.evidence-entry .supported-indicators{font-size:12px;font-weight:600;color:var(--fg);margin:6px 0 0}
+.evidence-entry .nearby-source pre{font-size:11px;line-height:1.45;margin-top:5px;padding:0;background:transparent}
+/* Leave breathing room below the evidence-coverage summary. */
+.meta-box.evidence-report + .paired-columns{margin-top:14px}
+.view-switch{margin:8px 0 12px;padding:8px 12px}
+
+@media(max-width:760px){.paired-columns,.paired-heading,.paired-row{grid-template-columns:1fr}.paired-heading{display:none}.paired-cell:before{content:attr(data-side);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:4px}}
+
 /* Dialogs */
 dialog{width:min(96vw,1500px);height:min(92vh,980px);padding:0;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg)}
 dialog.health-dialog{position:fixed;inset:0;margin:auto;width:min(92vw,620px);height:auto;max-height:min(80vh,560px)}
@@ -132,12 +187,14 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .diff-heading button{font-size:12px;padding:4px 7px;flex:0 0 auto}
 .diff-panes{display:grid;grid-template-columns:1fr 1fr;gap:10px;height:calc(100% - 34px);min-height:300px}
 .diff-pane{border:1px solid var(--border);border-radius:6px;overflow:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg)}
-.diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);min-height:1.45em;white-space:pre}
+.diff-line{display:grid;grid-template-columns:52px minmax(max-content,1fr);width:max-content;min-width:100%;min-height:1.45em;white-space:pre}
 .diff-line .ln{user-select:none;text-align:right;padding:0 9px;color:var(--muted);border-right:1px solid var(--border)}
 .diff-line .code{padding:0 8px;min-width:max-content}
 .diff-line.added{background:var(--added)}
 .diff-line.removed{background:var(--removed)}
 .diff-line.changed{background:var(--changed)}
+.diff-line.changed .intraline-change{background:var(--changed-detail)}
+.intraline-change{border-radius:2px}
 .diff-line.empty{opacity:.45}
 .missing-file{display:flex;align-items:center;justify-content:center;height:100%;min-height:300px;padding:24px;color:var(--muted);font-style:italic;text-align:center}
 .scan-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
@@ -196,6 +253,7 @@ th{background:var(--panel)}
       <div id="details" class="selected-artifact-identity">Select an artifact to inspect it.</div>
       <div class="detail-actions">
         <button id="view-content" hidden>View content</button>
+        <button id="inspect-artifact" hidden>Inspect evidence</button>
       </div>
     </section>
     <section class="control-panel">
@@ -208,6 +266,7 @@ th{background:var(--panel)}
       <div class="detail-actions">
         <button id="view-diff" hidden>View diff</button>
         <button id="scan-diff" hidden>Run scan</button>
+        <button id="inspect-comparison" hidden>Inspect evidence</button>
       </div>
       <p id="compare-note" class="muted"></p>
     </section>
@@ -217,6 +276,8 @@ th{background:var(--panel)}
       <div class="detail-actions">
         <button id="view-sibling-content" hidden>View content</button>
         <button id="view-sibling-diff" hidden>View diff</button>
+        <button id="scan-sibling" hidden>Run scan</button>
+        <button id="inspect-sibling" hidden>Inspect evidence</button>
       </div>
       <p id="sibling-note" class="muted"></p>
     </section>
@@ -247,7 +308,7 @@ th{background:var(--panel)}
 
 <dialog id="scan-dialog">
   <div class="dialog-shell">
-    <div class="dialog-head"><h2 id="scan-title">Scan diff</h2><button data-close="scan-dialog">Close</button></div>
+    <div class="dialog-head"><h2 id="scan-title">Scan diff</h2><div class="dialog-actions"><button id="scan-copy" disabled>Copy report JSON</button><button data-close="scan-dialog">Close</button></div></div>
     <div class="dialog-body" id="scan-body"><p>Running scan…</p></div>
   </div>
 </dialog>
@@ -279,6 +340,8 @@ let selected = null;
 let selectedRelationship = null;
 let selectedComparison = null;
 let currentDetails = null;
+let lastEvidenceReport = null;
+let pairedFilterSerial = 0;
 let hoveredCompareArtifactId = null;
 let box = [0, 0, 800, 560];
 let fitBox = box;
@@ -337,6 +400,8 @@ function clearState() {
   $('#selection-panels').hidden = true;
   $('#view-content').hidden = true;
   $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
+  $('#inspect-comparison').hidden = true;
+  $('#inspect-artifact').hidden = true; $('#inspect-sibling').hidden = true; $('#scan-sibling').hidden = true;
   $('#compare-note').textContent = ''; $('#sibling-note').textContent = '';
   $('#report-summary').replaceChildren(); $('#report-summary').hidden = true;
   $('#search-results').replaceChildren(); $('#search-results').hidden = true;
@@ -1192,6 +1257,8 @@ async function loadDetails(compareId = null) {
   $('#detail-content').textContent = 'Loading artifact metadata…';
   $('#view-content').hidden = true;
   $('#view-diff').hidden = true; $('#scan-diff').hidden = true; $('#view-sibling-content').hidden = true; $('#view-sibling-diff').hidden = true;
+  $('#inspect-comparison').hidden = true;
+  $('#inspect-artifact').hidden = true; $('#inspect-sibling').hidden = true; $('#scan-sibling').hidden = true;
   $('#selection-panels').hidden = true;
   selectedRelationship = null; selectedComparison = null; currentDetails = null;
   try {
@@ -1211,16 +1278,35 @@ function updateComparisonActions() {
   const hasComparison = Boolean(comparison);
   $('#view-diff').hidden = !hasComparison;
   $('#scan-diff').hidden = !(comparison?.kind === 'parent');
+  $('#inspect-comparison').hidden = !(comparison?.kind === 'parent');
+  const dbReady = Boolean(currentDetails?.database?.available);
+  $('#inspect-comparison').disabled = !dbReady;
+  $('#inspect-artifact').hidden = false;
+  $('#inspect-artifact').disabled = !dbReady;
+  $('#inspect-artifact').title = dbReady ? 'Show all rule matches and complete/partial evidence.' : 'DuckDB is unavailable.';
 
-  const hasSiblings = Boolean(currentDetails?.siblings?.length);
+
+  const selectedName = $('#sibling').value;
+  const selectedSiblingAvailable = Boolean(currentDetails?.siblings?.some(s => s.entry_name === selectedName && s.content_available !== false));
+  const comparedSiblingAvailable = Boolean(currentDetails?.comparison_siblings?.some(s => s.entry_name === selectedName && s.content_available !== false));
+  const hasSiblings = selectedSiblingAvailable || comparedSiblingAvailable;
   const siblingContentButton = $('#view-sibling-content');
   siblingContentButton.hidden = !hasSiblings;
-  siblingContentButton.disabled = !(hasSiblings && currentDetails?.database?.available);
-  siblingContentButton.title = currentDetails?.database?.available ? '' : 'DuckDB is unavailable.';
+  siblingContentButton.disabled = !(selectedSiblingAvailable && currentDetails?.database?.available);
+  siblingContentButton.title = !currentDetails?.database?.available ? 'DuckDB is unavailable.' :
+    (selectedSiblingAvailable ? '' : 'This sibling has no available content on the selected artifact. Use View diff or Inspect evidence.');
 
   const siblingButton = $('#view-sibling-diff');
   siblingButton.hidden = !hasSiblings;
   siblingButton.disabled = !(hasSiblings && hasComparison && currentDetails?.database?.available);
+  const siblingInspect = $('#inspect-sibling');
+  siblingInspect.hidden = !hasSiblings;
+  siblingInspect.disabled = !(hasSiblings && dbReady);
+  const siblingScan = $('#scan-sibling');
+  siblingScan.hidden = !(hasSiblings && comparison?.kind === 'parent');
+  siblingScan.disabled = !(hasSiblings && dbReady);
+  siblingScan.title = 'Compare the selected sibling in the directed Base → Derived relationship.';
+
   siblingButton.title = !currentDetails?.database?.available
     ? 'DuckDB is unavailable.'
     : (hasComparison ? '' : 'A comparison artifact is required for a sibling diff.');
@@ -1242,6 +1328,26 @@ function updateComparisonActions() {
       $('#compare-note').textContent = 'Related artifacts: direction is unresolved. File and sibling diffs are available; scan diff is disabled because Base → Derived direction is unknown.';
     }
   }
+}
+
+function siblingOptionLabel(name, inSelected, inCompared, comparison, selectedId) {
+  if (!comparison || inSelected === inCompared) return name;
+
+  let selectedRole = 'selected';
+  let comparedRole = 'compared';
+  const relationship = comparison.relationship;
+  if (comparison.kind === 'parent' || comparison.kind === 'related') {
+    const source = Number(relationship?.source);
+    const target = Number(relationship?.target);
+    const own = Number(selectedId);
+    const other = Number(comparison.id);
+    if (source === own && target === other) {
+      selectedRole = 'base'; comparedRole = 'derived';
+    } else if (source === other && target === own) {
+      selectedRole = 'derived'; comparedRole = 'base';
+    }
+  }
+  return `${name} (${inSelected ? selectedRole : comparedRole} only)`;
 }
 
 function renderDetails(result) {
@@ -1269,14 +1375,22 @@ function renderDetails(result) {
   renderCompareDropdown(result.comparisons, result.comparison);
 
   $('#sibling').replaceChildren();
-  if (result.siblings.length) {
-    for (const sibling of result.siblings) $('#sibling').add(new Option(sibling.entry_name, sibling.entry_name));
+  const ownNames = new Set((result.siblings || []).map(s => s.entry_name));
+  const comparisonNames = new Set((result.comparison_siblings || []).map(s => s.entry_name));
+  const entries = [...new Set([...ownNames, ...comparisonNames])].sort();
+  if (entries.length) {
+    for (const name of entries) {
+      const label = siblingOptionLabel(
+        name, ownNames.has(name), comparisonNames.has(name), result.comparison, result.artifact.id
+      );
+      $('#sibling').add(new Option(label, name));
+    }
     $('#sibling').disabled = false;
-    $('#sibling-note').textContent = `${result.siblings.length} content-bearing file sibling${result.siblings.length === 1 ? '' : 's'} associated with the selected artifact.`;
+    $('#sibling-note').textContent = `${entries.length} recorded sibling path${entries.length === 1 ? '' : 's'} across the selected and compared artifact. Missing rows are distinguished from recorded files whose content is unavailable; neither proves historical deletion.`;
   } else {
     $('#sibling').add(new Option('NONE', ''));
     $('#sibling').disabled = true;
-    $('#sibling-note').textContent = result.siblings_error ? `Artifact siblings could not be loaded: ${result.siblings_error}` : 'No content-bearing file siblings are associated with this artifact.';
+    $('#sibling-note').textContent = result.siblings_error ? `Artifact siblings could not be loaded: ${result.siblings_error}` : 'No available content-bearing sibling files for either artifact.';
   }
 
   updateComparisonActions();
@@ -1356,10 +1470,129 @@ async function openArtifactContent() {
   }
 }
 
-function addDiffLine(pane, lineNumber, text, kind) {
+// Detect a single insertion or deletion within an otherwise matching line,
+// including within words (e.g. "abc" -> "abcd"). Keep Unicode characters intact.
+function singleTextEdit(baseText, derivedText) {
+  const base = Array.from(baseText);
+  const derived = Array.from(derivedText);
+  let prefix = 0;
+  while (prefix < base.length && prefix < derived.length && base[prefix] === derived[prefix]) prefix++;
+  let suffix = 0;
+  while (suffix < base.length - prefix && suffix < derived.length - prefix &&
+         base[base.length - suffix - 1] === derived[derived.length - suffix - 1]) suffix++;
+
+  const deleted = base.slice(prefix, base.length - suffix).join('');
+  const inserted = derived.slice(prefix, derived.length - suffix).join('');
+  if ((!deleted && !inserted) || (deleted && inserted)) return null;
+  const before = base.slice(0, prefix).join('');
+  const after = base.slice(base.length - suffix).join('');
+  // With almost no common context, matching a single character may be accidental.
+  if ((before + after).replace(/\s/g, '').length < 2) return null;
+
+  const segments = changedText => [
+    {text:before, changed:false},
+    {text:changedText, changed:true},
+    {text:after, changed:false},
+  ].filter(segment => segment.text);
+  return {base:segments(deleted), derived:segments(inserted)};
+}
+
+// Compare paired modified lines, retaining whole-line shading if lines are
+// unrelated or too large. Token alignment is bounded; short inserted or removed
+// portions within a token are refined to their actual characters.
+function intralineSegments(baseText, derivedText, budget) {
+  if (!baseText || !derivedText || baseText === derivedText ||
+      baseText.length > 1600 || derivedText.length > 1600) return null;
+
+  const simple = singleTextEdit(baseText, derivedText);
+  if (simple) return simple;
+
+  const tokenize = text => text.match(/\s+|[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]/gu) || [];
+  const base = tokenize(baseText);
+  const derived = tokenize(derivedText);
+  const cells = base.length * derived.length;
+  if (!cells || base.length > 260 || derived.length > 260 ||
+      cells > 50000 || cells > budget.remaining) return null;
+  budget.remaining -= cells;
+
+  const lengths = Array.from({length:base.length + 1}, () => new Uint16Array(derived.length + 1));
+  for (let i = base.length - 1; i >= 0; i--) {
+    for (let j = derived.length - 1; j >= 0; j--) {
+      lengths[i][j] = base[i] === derived[j] ? lengths[i + 1][j + 1] + 1 :
+        Math.max(lengths[i + 1][j], lengths[i][j + 1]);
+    }
+  }
+
+  const operations = [];
+  let i = 0, j = 0, shared = 0;
+  while (i < base.length && j < derived.length) {
+    if (base[i] === derived[j]) {
+      operations.push({base:base[i], derived:derived[j], equal:true});
+      if (!/^\s+$/.test(base[i])) shared += base[i].length;
+      i++; j++;
+    } else if (lengths[i + 1][j] >= lengths[i][j + 1]) {
+      operations.push({base:base[i++], derived:'', equal:false});
+    } else {
+      operations.push({base:'', derived:derived[j++], equal:false});
+    }
+  }
+  while (i < base.length) operations.push({base:base[i++], derived:'', equal:false});
+  while (j < derived.length) operations.push({base:'', derived:derived[j++], equal:false});
+  const nonWhitespace = text => text.replace(/\s/g, '').length;
+  if (shared / Math.max(nonWhitespace(baseText), nonWhitespace(derivedText)) < 0.3) return null;
+
+  const result = {base:[], derived:[]};
+  const append = (side, text, changed) => {
+    if (!text) return;
+    const parts = result[side];
+    const last = parts[parts.length - 1];
+    if (last && last.changed === changed) last.text += text;
+    else parts.push({text, changed});
+  };
+  let block = {base:'', derived:'', equal:null};
+  const flush = () => {
+    if (block.equal === null) return;
+    if (block.equal) {
+      append('base', block.base, false);
+      append('derived', block.derived, false);
+    } else {
+      const refined = block.base && block.derived ? singleTextEdit(block.base, block.derived) : null;
+      if (refined) {
+        for (const side of ['base', 'derived']) {
+          for (const segment of refined[side]) append(side, segment.text, segment.changed);
+        }
+      } else {
+        append('base', block.base, true);
+        append('derived', block.derived, true);
+      }
+    }
+  };
+  for (const op of operations) {
+    if (op.equal !== block.equal) {
+      flush();
+      block = {base:'', derived:'', equal:op.equal};
+    }
+    block.base += op.base;
+    block.derived += op.derived;
+  }
+  flush();
+  return result;
+}
+
+function addDiffLine(pane, lineNumber, text, kind, segments = null) {
   const row = document.createElement('div'); row.className = 'diff-line ' + kind;
   const line = document.createElement('span'); line.className = 'ln'; line.textContent = lineNumber ?? '';
-  const code = document.createElement('span'); code.className = 'code'; code.textContent = text || ' ';
+  const code = document.createElement('span'); code.className = 'code';
+  if (segments) {
+    for (const segment of segments) {
+      if (segment.changed) {
+        const highlight = document.createElement('span');
+        highlight.className = 'intraline-change';
+        highlight.textContent = segment.text;
+        code.append(highlight);
+      } else code.append(document.createTextNode(segment.text));
+    }
+  } else code.textContent = text || ' ';
   row.append(line, code); pane.append(row);
 }
 
@@ -1446,7 +1679,7 @@ async function openSiblingContent() {
 }
 
 async function openSiblingDiff() {
-  if (!selectedComparison || selected === null || !currentDetails?.siblings?.length) return;
+  if (!selectedComparison || selected === null) return;
   const entryName = $('#sibling').value;
   if (!entryName) return;
   const compareId = selectedComparison.id;
@@ -1501,9 +1734,12 @@ function renderDiff(result, sibling = false) {
   const left = document.createElement('div'); left.className = 'diff-pane';
   const right = document.createElement('div'); right.className = 'diff-pane';
 
+  const intralineBudget = {remaining:750000};
   for (const row of result.rows) {
-    addDiffLine(left, row.base_line, row.base_text, row.base_kind);
-    addDiffLine(right, row.derived_line, row.derived_text, row.derived_kind);
+    const segments = row.base_kind === 'changed' && row.derived_kind === 'changed'
+      ? intralineSegments(row.base_text, row.derived_text, intralineBudget) : null;
+    addDiffLine(left, row.base_line, row.base_text, row.base_kind, segments?.base);
+    addDiffLine(right, row.derived_line, row.derived_text, row.derived_kind, segments?.derived);
   }
 
   if (sibling && result.left_exists === false) {
@@ -1533,24 +1769,462 @@ function scanSummaryBox(title, profile, count, countLabel = 'Rule matches') {
   box.append(heading, dl); return box;
 }
 
+function tagEl(tag, text, className = '') {
+  const node = document.createElement(tag);
+  node.textContent = String(text ?? '');
+  if (className) node.className = className;
+  return node;
+}
+
+function showScanDialog(title, message = 'Running static analysis…') {
+  const dialog = $('#scan-dialog');
+  $('#scan-title').textContent = title;
+  $('#scan-body').replaceChildren(tagEl('p', message));
+  $('#scan-copy').disabled = true;
+  lastEvidenceReport = null;
+  showDialog(dialog);
+}
+
+function finishedScan(payload) {
+  lastEvidenceReport = payload;
+  $('#scan-copy').disabled = false;
+  $('#scan-copy').textContent = 'Copy report JSON';
+}
+
+function evidenceEntry(e, label = '', showNearbyContext = true) {
+  const node = document.createElement('article');
+  const status = e.extraction_status || 'unknown';
+  node.className = `evidence-entry ${status}`;
+  node.dataset.status = status;
+  const source = e.source || {}, context = e.context || {};
+  const position = [source.filename || '', source.source_id ? `source ${source.source_id}` : '',
+    source.start_line ? `line ${source.start_line}${source.end_line && source.end_line !== source.start_line ? '–' + source.end_line : ''}` :
+      `offset ${source.start_offset ?? '?'}`].filter(Boolean).join(' · ');
+  const title = `[${(e.rule_ids || []).join(', ') || '—'}] ${e.type || 'evidence'} · ${status}`;
+  node.append(tagEl('div', (label ? label + ' · ' : '') + title, 'entry-title'));
+  node.append(tagEl('div', position +
+    (context.type ? ` · ${context.type}` : '') +
+    (context.language ? ` (${context.language})` : ''), 'entry-context'));
+  if (context.heading) node.append(tagEl('div', `Document section: ${context.heading}`, 'entry-section'));
+  node.append(tagEl('pre', e.excerpt || '(no excerpt)'));
+  if (e.supported_indicators?.length) {
+    node.append(tagEl('div', `Supported risk indicator${e.supported_indicators.length === 1 ? '' : 's'}: ${e.supported_indicators.join(', ')}`, 'supported-indicators'));
+  }
+  const normalizeDisplayText = value => String(value || '').trim().replace(/\s+/g, ' ');
+  if (showNearbyContext && normalizeDisplayText(context.nearby_text) &&
+      normalizeDisplayText(context.nearby_text) !== normalizeDisplayText(e.excerpt)) {
+    const nearby = document.createElement('div'); nearby.className = 'nearby-source';
+    nearby.append(tagEl('div', 'Nearby source context', 'nearby-source-label'), tagEl('pre', context.nearby_text));
+    node.append(nearby);
+  }
+  return node;
+}
+
+function evidenceList(title, records, options = {}) {
+  const items = records || [];
+  const section = document.createElement('details');
+  section.className = 'evidence-report';
+  section.open = options.open ?? true;
+  section.append(tagEl('summary', `${title} (${items.length})`));
+  if (!items.length) {
+    section.append(tagEl('p', 'No evidence records.', 'muted'));
+  } else {
+    const filter = document.createElement('div'); filter.className = 'evidence-filter';
+    const input = document.createElement('input'); input.type = 'checkbox';
+    const label = document.createElement('label'); label.append(input, tagEl('span', 'Partial / unsupported only'));
+    filter.append(label); section.append(filter);
+    const recordsNode = document.createElement('div');
+    for (const e of items) recordsNode.append(evidenceEntry(e, options.label || ''));
+    input.onchange = () => {
+      for (const node of recordsNode.children) {
+        node.hidden = input.checked && node.dataset.status === 'complete';
+      }
+    };
+    section.append(recordsNode);
+  }
+  return section;
+}
+
+function appendExtractionSummary(parent, extraction = {}, total = 0) {
+  const stats = document.createElement('div'); stats.className = 'evidence-stats';
+  for (const [label, value] of [
+    ['Total', total], ['Complete', extraction.complete || 0],
+    ['Partial', extraction.partial || 0], ['Unsupported', extraction.unsupported || 0],
+  ]) stats.append(tagEl('span', `${label}: ${value}`, 'evidence-stat'));
+  parent.append(stats);
+}
+
+function appendSourceEvidence(parent, source, title) {
+  const section = document.createElement('section'); section.className = 'evidence-report';
+  section.append(tagEl('h3', `${title} · ${source.filename || 'SKILL.md'}`));
+  appendExtractionSummary(section, source.extraction, source.evidence_count);
+  section.append(tagEl('p', `${source.rule_match_count ?? 0} rule matches · capabilities: ${profileList(source.profile)}`, 'muted'));
+  section.append(evidenceList('All extracted evidence (including unchanged)', source.evidence, {open:true}));
+  parent.append(section);
+}
+
+// Align only identical visible constructs; never treat redacted excerpts as proven equal.
+// These pairs are for inspection, not the evidence comparator's security conclusions.
+function inspectionIdentity(text) {
+  const value = String(text ?? '').trim().replace(/\s+/g, ' ');
+  return !value || value.includes('[REDACTED]') ? null : value;
+}
+
+function alignInspectionRecords(base, derived, identity) {
+  const waiting = new Map();
+  derived.forEach((record, index) => {
+    const key = identity(record);
+    if (key === null) return;
+    if (!waiting.has(key)) waiting.set(key, []);
+    waiting.get(key).push(index);
+  });
+  const consumed = new Set();
+  const pairs = base.map(record => {
+    const key = identity(record);
+    const indices = key === null ? [] : (waiting.get(key) || []);
+    const index = indices.length ? indices.shift() : undefined;
+    if (index === undefined) return {base:record, derived:null};
+    consumed.add(index);
+    return {base:record, derived:derived[index]};
+  });
+  derived.forEach((record, index) => {
+    if (!consumed.has(index)) pairs.push({base:null, derived:record});
+  });
+  return pairs;
+}
+
+function groupedInspectionRecords(records, groupKey) {
+  const groups = new Map();
+  for (const record of records || []) {
+    const key = groupKey(record);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(record);
+  }
+  return groups;
+}
+
+function ruleOccurrenceEntry(match) {
+  const node = document.createElement('article'); node.className = 'evidence-entry';
+  node.append(tagEl('div', `[${match.rule_id}] ${match.matched_text || match.description || 'Rule match'}`, 'entry-title'));
+  node.append(tagEl('div', `${match.category || 'unknown category'} · line ${match.line_number ?? '?'} · ${match.description || ''}`, 'entry-context'));
+  return node;
+}
+
+function pairedInspectionGroups(parent, title, baseRecords, derivedRecords, options) {
+  const section = document.createElement('section'); section.className = 'paired-inspection';
+  section.append(tagEl('h3', `${title} · Base ${baseRecords.length} / Derived ${derivedRecords.length}`));
+  const filter = document.createElement('div'); filter.className = 'paired-filter';
+  filter.append(tagEl('span', 'Show:', 'muted'));
+  const radioName = `paired-inspection-${++pairedFilterSerial}`;
+  const choices = [
+    ['unmatched', 'Differences only'],
+    ['all', options.showPartialFilter ? 'All evidence' : 'All occurrences'],
+  ];
+  if (options.showPartialFilter) choices.push(['issues', 'Extraction issues']);
+  const filterInputs = [];
+  for (const [value, labelText] of choices) {
+    const input = document.createElement('input');
+    input.type = 'radio'; input.name = radioName; input.value = value;
+    input.checked = value === 'unmatched';
+    const label = document.createElement('label');
+    label.append(input, tagEl('span', labelText)); filter.append(label);
+    filterInputs.push(input);
+  }
+  section.append(filter);
+  const left = groupedInspectionRecords(baseRecords, options.groupKey);
+  const right = groupedInspectionRecords(derivedRecords, options.groupKey);
+  const groupKeys = [...new Set([...left.keys(), ...right.keys()])].sort();
+  if (!groupKeys.length) section.append(tagEl('p', 'No records on either side.', 'muted'));
+  const empty = tagEl('p', 'No differences found. Select All records to inspect matching entries.', 'paired-empty');
+  section.append(empty);
+  const groups = [];
+  for (const key of groupKeys) {
+    const base = left.get(key) || [], derived = right.get(key) || [];
+    const pairs = alignInspectionRecords(base, derived, options.identity);
+    const baseOnly = pairs.filter(p => p.base && !p.derived).length;
+    const derivedOnly = pairs.filter(p => !p.base && p.derived).length;
+    const details = document.createElement('details'); details.className = 'paired-group';
+    details.open = !!(baseOnly || derivedOnly);
+    const summary = document.createElement('summary');
+    summary.append(tagEl('span', key), tagEl('span', `Base ${base.length} · Derived ${derived.length} · Base-only ${baseOnly} · Derived-only ${derivedOnly}`, 'paired-counts'));
+    details.append(summary);
+    const headings = document.createElement('div'); headings.className = 'paired-heading';
+    headings.append(tagEl('div', 'Base'), tagEl('div', 'Derived'));
+    details.append(headings);
+    const rows = [];
+    for (const pair of pairs) {
+      const row = document.createElement('div'); row.className = 'paired-row';
+      const unmatched = !pair.base || !pair.derived;
+      row.dataset.unmatched = String(unmatched);
+      row.dataset.partial = String([pair.base, pair.derived].some(r => r && r.extraction_status && r.extraction_status !== 'complete'));
+      for (const side of ['base', 'derived']) {
+        const cell = document.createElement('div'); cell.className = 'paired-cell'; cell.dataset.side = side === 'base' ? 'Base' : 'Derived';
+        const record = pair[side];
+        if (record) {
+          if (unmatched) cell.classList.add(side === 'base' ? 'base-only' : 'derived-only');
+          cell.append(options.render(record, '', !!options.showNearbyContext));
+        } else {
+          cell.append(tagEl('div', 'No matching record on this side', 'paired-missing'));
+        }
+        row.append(cell);
+      }
+      details.append(row); rows.push(row);
+    }
+    section.append(details); groups.push({details, rows});
+  }
+  function applyFilters() {
+    const mode = filterInputs.find(input => input.checked)?.value || 'unmatched';
+    let visibleGroups = 0;
+    for (const {details, rows} of groups) {
+      let visible = 0;
+      for (const row of rows) {
+        row.hidden = (mode === 'unmatched' && row.dataset.unmatched !== 'true') ||
+          (mode === 'issues' && row.dataset.partial !== 'true');
+        if (!row.hidden) visible++;
+      }
+      details.hidden = visible === 0;
+      if (visible) visibleGroups++;
+    }
+    empty.hidden = !groupKeys.length || visibleGroups > 0;
+    if (!empty.hidden) {
+      empty.textContent = mode === 'unmatched'
+        ? `No differences found. Select ${options.showPartialFilter ? 'All evidence' : 'All occurrences'} to inspect matching entries.`
+        : mode === 'issues' ? 'No partial or unsupported evidence records.' : 'No records on either side.';
+    }
+  }
+  for (const input of filterInputs) input.onchange = applyFilters;
+  applyFilters();
+  parent.append(section);
+}
+
+// Only cite supported risk indicators by their exact source spans.
+// Redacted or similar excerpts alone are not sufficient to associate findings.
+function evidenceLocationKey(e) {
+  const source = e?.source || {};
+  if (source.source_id === undefined || source.source_id === null ||
+      source.start_offset === undefined || source.start_offset === null ||
+      source.end_offset === undefined || source.end_offset === null ||
+      !source.filename || !e.type) return null;
+  return JSON.stringify([String(source.source_id), source.filename,
+    source.start_offset, source.end_offset, e.type]);
+}
+
+function indicatorEvidenceIndex(assessment = {}) {
+  const index = new Map();
+  for (const indicator of assessment.indicators || []) {
+    for (const side of ['added', 'removed']) {
+      for (const evidence of indicator.evidence?.[side] || []) {
+        const key = evidenceLocationKey(evidence);
+        if (key === null) continue;
+        if (!index.has(key)) index.set(key, new Set());
+        index.get(key).add(indicator.id);
+      }
+    }
+  }
+  return index;
+}
+
+function appendPairedSourceEvidence(parent, base, derived, baseId, derivedId, coverage = {}, assessment = {}) {
+  const sources = document.createElement('div'); sources.className = 'paired-columns';
+  for (const [name, id, source] of [['Base', baseId, base], ['Derived', derivedId, derived]]) {
+    const block = document.createElement('section'); block.className = 'paired-source';
+    block.append(tagEl('h3', `${name} ${id} · ${source?.filename || 'source content'}`));
+    if (source) {
+      appendExtractionSummary(block, source.extraction, source.evidence_count);
+      block.append(tagEl('p', `${source.rule_match_count ?? 0} rule matches · capabilities: ${profileList(source.profile)}`, 'muted'));
+    } else {
+      const status = coverage[name === 'Base' ? 'base_status' : 'derived_status'];
+      const descriptions = {
+        absent:'Absent from the stored sibling listing (not proof of historical absence).',
+        unavailable:'Sibling is recorded, but its content is unavailable.',
+        not_recorded:'No sibling row found; listing completeness is unverified.',
+      };
+      block.append(tagEl('p', descriptions[status] || 'Content unavailable; no directional claim can be made.', 'warning'));
+    }
+    sources.append(block);
+  }
+  parent.append(sources);
+  if (!base || !derived) {
+    parent.append(tagEl('p', 'One-sided evidence is shown for inspection only. It does not establish when a file was introduced or removed.', 'warning'));
+  }
+  parent.append(tagEl('p', 'Differences only is the default. Alignment compares visible text, ignoring whitespace and line-number shifts; a visual difference does not establish introduced or removed behavior. Redacted values are never assumed to match.', 'muted'));
+  const indicatorIndex = indicatorEvidenceIndex(assessment);
+  const withIndicators = records => (records || []).map(record => {
+    const key = evidenceLocationKey(record);
+    const indicators = key === null ? null : indicatorIndex.get(key);
+    return indicators ? {...record, supported_indicators:[...indicators].sort()} : record;
+  });
+  pairedInspectionGroups(parent, 'Extracted evidence', withIndicators(base?.evidence), withIndicators(derived?.evidence), {
+    groupKey:e => `${e.type || 'other'} · ${(e.rule_ids || []).slice().sort().join(', ') || 'no rule'}`,
+    identity:e => inspectionIdentity(e.excerpt) === null ? null :
+      JSON.stringify([e.type, (e.rule_ids || []).slice().sort(), inspectionIdentity(e.excerpt)]),
+    render:evidenceEntry, showPartialFilter:true, showNearbyContext:true,
+  });
+}
+
+function appendPairedRuleOccurrences(parent, base, derived) {
+  parent.append(tagEl('p', 'Differences only is the default. Select All occurrences to inspect matching rule detections; visual differences are not risk conclusions.', 'muted'));
+  pairedInspectionGroups(parent, 'Rule occurrences', base?.matches || [], derived?.matches || [], {
+    groupKey:e => e.rule_id || 'Unknown rule',
+    identity:e => inspectionIdentity(e.matched_text) === null ? null :
+      JSON.stringify([e.rule_id, e.category, e.description, inspectionIdentity(e.matched_text)]),
+    render:ruleOccurrenceEntry,
+  });
+}
+
+function switchComparisonView(parent, label, action) {
+  const button = document.createElement('button');
+  button.type = 'button'; button.className = 'view-switch'; button.textContent = label;
+  button.onclick = action;
+  parent.append(button);
+}
+
+function appendCoverage(parent, coverage = {}) {
+  const block = document.createElement('section'); block.className = 'meta-box evidence-report';
+  block.append(tagEl('h3', `Evidence coverage: ${coverage.status || 'unknown'}`));
+  const dl = document.createElement('dl'); dl.className = 'kv';
+  const counts = coverage.evidence_records || {};
+  if (counts.total !== undefined) {
+    addKv(dl, 'Fully extracted', `${counts.complete ?? 0} of ${counts.total}`);
+    addKv(dl, 'Partially extracted', counts.partial ?? 0);
+    addKv(dl, 'Unsupported', counts.unsupported ?? 0);
+  }
+  if (coverage.missing_sibling_content !== undefined) addKv(dl, 'Missing sibling content', coverage.missing_sibling_content || 'none');
+  if (coverage.unknown_sibling_hashes) addKv(dl, 'Unknown sibling hashes', coverage.unknown_sibling_hashes);
+  const statusLabels = {available:'available', absent:'absent from stored listing', unavailable:'recorded, content unavailable', not_recorded:'not recorded / listing unverified'};
+  if (coverage.base_status) addKv(dl, 'Base sibling', statusLabels[coverage.base_status] || coverage.base_status);
+  else if (coverage.base_available !== undefined) addKv(dl, 'Base content', coverage.base_available ? 'available' : 'unavailable');
+  if (coverage.derived_status) addKv(dl, 'Derived sibling', statusLabels[coverage.derived_status] || coverage.derived_status);
+  else if (coverage.derived_available !== undefined) addKv(dl, 'Derived content', coverage.derived_available ? 'available' : 'unavailable');
+  if (coverage.comparison_status) addKv(dl, 'Comparison', coverage.comparison_status);
+  addKv(dl, 'Notes', (coverage.notes || []).join('; ') || 'Available evidence processed; not a guarantee of complete security detection.');
+  block.append(dl); parent.append(block);
+}
+
+function appendIndicators(parent, assessment = {}) {
+  parent.append(tagEl('h3', `Risk indicators: ${assessment.indicator_count || 0} supported categories · ${assessment.finding_count || 0} findings`));
+  for (const [label, items] of [['Supported', assessment.indicators || []], ['Uncertain', assessment.uncertain || []]]) {
+    if (!items.length) {
+      parent.append(tagEl('p', `${label}: none`, 'muted'));
+      continue;
+    }
+    parent.append(tagEl('h3', `${label} observations (${items.length})`));
+    for (const indicator of items) {
+      const entry = document.createElement('section'); entry.className = 'indicator-entry';
+      entry.append(tagEl('strong', `${indicator.id} · ${indicator.reason}`));
+      const supportCount = (indicator.evidence?.added || []).length + (indicator.evidence?.removed || []).length;
+      if (supportCount) entry.append(tagEl('p', `${supportCount} supporting evidence record(s) · open Inspect evidence for full source details.`, 'muted'));
+      parent.append(entry);
+    }
+  }
+  appendCoverage(parent, assessment.coverage);
+}
+
+async function openArtifactEvidence() {
+  if (selected === null) return;
+  const artifactId = selected;
+  showScanDialog(`Artifact evidence · ${artifactId}`);
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/evidence`);
+    const body = $('#scan-body'); body.replaceChildren();
+    body.append(tagEl('p', 'Single-artifact observations; introduced behavior requires a directed comparison.', 'muted'));
+    appendSourceEvidence(body, result.scan, `Artifact ${result.artifact_id}`);
+    finishedScan(result);
+  } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+}
+
+async function openSiblingEvidence() {
+  if (selected === null || !$('#sibling').value) return;
+  const entryName = $('#sibling').value;
+  if (selectedRelationship && selectedComparison?.kind === 'parent') {
+    const {source, target} = selectedRelationship;
+    showScanDialog(`Sibling evidence · ${source} → ${target} · ${entryName}`);
+    try {
+      const result = await api(route() + `/sibling-scan/${source}/${target}?entry_name=${encodeURIComponent(entryName)}`, {method:'POST'});
+      renderComparisonEvidence(result);
+    } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+    return;
+  }
+  const artifactId = currentDetails?.siblings?.some(s => s.entry_name === entryName)
+    ? selected : selectedComparison?.id;
+  if (artifactId === null || artifactId === undefined) return;
+  showScanDialog(`Sibling evidence · ${entryName} · artifact ${artifactId}`);
+  try {
+    const result = await api(route() + `/artifacts/${artifactId}/siblings/evidence?entry_name=${encodeURIComponent(entryName)}`);
+    const body = $('#scan-body'); body.replaceChildren();
+    body.append(tagEl('p', 'Single-file observations; introduced behavior requires a directed comparison.', 'muted'));
+    appendSourceEvidence(body, result.scan, `Sibling of ${artifactId}`);
+    finishedScan(result);
+  } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+}
+
 async function openScan() {
   if (!selectedRelationship || selectedComparison?.kind !== 'parent') return;
   const {source, target} = selectedRelationship;
-  const dialog = $('#scan-dialog');
-  $('#scan-title').textContent = `Scan diff · ${source} → ${target}`;
-  $('#scan-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: 'Running static scan…'}));
-  showDialog(dialog);
+  showScanDialog(`SKILL.md scan · ${source} → ${target}`);
   try {
     const result = await api(route() + `/scan/${source}/${target}`, {method: 'POST'});
     renderScan(result);
-  } catch (error) {
-    $('#scan-body').replaceChildren(Object.assign(document.createElement('p'), {textContent: error.message}));
+  } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+}
+
+async function openComparisonEvidence() {
+  if (!selectedRelationship || selectedComparison?.kind !== 'parent') return;
+  const {source, target} = selectedRelationship;
+  showScanDialog(`SKILL.md evidence · ${source} → ${target}`);
+  try {
+    const result = await api(route() + `/scan/${source}/${target}`, {method:'POST'});
+    renderComparisonEvidence(result);
+  } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
+}
+
+function renderComparisonEvidence(result) {
+  const body = $('#scan-body'); body.replaceChildren();
+  body.append(tagEl('p', 'Compare extracted evidence side by side. Differences only is the default; select All evidence for matching records or Extraction issues for partial/unsupported records. Expand a group to see source context.', 'muted'));
+  switchComparisonView(body, '← Back to scan results', () => renderScan(result));
+  if (!result.scan_diff) {
+    appendCoverage(body, result.coverage);
+    appendPairedSourceEvidence(body,
+      result.available_side === 'base' ? result.available_scan : null,
+      result.available_side === 'derived' ? result.available_scan : null,
+      result.base_id, result.derived_id, result.coverage);
+    finishedScan(result);
+    return;
   }
+  appendCoverage(body, result.scan_diff.risk_indicators?.coverage);
+  appendPairedSourceEvidence(body, result.scan_diff.base, result.scan_diff.derived,
+    result.base_id, result.derived_id, {}, result.scan_diff.risk_indicators);
+  body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
+  finishedScan(result);
+}
+
+async function openSiblingScan() {
+  if (!selectedRelationship || selectedComparison?.kind !== 'parent') return;
+  const {source, target} = selectedRelationship, entryName = $('#sibling').value;
+  showScanDialog(`Sibling scan · ${source} → ${target} · ${entryName}`);
+  try {
+    const result = await api(route() + `/sibling-scan/${source}/${target}?entry_name=${encodeURIComponent(entryName)}`, {method:'POST'});
+    renderScan(result);
+  } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
 }
 
 function renderScan(result) {
   const body = $('#scan-body'); body.replaceChildren();
+  if (!result.scan_diff) {
+    body.append(tagEl('p', 'A sibling is not available on both sides. Rule observations from the available side are shown, but no directional risk claim is made.', 'warning'));
+    appendCoverage(body, result.coverage);
+    const source = result.available_scan;
+    if (source) {
+      body.append(tagEl('h3', `Rule occurrences · ${result.available_side === 'base' ? 'Base' : 'Derived'} only (${(source.matches || []).length})`));
+      appendPairedRuleOccurrences(body,
+        result.available_side === 'base' ? source : null,
+        result.available_side === 'derived' ? source : null);
+    }
+    switchComparisonView(body, 'Inspect extracted evidence →', () => renderComparisonEvidence(result));
+    finishedScan(result); return;
+  }
   const scan = result.scan_diff;
+  body.append(tagEl('p', `Surface: ${result.surface === 'sibling' ? `Sibling ${result.entry_name}` : 'SKILL.md'} · direction basis: ${result.relationship?.basis || 'directed relationship'}`, 'muted'));
   const summary = document.createElement('div'); summary.className = 'scan-summary';
   summary.append(
     scanSummaryBox(`Base ${result.base_id}`, scan.base.profile, scan.base.rule_match_count),
@@ -1558,41 +2232,31 @@ function renderScan(result) {
     scanSummaryBox('Introduced capabilities', scan.introduced, scan.rule_match_count.delta, 'Match delta')
   );
   body.append(summary);
+  const indicators = scan.risk_indicators || {};
+  appendIndicators(body, indicators);
 
-  const introducedHeading = document.createElement('p');
-  introducedHeading.textContent = `Introduced capabilities: ${profileList(scan.introduced)} · total match delta: ${scan.rule_match_count.delta >= 0 ? '+' : ''}${scan.rule_match_count.delta}`;
-  body.append(introducedHeading);
+  const changes = scan.evidence_comparison || {};
+  body.append(tagEl('p', `Evidence changes: +${(changes.added || []).length} added / −${(changes.removed || []).length} removed. Open Inspect evidence to examine full records.`, 'muted'));
 
   const ruleIds = Object.keys(scan.rule_deltas || {});
-  const heading = document.createElement('h3'); heading.textContent = 'Changed rule counts'; body.append(heading);
+  body.append(tagEl('h3', 'Changed rule counts'));
   if (ruleIds.length) {
     const table = document.createElement('table');
-    const trh = document.createElement('tr'); for (const text of ['Rule','Base','Derived','Delta']) { const th=document.createElement('th'); th.textContent=text; trh.append(th); }
-    const thead = document.createElement('thead'); thead.append(trh); table.append(thead);
+    const header = document.createElement('tr');
+    for (const title of ['Rule', 'Base', 'Derived', 'Delta']) header.append(tagEl('th', title));
+    const thead = document.createElement('thead'); thead.append(header); table.append(thead);
     const tbody = document.createElement('tbody');
     for (const ruleId of ruleIds) {
-      const delta = scan.rule_deltas[ruleId], tr = document.createElement('tr');
-      for (const value of [ruleId, delta.base, delta.derived, (delta.delta >= 0 ? '+' : '') + delta.delta]) { const td=document.createElement('td'); td.textContent=value; tr.append(td); }
-      tbody.append(tr);
+      const delta = scan.rule_deltas[ruleId]; const row = document.createElement('tr');
+      for (const value of [ruleId, delta.base, delta.derived, `${delta.delta >= 0 ? '+' : ''}${delta.delta}`]) row.append(tagEl('td', value));
+      tbody.append(row);
     }
     table.append(tbody); body.append(table);
-  } else {
-    body.append(Object.assign(document.createElement('p'), {textContent: 'No rule match counts changed.'}));
-  }
-
-  for (const side of ['base','derived']) {
-    const matches = scan[side].matches || [];
-    const details = document.createElement('details'); details.className = 'metadata';
-    const summaryEl = document.createElement('summary'); summaryEl.textContent = `${side === 'base' ? 'Base' : 'Derived'} matches (${matches.length})`;
-    const list = document.createElement('div'); list.className = 'match-list';
-    if (!matches.length) list.textContent = 'No rule matches.';
-    for (const match of matches) {
-      const line = document.createElement('div');
-      line.textContent = `[${match.rule_id}] ${match.category} · line ${match.line_number ?? '?'} · ${match.description}${match.matched_text ? ` · ${match.matched_text}` : ''}`;
-      list.append(line);
-    }
-    details.append(summaryEl, list); body.append(details);
-  }
+  } else body.append(tagEl('p', 'No rule match counts changed.'));
+  appendPairedRuleOccurrences(body, scan.base, scan.derived);
+  switchComparisonView(body, 'Inspect extracted evidence →', () => renderComparisonEvidence(result));
+  body.append(tagEl('p', 'Static observations only. Redaction is best-effort; review copied reports before sharing.', 'muted'));
+  finishedScan(result);
 }
 
 $('#fit').onclick = () => setBox(fitBox);
@@ -1621,6 +2285,12 @@ $('#view-sibling-content').onclick = openSiblingContent;
 $('#view-sibling-diff').onclick = openSiblingDiff;
 $('#view-diff').onclick = openDiff;
 $('#scan-diff').onclick = openScan;
+$('#inspect-comparison').onclick = openComparisonEvidence;
+$('#inspect-artifact').onclick = openArtifactEvidence;
+$('#inspect-sibling').onclick = openSiblingEvidence;
+$('#scan-sibling').onclick = openSiblingScan;
+$('#sibling').onchange = updateComparisonActions;
+$('#scan-copy').onclick = () => { if (lastEvidenceReport) copyText(JSON.stringify(lastEvidenceReport, null, 2), $('#scan-copy')); };
 
 document.querySelectorAll('[data-close]').forEach(button => button.onclick = () => $('#' + button.dataset.close).close());
 

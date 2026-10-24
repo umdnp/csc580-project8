@@ -1,0 +1,200 @@
+{
+  "name": "A/B Test Setup",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 2,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 2,
+    "related_skill_pair_count": 0,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 0,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "artifact_ids": [
+      1244165,
+      2690162
+    ],
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "directed_edge_count": 0,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 0,
+    "undirected_edge_count": 0,
+    "equivalent_edge_count": 0,
+    "within_group_equivalent_edge_count": 0,
+    "across_group_equivalent_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    },
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1244165
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1244165
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": [],
+          "directed_edge_count": 0,
+          "within_group_directed_edge_count": 0,
+          "across_group_directed_edge_count": 0,
+          "undirected_edge_count": 0,
+          "equivalent_edge_count": 0,
+          "within_group_equivalent_edge_count": 0,
+          "across_group_equivalent_edge_count": 0,
+          "ambiguous_edge_count": 0,
+          "within_group_ambiguous_edge_count": 0,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 0,
+            "siblings-only": 0,
+            "skill+siblings": 0,
+            "equivalent": 0,
+            "unknown": 0
+          }
+        },
+        "skill_variant_count": 1,
+        "bundle_variant_count": 1,
+        "file_shas": [
+          "2c6007053f203da30f40b2017a75181a608c1b65"
+        ]
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2690162
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2690162
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": [],
+          "directed_edge_count": 0,
+          "within_group_directed_edge_count": 0,
+          "across_group_directed_edge_count": 0,
+          "undirected_edge_count": 0,
+          "equivalent_edge_count": 0,
+          "within_group_equivalent_edge_count": 0,
+          "across_group_equivalent_edge_count": 0,
+          "ambiguous_edge_count": 0,
+          "within_group_ambiguous_edge_count": 0,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 0,
+            "siblings-only": 0,
+            "skill+siblings": 0,
+            "equivalent": 0,
+            "unknown": 0
+          }
+        },
+        "skill_variant_count": 1,
+        "bundle_variant_count": 1,
+        "file_shas": [
+          "ed296841d6309ef9b0db917097b2f9f1c266fd87"
+        ]
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "similarities": [
+    {
+      "left_file_sha": "2c6007053f203da30f40b2017a75181a608c1b65",
+      "right_file_sha": "ed296841d6309ef9b0db917097b2f9f1c266fd87",
+      "left_to_right_containment": 0.0,
+      "right_to_left_containment": 0.0,
+      "jaccard": 0.0,
+      "shared_shingles": 0,
+      "left_shingles": 373,
+      "right_shingles": 1086,
+      "left_artifact_ids": [
+        1244165
+      ],
+      "right_artifact_ids": [
+        2690162
+      ],
+      "left_representative_artifact_id": 1244165,
+      "right_representative_artifact_id": 2690162,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 1244165,
+      "group_id": 18177,
+      "repo_id": 58628,
+      "repo_full_name": "aashutosh396/mindpalace",
+      "path": "mindpalace/skills/global/marketing/ab-test-setup/SKILL.md",
+      "file_sha": "2c6007053f203da30f40b2017a75181a608c1b65",
+      "provenance": {
+        "derived_from": "marketing-skill/skills/ab-test-setup",
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-05T15:55:29Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2690162,
+      "group_id": 440693,
+      "repo_id": 47889,
+      "repo_full_name": "ChatAndBuild/chatchat-skills",
+      "path": "skills/ab-test-setup/SKILL.md",
+      "file_sha": "ed296841d6309ef9b0db917097b2f9f1c266fd87",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-23T07:48:29Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "90d76d7e4b1dce5f90e9e3f5f4080dda182aa9ceb3c5b46c5dbb1efbdc77cd85"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
+}
