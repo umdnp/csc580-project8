@@ -31,6 +31,32 @@
     }
   },
   "family": {
+    "artifact_ids": [
+      3485370,
+      3498417,
+      3498458,
+      3572584,
+      3602273
+    ],
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "undirected_edge_count": 3,
+    "equivalent_edge_count": 1,
+    "within_group_equivalent_edge_count": 1,
+    "across_group_equivalent_edge_count": 0,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 2,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 2,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    },
     "clusters": [
       {
         "cluster": 1,
@@ -210,8 +236,34 @@
               ],
               "same_artifact_group": true
             }
-          ]
-        }
+          ],
+          "directed_edge_count": 2,
+          "within_group_directed_edge_count": 2,
+          "across_group_directed_edge_count": 0,
+          "undirected_edge_count": 3,
+          "equivalent_edge_count": 1,
+          "within_group_equivalent_edge_count": 1,
+          "across_group_equivalent_edge_count": 0,
+          "ambiguous_edge_count": 2,
+          "within_group_ambiguous_edge_count": 2,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 2,
+            "siblings-only": 0,
+            "skill+siblings": 0,
+            "equivalent": 0,
+            "unknown": 0
+          }
+        },
+        "skill_variant_count": 5,
+        "bundle_variant_count": 5,
+        "file_shas": [
+          "6d50b2a26d91f5379998e01aa0588aad59d47658",
+          "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+          "8845d257f4cd36b181f8f920e437a30fe28686f7",
+          "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+          "a066c884d6a957cecf81a22521bd6a7e9b12813c"
+        ]
       }
     ]
   },
@@ -222,5 +274,326 @@
       "chronology_basis": "equivalent-peer",
       "chronology_source_artifact_id": 3498458
     }
-  ]
+  ],
+  "similarities": [
+    {
+      "left_file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+      "right_file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 0.6755919451206019,
+      "jaccard": 0.6755919451206019,
+      "shared_shingles": 3053,
+      "left_shingles": 3053,
+      "right_shingles": 4519,
+      "left_artifact_ids": [
+        3498458
+      ],
+      "right_artifact_ids": [
+        3572584
+      ],
+      "left_representative_artifact_id": 3498458,
+      "right_representative_artifact_id": 3572584,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+      "right_file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+      "left_to_right_containment": 0.9616770389780543,
+      "right_to_left_containment": 0.42111302352266206,
+      "jaccard": 0.41416278741712514,
+      "shared_shingles": 2936,
+      "left_shingles": 3053,
+      "right_shingles": 6972,
+      "left_artifact_ids": [
+        3498458
+      ],
+      "right_artifact_ids": [
+        3602273
+      ],
+      "left_representative_artifact_id": 3498458,
+      "right_representative_artifact_id": 3602273,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+      "right_file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+      "left_to_right_containment": 0.9446446118571896,
+      "right_to_left_containment": 0.9876712328767123,
+      "jaccard": 0.933635480738103,
+      "shared_shingles": 2884,
+      "left_shingles": 3053,
+      "right_shingles": 2920,
+      "left_artifact_ids": [
+        3498458
+      ],
+      "right_artifact_ids": [
+        3485370
+      ],
+      "left_representative_artifact_id": 3498458,
+      "right_representative_artifact_id": 3485370,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+      "right_file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 1.0,
+      "jaccard": 1.0,
+      "shared_shingles": 3053,
+      "left_shingles": 3053,
+      "right_shingles": 3053,
+      "left_artifact_ids": [
+        3498458
+      ],
+      "right_artifact_ids": [
+        3498417
+      ],
+      "left_representative_artifact_id": 3498458,
+      "right_representative_artifact_id": 3498417,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+      "right_file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+      "left_to_right_containment": 0.9426864350520027,
+      "right_to_left_containment": 0.6110154905335629,
+      "jaccard": 0.589130134144655,
+      "shared_shingles": 4260,
+      "left_shingles": 4519,
+      "right_shingles": 6972,
+      "left_artifact_ids": [
+        3572584
+      ],
+      "right_artifact_ids": [
+        3602273
+      ],
+      "left_representative_artifact_id": 3572584,
+      "right_representative_artifact_id": 3602273,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+      "right_file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+      "left_to_right_containment": 0.6381942907722947,
+      "right_to_left_containment": 0.9876712328767123,
+      "jaccard": 0.6331503841931942,
+      "shared_shingles": 2884,
+      "left_shingles": 4519,
+      "right_shingles": 2920,
+      "left_artifact_ids": [
+        3572584
+      ],
+      "right_artifact_ids": [
+        3485370
+      ],
+      "left_representative_artifact_id": 3572584,
+      "right_representative_artifact_id": 3485370,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+      "right_file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+      "left_to_right_containment": 0.6755919451206019,
+      "right_to_left_containment": 1.0,
+      "jaccard": 0.6755919451206019,
+      "shared_shingles": 3053,
+      "left_shingles": 4519,
+      "right_shingles": 3053,
+      "left_artifact_ids": [
+        3572584
+      ],
+      "right_artifact_ids": [
+        3498417
+      ],
+      "left_representative_artifact_id": 3572584,
+      "right_representative_artifact_id": 3498417,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+      "right_file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+      "left_to_right_containment": 0.39687320711417096,
+      "right_to_left_containment": 0.9476027397260274,
+      "jaccard": 0.38835087719298245,
+      "shared_shingles": 2767,
+      "left_shingles": 6972,
+      "right_shingles": 2920,
+      "left_artifact_ids": [
+        3602273
+      ],
+      "right_artifact_ids": [
+        3485370
+      ],
+      "left_representative_artifact_id": 3602273,
+      "right_representative_artifact_id": 3485370,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+      "right_file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+      "left_to_right_containment": 0.42111302352266206,
+      "right_to_left_containment": 0.9616770389780543,
+      "jaccard": 0.41416278741712514,
+      "shared_shingles": 2936,
+      "left_shingles": 6972,
+      "right_shingles": 3053,
+      "left_artifact_ids": [
+        3602273
+      ],
+      "right_artifact_ids": [
+        3498417
+      ],
+      "left_representative_artifact_id": 3602273,
+      "right_representative_artifact_id": 3498417,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+      "right_file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+      "left_to_right_containment": 0.9876712328767123,
+      "right_to_left_containment": 0.9446446118571896,
+      "jaccard": 0.933635480738103,
+      "shared_shingles": 2884,
+      "left_shingles": 2920,
+      "right_shingles": 3053,
+      "left_artifact_ids": [
+        3485370
+      ],
+      "right_artifact_ids": [
+        3498417
+      ],
+      "left_representative_artifact_id": 3485370,
+      "right_representative_artifact_id": 3498417,
+      "shared_group_ids": [
+        433605
+      ],
+      "same_artifact_group": true
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 3485370,
+      "group_id": 433605,
+      "repo_id": 249245,
+      "repo_full_name": "cometchat/cometchat-cursor-plugin",
+      "path": "plugins/cometchat/skills/cometchat-core/SKILL.md",
+      "file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-29T02:32:12Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3498417,
+      "group_id": 433605,
+      "repo_id": 249243,
+      "repo_full_name": "cometchat/cometchat-replit-template",
+      "path": ".agents/skills/cometchat-core/SKILL.md",
+      "file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-28T13:11:42Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3498458,
+      "group_id": 433605,
+      "repo_id": 240727,
+      "repo_full_name": "MAX5271/CometChat",
+      "path": ".claude/skills/cometchat-core/SKILL.md",
+      "file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-28T23:30:00Z",
+      "repo_created_at": "2026-05-28T23:26:07Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3572584,
+      "group_id": 433605,
+      "repo_id": 240736,
+      "repo_full_name": "AgamPandey133/Take_Home",
+      "path": "cometchat-app/.claude/skills/cometchat-core/SKILL.md",
+      "file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-05T16:00:13Z",
+      "repo_created_at": "2026-06-05T15:55:56Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3602273,
+      "group_id": 433605,
+      "repo_id": 130791,
+      "repo_full_name": "cometchat/cometchat-skills",
+      "path": "skills/cometchat-core/SKILL.md",
+      "file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-03T08:57:51Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
 }
