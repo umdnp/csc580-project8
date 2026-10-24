@@ -48,9 +48,7 @@ We refined parsing where format matters and kept changed sibling files eligible 
 
 Short snippets sometimes omitted information needed to interpret a match; longer snippets could include unrelated text. Markdown backticks also caused problems when incomplete inline-code boundaries joined separate constructs or left stray backticks attached to URLs.
 
-We improved extraction boundaries to preserve complete constructs and capture nearby context separately. Regression tests helped prevent these problems from recurring.
-
-We also learned to distinguish **recovering a complete source construct** from understanding its runtime behavior. A command with dynamic arguments can still provide complete evidence of a security-sensitive operation even when its eventual arguments cannot be resolved statically. Coverage therefore reflects extraction completeness, not full behavioral interpretation.
+We improved extraction boundaries to preserve complete constructs and capture nearby context separately. Regression tests helped prevent these problems from recurring. We also clarified that extraction completeness concerns source recovery, not resolution of dynamic runtime behavior.
 
 ### 5. Line endings can affect parsing and comparison
 

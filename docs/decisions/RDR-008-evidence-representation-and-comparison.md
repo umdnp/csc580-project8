@@ -75,15 +75,15 @@ Each evidence record should preserve enough information to support review and co
 
 ### Extraction completeness
 
-`extraction_status` describes how reliably the **source construct was recovered**, not whether the scanner understands its runtime behavior:
+`extraction_status` reflects **source recovery**, not runtime interpretation:
 
 | Status | Meaning |
 | --- | --- |
-| `complete` | The entire source construct was recovered, including any dynamic arguments or substitutions. |
-| `partial` | Only part of the source construct could be recovered reliably. |
-| `unsupported` | A rule matched, but a reliable structured extraction was not possible. |
+| `complete` | The full construct was recovered, including dynamic expressions. |
+| `partial` | Only part of the construct was recovered reliably. |
+| `unsupported` | A match could not be reliably extracted into structured evidence. |
 
-For example, `mkdir -p "$(dirname "$REPORT_PATH")"` is complete evidence of a filesystem command when the full expression is captured. Its eventual target directory remains unknown without runtime values. Complexity or unresolved arguments alone do not make an otherwise fully recovered construct partial; a truncated or unrecoverable construct remains incomplete.
+For example, `mkdir -p "$(dirname "$REPORT_PATH")"` is `complete` when fully captured, even though the destination cannot be resolved statically.
 
 ### Raw and normalized evidence
 

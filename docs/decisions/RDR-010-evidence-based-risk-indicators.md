@@ -78,7 +78,7 @@ A limited, rule-based context check distinguishes explicit external instructions
 
 Sibling files are scanned only when their contents are already available in GitSkills. The project does not clone repositories, retrieve external content, install packages, or execute scripts.
 
-Rule detection and supported risk indicators remain distinct. For example, `systemctl status nginx` may be command evidence without being a system-modification operation; `systemctl restart nginx` supports a system-modification match. A documentation URL is a URL reference, whereas `httpx.get(url)` is network-operation evidence. Neither kind of rule match automatically establishes that a risk indicator was introduced in the derived artifact.
+Rule matches are not automatically risk indicators: `systemctl status nginx` is command evidence, but not system modification. Likewise, a URL reference does not imply a network operation or an introduced risk.
 
 ### Indicator counts and coverage
 
@@ -93,7 +93,7 @@ A single changed command may trigger several indicators but still represent one 
 
 An `indicator_count` of zero means that no defined indicator was supported by the available evidence. It does not establish that the skill is safe. Missing sibling content, partial extraction, and uncertain findings must remain visible rather than being silently treated as negative results.
 
-As defined in RDR-008, `extraction_status=complete` means the full source construct was recovered; it does **not** mean dynamic values were resolved or all runtime behavior was understood. Similarly, `coverage.status=complete` means the available, in-scope evidence was processed without known extraction or data-availability gaps. It does **not** mean the scanner detects every risk or that no security-sensitive behavior exists outside its rules. A complete dynamic command can still support a rule or indicator, while genuinely partial or unsupported evidence must remain visible as a coverage limitation.
+As defined in RDR-008, `extraction_status=complete` means the source construct was recovered, not that runtime behavior was resolved. `coverage.status=complete` means there are no known gaps within the scanned scope; it does not imply comprehensive risk detection.
 
 RDR-007 governs comparison direction. Directed relationships can support claims that a behavior was introduced or removed; undirected relationships can show differences but not which artifact introduced them. The direction-evidence basis remains available for analysis.
 
