@@ -111,11 +111,11 @@ The team should agree on the scope and priority of the following work before imp
 
 Each team member should review this draft and add anything important that is missing.
 
-- [ ] Add an important lesson from Sprint 1.
-- [ ] Add any major challenge or blocker that affected the team's work.
-- [ ] Confirm that the changes described above match what actually happened.
-- [ ] Add any decision from Sprint 1 that should influence later work.
-- [ ] Remove or revise anything that does not reflect the team's current understanding.
+- [X] Add an important lesson from Sprint 1.
+- [X] Add any major challenge or blocker that affected the team's work.
+- [X] Confirm that the changes described above match what actually happened.
+- [X] Add any decision from Sprint 1 that should influence later work.
+- [X] Remove or revise anything that does not reflect the team's current understanding.
 
 ## Summary
 
