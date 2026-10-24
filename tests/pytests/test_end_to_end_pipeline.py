@@ -75,6 +75,8 @@ def test_prepared_duckdb_flows_through_real_loaders_scanning_and_saved_reports(t
     family = json.loads((reports / "database-demo.json").read_text(encoding="utf-8"))
     scan_path = results / "scans" / "database-demo.json"
     scan = json.loads(scan_path.read_text(encoding="utf-8"))
+    assert "implementation_fingerprint" not in family
+    assert "implementation_fingerprint" not in scan
     assert {item["artifact_id"] for item in family["artifacts"]} == {1, 2}
     assert {item["artifact_id"] for item in scan["input_artifacts"]} == {1, 2}
     for item in scan["input_artifacts"]:
@@ -112,6 +114,8 @@ def test_prepared_duckdb_flows_through_real_loaders_scanning_and_saved_reports(t
     assert execution["pairs_incomplete"] == int(missing_sibling_content)
     manifest = json.loads((results / "sample_manifest.json").read_text(encoding="utf-8"))
     assert manifest["family_names"] == ["database-demo"]
+    from gitskills.pipelines.provenance import implementation_fingerprint
+    assert manifest["implementation_fingerprint"] == implementation_fingerprint()
     with (results / "audit" / "skipped_artifacts.csv").open(encoding="utf-8", newline="") as handle:
         exclusions = list(csv.DictReader(handle))
     assert [(row["artifact_id"], row["reason"]) for row in exclusions] == [("3", "missing_content")]
@@ -270,17 +274,63 @@ def test_do_not_replace_scans_after_adjudication(repositories):
                    scans=results / "scans", edges="primary")
 
 
-def test_stale_analysis_implementation_is_refreshed(repositories):
+def test_legacy_fingerprint_is_removed_without_rebuilding_family(repositories):
     db, reports, results = repositories
     run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
     family_path = reports / "alpha.json"
-    outdated = json.loads(family_path.read_text())
-    outdated["implementation_fingerprint"] = "old-version"
+    original = json.loads(family_path.read_text())
+    outdated = {**original, "implementation_fingerprint": "old-version"}
     family_path.write_text(json.dumps(outdated))
-    refreshed = run_family("alpha", database=db, skilltrace_reports=reports,
-                           scans=results / "scans")
-    assert refreshed["family_report_updated"] is True
-    assert json.loads(family_path.read_text())["implementation_fingerprint"] != "old-version"
+
+    migrated = run_family("alpha", database=db, skilltrace_reports=reports,
+                          scans=results / "scans")
+    assert migrated["family_report_updated"] is True
+    assert json.loads(family_path.read_text()) == original
+    assert run_family("alpha", database=db, skilltrace_reports=reports,
+                      scans=results / "scans")["family_report_updated"] is False
+
+
+def test_fingerprint_change_only_affects_cohort_manifest(repositories, monkeypatch):
+    from gitskills.pipelines import provenance
+
+    db, reports, results = repositories
+    run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
+    family_path = reports / "alpha.json"
+    scan_path = results / "scans" / "alpha.json"
+    original_family = family_path.read_bytes()
+    original_scan = scan_path.read_bytes()
+
+    # Simulate a rules/source change: only the manifest records the new code hash.
+    monkeypatch.setattr(provenance, "implementation_fingerprint", lambda: "new-source-revision")
+    repeated = run_family("alpha", database=db, skilltrace_reports=reports,
+                          scans=results / "scans")
+    assert repeated["family_report_updated"] is False
+    assert family_path.read_bytes() == original_family
+    assert scan_path.read_bytes() == original_scan
+
+    summarize_cohort(["alpha"], database=db, skilltrace_reports=reports, results=results)
+    manifest = json.loads((results / "sample_manifest.json").read_text())
+    assert manifest["implementation_fingerprint"] == "new-source-revision"
+    assert "implementation_fingerprint" not in json.loads(family_path.read_text())
+    assert "implementation_fingerprint" not in json.loads(scan_path.read_text())
+
+
+def test_legacy_scan_fingerprint_does_not_invalidate_completed_review(repositories):
+    db, reports, results = repositories
+    run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
+    family_path = reports / "alpha.json"
+    scan_path = results / "scans" / "alpha.json"
+    for path in (family_path, scan_path):
+        report = json.loads(path.read_text())
+        report["implementation_fingerprint"] = "old-version"
+        path.write_text(json.dumps(report))
+
+    reviewed = results / "review" / "adjudicated"
+    reviewed.mkdir(parents=True)
+    (reviewed / "directed.csv").write_text("completed independent review")
+    run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
+    assert "implementation_fingerprint" not in json.loads(family_path.read_text())
+    assert "implementation_fingerprint" not in json.loads(scan_path.read_text())
 
 
 def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch, tmp_path):

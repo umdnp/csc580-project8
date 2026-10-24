@@ -2,26 +2,11 @@
 
 from __future__ import annotations
 
-import hashlib
-from pathlib import Path
-
 from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import FamilyAnalysis, ScopeAnalysis, SimilarityPolicy
 from gitskills.analysis.family_risk import FamilyRiskAnalyzer
 from gitskills.analysis.family_risk_models import FamilyRiskAnalysis, SiblingFile
 from gitskills.data.families import FamilyLoad
-
-
-def implementation_fingerprint() -> str:
-    """Fingerprint analysis and rule implementations for incremental report reuse."""
-    root = Path(__file__).resolve().parents[1]
-    files = sorted((*root.glob("analysis/*.py"), *root.glob("rules/*.py"),
-                    root / "reporting" / "redaction.py"))
-    digest = hashlib.sha256()
-    for path in files:
-        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
-        digest.update(path.read_bytes())
-    return digest.hexdigest()
 
 
 def source_records(loaded: FamilyLoad) -> list[dict]:
@@ -70,7 +55,6 @@ def analyze_family_report(name: str, loaded: FamilyLoad, *,
         )
     payload = result.to_dict(verbose=verbose)
     payload.update(_coverage(loaded))
-    payload["implementation_fingerprint"] = implementation_fingerprint()
     return result, payload
 
 
@@ -94,5 +78,4 @@ def scan_family_report(name: str, loaded: FamilyLoad,
     payload = result.to_dict(verbose=verbose)
     payload.update(_coverage(loaded))
     payload["input_artifacts"] = source_records(loaded)
-    payload["implementation_fingerprint"] = implementation_fingerprint()
     return result, payload

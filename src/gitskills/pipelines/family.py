@@ -38,6 +38,12 @@ def run_family(name: str, *, database: Path, skilltrace_reports: Path,
             pass  # Malformed reports are rebuilt from source.
     refresh = (force_family or existing is None or
                not compatible_family(existing, name, policy, records, skipped))
+    # Upgrade a valid older report without rebuilding similarities just to drop
+    # the legacy per-report implementation hash.
+    legacy_cleanup = False
+    if not refresh and "implementation_fingerprint" in existing:
+        existing.pop("implementation_fingerprint")
+        legacy_cleanup = True
     family_analysis = None
     if refresh:
         family_analysis, family_report = analyze_family_report(name, loaded, policy=policy)
@@ -53,20 +59,22 @@ def run_family(name: str, *, database: Path, skilltrace_reports: Path,
     adjudicated = scans.parent / "review" / "adjudicated"
     if adjudicated.exists() and any(adjudicated.glob("*.csv")):
         old_scan = read_json(scan_path) if scan_path.is_file() else None
+        if old_scan is not None:
+            old_scan.pop("implementation_fingerprint", None)
         if refresh or old_scan != scan_report:
             raise ValueError(
                 f"{name}: completed review exists and reports would change; "
                 "archive the existing run before rebuilding it"
             )
 
-    if refresh:
+    if refresh or legacy_cleanup:
         skilltrace_reports.mkdir(parents=True, exist_ok=True)
         write_json(skilltrace_reports, stems[name], family_report)
     scans.mkdir(parents=True, exist_ok=True)
     write_json(scans, stems[name], scan_report)
     return {
         "family": name, "family_report": str(family_path),
-        "family_report_updated": refresh, "scan_report": str(scan_path),
+        "family_report_updated": refresh or legacy_cleanup, "scan_report": str(scan_path),
         "artifacts_loaded": len(records), "artifacts_skipped": len(skipped),
         "pairs_analyzed": scan_report["summary"]["pairs_analyzed"],
         "pairs_incomplete": scan_report["summary"]["pairs_incomplete"],
