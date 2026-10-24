@@ -28,6 +28,7 @@ from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
 from gitskills.analysis.family_reporting import scan_family_report
 from . import _output
+from ._family_input import read_family_names
 from gitskills.reporting.redaction import redact_text, safe_excerpt
 
 
@@ -142,7 +143,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     try:
-        names = _read_family_names(args.input, args.limit) if args.input else [args.name]
+        names = read_family_names(args.input, args.limit) if args.input else [args.name]
         output_dir = _output.prepare_directory(
             args.output if args.output is not None else _output.DEFAULT_OUTPUT_DIR if args.benchmark else None
         )
@@ -214,16 +215,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         print(f"Benchmark log: {output_dir / 'benchmarks.csv'}", file=sys.stderr)
     return 1 if failed else 0
-
-
-def _read_family_names(path: Path, limit: int | None) -> list[str]:
-    names = [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines()
-             if line.strip() and not line.lstrip().startswith("#")]
-    if limit is not None:
-        names = names[:limit]
-    if not names or len(set(names)) != len(names):
-        raise ValueError("Family input must contain unique, nonempty names")
-    return names
 
 
 def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool, edges: str = "primary"):
