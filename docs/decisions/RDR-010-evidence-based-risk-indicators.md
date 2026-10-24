@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| **Status** | Proposed |
+| **Status** | Accepted |
 | **Date** | 2026-10-21 |
 | **Type** | Research methodology |
 | **Related work** | Question 4, Sprint 2, `THREAT_MODEL.md`, `scan_diff`, `scan_family`, RDR-007, RDR-008 |
