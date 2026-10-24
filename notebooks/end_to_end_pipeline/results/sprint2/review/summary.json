@@ -1,7 +1,7 @@
 {
   "ambiguous_edges_skipped": 54,
   "denominator_note": "Percentages use directed_pairs_analyzed (or the corresponding edge-type denominator); categories overlap. Ambiguous edges are excluded. Comparisons can share artifacts and are not independent historical events.",
-  "directed_pairs_analyzed": 201,
+  "directed_pairs_analyzed": 214,
   "edge_selection": "all",
   "edge_type_breakdown": {
     "additional": {
@@ -19,19 +19,19 @@
         "RI-010": 0,
         "RI-011": 0
       },
-      "pairs_analyzed": 167,
+      "pairs_analyzed": 174,
       "pairs_coverage_incomplete": 1,
-      "pairs_flagged": 49,
+      "pairs_flagged": 55,
       "pairs_with_indicators": 3
     },
     "primary": {
-      "finding_count": 8,
+      "finding_count": 9,
       "indicator_frequency_pairs": {
         "RI-001": 0,
         "RI-002": 0,
         "RI-003": 1,
         "RI-004": 0,
-        "RI-005": 2,
+        "RI-005": 3,
         "RI-006": 1,
         "RI-007": 0,
         "RI-008": 1,
@@ -39,21 +39,21 @@
         "RI-010": 0,
         "RI-011": 0
       },
-      "pairs_analyzed": 34,
+      "pairs_analyzed": 40,
       "pairs_coverage_incomplete": 1,
-      "pairs_flagged": 20,
-      "pairs_with_indicators": 4
+      "pairs_flagged": 24,
+      "pairs_with_indicators": 5
     }
   },
-  "families_with_supported_indicators": 4,
-  "family_count": 9,
-  "flagged_pairs": 69,
+  "families_with_supported_indicators": 5,
+  "family_count": 11,
+  "flagged_pairs": 79,
   "indicator_frequency_pairs": {
     "RI-001": 0,
     "RI-002": 0,
     "RI-003": 1,
     "RI-004": 0,
-    "RI-005": 5,
+    "RI-005": 6,
     "RI-006": 1,
     "RI-007": 0,
     "RI-008": 1,
@@ -61,13 +61,13 @@
     "RI-010": 0,
     "RI-011": 0
   },
-  "pairs_with_evidence_changes": 67,
+  "pairs_with_evidence_changes": 76,
   "pairs_with_incomplete_evidence_coverage": 2,
   "pairs_with_missing_sibling_content": 2,
-  "pairs_with_sibling_evidence_changes": 29,
-  "pairs_with_supported_indicators": 7,
+  "pairs_with_sibling_evidence_changes": 35,
+  "pairs_with_supported_indicators": 8,
   "relationship_sampling": {
-    "families_supplied": 9,
+    "families_supplied": 11,
     "per_stratum": 5,
     "sampled_pairs": 15,
     "seed": 580,
@@ -98,5 +98,5 @@
     "min_shared_shingles": 5,
     "shingle_size": 5
   },
-  "supported_findings": 14
+  "supported_findings": 15
 }

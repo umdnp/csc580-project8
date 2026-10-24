@@ -1,0 +1,943 @@
+{
+  "report_type": "gitskills-family-scan",
+  "candidate_family": "ghostclaw",
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "edge_selection": "all",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "active_rules": [
+    {
+      "rule_id": "CMD-001",
+      "category": "command_execution",
+      "description": "Shell command block detected"
+    },
+    {
+      "rule_id": "CMD-002",
+      "category": "command_execution",
+      "description": "Command invocation detected"
+    },
+    {
+      "rule_id": "CRED-001",
+      "category": "credential_access",
+      "description": "Credential or secret reference detected"
+    },
+    {
+      "rule_id": "CRED-002",
+      "category": "credential_access",
+      "description": "Credential file reference detected"
+    },
+    {
+      "rule_id": "EXT-001",
+      "category": "external_code_execution",
+      "description": "Downloaded content is piped to a shell interpreter"
+    },
+    {
+      "rule_id": "EXT-002",
+      "category": "external_code_execution",
+      "description": "External package installation detected"
+    },
+    {
+      "rule_id": "FS-001",
+      "category": "filesystem_access",
+      "description": "File-system command detected"
+    },
+    {
+      "rule_id": "FS-002",
+      "category": "filesystem_access",
+      "description": "File-writing API detected"
+    },
+    {
+      "rule_id": "FS-003",
+      "category": "filesystem_access",
+      "description": "File-reading command or API detected"
+    },
+    {
+      "rule_id": "NET-001",
+      "category": "network_access",
+      "description": "HTTP or HTTPS URL detected"
+    },
+    {
+      "rule_id": "NET-002",
+      "category": "network_access",
+      "description": "Network client usage detected"
+    },
+    {
+      "rule_id": "SYS-001",
+      "category": "system_modification",
+      "description": "Privilege-elevation command detected"
+    },
+    {
+      "rule_id": "SYS-002",
+      "category": "system_modification",
+      "description": "System modification command detected"
+    }
+  ],
+  "summary": {
+    "pairs_analyzed": 4,
+    "edge_type_counts": {
+      "additional": 1,
+      "primary": 3
+    },
+    "pairs_flagged": 3,
+    "pairs_incomplete": 0,
+    "pairs_evidence_coverage_incomplete": 0,
+    "pairs_with_evidence_changes": 3,
+    "pairs_with_indicators": 1,
+    "indicator_frequency": {
+      "RI-005": 1
+    },
+    "indicator_count": 1,
+    "finding_count": 1,
+    "direction_basis": {
+      "chronology": {
+        "pairs_analyzed": 1,
+        "flagged_pairs": 1,
+        "pairs_with_indicators": 0
+      },
+      "containment": {
+        "pairs_analyzed": 1,
+        "flagged_pairs": 1,
+        "pairs_with_indicators": 1
+      },
+      "repo-created-boundary": {
+        "pairs_analyzed": 2,
+        "flagged_pairs": 1,
+        "pairs_with_indicators": 0
+      }
+    },
+    "ambiguous_edges_skipped": 0,
+    "clusters_analyzed": 2
+  },
+  "clusters": [
+    {
+      "cluster": 1,
+      "pairs_analyzed": 3,
+      "edge_type_counts": {
+        "additional": 1,
+        "primary": 2
+      },
+      "pairs_flagged": 2,
+      "pairs_incomplete": 0,
+      "pairs_with_evidence_changes": 2,
+      "pairs_with_indicators": 0,
+      "indicator_frequency": {},
+      "direction_basis_counts": {
+        "chronology": 1,
+        "repo-created-boundary": 2
+      },
+      "pair_observations": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 1549970,
+          "destination_artifact_id": 1550041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "unknown",
+          "flagged": false,
+          "rule_flagged": false,
+          "evidence_comparison": {
+            "skill": {
+              "added": 0,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 8,
+              "complete": 8,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 1580781,
+          "destination_artifact_id": 1549970,
+          "direction_basis": "chronology",
+          "change_type": "unknown",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 2,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 6,
+              "complete": 6,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 1580781,
+          "destination_artifact_id": 1550041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "unknown",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 2,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 6,
+              "complete": 6,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        }
+      ],
+      "flagged_pairs": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 1580781,
+          "destination_artifact_id": 1549970,
+          "direction_basis": "chronology",
+          "change_type": "unknown",
+          "flagged_rules": [
+            {
+              "rule_id": "CMD-001",
+              "category": "command_execution",
+              "description": "Shell command block detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 1549970
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "shell_code_block",
+                  "rule_ids": [
+                    "CMD-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:d412ca54003ae7cbfee59fd7cd06b637297ae563",
+                    "start_offset": 1286,
+                    "end_offset": 1293
+                  },
+                  "context": {
+                    "type": "code_fence",
+                    "language": "bash",
+                    "heading": "1. Ad-hoc Review (Sub-agent Invocation)"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "```bash"
+                },
+                {
+                  "type": "shell_code_block",
+                  "rule_ids": [
+                    "CMD-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:d412ca54003ae7cbfee59fd7cd06b637297ae563",
+                    "start_offset": 1739,
+                    "end_offset": 1746
+                  },
+                  "context": {
+                    "type": "code_fence",
+                    "language": "bash",
+                    "heading": "2. Background Watcher (Cron)"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "```bash"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": []
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 6,
+                "complete": 6,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 1580781,
+          "destination_artifact_id": 1550041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "unknown",
+          "flagged_rules": [
+            {
+              "rule_id": "CMD-001",
+              "category": "command_execution",
+              "description": "Shell command block detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 1550041
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "shell_code_block",
+                  "rule_ids": [
+                    "CMD-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:0885651db2f29df8d825d95c765c6a11315d1127",
+                    "start_offset": 1288,
+                    "end_offset": 1295
+                  },
+                  "context": {
+                    "type": "code_fence",
+                    "language": "bash",
+                    "heading": "1. Ad-hoc Review (Sub-agent Invocation)"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "```bash"
+                },
+                {
+                  "type": "shell_code_block",
+                  "rule_ids": [
+                    "CMD-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:0885651db2f29df8d825d95c765c6a11315d1127",
+                    "start_offset": 1741,
+                    "end_offset": 1748
+                  },
+                  "context": {
+                    "type": "code_fence",
+                    "language": "bash",
+                    "heading": "2. Background Watcher (Cron)"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "```bash"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": []
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 6,
+                "complete": 6,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          }
+        }
+      ],
+      "incomplete_pairs": []
+    },
+    {
+      "cluster": 2,
+      "pairs_analyzed": 1,
+      "edge_type_counts": {
+        "primary": 1
+      },
+      "pairs_flagged": 1,
+      "pairs_incomplete": 0,
+      "pairs_with_evidence_changes": 1,
+      "pairs_with_indicators": 1,
+      "indicator_frequency": {
+        "RI-005": 1
+      },
+      "direction_basis_counts": {
+        "containment": 1
+      },
+      "pair_observations": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3687704,
+          "destination_artifact_id": 1956585,
+          "direction_basis": "containment",
+          "change_type": "unknown",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 8,
+              "removed": 5
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [
+            "RI-005"
+          ],
+          "uncertain_indicator_ids": [],
+          "finding_count": 1,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 25,
+              "complete": 25,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        }
+      ],
+      "flagged_pairs": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3687704,
+          "destination_artifact_id": 1956585,
+          "direction_basis": "containment",
+          "change_type": "unknown",
+          "flagged_rules": [
+            {
+              "rule_id": "CMD-001",
+              "category": "command_execution",
+              "description": "Shell command block detected",
+              "surface": "skill",
+              "source": 3,
+              "destination": 4,
+              "delta": 1,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 1956585
+                }
+              ]
+            },
+            {
+              "rule_id": "CMD-002",
+              "category": "command_execution",
+              "description": "Command invocation detected",
+              "surface": "skill",
+              "source": 6,
+              "destination": 7,
+              "delta": 1,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 1956585
+                }
+              ]
+            },
+            {
+              "rule_id": "EXT-002",
+              "category": "external_code_execution",
+              "description": "External package installation detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 1956585
+                }
+              ]
+            },
+            {
+              "rule_id": "SYS-002",
+              "category": "system_modification",
+              "description": "System modification command detected",
+              "surface": "skill",
+              "source": 2,
+              "destination": 3,
+              "delta": 1,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 1956585
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+                    "start_offset": 4092,
+                    "end_offset": 4126
+                  },
+                  "context": {
+                    "type": "markdown_prose",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "Python dependencies are installed:"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+                    "start_offset": 4128,
+                    "end_offset": 4148
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm run install-deps"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+                    "start_offset": 4267,
+                    "end_offset": 4319
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python3 src/ghostclaw/cli/ghostclaw.py /path/to/repo"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+                    "start_offset": 4325,
+                    "end_offset": 4384
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python3 src/ghostclaw/cli/compare.py --repos-file repos.txt"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+                    "start_offset": 5223,
+                    "end_offset": 5259
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "text",
+                    "heading": "Invocation Examples"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python3 src/ghostclaw/cli/compare.py"
+                }
+              ],
+              "added": [
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 1285,
+                    "end_offset": 1332
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "1. Ad-hoc Review (One-Shot Review)"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python -m ghostclaw.cli.ghostclaw /path/to/repo"
+                },
+                {
+                  "type": "shell_code_block",
+                  "rule_ids": [
+                    "CMD-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 2329,
+                    "end_offset": 2336
+                  },
+                  "context": {
+                    "type": "code_fence",
+                    "language": "bash",
+                    "heading": "2. Background Watcher (Cron)"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "```bash"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 4334,
+                    "end_offset": 4350
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "pip install -e ."
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 4641,
+                    "end_offset": 4695
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python -m ghostclaw.cli.ghostclaw /path/to/target-repo"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 4718,
+                    "end_offset": 4776
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Setup"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python -m ghostclaw.cli.compare --repos-file repo-list.txt"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 6149,
+                    "end_offset": 6199
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "text",
+                    "heading": "Invocation Examples"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python -m ghostclaw.cli.ghostclaw /path/to/backend"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "SYS-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 6240,
+                    "end_offset": 6279
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "text",
+                    "heading": "Invocation Examples"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "Service layer reaching into controllers"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                    "start_offset": 6479,
+                    "end_offset": 6537
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "text",
+                    "heading": "Invocation Examples"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "python -m ghostclaw.cli.compare --repos-file repo-list.txt"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": []
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 1,
+            "finding_count": 1,
+            "indicators": [
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+                        "start_offset": 4334,
+                        "end_offset": 4350
+                      },
+                      "context": {
+                        "type": "inline_code",
+                        "language": null,
+                        "heading": "Setup"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "pip install -e ."
+                    }
+                  ],
+                  "removed": []
+                }
+              }
+            ],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 25,
+                "complete": 25,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          }
+        }
+      ],
+      "incomplete_pairs": []
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "input_artifacts": [
+    {
+      "artifact_id": 1549970,
+      "group_id": 510629,
+      "repo_full_name": "LJT-520/openClaw-backup",
+      "path": "skills/ev3lynx727/ghostclaw/SKILL.md",
+      "file_sha": "d412ca54003ae7cbfee59fd7cd06b637297ae563",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1550041,
+      "group_id": 510629,
+      "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+      "path": "plugins/ev3lynx727--ghostclaw/skills/ghostclaw/SKILL.md",
+      "file_sha": "0885651db2f29df8d825d95c765c6a11315d1127",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1580781,
+      "group_id": 510629,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/ghostclaw/SKILL.md",
+      "file_sha": "8e13142db6911e65d10603ec1a0fcd2210c60ce7",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1956585,
+      "group_id": 510629,
+      "repo_full_name": "GeorgeDoors888/GB-Power-Market-JJ",
+      "path": "openclaw-skills/skills/ev3lynx727/ghostclaw/SKILL.md",
+      "file_sha": "20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3687704,
+      "group_id": 510629,
+      "repo_full_name": "Ev3lynx727/ghostclaw",
+      "path": "SKILL.md",
+      "file_sha": "e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+      "sibling_file_count": 283,
+      "sibling_content_sha": "d3628881b79bdd449d811f21ad7e0a1ad7150dcf111ee4db3feb207e9239a66e"
+    }
+  ],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
+}

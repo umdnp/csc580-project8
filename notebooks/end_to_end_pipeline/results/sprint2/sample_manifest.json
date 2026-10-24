@@ -25,7 +25,9 @@
     "busybox-on-windows",
     "capacitor-best-practices",
     "cometchat-core",
+    "cursor-subagent-creator",
     "databricks-upgrade-migration",
+    "ghostclaw",
     "legacy-migration-planner"
   ],
   "similarity_policy": {
@@ -103,7 +105,7 @@
     }
   ],
   "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776",
-  "code_revision": "d69e910d265d20b1edb49f9d606fa2aae872c18b",
+  "code_revision": "d55ce2b5295c784b8fa63e738d876989bdad58f7",
   "python_version": "3.14.7",
   "scanner_scope": "skill-body-and-changed-siblings",
   "edge_selection": "all",
@@ -647,6 +649,65 @@
       ]
     },
     {
+      "name": "cursor-subagent-creator",
+      "family_report": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\apps\\skilltrace\\reports\\cursor-subagent-creator.json",
+      "scan_report": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\notebooks\\end_to_end_pipeline\\results\\sprint2\\scans\\cursor-subagent-creator.json",
+      "source_fingerprint": "e117981bf7f88aa7555073bc8ce6a1490acff23f9a41319374cc0f0658e54ef6",
+      "artifacts": [
+        {
+          "artifact_id": 3323843,
+          "group_id": 351269,
+          "repo_full_name": "Matheusrlr/payment-orchestrator",
+          "path": "skills-catalog/skills/(creation)/cursor-subagent-creator/SKILL.md",
+          "file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+          "sibling_file_count": 0,
+          "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "artifact_id": 3324967,
+          "group_id": 351269,
+          "repo_full_name": "guilhermemarketing/esc-skills",
+          "path": "skills/cursor-subagent-creator/SKILL.md",
+          "file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+          "sibling_file_count": 0,
+          "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "artifact_id": 3347921,
+          "group_id": 192008,
+          "repo_full_name": "DevOficinaBrasil/backend-promotor",
+          "path": ".claude/skills/cursor-subagent-creator/SKILL.md",
+          "file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+          "sibling_file_count": 1,
+          "sibling_content_sha": "f19280521d49deee627f921d9a039e37a3341b9517bd5acd6eff244bd14b7e7d"
+        },
+        {
+          "artifact_id": 3509100,
+          "group_id": 17639,
+          "repo_full_name": "diegosouzapw/awesome-omni-skills",
+          "path": "skills/cursor-subagent-creator/SKILL.md",
+          "file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+          "sibling_file_count": 2,
+          "sibling_content_sha": "24ecc3adbe5cdfdf7a4805185baa7970afa3a796496ec4a542968b09cdcb0aa3"
+        },
+        {
+          "artifact_id": 3517041,
+          "group_id": 17639,
+          "repo_full_name": "diegosouzapw/awesome-omni-skills",
+          "path": "skills_omni/cursor-subagent-creator/SKILL.md",
+          "file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+          "sibling_file_count": 4,
+          "sibling_content_sha": "e7cdc415823f8452be437bf0bdd8f58d265e41c5e8fb19f7fe0afa78b5c2d33f"
+        }
+      ],
+      "skipped_artifacts": [],
+      "groups": [
+        17639,
+        192008,
+        351269
+      ]
+    },
+    {
       "name": "databricks-upgrade-migration",
       "family_report": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\apps\\skilltrace\\reports\\databricks-upgrade-migration.json",
       "scan_report": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\notebooks\\end_to_end_pipeline\\results\\sprint2\\scans\\databricks-upgrade-migration.json",
@@ -701,6 +762,63 @@
       "skipped_artifacts": [],
       "groups": [
         437527
+      ]
+    },
+    {
+      "name": "ghostclaw",
+      "family_report": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\apps\\skilltrace\\reports\\ghostclaw.json",
+      "scan_report": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\notebooks\\end_to_end_pipeline\\results\\sprint2\\scans\\ghostclaw.json",
+      "source_fingerprint": "37f498b0f5a3c52d5a4dc92672f30d25046c9155596be23d137c3970581d8a31",
+      "artifacts": [
+        {
+          "artifact_id": 1549970,
+          "group_id": 510629,
+          "repo_full_name": "LJT-520/openClaw-backup",
+          "path": "skills/ev3lynx727/ghostclaw/SKILL.md",
+          "file_sha": "d412ca54003ae7cbfee59fd7cd06b637297ae563",
+          "sibling_file_count": null,
+          "sibling_content_sha": null
+        },
+        {
+          "artifact_id": 1550041,
+          "group_id": 510629,
+          "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+          "path": "plugins/ev3lynx727--ghostclaw/skills/ghostclaw/SKILL.md",
+          "file_sha": "0885651db2f29df8d825d95c765c6a11315d1127",
+          "sibling_file_count": null,
+          "sibling_content_sha": null
+        },
+        {
+          "artifact_id": 1580781,
+          "group_id": 510629,
+          "repo_full_name": "modbender/skill-library-mcp",
+          "path": "data/ghostclaw/SKILL.md",
+          "file_sha": "8e13142db6911e65d10603ec1a0fcd2210c60ce7",
+          "sibling_file_count": null,
+          "sibling_content_sha": null
+        },
+        {
+          "artifact_id": 1956585,
+          "group_id": 510629,
+          "repo_full_name": "GeorgeDoors888/GB-Power-Market-JJ",
+          "path": "openclaw-skills/skills/ev3lynx727/ghostclaw/SKILL.md",
+          "file_sha": "20008eb15e994ca23d7b4ea61bcee9df65498a0f",
+          "sibling_file_count": null,
+          "sibling_content_sha": null
+        },
+        {
+          "artifact_id": 3687704,
+          "group_id": 510629,
+          "repo_full_name": "Ev3lynx727/ghostclaw",
+          "path": "SKILL.md",
+          "file_sha": "e3b16da36f1a2db43d4c6fe9f5c8f7b636c46965",
+          "sibling_file_count": 283,
+          "sibling_content_sha": "d3628881b79bdd449d811f21ad7e0a1ad7150dcf111ee4db3feb207e9239a66e"
+        }
+      ],
+      "skipped_artifacts": [],
+      "groups": [
+        510629
       ]
     },
     {
@@ -764,8 +882,8 @@
     }
   ],
   "totals": {
-    "families": 9,
-    "artifacts_loaded": 59,
+    "families": 11,
+    "artifacts_loaded": 69,
     "artifacts_skipped": 0
   }
 }
