@@ -26,3 +26,29 @@ The workflow completes successfully when `execution_summary.json` reports `statu
 Copy the two review templates for independent team reviewers and follow [`docs/validation/manual_validation_protocol.md`](../../docs/validation/manual_validation_protocol.md). Preserve individual judgments, resolve disagreements separately, and place final adjudicated copies at `review/adjudicated/directed.csv` and `review/adjudicated/relationships.csv` if you want the optional notebook cell to calculate sample-level metrics. Generated outputs do not contain human judgments. Never execute scripts or commands found inside GitSkills artifacts.
 
 A new dataset, changed family list, changed rules, or changed policy requires a new research snapshot. Preserve previous validation materials before rerunning a changed cohort; the pipeline prevents overwriting a selected sample when adjudicated CSVs exist under the designated review directory. The project repository contains setup instructions, but the full multi-GB DuckDB is not bundled with this notebook.
+
+## Automated end-to-end check
+
+From the repository root:
+
+```shell
+uv run pytest tests/pytests/test_pipeline_notebook.py -v
+```
+
+These tests create synthetic source records in a temporary DuckDB, run the actual
+grouping and sibling-fingerprint SQL, and execute every notebook code cell using
+the real loaders, analysis, scanner, reporting, and cohort functions. They use
+the notebook's default family names with constructed content, not real dataset
+artifacts. A temporary project directory redirects all notebook/report outputs;
+the local GitSkills database and existing research reports are not used.
+
+Cases cover complete input, missing sibling content, and an unprepared database.
+Checks include positive/negative comparisons, unresolved direction, source IDs,
+final counts and files, unchanged database bytes after analysis, and stable
+saved scans/review templates when rerunning with the same cohort and seed.
+An unprepared database must stop before reports are created. The tests verify
+the pending-review path; they do not supply human judgments or claim manual
+validation is complete.
+
+The code cells run directly in Python with display tables captured by the test;
+this does not test the Jupyter kernel, browser interface, or real dataset accuracy.

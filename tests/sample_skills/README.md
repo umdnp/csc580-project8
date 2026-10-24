@@ -78,6 +78,52 @@ The matching tests exercise empty/short strings and unusable chronology within
 the analyzer's supported input types. Security-change classification tests are
 also separate from these relationship tests.
 
+### Notebook End-to-End Tests (Story 6.1)
+
+```shell
+uv run pytest tests/pytests/test_pipeline_notebook.py -v
+```
+
+These checks connect the production preparation SQL to every code cell in the
+current family pipeline notebook, using real temporary DuckDB tables and the
+actual analysis, scanner, report, and cohort implementations. They verify
+complete and incomplete sibling inputs, positive/negative comparisons,
+unresolved direction, final output files/counts, repeatable review templates,
+and early rejection of an unprepared database. Outputs stay in a temporary
+project, and the source database remains unchanged during analysis.
+
+See the [notebook testing notes](../../notebooks/end_to_end_pipeline/README.md#automated-end-to-end-check)
+for scope and limitations. This tests the notebook's Python code and parameter
+wiring, not Jupyter's browser or kernel implementation.
+
+### Security Comparison and Pipeline Tests (Story 6.1)
+
+Run the comparison and pipeline checks from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_security_comparison.py tests/pytests/test_family_risk_indicators.py tests/pytests/test_end_to_end_pipeline.py -v
+```
+
+Comparator cases distinguish category introductions from increased matches in an
+existing category. They cover unchanged/empty results, complete removal, removal
+of one rule while another retains the category, equal totals with different rule
+changes, and reversed comparisons with repeated evidence occurrences. A retained
+category means it is detected at both endpoints; it does not establish that all
+underlying behavior is identical.
+
+Family-scanner cases verify that unresolved direction prevents directional
+findings under both primary-only and all-directed-edge policies. The database
+integration cases create a temporary prepared DuckDB and use the actual family
+and sibling repositories, analysis, scanner, report writers, report-reuse logic,
+and cohort summarizer. They check artifact/file traceability, skipped artifacts,
+available sibling findings alongside missing sibling content, saved audit
+records, and an unchanged source database. Other existing pipeline cases use
+substituted repositories to isolate orchestration behavior.
+
+These tests require no live GitSkills database and do not execute artifact
+instructions. They verify known constructed cases, not accuracy on real-world
+artifacts. No production comparison behavior is changed by adding these tests.
+
 ### Focused Security Function Tests (Story 5.2)
 
 Run the security function tests from the repository root:
