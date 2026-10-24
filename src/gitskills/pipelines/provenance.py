@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Sequence
 
 from gitskills.analysis.family_models import SimilarityPolicy
-from gitskills.analysis.family_reporting import implementation_fingerprint
 from gitskills.reporting.files import report_stems
 
 
@@ -28,6 +27,18 @@ def read_json(path: Path) -> dict:
     if not isinstance(report, dict):
         raise ValueError(f"Report must be a JSON object: {path}")
     return report
+
+
+def implementation_fingerprint() -> str:
+    """Record the implementation used for a cohort run, not per-family output."""
+    root = Path(__file__).resolve().parents[1]
+    files = sorted((*root.glob("analysis/*.py"), *root.glob("rules/*.py"),
+                    root / "reporting" / "redaction.py"))
+    digest = hashlib.sha256()
+    for path in files:
+        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
+        digest.update(path.read_bytes())
+    return digest.hexdigest()
 
 
 def fingerprint(records: list[dict]) -> str:
@@ -48,8 +59,7 @@ def validate_names(names: Sequence[str]) -> tuple[list[str], dict[str, str]]:
 def compatible_family(report: dict, name: str, policy: SimilarityPolicy,
                       records: list[dict], skipped: list[dict]) -> bool:
     """Reuse only complete family reports built from the same inputs and policy."""
-    if (report.get("name") != name or report.get("policy") != policy.to_dict()
-            or report.get("implementation_fingerprint") != implementation_fingerprint()):
+    if report.get("name") != name or report.get("policy") != policy.to_dict():
         return False
     artifacts = report.get("artifacts")
     if (not isinstance(artifacts, list)
@@ -101,9 +111,8 @@ def check_reports(name: str, family: dict, scan: dict) -> tuple[list[dict], int]
     """Validate identity and return traceable source references and pair count."""
     if family.get("name") != name or scan.get("candidate_family") != name:
         raise ValueError(f"{name}: stored report has an unexpected family name")
-    implementation = implementation_fingerprint()
-    if any(report.get("implementation_fingerprint") != implementation for report in (family, scan)):
-        raise ValueError(f"{name}: report was built with a different implementation; rerun run_family")
+    if scan.get("similarity_policy") != family.get("policy"):
+        raise ValueError(f"{name}: scan and family similarity policies disagree; rerun run_family")
     if not isinstance(family.get("artifacts"), list) or not isinstance(family.get("similarities"), list):
         raise ValueError(f"{name}: SkillTrace report lacks artifacts/similarities; rerun run_family")
     sources = [{field: item.get(field) for field in SOURCE_FIELDS} for item in family["artifacts"]]
@@ -153,7 +162,7 @@ def cohort_manifest(names: list[str], database: Path, scans: list[dict],
         "family_names": names,
         "similarity_policy": scans[0]["similarity_policy"],
         "active_rules": scans[0]["active_rules"],
-        "implementation_fingerprint": scans[0]["implementation_fingerprint"],
+        "implementation_fingerprint": implementation_fingerprint(),
         "code_revision": git_revision(skilltrace_reports.parent.parent.parent),
         "python_version": sys.version.split()[0],
         "scanner_scope": scans[0]["scanner_scope"],
