@@ -84,6 +84,19 @@ The [Data Dictionary](DATA_DICTIONARY.md) documents the database structure, incl
 
 Use the [family pipeline notebook](notebooks/end_to_end_pipeline/README.md) to reproduce the current family comparison, directed security analysis, research summary, and manual-review samples. It calls the `gitskills` library directly, uses `GITSKILLS_DB`, and stores scan/summary outputs under `notebooks/end_to_end_pipeline/results/sprint2/` (or `final/`). Family-analysis reports remain under `apps/skilltrace/reports/`. The older `end-to-end_pipeline` notebook documents the Sprint 1 approach.
 
+## Automated Tests
+
+From the repository root:
+
+```shell
+uv sync
+uv run pytest
+```
+
+Analysis tests use constructed inputs and temporary databases; the live GitSkills
+dataset is not required. See the [testing guide](tests/sample_skills/README.md#testing)
+for focused test commands and coverage descriptions.
+
 ## Running the Project
 
 ### Reproduce the Sprint 1 notebook output

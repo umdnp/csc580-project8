@@ -1,10 +1,12 @@
 """Incremental pipeline contract without requiring the large GitSkills database."""
 
 import csv
+from hashlib import sha1, sha256
 import json
 from pathlib import Path
 
 import pytest
+import duckdb
 
 from gitskills.analysis.family_models import Artifact, SimilarityPolicy
 from gitskills.data.families import FamilyLoad, SkippedArtifact
@@ -13,6 +15,107 @@ from gitskills.pipelines.cohort import summarize_cohort
 
 
 BASE = ("Read and document the available source project configuration. " * 18)
+
+
+@pytest.mark.parametrize("missing_sibling_content", [False, True])
+def test_prepared_duckdb_flows_through_real_loaders_scanning_and_saved_reports(tmp_path, missing_sibling_content):
+    """No repository mocks: exercise the prepared-table-to-cohort boundary."""
+    db = tmp_path / "prepared.duckdb"
+    reports = tmp_path / "reports"
+    results = tmp_path / "results"
+    derived = BASE + "\nSee https://example.test/data\n"
+    script = "rm -rf /tmp/cache"
+    contents = {1: BASE, 2: derived, 3: None, 4: BASE, 5: BASE}
+    hashes = {artifact_id: sha1(content.encode()).hexdigest() if content is not None else "missing"
+              for artifact_id, content in contents.items()}
+    script_hash = sha1(script.encode()).hexdigest()
+    notes = None if missing_sibling_content else "Summarize the project."
+    with duckdb.connect(str(db)) as connection:
+        connection.execute("""
+            CREATE TABLE artifacts (
+                id BIGINT, file_sha VARCHAR, content VARCHAR,
+                repo_full_name VARCHAR, path VARCHAR, first_commit_at VARCHAR
+            );
+            CREATE TABLE artifact_groupings (
+                id BIGINT, artifact_id BIGINT, repo_id BIGINT, name VARCHAR,
+                normalized_description VARCHAR, sibling_file_count BIGINT,
+                sibling_content_sha VARCHAR
+            );
+            CREATE TABLE repos (id BIGINT, created_at VARCHAR);
+            CREATE TABLE artifact_siblings (
+                id BIGINT, artifact_id BIGINT, entry_name VARCHAR, entry_sha VARCHAR,
+                content VARCHAR, skipped_reason VARCHAR, entry_type VARCHAR
+            );
+        """)
+        for artifact_id, content in contents.items():
+            connection.execute(
+                "INSERT INTO artifacts VALUES (?, ?, ?, ?, 'skills/demo/SKILL.md', ?)",
+                [artifact_id, hashes[artifact_id], content, f"test/repo-{artifact_id}", f"2026-01-{artifact_id:02d}"],
+            )
+            connection.execute(
+                "INSERT INTO artifact_groupings VALUES (?, ?, ?, ?, 'demo', ?, ?)",
+                [artifact_id, artifact_id, artifact_id,
+                 "database-demo" if artifact_id <= 3 else "other-family",
+                 2 if artifact_id == 2 else 0,
+                 "changed" if artifact_id == 2 else "empty"],
+            )
+            connection.execute("INSERT INTO repos VALUES (?, '2025-01-01')", [artifact_id])
+        connection.executemany("INSERT INTO artifact_siblings VALUES (?, 2, ?, ?, ?, ?, 'file')", [
+            (20, "scripts/cleanup.sh", script_hash, script, None),
+            (21, "notes.txt", "notes-hash", notes, "not-fetched" if notes is None else None),
+        ])
+    original_database_hash = sha256(db.read_bytes()).hexdigest()
+
+    outcome = run_family("database-demo", database=db, skilltrace_reports=reports,
+                         scans=results / "scans")
+    assert outcome["artifacts_loaded"] == 2
+    assert outcome["artifacts_skipped"] == 1
+    assert outcome["pairs_analyzed"] == 1
+    assert outcome["pairs_incomplete"] == int(missing_sibling_content)
+    family = json.loads((reports / "database-demo.json").read_text(encoding="utf-8"))
+    scan_path = results / "scans" / "database-demo.json"
+    scan = json.loads(scan_path.read_text(encoding="utf-8"))
+    assert {item["artifact_id"] for item in family["artifacts"]} == {1, 2}
+    assert {item["artifact_id"] for item in scan["input_artifacts"]} == {1, 2}
+    for item in scan["input_artifacts"]:
+        assert item["file_sha"] == hashes[item["artifact_id"]]
+        assert item["path"] == "skills/demo/SKILL.md"
+        assert item["repo_full_name"] == f"test/repo-{item['artifact_id']}"
+    assert scan["skipped_artifacts"] == [{
+        "artifact_id": 3, "repo_full_name": "test/repo-3",
+        "path": "skills/demo/SKILL.md", "reason": "missing_content",
+    }]
+    edge, = family["family"]["clusters"][0]["evolution"]["directed_edges"]
+    assert (edge["source_artifact_id"], edge["target_artifact_id"]) == (1, 2)
+    pair, = scan["clusters"][0]["flagged_pairs"]
+    assert (pair["source_artifact_id"], pair["destination_artifact_id"]) == (1, 2)
+    assert pair["direction_basis"] == "chronology"
+    assert {(rule["rule_id"], rule["surface"]) for rule in pair["flagged_rules"]} == {
+        ("NET-001", "skill"), ("FS-001", "sibling"),
+    }
+    sibling_evidence, = pair["evidence_comparison"]["siblings"]["added"]
+    assert sibling_evidence["source"]["source_id"] == "sibling:20"
+    assert sibling_evidence["source"]["filename"] == "scripts/cleanup.sh"
+    assert sibling_evidence["excerpt"] == script
+    assert pair["sibling_scan"]["incomplete"] == missing_sibling_content
+    assert pair["sibling_scan"]["unavailable_destination_ids"] == ([21] if missing_sibling_content else [])
+
+    saved_scan = scan_path.read_bytes()
+    repeated = run_family("database-demo", database=db, skilltrace_reports=reports,
+                          scans=results / "scans")
+    assert repeated["family_report_updated"] is False
+    assert scan_path.read_bytes() == saved_scan
+    execution = summarize_cohort(["database-demo"], database=db,
+                                 skilltrace_reports=reports, results=results)
+    assert execution["directed_pairs_analyzed"] == 1
+    assert execution["artifacts_skipped"] == 1
+    assert execution["pairs_incomplete"] == int(missing_sibling_content)
+    manifest = json.loads((results / "sample_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["family_names"] == ["database-demo"]
+    with (results / "audit" / "skipped_artifacts.csv").open(encoding="utf-8", newline="") as handle:
+        exclusions = list(csv.DictReader(handle))
+    assert [(row["artifact_id"], row["reason"]) for row in exclusions] == [("3", "missing_content")]
+    assert sha256(db.read_bytes()).hexdigest() == original_database_hash
 
 
 def make_artifact(name, artifact_id, content):
