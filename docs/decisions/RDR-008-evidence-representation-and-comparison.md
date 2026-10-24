@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| **Status** | Proposed |
+| **Status** | Accepted |
 | **Date** | 2026-10-02 |
 | **Type** | Research methodology |
 | **Related work** | Question 4, Sprint 2, security scanner, `scan_diff`, RDR-002 |
