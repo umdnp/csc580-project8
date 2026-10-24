@@ -27,7 +27,7 @@ from .family_risk_models import (
 )
 from .models import AnalysisResult, RiskProfile, RuleDelta, RuleMatch
 from .risk_assessor import RiskAssessor
-from .evidence_models import EvidenceChanges
+from .evidence_models import EvidenceChanges, ExtractionStatus
 
 
 _SIBLING_CHANGE_TYPES = {
@@ -245,10 +245,53 @@ class FamilyRiskAnalyzer:
                         key=lambda rule: (rule.rule_id, rule.surface.value),
                     )
                 )
-                # Keep every directed edge for unbiased validation denominators.
-                flagged = bool(flagged_rules or skill_evidence.added or skill_evidence.removed
-                               or sibling_evidence.added or sibling_evidence.removed
-                               or assessment.indicators)
+                # Record why a pair was flagged; removed evidence and a rule
+                # count change alone are not proof of an introduced capability.
+                reasons = []
+                if assessment.supported:
+                    reasons.append("supported-risk-indicator")
+                if assessment.uncertain:
+                    reasons.append("uncertain-risk-indicator")
+                if skill_evidence.added or sibling_evidence.added:
+                    reasons.append("evidence-added")
+                if skill_evidence.removed or sibling_evidence.removed:
+                    reasons.append("evidence-removed")
+                if flagged_rules:
+                    reasons.append("rule-flag")
+                flag_reasons = tuple(reasons)
+                flagged = bool(flag_reasons)
+
+                # Include diagnostics on *all* directed pairs, including
+                # unflagged ones that still have incomplete evidence coverage.
+                coverage_issues = []
+                for side, results in (("base", (source_result, source_changed)),
+                                      ("derived", (destination_result, destination_changed))):
+                    for result in results:
+                        for evidence in result.evidence:
+                            if evidence.extraction_status == ExtractionStatus.COMPLETE:
+                                continue
+                            coverage_issues.append({
+                                "side": side,
+                                "status": evidence.extraction_status.value,
+                                "type": evidence.kind,
+                                "filename": evidence.filename,
+                                "source_id": evidence.source_id,
+                                "start_offset": evidence.start_offset,
+                                "rule_ids": list(evidence.rule_ids),
+                            })
+                if sibling_summary is not None:
+                    for side, ids in (("base", sibling_summary.unavailable_source_ids),
+                                      ("derived", sibling_summary.unavailable_destination_ids)):
+                        for sibling_id in ids:
+                            coverage_issues.append({"side": side, "status": "content-unavailable",
+                                                    "sibling_id": sibling_id})
+                    for side, ids in (("base", sibling_summary.unknown_sha_source_ids),
+                                      ("derived", sibling_summary.unknown_sha_destination_ids)):
+                        for sibling_id in ids:
+                            coverage_issues.append({"side": side, "status": "unknown-sibling-hash",
+                                                    "sibling_id": sibling_id})
+                    if sibling_summary.listing_incomplete:
+                        coverage_issues.append({"status": "sibling-listing-incomplete"})
                 pair_observations.append(PairObservation(
                     edge_type=edge_type,
                     source_artifact_id=edge.source_artifact_id,
@@ -271,6 +314,8 @@ class FamilyRiskAnalyzer:
                     missing_sibling_content=assessment.missing_sibling_content,
                     unknown_sibling_hashes=assessment.unknown_sibling_hashes,
                     sibling_listing_incomplete=assessment.sibling_listing_incomplete,
+                    flag_reasons=flag_reasons,
+                    coverage_issues=tuple(coverage_issues),
                 ))
                 if not flagged:
                     continue
@@ -292,6 +337,7 @@ class FamilyRiskAnalyzer:
                         skill_evidence=skill_evidence,
                         sibling_evidence=sibling_evidence,
                         risk_assessment=assessment,
+                        flag_reasons=flag_reasons,
                     )
                 )
 

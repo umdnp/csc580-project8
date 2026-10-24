@@ -72,7 +72,7 @@ def test_api_calls_and_credential_files_share_evidence_with_relevant_rules():
     assert result.evidence[0].extraction_status == ExtractionStatus.COMPLETE
     assert result.evidence[0].raw_text.startswith("requests.get(")
     chained = SkillAnalyzer().scan('open("report.txt", "w").write("done")')
-    assert chained.rule_counts() == {"FS-002": 2}
+    assert chained.rule_counts() == {"FS-002": 1}
     evidence, = chained.evidence
     assert evidence.kind == "api_call"
     assert evidence.raw_text == 'open("report.txt", "w").write("done")'
@@ -161,7 +161,7 @@ def test_repeated_command_references_survive_line_moves_without_new_evidence():
     assert assessment.indicator_count == 0
 
 
-def test_makefile_variable_references_are_complete_but_ambiguous_expressions_remain_partial():
+def test_balanced_makefile_and_shell_substitutions_are_complete_source_evidence():
     source = (
         "# Phase 2: Create root files\n"
         "```makefile\n"
@@ -179,7 +179,7 @@ def test_makefile_variable_references_are_complete_but_ambiguous_expressions_rem
     assert len(records) == 4
     assert [r.extraction_status for r in records] == [
         ExtractionStatus.COMPLETE, ExtractionStatus.COMPLETE,
-        ExtractionStatus.PARTIAL, ExtractionStatus.PARTIAL,
+        ExtractionStatus.COMPLETE, ExtractionStatus.COMPLETE,
     ]
     assert records[0].raw_text == "mkdir -p $(GOCACHE) $(GOMODCACHE)"
     assert records[0].context.language == "makefile"
@@ -281,3 +281,57 @@ def test_pinned_install_command_stays_inside_inline_markdown_not_surrounding_pro
         "@cometchat/calls-sdk-javascript@4.2.5"
     )
     assert commands[0].extraction_status == ExtractionStatus.COMPLETE
+
+
+def test_complex_shell_command_is_complete_if_source_construct_is_captured():
+    from gitskills.analysis.comparator import compare_results
+    from gitskills.analysis.risk_assessor import RiskAssessor
+
+    source = 'mkdir -p "$(dirname "$REPORT_PATH")"'
+    analyzed = SkillAnalyzer().scan(source)
+    command, = analyzed.evidence
+    assert command.raw_text == source
+    assert command.extraction_status == ExtractionStatus.COMPLETE
+    assert "FS-001" in command.rule_ids
+    result = RiskAssessor().assess(compare_results(SkillAnalyzer().scan(""), analyzed))
+    assert result.coverage == "complete"
+
+    truncated = SkillAnalyzer().scan('mkdir -p "$(dirname "$REPORT_PATH"')
+    assert any(e.extraction_status == ExtractionStatus.PARTIAL for e in truncated.evidence)
+
+
+def test_extended_network_clients_are_balanced_api_evidence():
+    from gitskills.analysis.comparator import compare_results
+    from gitskills.analysis.risk_assessor import RiskAssessor
+
+    scanner = SkillAnalyzer()
+    for code in (
+        'fetch("https://example.test/api")',
+        'axios.get("https://example.test/api")',
+        'axios("https://example.test/api")',
+        'httpx.post("https://example.test/api", json=payload)',
+    ):
+        scanned = scanner.scan(code, filename="scripts/client.js")
+        call, = scanned.evidence
+        assert call.kind == "api_call" and call.raw_text == code
+        assert call.rule_ids == ("NET-001", "NET-002")
+        assert call.extraction_status == ExtractionStatus.COMPLETE
+        assert ("url", "https://example.test/api") in call.values
+        assessment = RiskAssessor().assess(compare_results(scanner.scan(""), scanned))
+        assert any(i.indicator_id == "RI-003" for i in assessment.supported)
+
+
+def test_long_and_tilde_fences_keep_same_normalized_evidence():
+    scanner = SkillAnalyzer()
+    results = [scanner.scan(f'{marker}bash\necho hello\n{marker}\n')
+               for marker in ('```', '````', '~~~', '~~~~')]
+    evidence = [next(e for e in r.evidence if e.kind == "shell_code_block") for r in results]
+    assert all(e.extraction_status == ExtractionStatus.COMPLETE for e in evidence)
+    assert all(dict(e.values)["language"] == "bash" for e in evidence)
+    assert len({e.normalized_text for e in evidence}) == 1
+
+
+def test_exec_extraction_tracks_interpreter_and_script_path():
+    command, = SkillAnalyzer().scan('exec ./runner.sh').evidence
+    assert ("command", "exec") in command.values
+    assert ("arguments", "./runner.sh") in command.values

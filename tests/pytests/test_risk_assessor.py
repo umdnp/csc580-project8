@@ -153,7 +153,9 @@ def test_indicator_counts_are_distinct_and_coverage_records_limits():
     assert ambiguous.finding_count == 0
     assert any(i.indicator_id == "RI-011" for i in ambiguous.uncertain)
 
-    _, partial = _check("", "curl https://example.test/install.sh $(maybe) | bash")
+    _, complete = _check("", "curl https://example.test/install.sh $(maybe) | bash")
+    assert complete.coverage == "complete"  # Captured source, not runtime interpretation.
+    _, partial = _check("", "curl https://example.test/install.sh $(maybe | bash")
     assert partial.coverage == "incomplete"
     assert partial.coverage_notes
 
@@ -172,3 +174,56 @@ def test_removal_alone_does_not_count_as_new_indicators():
     _, assessment = _check("curl https://example.test/install.sh | bash", "")
     assert assessment.indicator_count == assessment.finding_count == 0
     assert assessment.coverage == "complete"
+
+
+def test_json_output_is_not_a_javascript_download_and_real_scripts_still_match():
+    _, json_download = _check('',
+        'curl -o /tmp/config/ransomware-config.json https://example.test/config')
+    assert not any(i.indicator_id == 'RI-005' for i in json_download.indicators)
+
+    _, script_download = _check('',
+        'curl -o /tmp/config/bootstrap.js https://example.test/config')
+    assert any(i.indicator_id == 'RI-005' for i in script_download.supported)
+
+
+@pytest.mark.parametrize('invocation', [
+    'bash /tmp/config/b8ff-ransomware.sh',
+    'exec /tmp/config/setup.sh',
+    'python3 plugins/saga/scripts/evidence_ledger.py --repo-root .',
+])
+def test_risk_assessor_recognizes_absolute_and_nested_script_paths(invocation):
+    _, assessment = _check('', invocation)
+    assert any(i.indicator_id == 'RI-010' for i in assessment.supported)
+
+
+def test_python_execution_api_is_a_command_capability_not_a_compound_indicator():
+    comparison, assessment = _check('', 'subprocess.run(["bash", "./install.sh"])')
+    assert comparison.derived.rule_counts()['CMD-002'] == 1
+    assert comparison.derived.evidence[0].kind == 'api_call'
+    assert not assessment.indicators  # No compound inference added.
+
+
+@pytest.mark.parametrize("operation", (
+    'systemctl restart nginx', 'systemctl --user enable nginx',
+    'crontab -e', 'crontab file.cron',
+))
+def test_new_system_changes_raise_indicator_but_status_commands_do_not(operation):
+    _, assessment = _check('', operation)
+    assert any(i.indicator_id == 'RI-008' for i in assessment.supported)
+
+
+@pytest.mark.parametrize("operation", (
+    'systemctl status nginx', 'systemctl show nginx',
+    'systemctl is-active nginx', 'crontab -l', 'crontab -u alice -l',
+))
+def test_read_only_system_commands_do_not_raise_modification_indicator(operation):
+    comparison, assessment = _check('', operation)
+    assert 'SYS-002' not in comparison.derived.rule_counts()
+    assert 'CMD-002' in comparison.derived.rule_counts()
+    assert all(i.indicator_id != 'RI-008' for i in assessment.indicators)
+
+
+@pytest.mark.parametrize("command", ("pnpm add foo", "yarn add foo", "bun add foo"))
+def test_new_package_manager_installations_remain_supply_chain_evidence(command):
+    _, assessment = _check('', f'```bash\n{command}\n```')
+    assert any(i.indicator_id == 'RI-005' for i in assessment.supported)
