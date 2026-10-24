@@ -6,7 +6,7 @@
 | **Date** | 2026-09-24 |
 | **Type** | Research methodology |
 | **Related work** | Question 4, RDR-001, RDR-002, RDR-003, Story 2.2, Sprint 1 |
-| **Evidence** | `RDR-003-artifact-groupings-and-sibling-fingerprints.md`, DuckDB exploratory analysis |
+| **Evidence** | `RDR-003-grouping-and-sibling-fingerprints.md`, DuckDB exploratory analysis |
 | **Supersedes** | None |
 
 ## Context

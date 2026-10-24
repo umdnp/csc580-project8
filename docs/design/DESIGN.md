@@ -229,7 +229,7 @@ classDiagram
 | `ApiCallExtractor` | Function or API calls, including arguments where recoverable |
 | `ReferenceExtractor` | Standalone references such as credential names and paths |
 
-The coordinating extractor selects containing constructs, associates their matching rule IDs, and preserves location and context. Evidence that cannot be fully reconstructed is marked partial or unsupported instead of being silently discarded. The extractors inspect stored text; they do not execute it.
+The coordinating extractor associates matches with source constructs and preserves their location and context. `extraction_status` reflects source recovery, not runtime interpretation: fully captured dynamic commands are `complete`, while incomplete or unsupported evidence remains explicit. The extractors do not execute stored text. See [RDR-008](../decisions/RDR-008-evidence-representation-and-comparison.md).
 
 ### Evidence Normalization and Comparison
 
@@ -343,11 +343,13 @@ sequenceDiagram
 
 `PairObservation` records every assessed directed pair, including those without indicators. `FlaggedPair` retains detailed changed evidence or findings; `IncompletePair` preserves sibling-coverage problems. Missing sibling text and incomplete listings remain unknown, rather than being interpreted as unchanged content. See [RDR-009](../decisions/RDR-009-sibling-security-scanning-scope.md).
 
+Family summaries distinguish `pairs_incomplete` (missing sibling coverage) from `pairs_evidence_coverage_incomplete` (including partial or unsupported extraction). Pair observations include `coverage.issues`, even when unflagged. `flag_reasons` explains why a pair was flagged, which does not necessarily mean a new capability; `network_role` distinguishes URL references from network operations.
+
 ## Research Reporting and Validation
 
 Individual pair results must also support population-level research. `gitskills.reporting.scan_summary.summarize()` reads selected `scan_family` reports and corresponding `analyze_family` reports to produce aggregated measures, review tables, figures, and directed/relationship validation samples without rescanning artifacts. The default `analyze_family` report includes artifact identity and pairwise similarities needed for relationship sampling; verbose mode adds diagnostics, not required downstream fields. Reports preserve direction basis, edge type (primary or additional), indicator identity, and coverage.
 
-The notebook calls `run_family()` independently for each selected name (using `edges="all"`), then `summarize_cohort()` over exactly that cohort. Canonical relationship reports are stored in `apps/skilltrace/reports/`, while scan reports, a sample manifest, execution summary, skipped-record audit, and review templates are stored under `notebooks/end_to_end_pipeline/results/{sprint2,final}/`. Report fingerprints and artifact identifiers protect against mixing incompatible analyses. Validation includes pairs with and without supported indicators. Human annotations and adjudication remain separate from generated findings, allowing reviewers to check both potential false positives and missed behavior. The [Tools Guide](../../TOOLS.md) describes the reporting outputs and sampling process.
+The notebook calls `run_family()` independently for each selected name (using `edges="all"`), then `summarize_cohort()` over exactly that cohort. Canonical relationship reports are stored in `apps/skilltrace/reports/`, while scan reports, a sample manifest, execution summary, skipped-record audit, and review templates are stored under `notebooks/end_to_end_pipeline/results/{sprint2,final}/`. Family relationships are reused based on source artifacts and similarity policy, independent of unrelated scanner-rule changes. Implementation provenance (`implementation_fingerprint`, `code_revision`) is retained in `sample_manifest.json`, not individual reports. Security scans use the active rules and preserve protections for adjudicated results. Validation includes pairs with and without supported indicators. Human annotations and adjudication remain separate from generated findings. The [Tools Guide](../../TOOLS.md) describes the reporting outputs and sampling process.
 
 ## SkillTrace Design
 

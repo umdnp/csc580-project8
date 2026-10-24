@@ -4,8 +4,8 @@
   ],
   "rule_match_count": {
     "base": 3,
-    "derived": 8,
-    "delta": 5
+    "derived": 7,
+    "delta": 4
   },
   "rule_deltas": {
     "CMD-001": {
@@ -15,8 +15,8 @@
     },
     "CMD-002": {
       "base": 0,
-      "derived": 2,
-      "delta": 2
+      "derived": 1,
+      "delta": 1
     },
     "EXT-001": {
       "base": 0,

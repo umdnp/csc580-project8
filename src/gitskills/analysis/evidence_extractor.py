@@ -287,10 +287,13 @@ class EvidenceExtractor:
         start, end = match.start_offset, match.end_offset
         assert start is not None and end is not None
         if match.rule_id == "CMD-001":
-            language = text[start:end].lstrip("`").strip().lower()
+            opener = re.match(r"[ ]{0,3}(?:`{3,}|~{3,})[ \t]*([A-Za-z]+)", text[start:end])
+            language = opener.group(1).lower() if opener else ""
             return SourceSpan("shell_code_block", start, end, values=(("language", language),))
         matched = text[start:end]
-        if (re.match(r"(?:requests\.|fs(?:\.promises)?\.|open\s*\(|\.[\w]+\s*\()", matched, re.I)
+        if (re.match(r"(?:requests\.|httpx\.|axios(?:\.|\s*\()|fetch\s*\(|"
+                     r"fs(?:\.promises)?\.|subprocess\.|os\.system\s*\(|"
+                     r"open\s*\(|\.[\w]+\s*\()", matched, re.I)
                 or match.rule_id == "FS-002"):
             return self._api.extract(text, start, end)
         if match.rule_id == "CMD-002":

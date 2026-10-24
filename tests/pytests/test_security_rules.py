@@ -157,3 +157,99 @@ def test_service_modification_requires_service_name_and_action(command):
 ])
 def test_service_prose_and_read_only_status_are_not_system_modifications(text):
     assert RULES["SYS-002"].evaluate(text) == ()
+
+@pytest.mark.parametrize('text', [
+    'Python environment compatibility',
+    'npm + OpenAI API | npm + Google Account | All setups |',
+    "bash + data formats don't |",
+    'bash script) and wasted passes.',
+    'Python conventions from',
+    'npm installability is important',
+])
+def test_command_rule_does_not_match_descriptive_prose_or_markdown_tables(text):
+    assert RULES['CMD-002'].evaluate(text) == ()
+
+
+@pytest.mark.parametrize('text', [
+    'bash /tmp/config/b8ff-ransomware.sh',
+    'python3 scripts/main.py',
+    'python3 plugins/saga/scripts/evidence_ledger.py --repo-root .',
+    'npm install radon',
+    'subprocess.run(["bash", "./install.sh"])',
+    'subprocess.Popen(["python", "script.py"])',
+    'os.system("echo test")',
+    'exec /tmp/run.sh',
+    'bash -lc "echo hi"',
+    'npx skills add mattpocock/skills --skill=code-review',
+])
+def test_command_rule_preserves_actual_invocations_and_execution_apis(text):
+    assert RULES['CMD-002'].evaluate(text)
+
+
+def test_touch_prose_is_not_a_file_modification():
+    assert RULES['FS-001'].evaluate('If you touch any wiring or entry-point code, the review fails.') == ()
+    assert len(RULES['FS-001'].evaluate('touch report')) == 1
+    assert len(RULES['FS-001'].evaluate('Run `touch ./report.txt`')) == 1
+
+
+@pytest.mark.parametrize("fence", (
+    "~~~bash", "````bash", "   ~~~~powershell", "~~~sh\r",
+))
+def test_markdown_fence_extensions_are_detected(fence):
+    assert len(RULES["CMD-001"].evaluate(fence + "\n")) == 1
+
+
+@pytest.mark.parametrize("text", (
+    "systemctl status nginx", "systemctl show nginx", "systemctl is-active nginx",
+    "crontab -l", "crontab -u alice -l",
+))
+def test_read_only_system_commands_are_not_modifications(text):
+    assert RULES["SYS-002"].evaluate(text) == ()
+
+
+@pytest.mark.parametrize("text", (
+    "systemctl --user enable nginx", "systemctl restart nginx", "crontab -e",
+    "crontab -r", "crontab file.cron",
+))
+def test_system_modification_commands_remain_detected(text):
+    assert len(RULES["SYS-002"].evaluate(text)) == 1
+
+
+@pytest.mark.parametrize("text", (
+    "pnpm add package", "yarn add package", "bun add package",
+))
+def test_additional_package_managers_are_installs(text):
+    assert len(RULES["EXT-002"].evaluate(text)) == 1
+
+
+@pytest.mark.parametrize("text", (
+    'fetch("/api/data")', 'axios.get("/api/data")',
+    'axios("/api/data")', 'httpx.get("https://example.test/api")',
+))
+def test_extended_network_clients_are_detected(text):
+    assert len(RULES["NET-002"].evaluate(text)) == 1
+
+
+@pytest.mark.parametrize("text", (
+    'response.write("OK")', 'buffer.write("bytes")', 'file.write("bytes")',
+))
+def test_ambiguous_stream_writes_are_not_file_write_findings(text):
+    assert RULES["FS-002"].evaluate(text) == ()
+
+
+@pytest.mark.parametrize("text", (
+    'Path("report.txt").write_text("done")',
+    'fs.promises.writeFile("report.txt", "done")',
+    'open("report.txt", "w").write("done")',
+))
+def test_explicit_file_write_apis_are_still_detected(text):
+    assert RULES["FS-002"].evaluate(text)
+
+
+@pytest.mark.parametrize("text", (
+    "systemctl status nginx", "systemctl show nginx", "crontab -l",
+    "crontab -u alice -l", "service nginx status",
+))
+def test_read_only_management_operations_keep_command_evidence(text):
+    assert len(RULES["CMD-002"].evaluate(text)) == 1
+    assert RULES["SYS-002"].evaluate(text) == ()

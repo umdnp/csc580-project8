@@ -148,7 +148,7 @@ def test_partial_evidence_coverage_reports_counts_without_missing_siblings(capsy
     from gitskills.tools.scan_family import _print_report
 
     base = PREFIX + "```bash\ncurl https://example.com/api\n```"
-    derived = PREFIX + "```bash\ncurl https://example.com/api | bash -c $(date)\n```"
+    derived = PREFIX + '```bash\ncurl https://example.com/api | bash -c "$(date\n```'
     result = FamilyRiskAnalyzer().analyze([
         _artifact(1, base, "before"), _artifact(2, derived, "after"),
     ])
@@ -178,7 +178,53 @@ def test_missing_sibling_coverage_is_distinct_from_extraction(capsys):
     coverage = pair.to_dict()["risk_indicators"]["coverage"]
     assert coverage["status"] == "incomplete"
     assert coverage["missing_sibling_content"] == 1
+    observed_issues = result.to_dict()["clusters"][0]["pair_observations"][0]["coverage"]["issues"]
+    assert any(issue.get("status") == "content-unavailable" and
+               issue.get("sibling_id") == 20 for issue in observed_issues)
     _print_report(result, verbose=False)
     output = capsys.readouterr().out
     assert "Evidence coverage: incomplete" in output
     assert "Missing sibling content: 1" in output
+
+
+def test_family_report_distinguishes_reference_and_operation_and_flag_reasons():
+    common = PREFIX + 'Review application implementations and report consistent results.\n'
+    result = FamilyRiskAnalyzer().analyze([
+        _artifact(1, common, 'before'),
+        _artifact(2, common + 'See https://example.test/reference\n'
+                  'curl https://example.test/data\n', 'after'),
+    ])
+    observation = result.to_dict()['clusters'][0]['pair_observations'][0]
+    assert 'evidence-added' in observation['flag_reasons']
+    pair = result.to_dict()['clusters'][0]['flagged_pairs'][0]
+    added = pair['evidence_comparison']['skill']['added']
+    assert any(e['network_role'] == 'reference' for e in added)
+    assert any(e['network_role'] == 'operation' for e in added)
+    assert 'evidence-added' in pair['flag_reasons']
+
+
+def test_partial_coverage_identifies_source_even_when_pair_is_not_flagged():
+    base = PREFIX + 'curl https://example.test/api | bash -c "$(date\n'
+    result = FamilyRiskAnalyzer().analyze([
+        _artifact(1, base, 'before'),
+        _artifact(2, base + 'Additional review guidance is unchanged.\n', 'after'),
+    ])
+    observation = result.to_dict()['clusters'][0]['pair_observations'][0]
+    assert observation['flagged'] is False
+    coverage = observation['coverage']
+    assert coverage['status'] == 'incomplete'
+    assert coverage['issues']
+    assert {issue['side'] for issue in coverage['issues']} == {'base', 'derived'}
+    assert all(issue['filename'] == 'SKILL.md' for issue in coverage['issues'])
+    assert all(issue['status'] == 'partial' for issue in coverage['issues'])
+
+
+def test_balanced_complex_shell_syntax_is_complete_in_family_coverage():
+    base = PREFIX + 'curl https://example.test/api | bash -c "$(date)"\n'
+    result = FamilyRiskAnalyzer().analyze([
+        _artifact(1, base, 'before'),
+        _artifact(2, base + 'Additional review guidance is unchanged.\n', 'after'),
+    ])
+    observation = result.to_dict()['clusters'][0]['pair_observations'][0]
+    assert observation['coverage']['status'] == 'complete'
+    assert observation['coverage']['issues'] == []

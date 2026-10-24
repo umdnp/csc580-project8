@@ -16,8 +16,9 @@ _URL = re.compile(r"https?://[^\s<>()\"']+", re.I)
 _SCRIPT = r"[\w./-]+\.(?:sh|bash|py|js|mjs|ps1)"
 _DIRECT_SCRIPT = re.compile(r"^\s*(\./" + _SCRIPT + r")(?=\s|$)", re.I)
 _INTERPRETER_SCRIPT = re.compile(
-    r"^\s*(?:python[\d.]*|bash|sh|zsh|node|pwsh)\s+((?:\./|\.\./|scripts/|bin/)"
-    + _SCRIPT + r")(?=\s|$)", re.I,
+    r"^\s*(?:python[\d.]*|bash|sh|zsh|node|pwsh|exec)\s+"
+    r"((?:\./|\.\./|/|~/|[\w.-]+/)[\w./-]+\.(?:sh|bash|py|js|mjs|ps1))"
+    r"(?=\s|$|[;&|])", re.I,
 )
 _SENSITIVE = re.compile(
     r"(?:^|[/\\])(?:\.aws/credentials|\.ssh/(?:id_rsa|id_ed25519|authorized_keys|config)|"
@@ -45,16 +46,29 @@ _FILE_ACTION = re.compile(r"\b(?:cat|less|more|Get-Content|open|read_text|read_b
                           r"rm|Remove-Item|mv|Move-Item|cp|Copy-Item|Set-Content|Add-Content)\b", re.I)
 _SYSTEM_CHANGE = re.compile(
     r"\b(?:chmod|chown|setfacl)\s+\S+|"
-    r"\bsystemctl\s+(?:enable|disable|start|stop|restart|mask|unmask|edit)\b|"
-    r"\bservice\s+\S+\s+(?:start|stop|restart|reload)\b|"
-    r"\bcrontab\s+(?!-l\b)\S+", re.I,
+    r"\bsystemctl\s+(?:(?:--user|--system|--global|--runtime|--now|--force)\s+)*"
+    r"(?:enable|disable|reenable|start|stop|restart|reload|try-restart|"
+    r"reload-or-restart|mask|unmask|edit|daemon-reload|set-default|"
+    r"preset|preset-all|isolate|kill)\b|"
+    r"\bservice\s+\S+\s+(?:start|stop|restart|reload|force-reload)\b|"
+    r"\bcrontab\s+(?:-u\s+[\w.-]+\s+)?(?:-e|-r|--edit|--remove|-(?=\s|$)|"
+    r"(?!-)[\w./~$-]+(?=\s|$))", re.I,
 )
-_INSTALL = re.compile(r"\b(?:pip\d*|npm|apt(?:-get)?|dnf|yum|brew)\s+(?:install|i)\b", re.I)
+_INSTALL = re.compile(
+    r"\b(?:pip\d*|npm|apt(?:-get)?|dnf|yum|brew)\s+(?:install|i)\b|"
+    r"\b(?:pnpm|yarn|bun)\s+add\b", re.I,
+)
 _INSTALL_SOURCE = re.compile(
     r"(?:--index-url|--extra-index-url|--registry|--find-links)\s*(?:=|\s)\s*([^\s]+)", re.I,
 )
-_ACQUIRE = re.compile(r"\b(?:curl|wget)\b.*(?:\s(?:-o|--output|--output-document)\s+\S+\.(?:sh|py|js)|"
-                      r"https?://[^\s]+\.(?:sh|py|js)(?=\s|$))", re.I | re.S)
+# Treat script extensions as complete suffixes, not prefixes of .json etc.
+# Keep acquisition scoped to one shell command/line, not neighboring prose.
+_ACQUIRE = re.compile(
+    r"\b(?:curl|wget)\b[^\r\n]*(?:"
+    r"\s(?:-o|--output|--output-document)(?:=|\s+)\S+\.(?:sh|bash|py|js|mjs|ps1)(?=$|[\s;&|])|"
+    r"https?://[^\s]+\.(?:sh|bash|py|js|mjs|ps1)(?=$|[\s;&|])"
+    r")", re.I,
+)
 
 
 def _values(e: Evidence, key: str) -> tuple[str, ...]:
@@ -130,7 +144,7 @@ def _context_status(e: Evidence) -> IndicatorStatus | None:
     if e.kind == "shell_command" and e.context.kind == "markdown_prose":
         # Non-command prose may match simple words such as curl or rm.
         if not re.match(r"^(?:\s*(?:[-*]\s+)?(?:`)?(?:sudo\s+)?(?:curl|wget|rm|python|"
-                        r"bash|sh|pip|npm|chmod|systemctl|cat|./))\b", line, re.I):
+                        r"bash|sh|exec|pip|npm|pnpm|yarn|bun|chmod|systemctl|crontab|service|cat|./|python(?:\d+(?:\.\d+)*)?))\b", line, re.I):
             if not re.search(r"\b(?:run|execute|install|use|invoke)\s+(?:the\s+)?", line, re.I):
                 return IndicatorStatus.UNCERTAIN
     return IndicatorStatus.SUPPORTED
@@ -403,5 +417,8 @@ class RiskAssessor:
         if "NET-002" not in e.rule_ids or e.kind not in {"shell_command", "api_call"}:
             return False
         if e.kind == "api_call":
-            return (_operation(e) or "").startswith("requests.")
+            call = _operation(e) or ""
+            return call == "fetch" or call == "axios" or call.startswith(
+                ("requests.", "httpx.", "axios.")
+            )
         return bool(re.match(r"^\s*(?:curl|wget|Invoke-WebRequest|Invoke-RestMethod)\b", e.raw_text, re.I))

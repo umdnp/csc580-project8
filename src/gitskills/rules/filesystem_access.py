@@ -12,7 +12,11 @@ class FileCommandRule(RegexRule):
     category = RiskCategory.FILESYSTEM_ACCESS
     description = "File-system command detected"
     patterns = (
-        r"(?<![\w.-])(?:rm|mv|cp|mkdir|touch)[ \t]+(?=[^\s`])",
+        r"(?<![\w.-])(?:rm|mv|cp|mkdir)[ \t]+(?=[^\s`])",
+        # "touch any wiring or entry-point code" is prose, not a path.
+        # Keep bare filenames when touch starts a shell command line.
+        r"^[ \t]*touch[ \t]+(?=[^\s`])",
+        r"(?<![\w.-])touch[ \t]+(?=(?:[~./\\$-][^\s`]|[\w.-]+\.[\w.-]+))",
         r"(?<![\w.-])(?:Remove-Item|Move-Item|Copy-Item|Set-Content|Add-Content)"
         r"[ \t]+(?=[^\s`])",
     )
@@ -26,7 +30,10 @@ class FileWriteApiRule(RegexRule):
     description = "File-writing API detected"
     patterns = (
         r"\bopen[ \t]*\([^\n]*,[ \t]*[\"'][^\"']*[wax+][^\"']*[\"']",
-        r"\.(?:write_text|write_bytes|write)[ \t]*\(",
+        # A generic stream.write() might be a network response or an
+        # in-memory buffer. Keep explicit filesystem APIs instead.
+        r"\.(?:write_text|write_bytes)[ \t]*\(",
+        r"\bfs(?:\.promises)?\.(?:writeFile|writeFileSync|appendFile|appendFileSync|createWriteStream)[ \t]*\(",
     )
 
 

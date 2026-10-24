@@ -30,4 +30,5 @@ class PackageInstallRule(RegexRule):
     patterns = (
         r"\b(?:pip(?:3)?[ \t]+install|npm[ \t]+install|npm[ \t]+i)\b",
         r"\b(?:apt(?:-get)?|dnf|yum|brew)[ \t]+install\b",
+        r"(?<![\w.-])(?:pnpm|yarn|bun)[ \t]+add\b",
     )

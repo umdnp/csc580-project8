@@ -78,6 +78,8 @@ A limited, rule-based context check distinguishes explicit external instructions
 
 Sibling files are scanned only when their contents are already available in GitSkills. The project does not clone repositories, retrieve external content, install packages, or execute scripts.
 
+Rule matches are not automatically risk indicators: `systemctl status nginx` is command evidence, but not system modification. Likewise, a URL reference does not imply a network operation or an introduced risk.
+
 ### Indicator counts and coverage
 
 For each comparison, the assessor preserves:
@@ -90,6 +92,8 @@ For each comparison, the assessor preserves:
 A single changed command may trigger several indicators but still represent one evidence change. **A larger indicator count does not, by itself, establish greater danger.** Counts are descriptive measures used to compare the kinds and frequency of observed changes.
 
 An `indicator_count` of zero means that no defined indicator was supported by the available evidence. It does not establish that the skill is safe. Missing sibling content, partial extraction, and uncertain findings must remain visible rather than being silently treated as negative results.
+
+As defined in RDR-008, `extraction_status=complete` means the source construct was recovered, not that runtime behavior was resolved. `coverage.status=complete` means there are no known gaps within the scanned scope; it does not imply comprehensive risk detection.
 
 RDR-007 governs comparison direction. Directed relationships can support claims that a behavior was introduced or removed; undirected relationships can show differences but not which artifact introduced them. The direction-evidence basis remains available for analysis.
 

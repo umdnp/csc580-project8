@@ -18,10 +18,11 @@ class SourceSpan:
 
 
 _URL = re.compile(r"https?://[^\s<>()\"']+", re.IGNORECASE)
-_API = re.compile(r"(?:\b(?:requests|fs(?:\.promises)?)\.[\w]+|\bopen|\.[\w]+)\s*\(")
+_API = re.compile(r"(?:\b(?:requests|httpx|axios|fs(?:\.promises)?)\.[\w]+|"
+                  r"\b(?:fetch|axios|open)|\.[\w]+)\s*\(")
 _COMMAND = re.compile(
     r"(?<![\w.-])(?:\./(?:[\w.-]+/)*[\w.-]+\.(?:sh|bash|py|js|mjs|ps1)|"
-    r"sudo|su|curl|wget|python(?:\d+(?:\.\d+)*)?|bash|sh|zsh|"
+    r"sudo|su|exec|curl|wget|python(?:\d+(?:\.\d+)*)?|bash|sh|zsh|fish|"
     r"node|bun|uvx?|npm|npx|pnpm|yarn|pip\d*|docker|pwsh|powershell|cmd\.exe|"
     r"rm|mv|cp|mkdir|touch|cat|less|more|chmod|chown|setfacl|systemctl|"
     r"service|crontab|apt(?:-get)?|dnf|yum|brew|"
@@ -155,9 +156,13 @@ class ShellExtractor:
                 values.append(("arguments", raw[command.end():].strip()))
         urls = _URL.findall(raw)
         values.extend(("url", url.rstrip(".,;!?]")) for url in urls)
-        status = (ExtractionStatus.PARTIAL if quote or "$(" in raw or raw.rstrip().endswith("\\")
+        # COMPLETE describes recovery of the source construct, not the
+        # ability to evaluate its dynamic arguments. Balanced substitutions
+        # such as $(dirname "$REPORT_PATH") remain complete evidence.
+        status = (ExtractionStatus.PARTIAL if quote or raw.rstrip().endswith("\\")
+                  or raw.count("$(") > raw.count(")")
                   else ExtractionStatus.COMPLETE)
-        if complex_shell and "`" in raw:
+        if complex_shell and "`" in raw and raw.count("`") % 2:
             status = ExtractionStatus.PARTIAL
         # A detected command mentioned in explanatory prose is not necessarily
         # a complete invocation (e.g., "use curl to download files").

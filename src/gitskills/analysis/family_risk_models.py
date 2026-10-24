@@ -190,6 +190,7 @@ class FlaggedPair:
     skill_evidence: EvidenceChanges = EvidenceChanges()
     sibling_evidence: EvidenceChanges = EvidenceChanges()
     risk_assessment: RiskAssessment = RiskAssessment()
+    flag_reasons: tuple[str, ...] = ()
 
     @property
     def evidence_changed(self) -> bool:
@@ -203,6 +204,7 @@ class FlaggedPair:
             "destination_artifact_id": self.destination_artifact_id,
             "direction_basis": self.direction_basis,
             "change_type": self.change_type.value,
+            "flag_reasons": list(self.flag_reasons),
             "flagged_rules": [
                 rule.to_dict(verbose=verbose) for rule in self.flagged_rules
             ],
@@ -277,6 +279,8 @@ class PairObservation:
     missing_sibling_content: int
     unknown_sibling_hashes: int
     sibling_listing_incomplete: bool
+    flag_reasons: tuple[str, ...] = ()
+    coverage_issues: tuple[dict[str, object], ...] = ()
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -287,6 +291,7 @@ class PairObservation:
             "change_type": self.change_type.value,
             "flagged": self.flagged,
             "rule_flagged": self.rule_flagged,
+            "flag_reasons": list(self.flag_reasons),
             "evidence_comparison": {
                 "skill": {"added": self.skill_evidence_added,
                           "removed": self.skill_evidence_removed},
@@ -308,6 +313,12 @@ class PairObservation:
                 "missing_sibling_content": self.missing_sibling_content,
                 "unknown_sibling_hashes": self.unknown_sibling_hashes,
                 "sibling_listing_incomplete": self.sibling_listing_incomplete,
+                "issues": [
+                    {key: redact_text(value) if key in {"filename", "source_id"}
+                     and isinstance(value, str) else value
+                     for key, value in item.items()}
+                    for item in self.coverage_issues
+                ],
             },
         }
 
@@ -461,7 +472,7 @@ def _match_to_dict(match: RuleMatch) -> dict[str, object]:
 
 def _evidence_to_dict(item: Evidence) -> dict[str, object]:
     """Public, redacted evidence view; raw and normalized forms remain internal."""
-    return {
+    result = {
         "type": item.kind,
         "rule_ids": list(item.rule_ids),
         "source": {
@@ -482,6 +493,11 @@ def _evidence_to_dict(item: Evidence) -> dict[str, object]:
             else safe_excerpt(item.raw_text)
         ),
     }
+    if "NET-002" in item.rule_ids and item.kind in {"shell_command", "api_call"}:
+        result["network_role"] = "operation"
+    elif "NET-001" in item.rule_ids and item.kind in {"markdown_link", "url_reference"}:
+        result["network_role"] = "reference"
+    return result
 
 
 def _evidence_changes_dict(changes: EvidenceChanges) -> dict[str, object]:

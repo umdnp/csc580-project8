@@ -60,6 +60,8 @@ For each item:
 5. **Review indicators and changes.** Confirm or reject supported indicator IDs, mark uncertain indicators, and evaluate changes only where direction is supported. Use individual indicator outcomes when a pair has mixed changes.
 6. **Record uncertainty.** Provide short notes for disagreements, missing evidence, false positives, false negatives, and non-obvious conclusions.
 
+A fully recovered command with dynamic arguments is `complete` evidence; truncated extraction or missing sibling content limits coverage. A construct outside the defined rules is not an extraction failure. Review `coverage.issues` for flagged and unflagged pairs before treating absent findings as negatives. See [RDR-008](../decisions/RDR-008-evidence-representation-and-comparison.md) and [RDR-010](../decisions/RDR-010-evidence-based-risk-indicators.md).
+
 Relationship-only rows do not have scanner outcomes. For these, complete only relatedness, direction, and notes.
 
 ### Directed Review Fields
