@@ -25,5 +25,9 @@ class SystemChangeCommandRule(RegexRule):
     description = "System modification command detected"
     patterns = (
         r"(?<![\w.-])(?:chmod|chown|setfacl)[ \t]+(?=[^\s`])",
-        r"(?<![\w.-])(?:systemctl|service|crontab)[ \t]+(?=[^\s`])",
+        r"(?<![\w.-])(?:systemctl|crontab)[ \t]+(?=[^\s`])",
+        # A reference to a software "service layer" is not a service command.
+        # Require a service name followed by a modifying action.
+        r"(?<![\w.-])service[ \t]+[\w.@-]+[ \t]+"
+        r"(?:start|stop|restart|reload|force-reload)\b",
     )
