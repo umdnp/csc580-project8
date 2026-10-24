@@ -12,7 +12,8 @@ class ShellCodeBlockRule(RegexRule):
     category = RiskCategory.COMMAND_EXECUTION
     description = "Shell command block detected"
     patterns = (
-        r"^```(?:bash|sh|shell|zsh|fish|powershell|pwsh)[ \t]*$",
+        # Accept both LF and CRLF without changing source offsets.
+        r"^```(?:bash|sh|shell|zsh|fish|powershell|pwsh)[ \t]*\r?$",
     )
 
 

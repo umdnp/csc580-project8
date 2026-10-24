@@ -135,3 +135,31 @@ def test_reversing_comparison_swaps_added_removed_evidence_and_negates_deltas():
     }
     assert not forward.introduced.capabilities  # Network was already present.
     assert reverse.introduced.capabilities == frozenset({RiskCategory.FILESYSTEM_ACCESS})
+
+
+def test_identical_skill_with_crlf_and_lf_has_no_introduced_capabilities():
+    content = (
+        "---\nname: ghostclaw\ndescription: Architecture review\n---\n"
+        "# Ghostclaw\n\n"
+        "## Ad-hoc Review\n"
+        "```bash\nopenclaw sessions_spawn --agentId ghostclaw --task review\n```\n"
+        "## Background Watcher\n"
+        "```bash\nopenclaw cron schedule --interval daily\n```\n"
+        "- Direct DB calls in service layer (Flow broken)\n"
+        "Service layer is reaching into controllers (ControllerGhost detected).\n"
+    )
+    base_text = content.replace("\n", "\r\n")
+    analyzer = SkillAnalyzer()
+    base = analyzer.scan(base_text, source_id="1580781")
+    derived = analyzer.scan(content, source_id="1549970")
+    comparison = compare_results(base, derived)
+
+    assert base.rule_counts() == derived.rule_counts() == {"CMD-001": 2}
+    assert base.profile == derived.profile
+    assert comparison.rule_deltas == ()
+    assert comparison.rule_match_delta == 0
+    assert not comparison.introduced.capabilities
+    assert comparison.evidence_added == comparison.evidence_removed == ()
+    for source, result in [(base_text, base), (content, derived)]:
+        for match in result.rule_matches:
+            assert source[match.start_offset:match.end_offset] == match.matched_text

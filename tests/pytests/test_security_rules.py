@@ -125,3 +125,35 @@ def test_file_read_viewers_require_file_shaped_arguments_not_ordinary_prose():
     assert actual.rule_counts()["FS-003"] == 3
     assert any(e.raw_text == "less ~/.ssh/id_rsa" and "FS-003" in e.rule_ids
                for e in actual.evidence)
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_shell_code_fences_match_regardless_of_line_endings(newline):
+    text = newline.join(["# Example", "```bash", "echo hello", "```", ""])
+    matches = RULES["CMD-001"].evaluate(text)
+
+    assert len(matches) == 1
+    assert matches[0].line_number == 2
+    assert matches[0].matched_text == "```bash"
+    assert text[matches[0].start_offset:matches[0].end_offset] == "```bash"
+
+
+@pytest.mark.parametrize("command", [
+    "service nginx restart",
+    "service ssh start",
+    "service networking stop",
+    "service nginx reload",
+    "service nginx force-reload",
+])
+def test_service_modification_requires_service_name_and_action(command):
+    assert len(RULES["SYS-002"].evaluate(command)) == 1
+
+
+@pytest.mark.parametrize("text", [
+    "- Direct DB calls in service layer (Flow broken)",
+    "Service layer is reaching into controllers (ControllerGhost detected).",
+    "Service health is a measure of application behavior.",
+    "service nginx status",
+])
+def test_service_prose_and_read_only_status_are_not_system_modifications(text):
+    assert RULES["SYS-002"].evaluate(text) == ()
