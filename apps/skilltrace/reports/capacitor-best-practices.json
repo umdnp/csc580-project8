@@ -31,6 +31,30 @@
     }
   },
   "family": {
+    "artifact_ids": [
+      2627824,
+      2630854,
+      2630982
+    ],
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "undirected_edge_count": 0,
+    "equivalent_edge_count": 0,
+    "within_group_equivalent_edge_count": 0,
+    "across_group_equivalent_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    },
     "clusters": [
       {
         "cluster": 1,
@@ -95,10 +119,165 @@
               ],
               "same_artifact_group": true
             }
-          ]
-        }
+          ],
+          "directed_edge_count": 2,
+          "within_group_directed_edge_count": 2,
+          "across_group_directed_edge_count": 0,
+          "undirected_edge_count": 0,
+          "equivalent_edge_count": 0,
+          "within_group_equivalent_edge_count": 0,
+          "across_group_equivalent_edge_count": 0,
+          "ambiguous_edge_count": 0,
+          "within_group_ambiguous_edge_count": 0,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 1,
+            "siblings-only": 0,
+            "skill+siblings": 1,
+            "equivalent": 0,
+            "unknown": 0
+          }
+        },
+        "skill_variant_count": 3,
+        "bundle_variant_count": 3,
+        "file_shas": [
+          "7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+          "83b4cd4f10d581081bf8334b838a382da6f2949b",
+          "97db41d8885a5ebf43274e7d119ebc5e65e16c21"
+        ]
       }
     ]
   },
-  "chronology_proxies": []
+  "chronology_proxies": [],
+  "similarities": [
+    {
+      "left_file_sha": "7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+      "right_file_sha": "83b4cd4f10d581081bf8334b838a382da6f2949b",
+      "left_to_right_containment": 0.9945054945054945,
+      "right_to_left_containment": 0.9955995599559956,
+      "jaccard": 0.9901531728665208,
+      "shared_shingles": 905,
+      "left_shingles": 910,
+      "right_shingles": 909,
+      "left_artifact_ids": [
+        2630982
+      ],
+      "right_artifact_ids": [
+        2630854
+      ],
+      "left_representative_artifact_id": 2630982,
+      "right_representative_artifact_id": 2630854,
+      "shared_group_ids": [
+        465490
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+      "right_file_sha": "97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+      "left_to_right_containment": 0.9615384615384616,
+      "right_to_left_containment": 0.9625962596259626,
+      "jaccard": 0.926906779661017,
+      "shared_shingles": 875,
+      "left_shingles": 910,
+      "right_shingles": 909,
+      "left_artifact_ids": [
+        2630982
+      ],
+      "right_artifact_ids": [
+        2627824
+      ],
+      "left_representative_artifact_id": 2630982,
+      "right_representative_artifact_id": 2627824,
+      "shared_group_ids": [
+        465490
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "83b4cd4f10d581081bf8334b838a382da6f2949b",
+      "right_file_sha": "97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+      "left_to_right_containment": 0.966996699669967,
+      "right_to_left_containment": 0.966996699669967,
+      "jaccard": 0.9361022364217252,
+      "shared_shingles": 879,
+      "left_shingles": 909,
+      "right_shingles": 909,
+      "left_artifact_ids": [
+        2630854
+      ],
+      "right_artifact_ids": [
+        2627824
+      ],
+      "left_representative_artifact_id": 2630854,
+      "right_representative_artifact_id": 2627824,
+      "shared_group_ids": [
+        465490
+      ],
+      "same_artifact_group": true
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 2627824,
+      "group_id": 465490,
+      "repo_id": 7771,
+      "repo_full_name": "SufficientDaikon/archon",
+      "path": "skills/capacitor-best-practices/SKILL.md",
+      "file_sha": "97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-24T23:52:03Z",
+      "repo_created_at": "2026-03-08T18:12:46Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "61f1605e24d293234d6d8a259c99d25a2f1edd9acfe634f16538ae28dc7dbcd4"
+    },
+    {
+      "artifact_id": 2630854,
+      "group_id": 465490,
+      "repo_id": 1772,
+      "repo_full_name": "Peter-code-bot/PROJECT-VICINO",
+      "path": ".claude/skills/capacitor-best-practices/SKILL.md",
+      "file_sha": "83b4cd4f10d581081bf8334b838a382da6f2949b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-12T06:01:57Z",
+      "repo_created_at": "2026-03-27T22:02:40Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2630982,
+      "group_id": 465490,
+      "repo_id": 1790,
+      "repo_full_name": "Bigdrops/bigdrops-app",
+      "path": ".claude/skills/capacitor-best-practices/SKILL.md",
+      "file_sha": "7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-04T21:44:02Z",
+      "repo_created_at": "2026-03-01T13:41:55Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
 }

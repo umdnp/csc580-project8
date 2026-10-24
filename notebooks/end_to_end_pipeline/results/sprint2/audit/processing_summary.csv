@@ -1,0 +1,10 @@
+family,artifacts_loaded,artifacts_skipped,pairs_analyzed,pairs_incomplete,ambiguous_edges_skipped,source_fingerprint
+003-create-golang-project,4,0,1,0,3,54a93d167440a42d85a7e2853c9b22becd78f184013f981f66600b8eee6499cc
+1k-defi-module-integration,4,0,3,0,0,b599b08d09e3e7634877c935298e02456416ae33d13998db761c55a6af153937
+A/B Test Setup,2,0,0,0,0,f3fd6b736b19291fc9dda45b7cdd5bfda3974220e5b554dab669c9616cc5036d
+argent-react-native-app-workflow,5,0,4,0,6,a05961ee9160bfa0d5017cbbf9353c32c83de9d4852c8de1d72592169da8bd46
+busybox-on-windows,26,0,174,0,40,1006c554bf765694fd7e6b198d9c1ce2e08ba797ca4450d1812d24fda8402c14
+capacitor-best-practices,3,0,3,2,0,69879c938ccaeb132b5f4deb9cd95289a454f0dae0e55fd946a1a8c5dd23d3e9
+cometchat-core,5,0,7,0,2,1fc9d4366620c8399a03ca7e45af8b0798975202866388768ebd54584fedde8c
+databricks-upgrade-migration,5,0,0,0,3,2f945b05a74b78abe5bfd06d009d89dbec2aee27b7f93169c67b36fa79b5ab4e
+legacy-migration-planner,5,0,9,0,0,266d6523852fe84351ebea55e2563a660ef4fd92bfe07ddda4bf5333d2a18985
