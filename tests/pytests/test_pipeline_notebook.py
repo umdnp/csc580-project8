@@ -14,6 +14,15 @@ NOTEBOOK = ROOT / "notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb"
 BODY = "Read and document the available source project configuration. " * 18
 
 
+def assignment_cell(cells, name):
+    matches = [(index, node) for index, source in enumerate(cells)
+               for node in ast.parse(source).body if isinstance(node, ast.Assign)
+               and any(isinstance(target, ast.Name) and target.id == name
+                       for target in node.targets)]
+    assert len(matches) == 1, f"Expected one notebook assignment for {name}"
+    return matches[0]
+
+
 @pytest.fixture
 def notebook_workspace(tmp_path, monkeypatch):
     # Notebook output paths are derived from PROJECT_ROOT. Run in a synthetic
@@ -25,18 +34,20 @@ def notebook_workspace(tmp_path, monkeypatch):
     cells = ["".join(cell["source"]) for cell in json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
              if cell["cell_type"] == "code"]
     # Use the actual default cohort rather than replacing the notebook's setup.
-    assignments = [node for node in ast.parse(cells[1]).body if isinstance(node, ast.Assign)
-                   and any(isinstance(target, ast.Name) and target.id == "candidate_families"
-                           for target in node.targets)]
-    assert len(assignments) == 1
-    names = ast.literal_eval(assignments[0].value)
+    _, assignment = assignment_cell(cells, "candidate_families")
+    names = ast.literal_eval(assignment.value)
     assert len(names) >= 3, "Fixture needs positive, negative, and direction-unknown families"
     database = tmp_path / "source.duckdb"
     monkeypatch.setenv("GITSKILLS_DB", str(database))
     monkeypatch.chdir(notebook_directory)
     displayed = []
     namespace = {"display": displayed.append}
-    return project, database, cells, names, namespace, displayed
+    try:
+        yield project, database, cells, names, namespace, displayed
+    finally:
+        # The current notebook also retains an interactive read-only connection.
+        if "conn" in namespace:
+            namespace["conn"].close()
 
 
 def run_cell(cells, index, namespace):
@@ -153,8 +164,8 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
     scan_bytes = {Path(record["scan_report"]): Path(record["scan_report"]).read_bytes() for record in namespace["runs"]}
     # Reuse the same notebook namespace just as a user rerunning the analysis and
     # summary cells would; the same seed and cohort must preserve these outputs.
-    run_cell(cells, 2, namespace)
-    run_cell(cells, 3, namespace)
+    run_cell(cells, assignment_cell(cells, "runs")[0], namespace)
+    run_cell(cells, assignment_cell(cells, "execution")[0], namespace)
     assert all(not record["family_report_updated"] for record in namespace["runs"])
     assert {path: path.read_bytes() for path in templates} == template_bytes
     assert {path: path.read_bytes() for path in scan_bytes} == scan_bytes
@@ -166,6 +177,7 @@ def test_notebook_rejects_unprepared_database_before_writing_reports(notebook_wo
     with duckdb.connect(str(database)):
         pass
     with pytest.raises(RuntimeError, match="missing tables"):
-        run_cell(cells, 0, namespace)
+        for index in range(len(cells)):
+            run_cell(cells, index, namespace)
     assert not (project / "apps/skilltrace/reports").exists()
     assert not (project / "notebooks/end_to_end_pipeline/results").exists()

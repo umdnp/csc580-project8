@@ -1,0 +1,150 @@
+{
+  "report_type": "gitskills-family-scan",
+  "candidate_family": "databricks-upgrade-migration",
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "edge_selection": "all",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "active_rules": [
+    {
+      "rule_id": "CMD-001",
+      "category": "command_execution",
+      "description": "Shell command block detected"
+    },
+    {
+      "rule_id": "CMD-002",
+      "category": "command_execution",
+      "description": "Command invocation detected"
+    },
+    {
+      "rule_id": "CRED-001",
+      "category": "credential_access",
+      "description": "Credential or secret reference detected"
+    },
+    {
+      "rule_id": "CRED-002",
+      "category": "credential_access",
+      "description": "Credential file reference detected"
+    },
+    {
+      "rule_id": "EXT-001",
+      "category": "external_code_execution",
+      "description": "Downloaded content is piped to a shell interpreter"
+    },
+    {
+      "rule_id": "EXT-002",
+      "category": "external_code_execution",
+      "description": "External package installation detected"
+    },
+    {
+      "rule_id": "FS-001",
+      "category": "filesystem_access",
+      "description": "File-system command detected"
+    },
+    {
+      "rule_id": "FS-002",
+      "category": "filesystem_access",
+      "description": "File-writing API detected"
+    },
+    {
+      "rule_id": "FS-003",
+      "category": "filesystem_access",
+      "description": "File-reading command or API detected"
+    },
+    {
+      "rule_id": "NET-001",
+      "category": "network_access",
+      "description": "HTTP or HTTPS URL detected"
+    },
+    {
+      "rule_id": "NET-002",
+      "category": "network_access",
+      "description": "Network client usage detected"
+    },
+    {
+      "rule_id": "SYS-001",
+      "category": "system_modification",
+      "description": "Privilege-elevation command detected"
+    },
+    {
+      "rule_id": "SYS-002",
+      "category": "system_modification",
+      "description": "System modification command detected"
+    }
+  ],
+  "summary": {
+    "pairs_analyzed": 0,
+    "edge_type_counts": {},
+    "pairs_flagged": 0,
+    "pairs_incomplete": 0,
+    "pairs_evidence_coverage_incomplete": 0,
+    "pairs_with_evidence_changes": 0,
+    "pairs_with_indicators": 0,
+    "indicator_frequency": {},
+    "indicator_count": 0,
+    "finding_count": 0,
+    "direction_basis": {},
+    "ambiguous_edges_skipped": 3,
+    "clusters_analyzed": 0
+  },
+  "clusters": [],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "input_artifacts": [
+    {
+      "artifact_id": 2449887,
+      "group_id": 437527,
+      "repo_full_name": "ComeOnOliver/skillshub",
+      "path": "skills/jeremylongshore/claude-code-plugins-plus-skills/databricks-upgrade-migration/SKILL.md",
+      "file_sha": "107f798fcab1f2abc876872572a3d9ba248f695a",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2450269,
+      "group_id": 437527,
+      "repo_full_name": "jukeyman/jukeyman-skills",
+      "path": "skills/saas-packs--databricks-pack--databricks-upgrade-migration/SKILL.md",
+      "file_sha": "e207a66d907506bd28e34f016bcf03625d2b7e73",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2457192,
+      "group_id": 437527,
+      "repo_full_name": "flight505/skill-forge",
+      "path": "plugins/saas-packs/databricks-pack/skills/databricks-upgrade-migration/SKILL.md",
+      "file_sha": "2d8a202ecd04369690fd31ec8188949ec096fccd",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "4e04e7a3d1c01ecd4a1b5a3f8131c330f793a81af3ca86208cbb46ace16e96d8"
+    },
+    {
+      "artifact_id": 2609593,
+      "group_id": 437527,
+      "repo_full_name": "Dicklesworthstone/pi_agent_rust",
+      "path": "tests/ext_conformance/artifacts/plugins-community/plugins/saas-packs/databricks-pack/skills/databricks-upgrade-migration/SKILL.md",
+      "file_sha": "d4887c6b0d8ffce5faf13816cd45554dff22b640",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2616525,
+      "group_id": 437527,
+      "repo_full_name": "nickloveinvesting/nick-love-plugins",
+      "path": "plugins/databricks-pack/skills/databricks-upgrade-migration/SKILL.md",
+      "file_sha": "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
+}

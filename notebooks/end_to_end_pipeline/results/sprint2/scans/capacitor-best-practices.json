@@ -1,0 +1,1168 @@
+{
+  "report_type": "gitskills-family-scan",
+  "candidate_family": "capacitor-best-practices",
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "edge_selection": "all",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "active_rules": [
+    {
+      "rule_id": "CMD-001",
+      "category": "command_execution",
+      "description": "Shell command block detected"
+    },
+    {
+      "rule_id": "CMD-002",
+      "category": "command_execution",
+      "description": "Command invocation detected"
+    },
+    {
+      "rule_id": "CRED-001",
+      "category": "credential_access",
+      "description": "Credential or secret reference detected"
+    },
+    {
+      "rule_id": "CRED-002",
+      "category": "credential_access",
+      "description": "Credential file reference detected"
+    },
+    {
+      "rule_id": "EXT-001",
+      "category": "external_code_execution",
+      "description": "Downloaded content is piped to a shell interpreter"
+    },
+    {
+      "rule_id": "EXT-002",
+      "category": "external_code_execution",
+      "description": "External package installation detected"
+    },
+    {
+      "rule_id": "FS-001",
+      "category": "filesystem_access",
+      "description": "File-system command detected"
+    },
+    {
+      "rule_id": "FS-002",
+      "category": "filesystem_access",
+      "description": "File-writing API detected"
+    },
+    {
+      "rule_id": "FS-003",
+      "category": "filesystem_access",
+      "description": "File-reading command or API detected"
+    },
+    {
+      "rule_id": "NET-001",
+      "category": "network_access",
+      "description": "HTTP or HTTPS URL detected"
+    },
+    {
+      "rule_id": "NET-002",
+      "category": "network_access",
+      "description": "Network client usage detected"
+    },
+    {
+      "rule_id": "SYS-001",
+      "category": "system_modification",
+      "description": "Privilege-elevation command detected"
+    },
+    {
+      "rule_id": "SYS-002",
+      "category": "system_modification",
+      "description": "System modification command detected"
+    }
+  ],
+  "summary": {
+    "pairs_analyzed": 3,
+    "edge_type_counts": {
+      "additional": 1,
+      "primary": 2
+    },
+    "pairs_flagged": 2,
+    "pairs_incomplete": 2,
+    "pairs_evidence_coverage_incomplete": 2,
+    "pairs_with_evidence_changes": 2,
+    "pairs_with_indicators": 2,
+    "indicator_frequency": {
+      "RI-005": 2
+    },
+    "indicator_count": 1,
+    "finding_count": 8,
+    "direction_basis": {
+      "chronology": {
+        "pairs_analyzed": 3,
+        "flagged_pairs": 2,
+        "pairs_with_indicators": 2
+      }
+    },
+    "ambiguous_edges_skipped": 0,
+    "clusters_analyzed": 1
+  },
+  "clusters": [
+    {
+      "cluster": 1,
+      "pairs_analyzed": 3,
+      "edge_type_counts": {
+        "additional": 1,
+        "primary": 2
+      },
+      "pairs_flagged": 2,
+      "pairs_incomplete": 2,
+      "pairs_with_evidence_changes": 2,
+      "pairs_with_indicators": 2,
+      "indicator_frequency": {
+        "RI-005": 2
+      },
+      "direction_basis_counts": {
+        "chronology": 3
+      },
+      "pair_observations": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 2627824,
+          "destination_artifact_id": 2630854,
+          "direction_basis": "chronology",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 6,
+              "removed": 4
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [
+            "RI-005"
+          ],
+          "uncertain_indicator_ids": [],
+          "finding_count": 4,
+          "coverage": {
+            "status": "incomplete",
+            "evidence_records": {
+              "total": 32,
+              "complete": 32,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 4,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 2630854,
+          "destination_artifact_id": 2630982,
+          "direction_basis": "chronology",
+          "change_type": "skill-only",
+          "flagged": false,
+          "rule_flagged": false,
+          "evidence_comparison": {
+            "skill": {
+              "added": 0,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 34,
+              "complete": 34,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 2627824,
+          "destination_artifact_id": 2630982,
+          "direction_basis": "chronology",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 6,
+              "removed": 4
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [
+            "RI-005"
+          ],
+          "uncertain_indicator_ids": [],
+          "finding_count": 4,
+          "coverage": {
+            "status": "incomplete",
+            "evidence_records": {
+              "total": 32,
+              "complete": 32,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 4,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        }
+      ],
+      "flagged_pairs": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 2627824,
+          "destination_artifact_id": 2630854,
+          "direction_basis": "chronology",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "CMD-002",
+              "category": "command_execution",
+              "description": "Command invocation detected",
+              "surface": "skill",
+              "source": 4,
+              "destination": 6,
+              "delta": 2,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 2630854
+                }
+              ]
+            },
+            {
+              "rule_id": "EXT-002",
+              "category": "external_code_execution",
+              "description": "External package installation detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 4,
+              "delta": 4,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 2630854
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 1726,
+                    "end_offset": 1778
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capacitor/core@latest @capacitor/cli@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 1779,
+                    "end_offset": 1834
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capacitor/ios@latest @capacitor/android@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 1933,
+                    "end_offset": 1974
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capgo/capacitor-native-biometric"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 2143,
+                    "end_offset": 2184
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capgo/capacitor-native-biometric"
+                }
+              ],
+              "added": [
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                    "start_offset": 1726,
+                    "end_offset": 1782
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capacitor/core@latest @capacitor/cli@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                    "start_offset": 1783,
+                    "end_offset": 1842
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capacitor/ios@latest @capacitor/android@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                    "start_offset": 1843,
+                    "end_offset": 1855
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npx cap sync"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                    "start_offset": 1940,
+                    "end_offset": 1985
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capgo/capacitor-native-biometric"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                    "start_offset": 2013,
+                    "end_offset": 2025
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npx cap sync"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                    "start_offset": 2153,
+                    "end_offset": 2198
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capgo/capacitor-native-biometric"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": []
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 1,
+            "finding_count": 4,
+            "indicators": [
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                        "start_offset": 1726,
+                        "end_offset": 1782
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "CRITICAL: Always Use Latest Capacitor"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capacitor/core@latest @capacitor/cli@latest"
+                    }
+                  ],
+                  "removed": []
+                }
+              },
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                        "start_offset": 1783,
+                        "end_offset": 1842
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "CRITICAL: Always Use Latest Capacitor"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capacitor/ios@latest @capacitor/android@latest"
+                    }
+                  ],
+                  "removed": []
+                }
+              },
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                        "start_offset": 1940,
+                        "end_offset": 1985
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "Plugin Installation Pattern"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capgo/capacitor-native-biometric"
+                    }
+                  ],
+                  "removed": []
+                }
+              },
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:83b4cd4f10d581081bf8334b838a382da6f2949b",
+                        "start_offset": 2153,
+                        "end_offset": 2198
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "Plugin Installation Pattern"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capgo/capacitor-native-biometric"
+                    }
+                  ],
+                  "removed": []
+                }
+              }
+            ],
+            "uncertain": [],
+            "coverage": {
+              "status": "incomplete",
+              "notes": [
+                "Unavailable or unknown sibling data"
+              ],
+              "evidence_records": {
+                "total": 32,
+                "complete": 32,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 4,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 5,
+            "destination_files": 0,
+            "new_or_changed_destination_ids": [],
+            "recorded_base_only_paths": [
+              "examples/.gitkeep",
+              "manifest.yaml",
+              "overrides/.gitkeep",
+              "resources/.gitkeep",
+              "tests/cases/.gitkeep"
+            ],
+            "recorded_derived_only_paths": [],
+            "unavailable_source_ids": [
+              4264610,
+              4264613,
+              4264615,
+              4264618
+            ],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": true,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 2627824,
+          "destination_artifact_id": 2630982,
+          "direction_basis": "chronology",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "CMD-002",
+              "category": "command_execution",
+              "description": "Command invocation detected",
+              "surface": "skill",
+              "source": 4,
+              "destination": 6,
+              "delta": 2,
+              "newly_present": false,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 2630982
+                }
+              ]
+            },
+            {
+              "rule_id": "EXT-002",
+              "category": "external_code_execution",
+              "description": "External package installation detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 4,
+              "delta": 4,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 2630982
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 1726,
+                    "end_offset": 1778
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capacitor/core@latest @capacitor/cli@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 1779,
+                    "end_offset": 1834
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capacitor/ios@latest @capacitor/android@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 1933,
+                    "end_offset": 1974
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capgo/capacitor-native-biometric"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+                    "start_offset": 2143,
+                    "end_offset": 2184
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "bun add @capgo/capacitor-native-biometric"
+                }
+              ],
+              "added": [
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                    "start_offset": 1730,
+                    "end_offset": 1786
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capacitor/core@latest @capacitor/cli@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                    "start_offset": 1787,
+                    "end_offset": 1846
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capacitor/ios@latest @capacitor/android@latest"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                    "start_offset": 1847,
+                    "end_offset": 1859
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "CRITICAL: Always Use Latest Capacitor"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npx cap sync"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                    "start_offset": 1944,
+                    "end_offset": 1989
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capgo/capacitor-native-biometric"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                    "start_offset": 2017,
+                    "end_offset": 2029
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npx cap sync"
+                },
+                {
+                  "type": "shell_command",
+                  "rule_ids": [
+                    "CMD-002",
+                    "EXT-002"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                    "start_offset": 2157,
+                    "end_offset": 2202
+                  },
+                  "context": {
+                    "type": "code_block",
+                    "language": "bash",
+                    "heading": "Plugin Installation Pattern"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "npm install @capgo/capacitor-native-biometric"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": []
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 1,
+            "finding_count": 4,
+            "indicators": [
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                        "start_offset": 1730,
+                        "end_offset": 1786
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "CRITICAL: Always Use Latest Capacitor"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capacitor/core@latest @capacitor/cli@latest"
+                    }
+                  ],
+                  "removed": []
+                }
+              },
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                        "start_offset": 1787,
+                        "end_offset": 1846
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "CRITICAL: Always Use Latest Capacitor"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capacitor/ios@latest @capacitor/android@latest"
+                    }
+                  ],
+                  "removed": []
+                }
+              },
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                        "start_offset": 1944,
+                        "end_offset": 1989
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "Plugin Installation Pattern"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capgo/capacitor-native-biometric"
+                    }
+                  ],
+                  "removed": []
+                }
+              },
+              {
+                "id": "RI-005",
+                "reason": "External package installation introduced",
+                "evidence": {
+                  "added": [
+                    {
+                      "type": "shell_command",
+                      "rule_ids": [
+                        "CMD-002",
+                        "EXT-002"
+                      ],
+                      "source": {
+                        "filename": "SKILL.md",
+                        "source_id": "skill_sha:7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+                        "start_offset": 2157,
+                        "end_offset": 2202
+                      },
+                      "context": {
+                        "type": "code_block",
+                        "language": "bash",
+                        "heading": "Plugin Installation Pattern"
+                      },
+                      "extraction_status": "complete",
+                      "excerpt": "npm install @capgo/capacitor-native-biometric"
+                    }
+                  ],
+                  "removed": []
+                }
+              }
+            ],
+            "uncertain": [],
+            "coverage": {
+              "status": "incomplete",
+              "notes": [
+                "Unavailable or unknown sibling data"
+              ],
+              "evidence_records": {
+                "total": 32,
+                "complete": 32,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 4,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 5,
+            "destination_files": 0,
+            "new_or_changed_destination_ids": [],
+            "recorded_base_only_paths": [
+              "examples/.gitkeep",
+              "manifest.yaml",
+              "overrides/.gitkeep",
+              "resources/.gitkeep",
+              "tests/cases/.gitkeep"
+            ],
+            "recorded_derived_only_paths": [],
+            "unavailable_source_ids": [
+              4264610,
+              4264613,
+              4264615,
+              4264618
+            ],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": true,
+            "listing_incomplete": false
+          }
+        }
+      ],
+      "incomplete_pairs": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 2627824,
+          "destination_artifact_id": 2630854,
+          "change_type": "skill+siblings",
+          "direction_basis": "chronology",
+          "sibling_scan": {
+            "source_files": 5,
+            "destination_files": 0,
+            "new_or_changed_destination_ids": [],
+            "recorded_base_only_paths": [
+              "examples/.gitkeep",
+              "manifest.yaml",
+              "overrides/.gitkeep",
+              "resources/.gitkeep",
+              "tests/cases/.gitkeep"
+            ],
+            "recorded_derived_only_paths": [],
+            "unavailable_source_ids": [
+              4264610,
+              4264613,
+              4264615,
+              4264618
+            ],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": true,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 2627824,
+          "destination_artifact_id": 2630982,
+          "change_type": "skill+siblings",
+          "direction_basis": "chronology",
+          "sibling_scan": {
+            "source_files": 5,
+            "destination_files": 0,
+            "new_or_changed_destination_ids": [],
+            "recorded_base_only_paths": [
+              "examples/.gitkeep",
+              "manifest.yaml",
+              "overrides/.gitkeep",
+              "resources/.gitkeep",
+              "tests/cases/.gitkeep"
+            ],
+            "recorded_derived_only_paths": [],
+            "unavailable_source_ids": [
+              4264610,
+              4264613,
+              4264615,
+              4264618
+            ],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": true,
+            "listing_incomplete": false
+          }
+        }
+      ]
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "input_artifacts": [
+    {
+      "artifact_id": 2627824,
+      "group_id": 465490,
+      "repo_full_name": "SufficientDaikon/archon",
+      "path": "skills/capacitor-best-practices/SKILL.md",
+      "file_sha": "97db41d8885a5ebf43274e7d119ebc5e65e16c21",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "61f1605e24d293234d6d8a259c99d25a2f1edd9acfe634f16538ae28dc7dbcd4"
+    },
+    {
+      "artifact_id": 2630854,
+      "group_id": 465490,
+      "repo_full_name": "Peter-code-bot/PROJECT-VICINO",
+      "path": ".claude/skills/capacitor-best-practices/SKILL.md",
+      "file_sha": "83b4cd4f10d581081bf8334b838a382da6f2949b",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2630982,
+      "group_id": 465490,
+      "repo_full_name": "Bigdrops/bigdrops-app",
+      "path": ".claude/skills/capacitor-best-practices/SKILL.md",
+      "file_sha": "7d0d1858bdf8144f262003d2e82b42202c3e1fab",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
+}

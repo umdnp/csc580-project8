@@ -7,7 +7,7 @@ This document describes the project command-line tools and the options most deve
 | Tool | Purpose |
 |---|---|
 | [`scan_diff`](#scan_diff) | Compare two skill files and report changes in security-sensitive behavior. |
-| [`analyze_family`](#analyze_family) | Analyze similarity, clusters, chronology, and inferred relationships within one candidate family. |
+| [`analyze_family`](#analyze_family) | Analyze similarity, clusters, chronology, and inferred relationships for one candidate family or a batch of families. |
 | [`scan_family`](#scan_family) | Scan one candidate family or a list of families for security-sensitive evidence changes and risk indicators; optionally benchmark scans. |
 | [`summarize_scans`](#summarize_scans) | Aggregate family scan JSON into research statistics, figures, and optional manual-validation samples. |
 | [`family_picker`](#family_picker) | Interactively browse candidate families and run [`analyze_family`](#analyze_family). |
@@ -142,7 +142,7 @@ A positive rule delta means the derived file contains more matches for that rule
 
 ### Purpose
 
-`analyze_family` performs similarity and inferred-evolution analysis for one GitSkills **candidate family**. A candidate family contains qualifying artifacts with the same exact skill `name` in `artifact_groupings`.
+`analyze_family` performs similarity and inferred-evolution analysis for one or more GitSkills **candidate families**. A candidate family contains qualifying artifacts with the same exact skill `name` in `artifact_groupings`.
 
 The tool compares `SKILL.md` bodies, forms similarity clusters, identifies selected predecessor relationships when direction is supported, and preserves equivalent or direction-unknown relationships separately. It does **not** run the security scanner.
 
@@ -150,13 +150,18 @@ The tool compares `SKILL.md` bodies, forms similarity clusters, identifies selec
 
 ```bash
 analyze_family NAME [OPTIONS]
+analyze_family --input FILE --output DIR [OPTIONS]
 ```
+
+Supply either `NAME` or `--input FILE`, not both.
 
 ### Arguments
 
 | Argument | Required | Description |
 |---|---:|---|
-| `NAME` | Yes | Exact candidate-family skill name, such as `busybox-on-windows`. |
+| `NAME` | Single-family mode | Exact candidate-family skill name, such as `busybox-on-windows`. |
+| `--input FILE` | Batch mode | UTF-8 file with one exact candidate-family name per line; blank lines and `#` comments are ignored. Requires `--output`. |
+| `--limit N` | No | With `--input`, process only the first `N` family names (`N` must be positive). |
 
 ### Options
 
@@ -242,7 +247,9 @@ The default JSON is a complete shared report for SkillTrace and research samplin
 
 `--verbose` adds supplementary diagnostic data such as artifact groups, skill and bundle variants, and expanded provenance fields.
 
-When `--output` is used, the report is written as `<NAME>.json`. The normal human-readable report is still printed unless `--json` is also used.
+When `--output` is used, each report is saved under a Windows-safe filename derived from the exact family name. Single-family mode prints the human-readable report unless `--json` is also used.
+
+Batch mode writes one JSON report per family and prints per-family progress instead of full reports, even with `--json`. As with `scan_family`, batch output must use a fresh directory without existing JSON reports or benchmark files, and duplicate input names are rejected. Individual failures are reported without preventing later families from running; the command exits with status `1` if any family fails.
 
 ### Examples
 
@@ -262,6 +269,18 @@ analyze_family busybox-on-windows --json --verbose
 analyze_family busybox-on-windows --min-containment 0.90 --min-jaccard 0.50
 ```
 
+**Analyze a pinned family list:**
+
+```bash
+analyze_family --input data/validation/families.txt --output output/family-reports
+```
+
+**Analyze only the first five families:**
+
+```bash
+analyze_family --input data/validation/families.txt --limit 5 --output output/family-pilot
+```
+
 ### Important Notes
 
 - Root candidates are bundle variants with no selected incoming edge; they are not verified originals.
@@ -276,7 +295,7 @@ analyze_family busybox-on-windows --min-containment 0.90 --min-jaccard 0.50
 |---:|---|
 | `0` | Analysis completed successfully. |
 | `1` | Family lookup, database access, analysis, or output writing failed. |
-| `2` | Database path, command-line, or output-directory setup failed. |
+| `2` | Database path, batch-input validation, command-line, or output-directory setup failed. |
 
 ---
 
