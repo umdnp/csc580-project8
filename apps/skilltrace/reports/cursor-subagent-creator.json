@@ -1,0 +1,592 @@
+{
+  "name": "cursor-subagent-creator",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 3,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 1,
+    "related_skill_pair_count": 10,
+    "within_group_related_pair_count": 2,
+    "across_group_related_pair_count": 8,
+    "directed_edge_count": 3,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 1,
+      "skill+siblings": 2,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "artifact_ids": [
+      3323843,
+      3324967,
+      3347921,
+      3509100,
+      3517041
+    ],
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "directed_edge_count": 3,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 2,
+    "undirected_edge_count": 1,
+    "equivalent_edge_count": 1,
+    "within_group_equivalent_edge_count": 1,
+    "across_group_equivalent_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 1,
+      "skill+siblings": 2,
+      "equivalent": 0,
+      "unknown": 0
+    },
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3323843,
+          3324967,
+          3347921,
+          3509100,
+          3517041
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3323843,
+            3324967
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3323843,
+              "target_artifact_id": 3347921,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 2205,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3323843,
+              "target_artifact_id": 3509100,
+              "basis": "repo-created-boundary",
+              "containment": 0.9596371882086168,
+              "jaccard": 0.6668767727702489,
+              "shared_shingles": 2116,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3509100,
+              "target_artifact_id": 3517041,
+              "basis": "declared-source",
+              "containment": 0.99189364461738,
+              "jaccard": 0.9855025773195877,
+              "shared_shingles": 3059,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "derived_from",
+                "upstream_skill",
+                "source_repo"
+              ],
+              "shared_group_ids": [
+                17639
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3324967,
+              "right_artifact_id": 3323843,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 2205,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                351269
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 3323843,
+              "target_artifact_id": 3517041,
+              "basis": "repo-created-boundary",
+              "containment": 0.9596371882086168,
+              "jaccard": 0.6679292929292929,
+              "shared_shingles": 2116,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3324967,
+              "target_artifact_id": 3347921,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 2205,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-02-26T00:23:46Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 3323843
+                }
+              }
+            },
+            {
+              "source_artifact_id": 3324967,
+              "target_artifact_id": 3509100,
+              "basis": "repo-created-boundary",
+              "containment": 0.9596371882086168,
+              "jaccard": 0.6668767727702489,
+              "shared_shingles": 2116,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-02-26T00:23:46Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 3323843
+                }
+              }
+            },
+            {
+              "source_artifact_id": 3324967,
+              "target_artifact_id": 3517041,
+              "basis": "repo-created-boundary",
+              "containment": 0.9596371882086168,
+              "jaccard": 0.6679292929292929,
+              "shared_shingles": 2116,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-02-26T00:23:46Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 3323843
+                }
+              }
+            },
+            {
+              "source_artifact_id": 3347921,
+              "target_artifact_id": 3509100,
+              "basis": "containment",
+              "containment": 0.9596371882086168,
+              "jaccard": 0.6668767727702489,
+              "shared_shingles": 2116,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3347921,
+              "target_artifact_id": 3517041,
+              "basis": "containment",
+              "containment": 0.9596371882086168,
+              "jaccard": 0.6679292929292929,
+              "shared_shingles": 2116,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "directed_edge_count": 3,
+          "within_group_directed_edge_count": 1,
+          "across_group_directed_edge_count": 2,
+          "undirected_edge_count": 1,
+          "equivalent_edge_count": 1,
+          "within_group_equivalent_edge_count": 1,
+          "across_group_equivalent_edge_count": 0,
+          "ambiguous_edge_count": 0,
+          "within_group_ambiguous_edge_count": 0,
+          "across_group_ambiguous_edge_count": 0,
+          "change_counts": {
+            "skill-only": 0,
+            "siblings-only": 1,
+            "skill+siblings": 2,
+            "equivalent": 0,
+            "unknown": 0
+          }
+        },
+        "skill_variant_count": 5,
+        "bundle_variant_count": 5,
+        "file_shas": [
+          "038153122ff4267b7c53bf019abc56d5d2c82d48",
+          "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+          "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+          "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+          "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e"
+        ]
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 3324967,
+      "effective_chronology": "2026-02-26T00:23:46Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 3323843
+    }
+  ],
+  "similarities": [
+    {
+      "left_file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+      "right_file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 1.0,
+      "jaccard": 1.0,
+      "shared_shingles": 2205,
+      "left_shingles": 2205,
+      "right_shingles": 2205,
+      "left_artifact_ids": [
+        3347921
+      ],
+      "right_artifact_ids": [
+        3324967
+      ],
+      "left_representative_artifact_id": 3347921,
+      "right_representative_artifact_id": 3324967,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+      "right_file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 1.0,
+      "jaccard": 1.0,
+      "shared_shingles": 2205,
+      "left_shingles": 2205,
+      "right_shingles": 2205,
+      "left_artifact_ids": [
+        3347921
+      ],
+      "right_artifact_ids": [
+        3323843
+      ],
+      "left_representative_artifact_id": 3347921,
+      "right_representative_artifact_id": 3323843,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+      "right_file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+      "left_to_right_containment": 0.9596371882086168,
+      "right_to_left_containment": 0.6861219195849546,
+      "jaccard": 0.6668767727702489,
+      "shared_shingles": 2116,
+      "left_shingles": 2205,
+      "right_shingles": 3084,
+      "left_artifact_ids": [
+        3347921
+      ],
+      "right_artifact_ids": [
+        3509100
+      ],
+      "left_representative_artifact_id": 3347921,
+      "right_representative_artifact_id": 3509100,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+      "right_file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+      "left_to_right_containment": 0.9596371882086168,
+      "right_to_left_containment": 0.6872361156219552,
+      "jaccard": 0.6679292929292929,
+      "shared_shingles": 2116,
+      "left_shingles": 2205,
+      "right_shingles": 3079,
+      "left_artifact_ids": [
+        3347921
+      ],
+      "right_artifact_ids": [
+        3517041
+      ],
+      "left_representative_artifact_id": 3347921,
+      "right_representative_artifact_id": 3517041,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+      "right_file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+      "left_to_right_containment": 1.0,
+      "right_to_left_containment": 1.0,
+      "jaccard": 1.0,
+      "shared_shingles": 2205,
+      "left_shingles": 2205,
+      "right_shingles": 2205,
+      "left_artifact_ids": [
+        3324967
+      ],
+      "right_artifact_ids": [
+        3323843
+      ],
+      "left_representative_artifact_id": 3324967,
+      "right_representative_artifact_id": 3323843,
+      "shared_group_ids": [
+        351269
+      ],
+      "same_artifact_group": true
+    },
+    {
+      "left_file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+      "right_file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+      "left_to_right_containment": 0.9596371882086168,
+      "right_to_left_containment": 0.6861219195849546,
+      "jaccard": 0.6668767727702489,
+      "shared_shingles": 2116,
+      "left_shingles": 2205,
+      "right_shingles": 3084,
+      "left_artifact_ids": [
+        3324967
+      ],
+      "right_artifact_ids": [
+        3509100
+      ],
+      "left_representative_artifact_id": 3324967,
+      "right_representative_artifact_id": 3509100,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+      "right_file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+      "left_to_right_containment": 0.9596371882086168,
+      "right_to_left_containment": 0.6872361156219552,
+      "jaccard": 0.6679292929292929,
+      "shared_shingles": 2116,
+      "left_shingles": 2205,
+      "right_shingles": 3079,
+      "left_artifact_ids": [
+        3324967
+      ],
+      "right_artifact_ids": [
+        3517041
+      ],
+      "left_representative_artifact_id": 3324967,
+      "right_representative_artifact_id": 3517041,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+      "right_file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+      "left_to_right_containment": 0.9596371882086168,
+      "right_to_left_containment": 0.6861219195849546,
+      "jaccard": 0.6668767727702489,
+      "shared_shingles": 2116,
+      "left_shingles": 2205,
+      "right_shingles": 3084,
+      "left_artifact_ids": [
+        3323843
+      ],
+      "right_artifact_ids": [
+        3509100
+      ],
+      "left_representative_artifact_id": 3323843,
+      "right_representative_artifact_id": 3509100,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+      "right_file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+      "left_to_right_containment": 0.9596371882086168,
+      "right_to_left_containment": 0.6872361156219552,
+      "jaccard": 0.6679292929292929,
+      "shared_shingles": 2116,
+      "left_shingles": 2205,
+      "right_shingles": 3079,
+      "left_artifact_ids": [
+        3323843
+      ],
+      "right_artifact_ids": [
+        3517041
+      ],
+      "left_representative_artifact_id": 3323843,
+      "right_representative_artifact_id": 3517041,
+      "shared_group_ids": [],
+      "same_artifact_group": false
+    },
+    {
+      "left_file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+      "right_file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+      "left_to_right_containment": 0.99189364461738,
+      "right_to_left_containment": 0.9935043845404352,
+      "jaccard": 0.9855025773195877,
+      "shared_shingles": 3059,
+      "left_shingles": 3084,
+      "right_shingles": 3079,
+      "left_artifact_ids": [
+        3509100
+      ],
+      "right_artifact_ids": [
+        3517041
+      ],
+      "left_representative_artifact_id": 3509100,
+      "right_representative_artifact_id": 3517041,
+      "shared_group_ids": [
+        17639
+      ],
+      "same_artifact_group": true
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 3323843,
+      "group_id": 351269,
+      "repo_id": 13732,
+      "repo_full_name": "Matheusrlr/payment-orchestrator",
+      "path": "skills-catalog/skills/(creation)/cursor-subagent-creator/SKILL.md",
+      "file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-26T00:23:46Z",
+      "repo_created_at": "2026-02-26T00:23:42Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3324967,
+      "group_id": 351269,
+      "repo_id": 15167,
+      "repo_full_name": "guilhermemarketing/esc-skills",
+      "path": "skills/cursor-subagent-creator/SKILL.md",
+      "file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T13:10:34Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3347921,
+      "group_id": 192008,
+      "repo_id": 17956,
+      "repo_full_name": "DevOficinaBrasil/backend-promotor",
+      "path": ".claude/skills/cursor-subagent-creator/SKILL.md",
+      "file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-16T13:55:50Z",
+      "repo_created_at": "2026-02-10T14:50:49Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "f19280521d49deee627f921d9a039e37a3341b9517bd5acd6eff244bd14b7e7d"
+    },
+    {
+      "artifact_id": 3509100,
+      "group_id": 17639,
+      "repo_id": 83020,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills/cursor-subagent-creator/SKILL.md",
+      "file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T03:02:55Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "24ecc3adbe5cdfdf7a4805185baa7970afa3a796496ec4a542968b09cdcb0aa3"
+    },
+    {
+      "artifact_id": 3517041,
+      "group_id": 17639,
+      "repo_id": 83020,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills_omni/cursor-subagent-creator/SKILL.md",
+      "file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+      "provenance": {
+        "derived_from": "skills/cursor-subagent-creator",
+        "upstream_skill": "skills/cursor-subagent-creator",
+        "source_repo": "diegosouzapw/awesome-omni-skills",
+        "upstream_source": "community"
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T03:02:55Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "e7cdc415823f8452be437bf0bdd8f58d265e41c5e8fb19f7fe0afa78b5c2d33f"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
+}

@@ -1,0 +1,1584 @@
+{
+  "report_type": "gitskills-family-scan",
+  "candidate_family": "cursor-subagent-creator",
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "edge_selection": "all",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "active_rules": [
+    {
+      "rule_id": "CMD-001",
+      "category": "command_execution",
+      "description": "Shell command block detected"
+    },
+    {
+      "rule_id": "CMD-002",
+      "category": "command_execution",
+      "description": "Command invocation detected"
+    },
+    {
+      "rule_id": "CRED-001",
+      "category": "credential_access",
+      "description": "Credential or secret reference detected"
+    },
+    {
+      "rule_id": "CRED-002",
+      "category": "credential_access",
+      "description": "Credential file reference detected"
+    },
+    {
+      "rule_id": "EXT-001",
+      "category": "external_code_execution",
+      "description": "Downloaded content is piped to a shell interpreter"
+    },
+    {
+      "rule_id": "EXT-002",
+      "category": "external_code_execution",
+      "description": "External package installation detected"
+    },
+    {
+      "rule_id": "FS-001",
+      "category": "filesystem_access",
+      "description": "File-system command detected"
+    },
+    {
+      "rule_id": "FS-002",
+      "category": "filesystem_access",
+      "description": "File-writing API detected"
+    },
+    {
+      "rule_id": "FS-003",
+      "category": "filesystem_access",
+      "description": "File-reading command or API detected"
+    },
+    {
+      "rule_id": "NET-001",
+      "category": "network_access",
+      "description": "HTTP or HTTPS URL detected"
+    },
+    {
+      "rule_id": "NET-002",
+      "category": "network_access",
+      "description": "Network client usage detected"
+    },
+    {
+      "rule_id": "SYS-001",
+      "category": "system_modification",
+      "description": "Privilege-elevation command detected"
+    },
+    {
+      "rule_id": "SYS-002",
+      "category": "system_modification",
+      "description": "System modification command detected"
+    }
+  ],
+  "summary": {
+    "pairs_analyzed": 9,
+    "edge_type_counts": {
+      "additional": 6,
+      "primary": 3
+    },
+    "pairs_flagged": 7,
+    "pairs_incomplete": 0,
+    "pairs_evidence_coverage_incomplete": 0,
+    "pairs_with_evidence_changes": 6,
+    "pairs_with_indicators": 0,
+    "indicator_frequency": {},
+    "indicator_count": 0,
+    "finding_count": 0,
+    "direction_basis": {
+      "chronology": {
+        "pairs_analyzed": 1,
+        "flagged_pairs": 0,
+        "pairs_with_indicators": 0
+      },
+      "containment": {
+        "pairs_analyzed": 2,
+        "flagged_pairs": 2,
+        "pairs_with_indicators": 0
+      },
+      "declared-source": {
+        "pairs_analyzed": 1,
+        "flagged_pairs": 1,
+        "pairs_with_indicators": 0
+      },
+      "equivalent-peer-chronology": {
+        "pairs_analyzed": 1,
+        "flagged_pairs": 0,
+        "pairs_with_indicators": 0
+      },
+      "repo-created-boundary": {
+        "pairs_analyzed": 4,
+        "flagged_pairs": 4,
+        "pairs_with_indicators": 0
+      }
+    },
+    "ambiguous_edges_skipped": 0,
+    "clusters_analyzed": 1
+  },
+  "clusters": [
+    {
+      "cluster": 1,
+      "pairs_analyzed": 9,
+      "edge_type_counts": {
+        "additional": 6,
+        "primary": 3
+      },
+      "pairs_flagged": 7,
+      "pairs_incomplete": 0,
+      "pairs_with_evidence_changes": 6,
+      "pairs_with_indicators": 0,
+      "indicator_frequency": {},
+      "direction_basis_counts": {
+        "chronology": 1,
+        "containment": 2,
+        "declared-source": 1,
+        "equivalent-peer-chronology": 1,
+        "repo-created-boundary": 4
+      },
+      "pair_observations": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3323843,
+          "destination_artifact_id": 3347921,
+          "direction_basis": "chronology",
+          "change_type": "siblings-only",
+          "flagged": false,
+          "rule_flagged": false,
+          "evidence_comparison": {
+            "skill": {
+              "added": 0,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 0,
+              "complete": 0,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3323843,
+          "destination_artifact_id": 3509100,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 1,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 2,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 3,
+              "complete": 3,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3509100,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "declared-source",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 0,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 6,
+              "complete": 6,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3323843,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 1,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 2,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 3,
+              "complete": 3,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3324967,
+          "destination_artifact_id": 3347921,
+          "direction_basis": "equivalent-peer-chronology",
+          "change_type": "siblings-only",
+          "flagged": false,
+          "rule_flagged": false,
+          "evidence_comparison": {
+            "skill": {
+              "added": 0,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 0,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 0,
+              "complete": 0,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3324967,
+          "destination_artifact_id": 3509100,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 1,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 2,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 3,
+              "complete": 3,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3324967,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 1,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 2,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 3,
+              "complete": 3,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3347921,
+          "destination_artifact_id": 3509100,
+          "direction_basis": "containment",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 1,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 2,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 3,
+              "complete": 3,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3347921,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "containment",
+          "change_type": "skill+siblings",
+          "flagged": true,
+          "rule_flagged": true,
+          "evidence_comparison": {
+            "skill": {
+              "added": 1,
+              "removed": 0
+            },
+            "siblings": {
+              "added": 2,
+              "removed": 0
+            }
+          },
+          "indicator_ids": [],
+          "uncertain_indicator_ids": [],
+          "finding_count": 0,
+          "coverage": {
+            "status": "complete",
+            "evidence_records": {
+              "total": 3,
+              "complete": 3,
+              "partial": 0,
+              "unsupported": 0
+            },
+            "missing_sibling_content": 0,
+            "unknown_sibling_hashes": 0,
+            "sibling_listing_incomplete": false
+          }
+        }
+      ],
+      "flagged_pairs": [
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3323843,
+          "destination_artifact_id": 3509100,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5096415,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5096416,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            },
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 3509100
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+                    "start_offset": 1112,
+                    "end_offset": 1159
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Overview"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "ORIGIN.md",
+                    "source_id": "sibling:5096415",
+                    "start_offset": 142,
+                    "end_offset": 189
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Origin for cursor-subagent-creator"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                },
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "metadata.json",
+                    "source_id": "sibling:5096416",
+                    "start_offset": 10870,
+                    "end_offset": 10917
+                  },
+                  "context": {
+                    "type": "source_text",
+                    "language": null,
+                    "heading": null
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 3,
+                "complete": 3,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 0,
+            "destination_files": 2,
+            "new_or_changed_destination_ids": [
+              5096415,
+              5096416
+            ],
+            "recorded_base_only_paths": [],
+            "recorded_derived_only_paths": [
+              "ORIGIN.md",
+              "metadata.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "primary",
+          "source_artifact_id": 3509100,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "declared-source",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 2,
+              "destination": 2,
+              "delta": 0,
+              "newly_present": false,
+              "reasons": [
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5109517,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5109518,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": []
+            },
+            "siblings": {
+              "removed": [],
+              "added": []
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 6,
+                "complete": 6,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 2,
+            "destination_files": 4,
+            "new_or_changed_destination_ids": [
+              5109515,
+              5109516,
+              5109517,
+              5109518
+            ],
+            "recorded_base_only_paths": [],
+            "recorded_derived_only_paths": [
+              "ATTRIBUTION.md",
+              "OMNI_ENHANCED.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3323843,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5109517,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5109518,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            },
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 3517041
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+                    "start_offset": 1844,
+                    "end_offset": 1891
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Overview"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "ORIGIN.md",
+                    "source_id": "sibling:5109517",
+                    "start_offset": 142,
+                    "end_offset": 189
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Origin for cursor-subagent-creator"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                },
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "metadata.json",
+                    "source_id": "sibling:5109518",
+                    "start_offset": 11076,
+                    "end_offset": 11123
+                  },
+                  "context": {
+                    "type": "source_text",
+                    "language": null,
+                    "heading": null
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 3,
+                "complete": 3,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 0,
+            "destination_files": 4,
+            "new_or_changed_destination_ids": [
+              5109515,
+              5109516,
+              5109517,
+              5109518
+            ],
+            "recorded_base_only_paths": [],
+            "recorded_derived_only_paths": [
+              "ATTRIBUTION.md",
+              "OMNI_ENHANCED.json",
+              "ORIGIN.md",
+              "metadata.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3324967,
+          "destination_artifact_id": 3509100,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5096415,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5096416,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            },
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 3509100
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+                    "start_offset": 1112,
+                    "end_offset": 1159
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Overview"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "ORIGIN.md",
+                    "source_id": "sibling:5096415",
+                    "start_offset": 142,
+                    "end_offset": 189
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Origin for cursor-subagent-creator"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                },
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "metadata.json",
+                    "source_id": "sibling:5096416",
+                    "start_offset": 10870,
+                    "end_offset": 10917
+                  },
+                  "context": {
+                    "type": "source_text",
+                    "language": null,
+                    "heading": null
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 3,
+                "complete": 3,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 0,
+            "destination_files": 2,
+            "new_or_changed_destination_ids": [
+              5096415,
+              5096416
+            ],
+            "recorded_base_only_paths": [],
+            "recorded_derived_only_paths": [
+              "ORIGIN.md",
+              "metadata.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3324967,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "repo-created-boundary",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5109517,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5109518,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            },
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 3517041
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+                    "start_offset": 1844,
+                    "end_offset": 1891
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Overview"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "ORIGIN.md",
+                    "source_id": "sibling:5109517",
+                    "start_offset": 142,
+                    "end_offset": 189
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Origin for cursor-subagent-creator"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                },
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "metadata.json",
+                    "source_id": "sibling:5109518",
+                    "start_offset": 11076,
+                    "end_offset": 11123
+                  },
+                  "context": {
+                    "type": "source_text",
+                    "language": null,
+                    "heading": null
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 3,
+                "complete": 3,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 0,
+            "destination_files": 4,
+            "new_or_changed_destination_ids": [
+              5109515,
+              5109516,
+              5109517,
+              5109518
+            ],
+            "recorded_base_only_paths": [],
+            "recorded_derived_only_paths": [
+              "ATTRIBUTION.md",
+              "OMNI_ENHANCED.json",
+              "ORIGIN.md",
+              "metadata.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3347921,
+          "destination_artifact_id": 3509100,
+          "direction_basis": "containment",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5096415,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5096416,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            },
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 3509100
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+                    "start_offset": 1112,
+                    "end_offset": 1159
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Overview"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "ORIGIN.md",
+                    "source_id": "sibling:5096415",
+                    "start_offset": 142,
+                    "end_offset": 189
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Origin for cursor-subagent-creator"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                },
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "metadata.json",
+                    "source_id": "sibling:5096416",
+                    "start_offset": 10870,
+                    "end_offset": 10917
+                  },
+                  "context": {
+                    "type": "source_text",
+                    "language": null,
+                    "heading": null
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 3,
+                "complete": 3,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 1,
+            "destination_files": 2,
+            "new_or_changed_destination_ids": [
+              5096415,
+              5096416
+            ],
+            "recorded_base_only_paths": [
+              ".skill-meta.json"
+            ],
+            "recorded_derived_only_paths": [
+              "ORIGIN.md",
+              "metadata.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        },
+        {
+          "edge_type": "additional",
+          "source_artifact_id": 3347921,
+          "destination_artifact_id": 3517041,
+          "direction_basis": "containment",
+          "change_type": "skill+siblings",
+          "flagged_rules": [
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "sibling",
+              "source": 0,
+              "destination": 2,
+              "delta": 2,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta",
+                "new-or-changed-sibling-content"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "sibling",
+                  "id": 5109517,
+                  "entry_name": "ORIGIN.md"
+                },
+                {
+                  "surface": "sibling",
+                  "id": 5109518,
+                  "entry_name": "metadata.json"
+                }
+              ]
+            },
+            {
+              "rule_id": "NET-001",
+              "category": "network_access",
+              "description": "HTTP or HTTPS URL detected",
+              "surface": "skill",
+              "source": 0,
+              "destination": 1,
+              "delta": 1,
+              "newly_present": true,
+              "reasons": [
+                "positive-delta"
+              ],
+              "finding_sources": [
+                {
+                  "surface": "skill",
+                  "id": 3517041
+                }
+              ]
+            }
+          ],
+          "evidence_comparison": {
+            "skill": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "SKILL.md",
+                    "source_id": "skill_sha:fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+                    "start_offset": 1844,
+                    "end_offset": 1891
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Overview"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            },
+            "siblings": {
+              "removed": [],
+              "added": [
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "ORIGIN.md",
+                    "source_id": "sibling:5109517",
+                    "start_offset": 142,
+                    "end_offset": 189
+                  },
+                  "context": {
+                    "type": "inline_code",
+                    "language": null,
+                    "heading": "Origin for cursor-subagent-creator"
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                },
+                {
+                  "type": "url_reference",
+                  "rule_ids": [
+                    "NET-001"
+                  ],
+                  "source": {
+                    "filename": "metadata.json",
+                    "source_id": "sibling:5109518",
+                    "start_offset": 11076,
+                    "end_offset": 11123
+                  },
+                  "context": {
+                    "type": "source_text",
+                    "language": null,
+                    "heading": null
+                  },
+                  "extraction_status": "complete",
+                  "excerpt": "https://github.com/tech-leads-club/agent-skills"
+                }
+              ]
+            }
+          },
+          "risk_indicators": {
+            "policy_version": "RDR-010-indicators-v1",
+            "indicator_count": 0,
+            "finding_count": 0,
+            "indicators": [],
+            "uncertain": [],
+            "coverage": {
+              "status": "complete",
+              "notes": [],
+              "evidence_records": {
+                "total": 3,
+                "complete": 3,
+                "partial": 0,
+                "unsupported": 0
+              },
+              "missing_sibling_content": 0,
+              "unknown_sibling_hashes": 0,
+              "sibling_listing_incomplete": false
+            }
+          },
+          "sibling_scan": {
+            "source_files": 1,
+            "destination_files": 4,
+            "new_or_changed_destination_ids": [
+              5109515,
+              5109516,
+              5109517,
+              5109518
+            ],
+            "recorded_base_only_paths": [
+              ".skill-meta.json"
+            ],
+            "recorded_derived_only_paths": [
+              "ATTRIBUTION.md",
+              "OMNI_ENHANCED.json",
+              "ORIGIN.md",
+              "metadata.json"
+            ],
+            "unavailable_source_ids": [],
+            "unavailable_destination_ids": [],
+            "unknown_sha_source_ids": [],
+            "unknown_sha_destination_ids": [],
+            "incomplete": false,
+            "listing_incomplete": false
+          }
+        }
+      ],
+      "incomplete_pairs": []
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": [],
+  "input_artifacts": [
+    {
+      "artifact_id": 3323843,
+      "group_id": 351269,
+      "repo_full_name": "Matheusrlr/payment-orchestrator",
+      "path": "skills-catalog/skills/(creation)/cursor-subagent-creator/SKILL.md",
+      "file_sha": "8b64cb64364eafafddfcda16b5c89b80a0d5273b",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3324967,
+      "group_id": 351269,
+      "repo_full_name": "guilhermemarketing/esc-skills",
+      "path": "skills/cursor-subagent-creator/SKILL.md",
+      "file_sha": "63ca8ff11e4ce6384b4bcc504e2f573807e18d9c",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3347921,
+      "group_id": 192008,
+      "repo_full_name": "DevOficinaBrasil/backend-promotor",
+      "path": ".claude/skills/cursor-subagent-creator/SKILL.md",
+      "file_sha": "038153122ff4267b7c53bf019abc56d5d2c82d48",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "f19280521d49deee627f921d9a039e37a3341b9517bd5acd6eff244bd14b7e7d"
+    },
+    {
+      "artifact_id": 3509100,
+      "group_id": 17639,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills/cursor-subagent-creator/SKILL.md",
+      "file_sha": "abaed9363038f7f6ce17cd5b28a6cc3a7f39e106",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "24ecc3adbe5cdfdf7a4805185baa7970afa3a796496ec4a542968b09cdcb0aa3"
+    },
+    {
+      "artifact_id": 3517041,
+      "group_id": 17639,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills_omni/cursor-subagent-creator/SKILL.md",
+      "file_sha": "fbc8ae26327da4a5ca5519e5cbc8f4993d976d2e",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "e7cdc415823f8452be437bf0bdd8f58d265e41c5e8fb19f7fe0afa78b5c2d33f"
+    }
+  ],
+  "implementation_fingerprint": "ce15a949aa90894e29faf9f8ea05f2fd0ada5b64ad70a4014a5758e54eb59776"
+}
