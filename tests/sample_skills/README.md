@@ -49,6 +49,38 @@ A specific sample case can be selected with `-k`:
 uv run pytest tests/pytests/test_sample_skills.py -v -k repo-status-reporter
 ```
 
+### SQL Preparation Tests (Story 6.1)
+
+Run the SQL preparation tests from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_data_preparation.py -v
+```
+
+The tests execute the production `sql/create_analysis_tables.sql` and
+`sql/update_artifact_groupings.sql` directly against synthetic records in an
+isolated in-memory DuckDB. They do not read or alter the local GitSkills database,
+download data, or execute artifact content.
+
+Coverage includes description normalization, eligibility filters and the
+50-character body boundary, exact-name selection, description variants, source
+artifact/repository links, and retention of identical artifact occurrences.
+Sibling tests check sorted multiset fingerprints, duplicate hashes, file renames,
+directory exclusion, missing content versus missing hashes, known-empty versus
+unknown composition, stale-value clearing, repeatable updates, and summary counts.
+Group IDs are checked for consistent membership within a run, not fixed numeric
+values across database builds.
+
+The normalization regression checks that leading tabs and trailing newlines do
+not split equivalent descriptions. Whitespace is collapsed before the final
+trim. A scanner integration test checks that merging description groups preserves
+the family scanner's full structured findings for a constructed comparison.
+The [normalization change record](../../docs/decisions/RDR-011-description-whitespace-normalization.md)
+documents database compatibility, measured population impact, and verification.
+These checks exercise the preparation policy documented in
+[RDR-003](../../docs/decisions/RDR-003-grouping-and-sibling-fingerprints.md);
+they do not validate the research population or inferred relationships manually.
+
 ### Artifact Matching and Direction Tests (Story 6.1)
 
 Run the focused tests from the repository root:

@@ -126,6 +126,13 @@ duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/update_artifact_gr
 
 Run these scripts in this order. The update script prints a validation summary when it completes.
 
+Description normalization was corrected in
+[RDR-011](../docs/decisions/RDR-011-description-whitespace-normalization.md).
+Existing databases retain their old groups until both scripts above are rerun.
+Rebuilt description groups and group IDs can differ; the current scanner selects
+comparisons across exact-name families rather than by description group. The
+decision record explains the measured impact and reproducibility considerations.
+
 At this point the local DuckDB database is ready for project notebooks and analysis.
 
 ### 4. Sprint 1 Sample Population
