@@ -73,6 +73,18 @@ Each evidence record should preserve enough information to support review and co
 - enough source location or context to find the evidence again; and
 - structured values when they can be extracted reliably, such as commands, arguments, URLs, paths, or API calls.
 
+### Extraction completeness
+
+`extraction_status` describes how reliably the **source construct was recovered**, not whether the scanner understands its runtime behavior:
+
+| Status | Meaning |
+| --- | --- |
+| `complete` | The entire source construct was recovered, including any dynamic arguments or substitutions. |
+| `partial` | Only part of the source construct could be recovered reliably. |
+| `unsupported` | A rule matched, but a reliable structured extraction was not possible. |
+
+For example, `mkdir -p "$(dirname "$REPORT_PATH")"` is complete evidence of a filesystem command when the full expression is captured. Its eventual target directory remains unknown without runtime values. Complexity or unresolved arguments alone do not make an otherwise fully recovered construct partial; a truncated or unrecoverable construct remains incomplete.
+
 ### Raw and normalized evidence
 
 The raw form preserves what appeared in the artifact for manual review and traceability.
