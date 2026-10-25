@@ -10,7 +10,7 @@ database examples. You will analyze that family, compare two of its files,
 scan its directed relationships, and explore the same results in your browser.
 
 The tools inspect dataset content as text; they do not execute skill instructions
-or sibling scripts. See the [static-analysis boundary review](../security/static_analysis_boundary.md)
+or sibling scripts. See the [static-analysis boundary review](static_analysis_boundary.md)
 for the reviewed paths and the repeatable non-execution checks.
 
 ## 1. Finish setup and check that you are ready
@@ -241,9 +241,11 @@ uv run python -m gitskills.tools.analyze_family cometchat-core --json
 uv run python -m gitskills.tools.analyze_family cometchat-core --min-containment 0.90 --min-jaccard 0.50
 ```
 
-`--verbose` adds metadata and relationship evidence. `--json` prints structured
-data instead of the readable report. The last command tries stricter similarity
-thresholds and may change the graph; it does not overwrite our saved report.
+The default JSON already contains clusters and inferred relationship evidence.
+`--verbose` adds exhaustive pairwise similarities and diagnostic detail, which can
+make reports very large. `--json` prints structured data instead of the readable
+report. The last command tries stricter similarity thresholds and may change the
+graph; it does not overwrite our saved report.
 
 For reference, both family tools accept these analysis settings:
 
@@ -348,7 +350,7 @@ The change labels you may see in other families are:
 our chosen pair from DuckDB using the companion script:
 
 ```shell
-uv run python docs/start_guide/export_guide_pair.py
+uv run python scripts/export_guide_pair.py
 ```
 
 The script opens the database read-only and saves these two local text files
@@ -596,6 +598,11 @@ SkillTrace reads valid current `analyze_family` JSON reports only from
 refresh the browser. See [the SkillTrace README](../../apps/skilltrace/README.md) for
 additional reference and [local API documentation](http://127.0.0.1:8000/docs)
 while the server is running.
+
+For complete research summaries and manual annotation samples, use
+[`summarize_cohort`](../../TOOLS.md#summarize_cohort) or the
+[end-to-end notebook](../../notebooks/end_to_end_pipeline/README.md). They run the
+needed analysis directly; the individual commands above are not prerequisites.
 
 ## 10. Fix common first-run problems
 

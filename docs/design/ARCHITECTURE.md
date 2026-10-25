@@ -23,21 +23,20 @@ flowchart TB
     GS["GitSkills SQLite dataset"] --> PREP["SQL preparation and enrichment"]
     PREP --> DB[("Project DuckDB database")]
 
-    DB --> FAMILY["Family relationship analysis"]
-    DB --> SCAN["Family security analysis"]
-    FAMILY --> FREPORT["Relationship reports"]
-    SCAN --> SREPORT["Security scan reports"]
-
-    FREPORT --> ST["SkillTrace visual review"]
+    DB --> ANALYZE["analyze_family"]
+    ANALYZE --> REL["Compact relationship reports"]
+    REL --> ST["SkillTrace visual review"]
     DB --> ST
-    SREPORT --> SUMMARY["Evidence summaries and validation samples"]
-    DB --> NOTE["Research notebooks"]
-    SUMMARY --> NOTE
-    NOTE --> RESULTS["Research figures and findings"]
-    SUMMARY --> RESULTS
+
+    DB --> SCAN["scan_family"]
+    SCAN --> CACHE["Reusable scan reports in .scans/"]
+    DB --> COHORT["summarize_cohort"]
+    CACHE -. "Optional reuse" .-> COHORT
+    COHORT --> RESULTS["Research tables, figures, review samples, and audits"]
+    RESULTS --> NOTE["Research notebooks and human review"]
 ```
 
-The diagram shows the main data and report flows, not a required execution sequence. Relationship reports can be explored without a family security scan. Family security analysis can reconstruct relationships within its own workflow, and SkillTrace can request focused scans during manual review.
+Each tool can run independently using the shared analysis library. SkillTrace loads saved **compact** relationship reports and retrieves source details from DuckDB. `summarize_cohort` runs the analysis it needs, optionally reuses compatible saved scans, and does not require SkillTrace reports or separately generated scan results.
 
 ## Software Package Architecture
 
@@ -120,7 +119,7 @@ The result is **evidence for review**, not a finding of malicious intent. For de
 
 Individual artifact comparisons must be combined to evaluate RQ4 across the selected population. The shared library and its command-line adapters produce **family relationship reports** (`analyze_family`), **family security reports** (`scan_family`), and focused direct comparisons (`scan_diff`). Reports retain inferred direction, supporting evidence, assessment results, and coverage information.
 
-The `summarize_scans` reporting library aggregates selected family security reports into research tables, figures, and manual-review samples. The `notebooks/end_to_end_pipeline/` notebook calls `gitskills.pipelines.family.run_family()` per candidate family and `gitskills.pipelines.cohort.summarize_cohort()` for the selected cohort. Relationship reports remain in `apps/skilltrace/reports/`; scan results, manifests, audits, and review outputs are saved under the notebook's `results/sprint2/` or `results/final/`. The shared cohort code verifies source traceability and report consistency and records exclusions. Relationships with unknown direction and incomplete coverage remain distinguishable from negative scan results. Human review and adjudication follow the generated templates; the pipeline does not supply those judgments.
+`summarize_cohort` combines family analysis, directed scanning, reporting, and manual-review sampling for the selected families. The end-to-end notebook calls that pipeline directly. Its outputs include reusable scan reports under `results/<run>/.scans/`, review templates under `manual-review/`, research summaries under `review/`, figures, and source-coverage audits. Source consistency is checked before reusing saved scans or applying completed reviews. Relationships with unknown direction and incomplete coverage remain separate from negative scan findings. Human judgments are entered and adjudicated outside the automated pipeline; see the [Manual Annotation Protocol](../instructions/manual_annotation_protocol.md).
 
 These outputs connect the reconstructed relationships to the evidence needed to answer RQ4: **where inferred derived artifacts contain security-sensitive behavior not observed in their base artifacts, and how often the defined indicators occur**.
 
