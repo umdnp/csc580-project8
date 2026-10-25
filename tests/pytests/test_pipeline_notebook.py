@@ -159,8 +159,8 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
     assert unknown["summary"]["ambiguous_edges_skipped"] == 1
 
     templates = [
-        results / "manual-review/directed-pairs/validation_annotations_template.csv",
-        results / "manual-review/relationship-pairs/relationship_validation_annotations_template.csv",
+        results / "manual-review/directed-pairs/annotations_template.csv",
+        results / "manual-review/relationship-pairs/relationship_annotations_template.csv",
     ]
     template_bytes = {path: path.read_bytes() for path in templates}
     scan_bytes = {path: path.read_bytes() for path in scans_dir.glob("*.json")}

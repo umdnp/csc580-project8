@@ -63,7 +63,8 @@ def test_reproducible_tables_and_sample_including_nonflagged(tmp_path: Path):
                                 "indicator_frequency.svg", "direction_basis.csv"))
     rows = list(csv.DictReader((first / "validation_sample.csv").open(encoding="utf-8")))
     assert any(row["sampling_stratum"] == "unflagged-directed" for row in rows)
-    assert (first / "validation_annotations_template.csv").is_file()
+    assert (first / "annotations_template.csv").is_file()
+    assert not (first / "validation_annotations_template.csv").exists()
 
 
 def test_reconcile_catches_summary_mismatch(tmp_path: Path):
@@ -95,7 +96,7 @@ def test_annotation_metrics_count_only_completed_reviews(tmp_path: Path):
     path.write_text(json.dumps(_report()), encoding="utf-8")
     out = tmp_path / "results"
     summarize([path], out, per_stratum=8)
-    template = out / "validation_annotations_template.csv"
+    template = out / "annotations_template.csv"
     rows = list(csv.DictReader(template.open(encoding="utf-8")))
     assert rows
     rows[0].update({
@@ -135,7 +136,7 @@ def test_default_research_summary_does_not_select_review_sample(tmp_path: Path):
     assert (output / "directed_pairs.csv").is_file()
     assert (output / "indicator_frequency.svg").is_file()
     assert not (output / "validation_sample.csv").exists()
-    assert not (output / "validation_annotations_template.csv").exists()
+    assert not (output / "annotations_template.csv").exists()
 
 
 def test_serializing_cluster_with_missing_observations_fails_at_source():
@@ -187,7 +188,7 @@ def test_review_requires_explicit_assessment_not_blank_implied_negative(tmp_path
     path.write_text(json.dumps(_report()), encoding="utf-8")
     out = tmp_path / "out"
     summarize([path], out, per_stratum=8)
-    rows = list(csv.DictReader((out / "validation_annotations_template.csv").open()))
+    rows = list(csv.DictReader((out / "annotations_template.csv").open()))
     rows[0] = _adjudicated_row(rows[0])
     rows[0]["indicator_review_scope"] = ""
     annotations = tmp_path / "annotations.csv"
@@ -202,7 +203,7 @@ def test_unassessable_coverage_is_excluded_from_indicator_metrics(tmp_path: Path
     path.write_text(json.dumps(report), encoding="utf-8")
     out = tmp_path / "out"
     summarize([path], out, per_stratum=8)
-    rows = list(csv.DictReader((out / "validation_annotations_template.csv").open()))
+    rows = list(csv.DictReader((out / "annotations_template.csv").open()))
     rows[0] = _adjudicated_row(rows[0])
     rows[0]["manual_relatedness"] = "uncertain"
     annotations = tmp_path / "annotations.csv"
@@ -219,7 +220,7 @@ def test_metrics_reject_unselected_and_independent_reviews(tmp_path: Path):
     path.write_text(json.dumps(_report()), encoding="utf-8")
     out = tmp_path / "out"
     summarize([path], out, per_stratum=1)
-    rows = list(csv.DictReader((out / "validation_annotations_template.csv").open()))
+    rows = list(csv.DictReader((out / "annotations_template.csv").open()))
     assert rows
     annotations = tmp_path / "annotations.csv"
     rows[0] = _adjudicated_row(rows[0])
@@ -265,8 +266,9 @@ def test_relationship_sample_includes_ambiguous_equivalent_and_no_edge(tmp_path:
                if row["sampling_stratum"] == "no-related-edge")
     assert (first / "relationship_validation_sample.csv").read_bytes() == (
         second / "relationship_validation_sample.csv").read_bytes()
-    assert (first / "relationship_validation_annotations_template.csv").is_file()
-    review = list(csv.DictReader((first / "relationship_validation_annotations_template.csv").open()))
+    assert (first / "relationship_annotations_template.csv").is_file()
+    assert not (first / "relationship_validation_annotations_template.csv").exists()
+    review = list(csv.DictReader((first / "relationship_annotations_template.csv").open()))
     review[0].update({"reviewer": "team", "review_phase": "adjudicated",
                       "review_status": "complete", "review_date": "2026-10-23",
                       "manual_relatedness": "related", "direction_basis_review": "uncertain"})
@@ -299,7 +301,7 @@ def test_uncertain_indicator_excluded_without_becoming_negative(tmp_path: Path):
     scan.write_text(json.dumps(_report()), encoding="utf-8")
     output = tmp_path / "out"
     summarize([scan], output, per_stratum=5)
-    rows = list(csv.DictReader((output / "validation_annotations_template.csv").open()))
+    rows = list(csv.DictReader((output / "annotations_template.csv").open()))
     rows[0] = _adjudicated_row(rows[0])
     rows[0]["manual_uncertain_indicator_ids"] = "RI-006"
     reviewed = tmp_path / "reviewed.csv"
@@ -317,7 +319,7 @@ def test_conflicting_manual_indicator_labels_are_rejected(tmp_path: Path):
     scan.write_text(json.dumps(_report()), encoding="utf-8")
     output = tmp_path / "out"
     summarize([scan], output, per_stratum=5)
-    rows = list(csv.DictReader((output / "validation_annotations_template.csv").open()))
+    rows = list(csv.DictReader((output / "annotations_template.csv").open()))
     rows[0] = _adjudicated_row(rows[0])
     rows[0]["manual_supported_indicator_ids"] = "RI-002"
     rows[0]["manual_uncertain_indicator_ids"] = "RI-002"

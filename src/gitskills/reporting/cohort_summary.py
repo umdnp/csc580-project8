@@ -555,10 +555,10 @@ def summarize(paths: list[Path | dict], output: Path, *, per_stratum: int | None
                                               and manual_review is not None)
     directed_folder = manual_review / "directed-pairs" if manual_review else output
     relation_folder = manual_review / "relationship-pairs" if manual_review else output
-    if annotations is not None and annotations.resolve() == (directed_folder / "validation_annotations_template.csv").resolve():
+    if annotations is not None and annotations.resolve() == (directed_folder / "annotations_template.csv").resolve():
         raise ResearchInputError("Copy the template to a separate reviewed CSV before using --annotations")
     if (relationship_annotations is not None and relationship_annotations.resolve() ==
-            (relation_folder / "relationship_validation_annotations_template.csv").resolve()):
+            (relation_folder / "relationship_annotations_template.csv").resolve()):
         raise ResearchInputError("Copy the relationship template before using --relationship-annotations")
     output.mkdir(parents=True, exist_ok=True)
     if manual_review:
@@ -590,13 +590,13 @@ def summarize(paths: list[Path | dict], output: Path, *, per_stratum: int | None
         for iid in INDICATORS], ("indicator_id", "pairs", "directed_pairs", "percent_of_directed_pairs"))
     if per_stratum is not None:
         _write_csv(directed_folder / "validation_sample.csv", chosen, (*PAIR_FIELDS, "sampling_stratum"))
-        _write_csv(directed_folder / "validation_annotations_template.csv", [
+        _write_csv(directed_folder / "annotations_template.csv", [
             {**row, **{field: "" for field in DIRECTED_REVIEW_FIELDS},
              "review_phase": "independent", "review_status": "pending"}
             for row in chosen], (*PAIR_FIELDS, "sampling_stratum", *DIRECTED_REVIEW_FIELDS))
     if has_relationships:
         _write_csv(relation_folder / "relationship_validation_sample.csv", relationship_selected, RELATIONSHIP_FIELDS)
-        _write_csv(relation_folder / "relationship_validation_annotations_template.csv", [
+        _write_csv(relation_folder / "relationship_annotations_template.csv", [
             {**row, **{field: "" for field in RELATIONSHIP_REVIEW_FIELDS},
              "review_phase": "independent", "review_status": "pending"}
             for row in relationship_selected], (*RELATIONSHIP_FIELDS, *RELATIONSHIP_REVIEW_FIELDS))
@@ -647,10 +647,10 @@ def apply_adjudications(results: Path, *, directed_annotations: Path | None = No
     directed = manual / "directed-pairs"
     relationships = manual / "relationship-pairs"
     if (directed_annotations is not None and directed_annotations.resolve() ==
-            (directed / "validation_annotations_template.csv").resolve()):
+            (directed / "annotations_template.csv").resolve()):
         raise ResearchInputError("Copy the template to a reviewed CSV before using --annotations")
     if (relationship_annotations is not None and relationship_annotations.resolve() ==
-            (relationships / "relationship_validation_annotations_template.csv").resolve()):
+            (relationships / "relationship_annotations_template.csv").resolve()):
         raise ResearchInputError("Copy the relationship template before using --relationship-annotations")
     try:
         summary = json.loads((review / "summary.json").read_text(encoding="utf-8"))

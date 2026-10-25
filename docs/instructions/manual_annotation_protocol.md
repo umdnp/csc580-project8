@@ -21,8 +21,8 @@ Two separate review samples are generated:
 
 | Review | Annotation template | What to check |
 |---|---|---|
-| **Directed pairs** | `results/manual-review/directed-pairs/validation_annotations_template.csv` | Relatedness, inferred direction, scanner matches, changed evidence, risk indicators, and coverage |
-| **Relationship pairs** | `results/manual-review/relationship-pairs/relationship_validation_annotations_template.csv` | Whether pairs are related and whether direction is supported, including ambiguous, equivalent, and *no-related-edge* cases |
+| **Directed pairs** | `results/manual-review/directed-pairs/annotations_template.csv` | Relatedness, inferred direction, scanner matches, changed evidence, risk indicators, and coverage |
+| **Relationship pairs** | `results/manual-review/relationship-pairs/relationship_annotations_template.csv` | Whether pairs are related and whether direction is supported, including ambiguous, equivalent, and *no-related-edge* cases |
 
 `--per-stratum 5` selects **up to five pairs per review category across the selected families**, not five per family. Sampling is for human review only: all eligible relationships and directed security comparisons are still included in the research analysis. An empty category remains empty.
 
