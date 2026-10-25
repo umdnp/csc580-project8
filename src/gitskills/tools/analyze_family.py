@@ -90,7 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Include additional group, variant, and provenance diagnostics. "
-            "The default JSON already includes artifacts and similarities."
+            "Full pairwise similarities are included only with --verbose."
         ),
     )
     parser.add_argument(

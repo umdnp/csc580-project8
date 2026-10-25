@@ -38,12 +38,32 @@ def run_family(name: str, *, database: Path, skilltrace_reports: Path,
             pass  # Malformed reports are rebuilt from source.
     refresh = (force_family or existing is None or
                not compatible_family(existing, name, policy, records, skipped))
-    # Upgrade a valid older report without rebuilding similarities just to drop
-    # the legacy per-report implementation hash.
+    # Upgrade older reports to the compact SkillTrace format without rerunning similarities.
     legacy_cleanup = False
-    if not refresh and "implementation_fingerprint" in existing:
-        existing.pop("implementation_fingerprint")
-        legacy_cleanup = True
+    if not refresh:
+        if "implementation_fingerprint" in existing:
+            existing.pop("implementation_fingerprint")
+            legacy_cleanup = True
+        if "similarities" in existing:
+            existing.pop("similarities")
+            legacy_cleanup = True
+        if "family" in existing:
+            scope = existing["family"]
+            if set(scope) != {"clusters"}:
+                existing["family"] = {"clusters": scope.get("clusters", [])}
+                scope = existing["family"]
+                legacy_cleanup = True
+            for cluster in scope["clusters"]:
+                for key in ("file_shas", "skill_variant_count", "bundle_variant_count"):
+                    if key in cluster:
+                        cluster.pop(key)
+                        legacy_cleanup = True
+                evolution = cluster["evolution"]
+                for key in list(evolution):
+                    if key not in ("root_candidate_artifact_ids", "directed_edges",
+                                   "ambiguous_edges", "related_edges"):
+                        evolution.pop(key)
+                        legacy_cleanup = True
     family_analysis = None
     if refresh:
         family_analysis, family_report = analyze_family_report(name, loaded, policy=policy)

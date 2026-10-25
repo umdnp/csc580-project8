@@ -745,15 +745,15 @@ class FamilyAnalysis:
                     for change_type, count in self.family.change_counts.items()
                 },
             },
-            "family": self.family.to_dict(),
+            "family": self.family.to_dict(compact=not verbose),
             "chronology_proxies": [
                 proxy.to_dict() for proxy in self.chronology_proxies
             ],
         }
 
-        # The standard report is a complete interchange format for SkillTrace
-        # and relationship sampling; verbose adds optional diagnostics only.
-        output["similarities"] = self._similarities_to_dict()
+        # The exhaustive pairwise matrix is diagnostic data, not a graph input.
+        if verbose:
+            output["similarities"] = self._similarities_to_dict()
         output["artifacts"] = [
             {
                 "artifact_id": artifact.artifact_id,

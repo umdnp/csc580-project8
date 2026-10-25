@@ -9,7 +9,7 @@ import pytest
 from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import Artifact
 from gitskills.analysis.family_risk import FamilyRiskAnalyzer
-from gitskills.tools.summarize_scans import ResearchInputError, summarize
+from gitskills.reporting.cohort_summary import ResearchInputError, summarize
 
 PREFIX = "The agent skill performs safe and documented analysis of software artifacts and security patterns. " * 15 + "\n"
 
@@ -128,7 +128,7 @@ def test_edge_count_disagreement_is_rejected(tmp_path):
 
 
 def test_unknown_sibling_state_is_not_sampled_as_confirmed_sibling_change():
-    from gitskills.reporting.scan_summary import _sample
+    from gitskills.reporting.cohort_summary import _sample
     row = {"family": "f", "cluster": 1, "base_artifact_id": 1, "derived_artifact_id": 2,
            "indicator_ids": "", "uncertain_indicator_ids": "", "coverage_status": "complete",
            "change_type": "unknown", "flagged": 1}

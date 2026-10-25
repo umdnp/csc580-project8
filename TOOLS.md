@@ -9,10 +9,12 @@ This document describes the project command-line tools and the options most deve
 | [`scan_diff`](#scan_diff) | Compare two skill files and report changes in security-sensitive behavior. |
 | [`analyze_family`](#analyze_family) | Analyze similarity, clusters, chronology, and inferred relationships for one candidate family or a batch of families. |
 | [`scan_family`](#scan_family) | Scan one candidate family or a list of families for security-sensitive evidence changes and risk indicators; optionally benchmark scans. |
-| [`summarize_scans`](#summarize_scans) | Aggregate family scan JSON into research statistics, figures, and optional manual-validation samples. |
+| [`summarize_cohort`](#summarize_cohort) | Independently analyze selected families, reuse compatible scans, and generate audited research results and manual-validation samples. |
 | [`family_picker`](#family_picker) | Interactively browse candidate families and run [`analyze_family`](#analyze_family). |
 
 Use `<tool> --help` for the complete command-line help. When running directly from the source tree, the equivalent form is `python -m gitskills.tools.<tool>`.
+
+**Console-script migration:** In your existing `pyproject.toml`, replace the old `[project.scripts]` entry `summarize_scans = "gitskills.tools.summarize_scans:main"` with `summarize_cohort = "gitskills.tools.summarize_cohort:main"`, then reinstall the editable package (for example `uv pip install -e .`). The project ZIP supplied for these changes did not contain `pyproject.toml`; it is therefore not overwritten by the archive. Until the entry point is updated, `uv run python -m gitskills.tools.summarize_cohort` works directly. There are no legacy CLI or reporting-module aliases; use `gitskills.tools.summarize_cohort` and `gitskills.reporting.cohort_summary` directly.
 
 ## `family_picker`
 
@@ -53,7 +55,7 @@ Reports produced through the picker are therefore written to `apps/skilltrace/re
 
 ## Common Options
 
-`analyze_family` and `scan_family` use the GitSkills DuckDB database. Pass `--db PATH`, or set `GITSKILLS_DB` when `--db` is omitted.
+`analyze_family`, `scan_family`, and `summarize_cohort` use the GitSkills DuckDB database. Pass `--db PATH`, or set `GITSKILLS_DB` when `--db` is omitted.
 
 `scan_diff`, `analyze_family`, and `scan_family` all support:
 
@@ -116,14 +118,6 @@ scan_diff sample_skills/base/SKILL.md sample_skills/derived/SKILL.md --verbose
 scan_diff sample_skills/base/SKILL.md sample_skills/derived/SKILL.md --output results
 ```
 
-**All directionally supported relationships for research:**
-
-```powershell
-uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/all-edges --edges all
-```
-
-Use separate output directories for `primary` and `all` runs. They describe different populations and should not be combined in one research summary.
-
 ### Interpretation
 
 A positive rule delta means the derived file contains more matches for that rule. An introduced capability means a capability category appears in the derived file but not the base file. Added or removed evidence can identify a meaningful source change even when the rule counts are unchanged. Supported risk indicators identify evidence-based changes warranting review; uncertain observations and incomplete coverage are reported separately. None of these results establishes malicious intent, execution, or exploitability.
@@ -174,7 +168,7 @@ Supply either `NAME` or `--input FILE`, not both.
 | `--min-shared-shingles N` | `5` | Minimum shared shingles for related variants. |
 | `--direction-margin FLOAT` | `0.10` | Minimum containment difference used when stronger direction evidence is unavailable. |
 | `--json` | Off | Print structured JSON instead of the human-readable report. |
-| `--verbose` | Off | Include supplementary group, variant, and provenance diagnostics; standard JSON already includes artifact metadata, pairwise similarities, and relationship evidence. |
+| `--verbose` | Off | Include the **complete pairwise similarity matrix** plus supplementary group, variant, and provenance diagnostics. For large families this can generate multiple gigabytes of JSON. |
 | `--output [DIR]` | Off | Save JSON to `DIR`; use `./output` when `DIR` is omitted. |
 
 The similarity thresholds are exploratory and should be validated before final analysis.
@@ -243,9 +237,9 @@ The human-readable report summarizes:
 - ambiguous direction-unknown edges; and
 - root candidates for each cluster.
 
-The default JSON is a complete shared report for SkillTrace and research sampling. It includes the summary, artifact source metadata, full pairwise similarity measurements, clusters, directed and ambiguous relationships, chronology proxies, input counts, and skipped-artifact reasons.
+The default JSON is the compact lineage report used by SkillTrace. It includes the summary, artifact source metadata, all clusters, primary/related/ambiguous edges and their evidence, chronology proxies, input counts, and skipped-artifact reasons. It **does not include** the exhaustive pairwise similarity matrix or derivable cluster/group counts. JSON remains indented and human-readable.
 
-`--verbose` adds supplementary diagnostic data such as artifact groups, skill and bundle variants, and expanded provenance fields.
+`--verbose` adds **all pairwise similarities** (including nonqualifying pairs), full family/cluster diagnostics, artifact groups, skill and bundle variants, and expanded provenance. The underlying similarity and lineage calculations are identical in both modes.
 
 When `--output` is used, each report is saved under a Windows-safe filename derived from the exact family name. Single-family mode prints the human-readable report unless `--json` is also used.
 
@@ -426,93 +420,178 @@ Report frequency denominators using **all analyzed directed pairs**, not only fl
 
 ---
 
-## `summarize_scans`
+## `summarize_cohort`
 
 ### Purpose
 
-`summarize_scans` is an **offline research reporting tool**. It reads the JSON files generated by `scan_family`, **not** the DuckDB database. It aggregates **every analyzed directed pair**, including unflagged pairs, to generate reproducible statistics, CSV tables, and a figure.
+`summarize_cohort` is the **independent research pipeline** for one candidate family or a selected cohort of families. It loads selected names directly from the prepared DuckDB database, reuses shared family-analysis and security-scanner logic, and produces reproducible findings, validation candidates, and source/audit records. It **does not require** reports created by `analyze_family`, `scan_family`, or SkillTrace.
 
-Manual validation sampling is **optional**. Selecting a sample does not restrict the full scan statistics or indicator-frequency denominators.
+It reports per-family processing progress and may reuse compatible scans from `results/.scans/` to avoid repeating the security scan. When needed, it calculates complete family similarities **in memory**, examines all eligible relationship comparisons for manual-review selection, and releases each family's analysis before proceeding. No temporary verbose family JSON is written. `scan_diff`, `analyze_family`, and `scan_family` remain independent command-line tools.
+
+A **candidate family** consists of same-name artifacts (`artifact_groupings.name`); a **cluster** groups artifacts with related contents within a family; a **cohort** is the selected **one or more families** studied together. `--per-stratum` is applied across the whole cohort, not separately to each family.
 
 ### Synopsis
 
 ```bash
-summarize_scans REPORTS... --output DIR [OPTIONS]
+summarize_cohort NAME --db PATH --output results [OPTIONS]
+summarize_cohort --input FILE --db PATH --output results [OPTIONS]
 ```
 
-### Arguments and Options
+`--db` defaults to `$GITSKILLS_DB` when not given. Supply exactly one of `NAME` and `--input FILE`. The notebook uses the same Python API, `gitskills.pipelines.cohort.summarize_cohort(...)`.
 
-| Argument / option | Required | Default | Description |
-|---|---:|---:|---|
-| `REPORTS...` | Yes | — | One or more `scan_family` JSON files or directories containing those reports. Directory search uses `*.json` (nonrecursive). |
-| `--output DIR` | Yes | — | Directory for research results. |
-| `--per-stratum N` | No | Off | Additionally select up to `N` directed pairs per manual-review category (positive integer). Without this flag, no validation sample or annotation template is created. |
-| `--seed N` | No | `580` | Seed for reproducible sample selection; relevant when `--per-stratum` is set. |
-| `--annotations FILE` | No | Off | Adjudicated directed-review CSV for sample-level indicator metrics; requires `--per-stratum`. Use a **copy** of the generated template. |
-| `--family-reports FILES...` | No | Off | Matching standard `analyze_family` JSON files for ambiguous/equivalent/no-related-edge validation sampling. |
-| `--relationship-annotations FILE` | No | Off | Adjudicated relationship-review CSV; requires matching `--family-reports`. |
-| `-h`, `--help` | No | — | Display full CLI help. |
+### Options
 
-### Input Requirements
+| Option | Default | Description |
+|---|---|---|
+| `NAME` | — | Exact name of one candidate family, for example `code-review`. |
+| `--input FILE` | Off | UTF-8 list of exact family names; blank lines and `#` comments are ignored. Duplicate names are rejected. |
+| `--limit N` | Off | With `--input`, process the first `N` names. |
+| `--db PATH` | `$GITSKILLS_DB` | Prepared DuckDB database. |
+| `--output DIR` | Required | Root of the results directory (for example `--output results`). |
+| `--edges {primary,all}` | `all` | Select only inferred predecessor edges (`primary`) or all directionally supported edges (`all`). Must match any reusable scans. |
+| `--rescan` | Off | **Always** regenerate scans for all selected families, even if their cache is current. Does **not** override manual-review protections. |
+| `--per-stratum N` | `5` | Select up to `N` pairs per directed or relationship-review stratum for manual inspection **across the cohort**. Does not limit the analysis or reported denominators. |
+| `--no-sampling` | Off | Skip manual validation sampling; compatible cached scans can then be summarized without rerunning family similarity analysis. |
+| `--seed N` | `580` | Deterministic seed for validation selection. |
+| `--annotations FILE` | Off | Completed/adjudicated directed-pair review CSV, separate from the generated template. |
+| `--relationship-annotations FILE` | Off | Completed/adjudicated relationship review CSV, separate from the generated template. |
+| `--approval-reference TEXT` | Off | Optional source of cohort selection approval for the manifest. |
+| `--shingle-size N` | `5` | Token shingle width. |
+| `--min-containment FLOAT` | `0.80` | Minimum directional containment. |
+| `--min-jaccard FLOAT` | `0.30` | Minimum Jaccard similarity. |
+| `--min-shared-shingles N` | `5` | Minimum shared shingles. |
+| `--direction-margin FLOAT` | `0.10` | Directional-containment margin. |
+| `-h`, `--help` | — | Print complete help. |
 
-Provide JSON reports generated by `scan_family`. The tool rejects duplicate family reports, inconsistent pair counts, and reports generated with different similarity policies, rule catalogs, scanner scopes, or edge-selection modes. Run separate summaries for `--edges primary` and `--edges all`. `benchmarks.csv` may coexist in the input directory; it is not read as a scan report.
+Thresholds and security scanning are identical to those used by `analyze_family` and `scan_family` for the same configurations. `summarize_cohort` defaults to `--edges all`, whereas the standalone `scan_family` defaults to `primary`; set both explicitly when sharing scans.
 
-Use only the selected family reports, not an entire directory containing extra families. A pair's direction must be supported to enter the directed-pair denominator. Direction-unknown/ambiguous edges are tracked separately as counts rather than treated as negative pairs.
+### Reusable scan cache
 
-### Output
+`results/.scans/` contains one plain JSON scan report per family and a separate **`.scan_manifest.json`** for cache bookkeeping. The scan reports themselves retain their scientific evidence and source references without extra cache-specific metadata.
 
-All runs generate:
+By default, the summarizer:
 
-| File | Contents |
-|---|---|
-| `summary.json` | Cohort totals, supported-indicator frequencies, coverage statistics, direction/denominator notes, and optional sampling/annotation metrics. |
-| `families.csv` | Counts by scanned family, including loaded/skipped artifacts and ambiguous-edge counts. |
-| `directed_pairs.csv` | Every directed pair, including unflagged pairs, with indicator IDs, evidence-change counts, and coverage fields. |
-| `edge_types.csv` | Counts of scanned, flagged, indicator-positive, and coverage-limited comparisons by primary versus additional edge type. |
-| `indicator_frequency_by_edge_type.csv` | Risk-indicator counts and percentages calculated separately for primary and additional directed pairs. |
-| `indicator_frequency.csv` | Counts and percentages for RI-001 through RI-011, using analyzed directed pairs as the denominator. |
-| `direction_basis.csv` | Counts grouped by direction-evidence basis. |
-| `indicator_frequency.svg` | Reproducible indicator-frequency chart. |
+1. Checks the cached report's family name, input artifacts/skipped records, similarity policy, edge selection, active rules, scanner scope, and internal pair counts.
+2. Checks the separate cache manifest's source fingerprint, database identity/size/modification time, implementation fingerprint, and scan-file checksum when a manifest entry exists.
+3. Reuses a compatible scan, or regenerates a missing, changed, malformed, or incompatible scan.
+4. Adds compatible scans previously generated by an independent `scan_family` invocation to the manifest; no separate `scan_family` cache format is required.
+5. Writes each completed family scan and the manifest with atomic file replacements, so successful cache entries survive a later family failing.
 
-Only when `--per-stratum` is supplied, it also generates:
+`--rescan` unconditionally regenerates scans. A cache hit can skip *security scanning*, but when manual relationship review is enabled, the family similarity analyzer must still run to evaluate nonqualifying pairs not present in scan JSON.
 
-| File | Contents |
-|---|---|
-| `validation_sample.csv` | A deterministic, deduplicated sample selected across review categories (indicators, coverage limitations, uncertain cases, sibling changes, other flagged cases, and unflagged directed pairs). |
-| `validation_annotations_template.csv` | The sample with blank manual-review fields; copy it before recording review judgments. |
+A standalone scan can populate the cache, for example:
 
-The main summary includes an `edge_type_breakdown` as well as overall cohort totals, and `families.csv` identifies primary and additional counts per family. The `--per-stratum` sample size affects neither.
+```bash
+scan_family code-review --db "$GITSKILLS_DB" --edges all --output results/.scans
+summarize_cohort code-review --db "$GITSKILLS_DB" --edges all --output results
+```
 
-Each indicator is counted at most once per directed pair; pairs may support more than one indicator. Therefore, indicator percentages can overlap and need not sum to 100%. Review samples should **not** be interpreted as statistically representative prevalence estimates. Multiple directed comparisons may reuse the same artifact and are not independent historical events.
+The directory remains flat. In batch mode, `scan_family --input` still requires a fresh output directory without existing JSON reports; that CLI behavior is unchanged.
 
-With `--annotations`, `summary.json` also reports reviewed-sample confusion counts and precision/recall by indicator, excluding unresolved categories. These are **review-sample measures**, not corpus-wide accuracy estimates.
+### Output structure
+
+```text
+results/
+├── .scans/                          # Ignorable, reusable intermediate scan cache
+│   ├── .scan_manifest.json
+│   ├── code-review.json
+│   └── skill-creator.json
+├── manual-review/
+│   ├── directed-pairs/
+│   │   ├── validation_sample.csv
+│   │   └── validation_annotations_template.csv
+│   ├── relationship-pairs/
+│   │   ├── relationship_validation_sample.csv
+│   │   └── relationship_validation_annotations_template.csv
+│   └── adjudicated/                # User-managed reviewed copies; never silently overwritten
+├── review/
+│   ├── summary.json
+│   ├── families.csv
+│   ├── directed_pairs.csv
+│   ├── edge_types.csv
+│   ├── indicator_frequency.csv
+│   ├── indicator_frequency_by_edge_type.csv
+│   └── direction_basis.csv
+├── figures/
+│   └── indicator_frequency.svg
+├── audit/
+│   ├── processing_summary.csv
+│   └── skipped_artifacts.csv
+├── sample_manifest.json
+└── execution_summary.json
+```
+
+Generated directed and relationship validation samples are stratified research-review aids, **not** the populations used to calculate indicator frequencies. All eligible directed pairs remain in `directed_pairs.csv` and the full statistics. Directed-pair validation examines scanner findings, direction, and coverage; relationship-pair validation examines ambiguous, equivalent, and **no-related-edge** decisions.
+
+Relationships are sampled reproducibly via a **bounded reservoir per stratum** so a large family does not require storing every negative artifact-pair candidate. The strata, source population, thresholds, and cohort-wide sample sizes are preserved. Because the earlier implementation used a full-list shuffle, specific selected IDs for the same seed **can differ** when migrating to this method; existing adjudicated samples are protected from silent changes by the sample manifest.
+
+`sample_manifest.json` records selected families, source identities and coverage, policies, rule configuration, implementation fingerprint, dataset source, review seed, and approval reference. `audit/` records loaded/skipped artifacts and per-family counts. Manual-review files under `manual-review/adjudicated/` are reviewer-owned; the summarizer rejects attempts to silently change an adjudicated sample or replace a differing cached scan.
+
+To exclude only intermediate scans from Git, add:
+
+```gitignore
+results/.scans/
+```
+
+For notebook-specific runs nested under `notebooks/`, use a matching pattern such as `**/results/.scans/` in `.gitignore`.
 
 ### Examples
 
-**Aggregate all scanned pairs without sampling:**
+**One family, using the cache where valid:**
 
-```powershell
-uv run python -m gitskills.tools.summarize_scans output/scans --output output/research
+```bash
+summarize_cohort code-review --db "$GITSKILLS_DB" --output results --per-stratum 5 --seed 580 --edges all
 ```
 
-**Create the same complete research statistics plus a manual-review sample:**
+**A reproducible pinned cohort:**
 
-```powershell
-uv run python -m gitskills.tools.summarize_scans output/scans --output output/review --per-stratum 5 --seed 580
+```bash
+summarize_cohort --input data/validation/families.txt --db "$GITSKILLS_DB" --output results --edges all
 ```
 
-Here, `--per-stratum 5` means **up to five pairs per validation category for human review**. It does **not** limit how many pairs were scanned or included in the research statistics.
+**Force a full security rescan:**
 
-**Recalculate reviewed-sample metrics after annotating a copy of the template:**
-
-```powershell
-uv run python -m gitskills.tools.summarize_scans output/scans --output output/review --per-stratum 5 --seed 580 --annotations data/validation/validation_annotations_reviewed.csv
+```bash
+summarize_cohort --input data/validation/families.txt --output results --rescan
 ```
+
+**Produce population statistics without creating manual-review samples:**
+
+```bash
+summarize_cohort code-review --output results --no-sampling
+```
+
+**Recalculate metrics after final independent review and adjudication:**
+
+```bash
+summarize_cohort --input data/validation/families.txt --output results \
+  --annotations results/manual-review/adjudicated/directed.csv \
+  --relationship-annotations results/manual-review/adjudicated/relationships.csv
+```
+
+### Python API
+
+```python
+from pathlib import Path
+from gitskills.pipelines.cohort import summarize_cohort
+
+execution = summarize_cohort(
+    ["code-review", "skill-creator"],
+    database=Path("C:/data/duckdb/agent_skills_release.db"),
+    results=Path("results"),
+    edges="all",
+    per_stratum=5,
+    seed=580,
+    rescan=False,
+)
+```
+
+For an independent lineage visualization, run `analyze_family NAME --output apps/skilltrace/reports`. SkillTrace reads those **compact** lineage reports and lazily fetches source detail from DuckDB. Cohort summarization neither reads nor requires them.
 
 ### Exit Status
 
 | Status | Meaning |
 |---:|---|
-| `0` | Research aggregation completed successfully. |
-| `1` | Report loading, schema validation, cohort consistency, or output generation failed. |
-| `2` | Invalid command-line arguments. |
+| `0` | Cohort completed and research outputs were generated. |
+| `1` | Family loading, scanning, cache, consistency checks, or writing failed. |
+| `2` | Invalid command-line options, family list, or missing database configuration. |

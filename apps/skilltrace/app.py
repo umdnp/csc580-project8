@@ -163,8 +163,7 @@ def _is_analyze_family_report(raw: object) -> bool:
     if not isinstance(raw.get("policy"), dict) or not isinstance(raw.get("summary"), dict):
         return False
 
-    # The standard report has source artifacts and similarities. Optional
-    # verbose diagnostics are validated when present for older report support.
+    # Similarity comparisons are optional verbose diagnostics; graph edges are required.
     for key in (
         "groups",
         "skill_variants",
@@ -174,6 +173,11 @@ def _is_analyze_family_report(raw: object) -> bool:
     ):
         if key in raw and not isinstance(raw.get(key), list):
             return False
+
+    if "artifacts" in raw and not isinstance(raw["artifacts"], list):
+        return False
+    if "similarities" in raw and not isinstance(raw["similarities"], list):
+        return False
 
     summary = raw["summary"]
     for key in ("artifact_count", "cluster_count", "directed_edge_count", "ambiguous_edge_count"):

@@ -1,4 +1,4 @@
-"""Aggregate family scans and prepare reproducible manual validation samples."""
+"""Summarize research cohorts and prepare reproducible manual validation samples."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 from gitskills.analysis.family_risk_models import FAMILY_SCAN_REPORT_TYPE
+from gitskills.analysis.family_models import FamilyAnalysis
 
 INDICATORS = tuple(f"RI-{index:03d}" for index in range(1, 12))
 SAMPLE_STRATA = (
@@ -58,11 +59,15 @@ def _require(condition: bool, message: str) -> None:
         raise ResearchInputError(message)
 
 
-def _read_report(path: Path) -> dict:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ResearchInputError(f"Cannot load {path}: {exc}") from exc
+def _read_report(path: Path | dict) -> dict:
+    if isinstance(path, dict):
+        data = path
+        path = Path("<in-memory-scan>")
+    else:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ResearchInputError(f"Cannot load {path}: {exc}") from exc
     _require(isinstance(data, dict) and data.get("report_type") == FAMILY_SCAN_REPORT_TYPE,
              f"{path}: expected a scan_family report (report_type={FAMILY_SCAN_REPORT_TYPE})")
     _require(isinstance(data.get("candidate_family"), str) and data["candidate_family"],
@@ -452,13 +457,16 @@ def _svg_frequency(path: Path, frequency: Counter, total: int) -> None:
     path.write_text("\n".join(canvas) + "\n", encoding="utf-8")
 
 
-def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None,
+def summarize(paths: list[Path | dict], output: Path, *, per_stratum: int | None = None,
               seed: int = 580, annotations: Path | None = None,
               family_reports: list[Path] | None = None,
-              relationship_annotations: Path | None = None) -> dict:
+              relationship_annotations: Path | None = None,
+              relationship_selected: list[dict] | None = None,
+              manual_review: Path | None = None,
+              figures: Path | None = None) -> dict:
     """Summarize family reports; reject malformed or duplicate inputs."""
     _require(bool(paths), "At least one report is required")
-    reports = [_read_report(path) for path in sorted(paths)]
+    reports = [_read_report(path) for path in (sorted(paths) if all(isinstance(p, Path) for p in paths) else paths)]
     names = [r["candidate_family"] for r in reports]
     _require(len(names) == len(set(names)), "Duplicate family report: each family must be counted once")
     policies = {json.dumps(r["similarity_policy"], sort_keys=True) for r in reports}
@@ -533,20 +541,29 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
     chosen = _sample(all_rows, per_stratum, seed) if per_stratum is not None else []
     _require(not family_reports or per_stratum is not None,
              "--family-reports requires --per-stratum")
-    _require(relationship_annotations is None or bool(family_reports),
-             "--relationship-annotations requires --family-reports")
+    _require(relationship_annotations is None or bool(family_reports) or
+             relationship_selected is not None,
+             "--relationship-annotations requires relationship validation samples")
     family_data = ([_read_family_report(path, policies, set(names)) for path in sorted(family_reports)]
                    if family_reports else [])
     family_names = [r["name"] for r in family_data]
     _require(len(family_names) == len(set(family_names)), "Duplicate analyze_family report")
-    relationship_selected = (_relationship_sample(family_data, per_stratum, seed)
-                             if family_data else [])
-    if annotations is not None and annotations.resolve() == (output / "validation_annotations_template.csv").resolve():
+    if relationship_selected is None:
+        relationship_selected = (_relationship_sample(family_data, per_stratum, seed)
+                                 if family_data else [])
+    has_relationships = bool(family_data) or (relationship_selected is not None and per_stratum is not None
+                                              and manual_review is not None)
+    directed_folder = manual_review / "directed-pairs" if manual_review else output
+    relation_folder = manual_review / "relationship-pairs" if manual_review else output
+    if annotations is not None and annotations.resolve() == (directed_folder / "validation_annotations_template.csv").resolve():
         raise ResearchInputError("Copy the template to a separate reviewed CSV before using --annotations")
     if (relationship_annotations is not None and relationship_annotations.resolve() ==
-            (output / "relationship_validation_annotations_template.csv").resolve()):
+            (relation_folder / "relationship_validation_annotations_template.csv").resolve()):
         raise ResearchInputError("Copy the relationship template before using --relationship-annotations")
     output.mkdir(parents=True, exist_ok=True)
+    if manual_review:
+        directed_folder.mkdir(parents=True, exist_ok=True)
+        relation_folder.mkdir(parents=True, exist_ok=True)
     _write_csv(output / "directed_pairs.csv", all_rows, PAIR_FIELDS)
     _write_csv(output / "families.csv", family_rows, tuple(family_rows[0].keys()))
     _write_csv(output / "direction_basis.csv", [dict(direction_basis=k, **v) for k, v in sorted(direction.items())],
@@ -572,28 +589,30 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
          "percent_of_directed_pairs": round(100 * indicator_frequency[iid] / pairs, 3) if pairs else 0}
         for iid in INDICATORS], ("indicator_id", "pairs", "directed_pairs", "percent_of_directed_pairs"))
     if per_stratum is not None:
-        _write_csv(output / "validation_sample.csv", chosen, (*PAIR_FIELDS, "sampling_stratum"))
-        _write_csv(output / "validation_annotations_template.csv", [
+        _write_csv(directed_folder / "validation_sample.csv", chosen, (*PAIR_FIELDS, "sampling_stratum"))
+        _write_csv(directed_folder / "validation_annotations_template.csv", [
             {**row, **{field: "" for field in DIRECTED_REVIEW_FIELDS},
              "review_phase": "independent", "review_status": "pending"}
             for row in chosen], (*PAIR_FIELDS, "sampling_stratum", *DIRECTED_REVIEW_FIELDS))
-    if family_data:
-        _write_csv(output / "relationship_validation_sample.csv", relationship_selected, RELATIONSHIP_FIELDS)
-        _write_csv(output / "relationship_validation_annotations_template.csv", [
+    if has_relationships:
+        _write_csv(relation_folder / "relationship_validation_sample.csv", relationship_selected, RELATIONSHIP_FIELDS)
+        _write_csv(relation_folder / "relationship_validation_annotations_template.csv", [
             {**row, **{field: "" for field in RELATIONSHIP_REVIEW_FIELDS},
              "review_phase": "independent", "review_status": "pending"}
             for row in relationship_selected], (*RELATIONSHIP_FIELDS, *RELATIONSHIP_REVIEW_FIELDS))
-    _svg_frequency(output / "indicator_frequency.svg", indicator_frequency, pairs)
+    if figures is not None:
+        figures.mkdir(parents=True, exist_ok=True)
+    _svg_frequency((figures or output) / "indicator_frequency.svg", indicator_frequency, pairs)
     if per_stratum is not None:
         summary["sampling"] = {"seed": seed, "per_stratum": per_stratum,
                                "sampled_pairs": len(chosen),
                                "strata_counts": dict(sorted(Counter(row["sampling_stratum"] for row in chosen).items()))}
-    if family_data:
+    if has_relationships:
         summary["relationship_sampling"] = {
             "seed": seed, "per_stratum": per_stratum, "sampled_pairs": len(relationship_selected),
             "strata_counts": dict(sorted(Counter(row["sampling_stratum"]
                                                 for row in relationship_selected).items())),
-            "families_supplied": len(family_data),
+            "families_supplied": len(family_data) if family_data else len(reports),
         }
     if annotations is not None:
         summary["manual_validation"] = _annotation_metrics(annotations, chosen)
@@ -604,3 +623,75 @@ def summarize(paths: list[Path], output: Path, *, per_stratum: int | None = None
     return summary
 
 
+
+
+class RelationshipSampler:
+    """Bounded, reproducible stratified sampling of all relationship candidates.
+
+    Each candidate is considered exactly once; reservoir sampling is uniform
+    without replacement within the *whole cohort*, even across family loads.
+    Unlike shuffling a materialized candidate list, this retains at most
+    per_stratum rows per relationship stratum in memory.
+    """
+
+    def __init__(self, per_stratum: int, seed: int):
+        if per_stratum < 1:
+            raise ValueError("per_stratum must be positive")
+        self.per_stratum = per_stratum
+        self._random = {label: random.Random(f"{seed}:{label}") for label in RELATIONSHIP_STRATA}
+        self._seen = Counter()
+        self._reservoir = {label: [] for label in RELATIONSHIP_STRATA}
+
+    def _consider(self, row: dict) -> None:
+        stratum = row["sampling_stratum"]
+        self._seen[stratum] += 1
+        rows = self._reservoir[stratum]
+        if len(rows) < self.per_stratum:
+            rows.append(row)
+        else:
+            index = self._random[stratum].randrange(self._seen[stratum])
+            if index < self.per_stratum:
+                rows[index] = row
+
+    def add_family(self, family: FamilyAnalysis) -> None:
+        """Examine all variants and inferred undirected edges without JSON expansion."""
+        for cluster in family.family.clusters:
+            for edge in cluster.evolution.ambiguous_edges:
+                left, right = sorted((edge.left_artifact_id, edge.right_artifact_id))
+                label = "equivalent" if edge.relationship_status == "equivalent" else "ambiguous"
+                self._consider({
+                    "family": family.name, "cluster": cluster.number,
+                    "artifact_a_id": left, "artifact_b_id": right,
+                    "relationship_status": edge.relationship_status,
+                    "direction_basis": edge.basis, "change_type": edge.change_type.value,
+                    "similarity_jaccard": edge.jaccard,
+                    "similarity_containment": max(edge.containment_left_to_right,
+                                                  edge.containment_right_to_left),
+                    "similarity_shared_shingles": edge.shared_shingles,
+                    "sampling_stratum": label,
+                })
+        variants = {variant.file_sha: variant for variant in family.skill_variants}
+        for sim in family.similarities:
+            if family.policy.relates(sim) or sim.left_file_sha == sim.right_file_sha:
+                continue
+            left = variants[sim.left_file_sha]
+            right = variants[sim.right_file_sha]
+            for left_id in left.artifact_ids:
+                for right_id in right.artifact_ids:
+                    a, b = sorted((left_id, right_id))
+                    if a == b:
+                        continue
+                    self._consider({
+                        "family": family.name, "cluster": "",
+                        "artifact_a_id": a, "artifact_b_id": b,
+                        "relationship_status": "no-related-edge",
+                        "direction_basis": "not_applicable", "change_type": "not_applicable",
+                        "similarity_jaccard": sim.jaccard,
+                        "similarity_containment": max(sim.left_to_right_containment,
+                                                      sim.right_to_left_containment),
+                        "similarity_shared_shingles": sim.shared_shingles,
+                        "sampling_stratum": "no-related-edge",
+                    })
+
+    def selected(self) -> list[dict]:
+        return [row for label in RELATIONSHIP_STRATA for row in self._reservoir[label]]
