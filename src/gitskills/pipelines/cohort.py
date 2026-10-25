@@ -16,7 +16,8 @@ from gitskills.analysis.family_risk import FamilyRiskAnalyzer
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
 from gitskills.reporting.cohort_summary import (
-    RelationshipSampler, ResearchInputError, _read_report, _rows, _sample, summarize,
+    RelationshipSampler, ResearchInputError, _read_report, _rows, _sample,
+    apply_adjudications, summarize,
 )
 
 from .provenance import (
@@ -137,6 +138,114 @@ def _review_exists(results: Path) -> bool:
                               results / "review" / "adjudicated"))
 
 
+def _research_fingerprint() -> str:
+    """Fingerprint the orchestration and summarization logic used for this cohort."""
+    digest = hashlib.sha256()
+    for path in (Path(__file__), Path(__file__).resolve().parents[1] / "reporting" / "cohort_summary.py"):
+        digest.update(path.name.encode("utf-8"))
+        digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
+def _summary_fingerprint(summary: dict) -> str:
+    """Ignore adjudication metrics, which legitimately change after manual review."""
+    return fingerprint({key: value for key, value in summary.items()
+                        if key not in ("manual_validation", "relationship_validation")})
+
+
+def _sample_checksums(results: Path) -> dict:
+    paths = ("manual-review/directed-pairs/validation_sample.csv",
+             "manual-review/relationship-pairs/relationship_validation_sample.csv")
+    return {name: _file_sha(results / name) for name in paths}
+
+
+def _apply_saved_reviews(*, selected: list[str], database: Path, results: Path,
+                         policy: SimilarityPolicy, edges: str, per_stratum: int,
+                         seed: int, directed_annotations: Path | None,
+                         relationship_annotations: Path | None, active_rules: list[dict],
+                         stamp: dict, implementation: str,
+                         approval_reference: str | None) -> dict:
+    """Verify persisted cohort evidence before applying manual-review metrics."""
+    def invalid(reason: str):
+        raise ValueError(f"Cannot reuse saved validation evidence: {reason}. "
+                         "Archive the previous results and generate a new cohort "
+                         "without annotations if the inputs have changed")
+
+    manifest_path = results / "sample_manifest.json"
+    scan_manifest_path = results / ".scans" / ".metadata" / "scan-manifest.json"
+    execution_path = results / "execution_summary.json"
+    try:
+        saved = read_json(manifest_path)
+        scan_manifest = read_json(scan_manifest_path)
+        prior = read_json(execution_path)
+        summary = read_json(results / "review" / "summary.json")
+    except ValueError as exc:
+        invalid(str(exc))
+    if (sorted(saved.get("family_names", [])) != sorted(selected) or
+            saved.get("dataset", {}).get("path") != str(database.resolve()) or
+            saved.get("dataset", {}).get("size_bytes") != stamp["size_bytes"] or
+            saved.get("similarity_policy") != policy.to_dict() or
+            saved.get("edge_selection") != edges or
+            saved.get("active_rules") != active_rules or
+            saved.get("implementation_fingerprint") != implementation or
+            saved.get("cohort_implementation_fingerprint") != _research_fingerprint() or
+            saved.get("sampling", {}).get("seed") != seed or
+            saved.get("sampling", {}).get("per_stratum") != per_stratum or
+            (approval_reference is not None and saved.get("approval_reference") != approval_reference)):
+        invalid("cohort sources, settings, or implementation do not match")
+
+    entries = scan_manifest.get("families", {})
+    if scan_manifest.get("version") != _CACHE_VERSION or not isinstance(entries, dict):
+        invalid("scan cache manifest is missing or incompatible")
+    snapshots = {entry["name"]: entry for entry in saved.get("families", [])}
+    if set(snapshots) != set(selected):
+        invalid("cohort family source snapshots are incomplete")
+    for name in selected:
+        entry = entries.get(name, {})
+        source = snapshots[name]
+        filename = entry.get("filename")
+        if not isinstance(filename, str) or Path(filename).name != filename:
+            invalid(f"scan cache filename for {name} is invalid")
+        scan_file = results / ".scans" / filename
+        if (not isinstance(source.get("scan_report"), str) or
+                Path(source["scan_report"]).resolve() != scan_file.resolve() or
+                entry.get("database") != stamp or
+                entry.get("implementation_fingerprint") != implementation or
+                entry.get("policy") != policy.to_dict() or
+                entry.get("edges") != edges or
+                entry.get("active_rules") != active_rules or
+                entry.get("source_fingerprint") != source.get("source_fingerprint") or
+                entry.get("source_fingerprint") != fingerprint(source.get("artifacts", [])) or
+                entry.get("skipped_fingerprint") != fingerprint(source.get("skipped_artifacts", [])) or
+                not scan_file.is_file() or entry.get("sha256") != _file_sha(scan_file)):
+            invalid(f"scan cache for {name} is stale or inconsistent")
+
+    if saved.get("validation_sample_checksums") is None or saved.get("review_summary_fingerprint") is None:
+        invalid("saved evidence predates validation caching")
+    try:
+        hashes = _sample_checksums(results)
+    except OSError as exc:
+        invalid(f"validation sample is missing: {exc}")
+    if (hashes != saved["validation_sample_checksums"] or
+            saved["review_summary_fingerprint"] != _summary_fingerprint(summary) or
+            summary.get("similarity_policy") != policy.to_dict() or
+            summary.get("edge_selection") != edges or
+            summary.get("family_count") != len(selected) or
+            prior.get("family_count") != len(selected) or
+            prior.get("directed_pairs_analyzed") != summary.get("directed_pairs_analyzed")):
+        invalid("saved research summary or validation samples have changed")
+
+    # Validate both supplied annotation files before writing either result.
+    updated = apply_adjudications(
+        results, directed_annotations=directed_annotations,
+        relationship_annotations=relationship_annotations,
+    )
+    _atomic_json(results / "review" / "summary.json", updated)
+    prior["validation_status"] = "adjudicated results provided"
+    _atomic_json(execution_path, prior)
+    return prior
+
+
 def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                      skilltrace_reports: Path | None = None,
                      policy: SimilarityPolicy | None = None, edges: str = "all",
@@ -165,12 +274,39 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
     stamp, implementation = _database_stamp(database), implementation_fingerprint()
     active_rules = [rule.to_dict() for rule in FamilyRiskAnalyzer(policy=policy, edges=edges).active_rules]
     folder = results / ".scans"
-    cache_manifest = folder / ".scan_manifest.json"
+    cache_manifest = folder / ".metadata" / "scan-manifest.json"
+    legacy_manifest = folder / ".scan_manifest.json"
+    if (directed_annotations or relationship_annotations) and not rescan:
+        if progress is not None:
+            progress("Verifying saved cohort and updating adjudication metrics")
+        return _apply_saved_reviews(
+            selected=selected, database=database, results=results, policy=policy,
+            edges=edges, per_stratum=per_stratum, seed=seed,
+            directed_annotations=directed_annotations,
+            relationship_annotations=relationship_annotations,
+            active_rules=active_rules, stamp=stamp, implementation=implementation,
+            approval_reference=approval_reference,
+        )
     try:
-        stored = read_json(cache_manifest) if cache_manifest.is_file() else {}
+        manifest_source = cache_manifest if cache_manifest.is_file() else legacy_manifest
+        stored = read_json(manifest_source) if manifest_source.is_file() else {}
     except ValueError:
         stored = {}
     entries = dict(stored.get("families", {})) if stored.get("version") == _CACHE_VERSION else {}
+    if _review_exists(results) and (results / "sample_manifest.json").is_file():
+        previous = read_json(results / "sample_manifest.json")
+        expected_samples = previous.get("validation_sample_checksums")
+        if expected_samples is not None:
+            try:
+                if expected_samples != _sample_checksums(results):
+                    raise ValueError("Saved validation samples changed after adjudication; "
+                                     "archive the previous results first")
+            except OSError as exc:
+                raise ValueError("Saved validation sample missing after adjudication; "
+                                 "archive the previous results first") from exc
+    if legacy_manifest.is_file() and not cache_manifest.is_file() and stored.get("version") == _CACHE_VERSION:
+        _atomic_json(cache_manifest, stored)
+        legacy_manifest.unlink()
     family_repository = DuckDBFamilyRepository(database)
     sibling_repository = DuckDBSiblingRepository(database)
     snapshots, audit, scans = [], [], []
@@ -259,11 +395,7 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
     sample = cohort_manifest(selected, database, scans, snapshots, audit,
                              Path(__file__).resolve().parents[3], per_stratum, seed,
                              approval_reference)
-    research_digest = hashlib.sha256()
-    for path in (Path(__file__), Path(__file__).resolve().parents[1] / "reporting" / "cohort_summary.py"):
-        research_digest.update(path.name.encode("utf-8"))
-        research_digest.update(path.read_bytes())
-    sample["cohort_implementation_fingerprint"] = research_digest.hexdigest()
+    sample["cohort_implementation_fingerprint"] = _research_fingerprint()
     if per_stratum is not None:
         rows = sorted((item for scan in scans for item in _rows(scan)),
                       key=lambda row: (row["family"], row["cluster"], row["base_artifact_id"],
@@ -282,7 +414,10 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
         relationship_annotations=relationship_annotations,
     )
     results.mkdir(parents=True, exist_ok=True)
-    (results / "sample_manifest.json").write_text(json.dumps(sample, indent=2) + "\n", encoding="utf-8")
+    if per_stratum is not None:
+        sample["validation_sample_checksums"] = _sample_checksums(results)
+    sample["review_summary_fingerprint"] = _summary_fingerprint(summary)
+    _atomic_json(results / "sample_manifest.json", sample)
     write_audit(results, audit, snapshots)
 
     execution = {

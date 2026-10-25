@@ -623,6 +623,67 @@ def summarize(paths: list[Path | dict], output: Path, *, per_stratum: int | None
     return summary
 
 
+def _read_saved_sample(path: Path, fields: tuple[str, ...],
+                       key_fields: tuple[str, ...]) -> list[dict]:
+    """Read saved review evidence without rerunning family similarity analysis."""
+    try:
+        with path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            _require(reader.fieldnames is not None and set(fields) <= set(reader.fieldnames),
+                     f"{path}: saved validation sample has missing columns")
+            rows = list(reader)
+    except OSError as exc:
+        raise ResearchInputError(f"Cannot read saved validation sample {path}: {exc}") from exc
+    keys = [tuple(row[field] for field in key_fields) for row in rows]
+    _require(len(set(keys)) == len(keys), f"{path}: duplicate pair in saved validation sample")
+    return rows
+
+
+def apply_adjudications(results: Path, *, directed_annotations: Path | None = None,
+                        relationship_annotations: Path | None = None) -> dict:
+    """Update saved summary metrics from approved samples, without analyzing families."""
+    review = results / "review"
+    manual = results / "manual-review"
+    directed = manual / "directed-pairs"
+    relationships = manual / "relationship-pairs"
+    if (directed_annotations is not None and directed_annotations.resolve() ==
+            (directed / "validation_annotations_template.csv").resolve()):
+        raise ResearchInputError("Copy the template to a reviewed CSV before using --annotations")
+    if (relationship_annotations is not None and relationship_annotations.resolve() ==
+            (relationships / "relationship_validation_annotations_template.csv").resolve()):
+        raise ResearchInputError("Copy the relationship template before using --relationship-annotations")
+    try:
+        summary = json.loads((review / "summary.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ResearchInputError(f"Cannot load saved research summary: {exc}") from exc
+    _require(isinstance(summary, dict) and summary.get("report_type") == "gitskills-research-summary",
+             "Saved research summary is invalid")
+    chosen = _read_saved_sample(directed / "validation_sample.csv",
+                                (*PAIR_FIELDS, "sampling_stratum"),
+                                ("family", "cluster", "base_artifact_id", "derived_artifact_id"))
+    related = _read_saved_sample(relationships / "relationship_validation_sample.csv",
+                                 RELATIONSHIP_FIELDS,
+                                 ("family", "artifact_a_id", "artifact_b_id"))
+    _require(summary.get("sampling", {}).get("sampled_pairs") == len(chosen),
+             "Saved directed sample count differs from research summary")
+    _require(summary.get("relationship_sampling", {}).get("sampled_pairs") == len(related),
+             "Saved relationship sample count differs from research summary")
+    _require(summary["sampling"].get("strata_counts") ==
+             dict(sorted(Counter(row["sampling_stratum"] for row in chosen).items())),
+             "Saved directed sample strata differ from research summary")
+    _require(summary["relationship_sampling"].get("strata_counts") ==
+             dict(sorted(Counter(row["sampling_stratum"] for row in related).items())),
+             "Saved relationship sample strata differ from research summary")
+    # Match the original summarize() behavior when only one annotation is supplied.
+    summary.pop("manual_validation", None)
+    summary.pop("relationship_validation", None)
+    if directed_annotations is not None:
+        summary["manual_validation"] = _annotation_metrics(directed_annotations, chosen)
+    if relationship_annotations is not None:
+        summary["relationship_validation"] = _relationship_metrics(relationship_annotations, related)
+    return summary
+
+
 
 
 class RelationshipSampler:

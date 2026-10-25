@@ -1,4 +1,4 @@
-# End-to-End Family Pipeline
+# End-to-End Processing Pipeline
 
 This notebook connects the existing GitSkills family analysis, directed security scanning, research summaries, and manual-review sampling. It supersedes the **Sprint 1** `notebooks/end-to-end_pipeline/` demonstration without changing it.
 
