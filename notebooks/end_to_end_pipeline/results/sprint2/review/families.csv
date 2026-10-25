@@ -2,13 +2,15 @@ family,artifacts_loaded,artifacts_skipped,primary_pairs,additional_pairs,pairs_a
 003-create-golang-project,4,0,1,0,1,1,0,1,1,0,3
 1k-defi-module-integration,4,0,2,1,3,2,0,2,1,0,0
 A/B Test Setup,2,0,0,0,0,0,0,0,0,0,0
+RabbitMQ Message Broker Manager,4,0,0,0,0,0,0,0,0,0,3
 argent-react-native-app-workflow,5,0,2,2,4,4,0,4,0,0,6
 busybox-on-windows,26,0,21,153,174,34,0,33,0,0,40
 capacitor-best-practices,3,0,2,1,3,2,2,2,2,2,0
 cometchat-core,5,0,2,5,7,7,0,7,3,0,2
 cursor-subagent-creator,5,0,3,6,9,7,0,6,0,0,0
 databricks-upgrade-migration,5,0,0,0,0,0,0,0,0,0,3
+desktime-automation,4,0,1,2,3,0,0,0,0,0,0
 ghostclaw,5,0,3,1,4,1,0,1,1,0,0
 hello-world,171,0,3,1,4,0,1,0,0,1,5
 legacy-migration-planner,5,0,4,5,9,7,0,6,0,0,0
-python-patterns,247,0,125,3082,3207,764,0,764,159,0,954
+safe-encryption,4,0,1,0,1,0,0,0,0,0,5

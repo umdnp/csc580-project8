@@ -38,10 +38,10 @@ RESULT_DIR/
 ├── manual-review/
 │   ├── directed-pairs/
 │   │   ├── validation_sample.csv
-│   │   └── validation_annotations_template.csv
+│   │   └── annotations_template.csv
 │   ├── relationship-pairs/
 │   │   ├── relationship_validation_sample.csv
-│   │   └── relationship_validation_annotations_template.csv
+│   │   └── relationship_annotations_template.csv
 │   └── adjudicated/                # Team-created reviewed copies
 ├── review/
 │   ├── summary.json                # Full-population statistics; later, review metrics
@@ -71,15 +71,15 @@ There are **two different review assignments**. Give each reviewer independent c
 
 | Review | File to copy | Question to answer |
 |---|---|---|
-| **Directed pairs** | `manual-review/directed-pairs/validation_annotations_template.csv` | Is the inferred direction defensible? Did the scanner correctly identify changed commands, files, network or credential-related evidence, risk indicators, and coverage limitations? |
-| **Relationship pairs** | `manual-review/relationship-pairs/relationship_validation_annotations_template.csv` | Do these two artifacts appear related, and does the available evidence support a direction (if any)? This includes pairs the algorithm did **not** link. |
+| **Directed pairs** | `manual-review/directed-pairs/annotations_template.csv` | Is the inferred direction defensible? Did the scanner correctly identify changed commands, files, network or credential-related evidence, risk indicators, and coverage limitations? |
+| **Relationship pairs** | `manual-review/relationship-pairs/relationship_annotations_template.csv` | Do these two artifacts appear related, and does the available evidence support a direction (if any)? This includes pairs the algorithm did **not** link. |
 
 **Do not review only flagged rows.** The samples deliberately include less-obvious, incomplete, uncertain, and unflagged examples. `review/directed_pairs.csv` is the full set of analyzed directed pairs; `validation_sample.csv` is only the selected review subset.
 
 ### Step A — Prepare independent copies
 
 1. Confirm the intended families, sampling seed, policy, and scan scope in `sample_manifest.json`. Freeze these inputs before review begins.
-2. Copy each `*_annotations_template.csv` for each reviewer (for example, into a team-controlled review workspace). Keep the generated templates and `*_sample.csv` files unchanged.
+2. Copy both annotation templates for each reviewer (for example, into a team-controlled review workspace). Keep the generated templates and `*_sample.csv` files unchanged.
 3. Open the copies in Excel, LibreOffice, or a CSV editor. **Preserve every row, column heading, artifact ID, and existing sample value**; only fill in the review columns described below. Save as UTF-8 CSV, not just `.xlsx`.
 4. Reviewers work **independently first**. Mark a row `complete` only after inspecting the evidence and recording all required review judgments. Keep difficult rows `pending` until resolved.
 
@@ -109,7 +109,7 @@ SkillTrace is an inspection aid, **not** the final adjudicator. Never execute sk
 
 ### Step C — Review *relationship* pairs
 
-Open your copy of `relationship_validation_annotations_template.csv`. The generated columns describe the tool's assessment and should remain unchanged:
+Open your copy of `relationship_annotations_template.csv`. The generated columns describe the tool's assessment and should remain unchanged:
 
 - `relationship_status` / `sampling_stratum`: `ambiguous`, `equivalent`, or `no-related-edge` (the last means the pair failed the configured relatedness criteria; it does not establish independence).
 - `similarity_jaccard`, `similarity_containment`, `similarity_shared_shingles`: numerical similarity evidence to help guide inspection, **not** a human judgment.
@@ -131,7 +131,7 @@ For **each pair**, inspect both raw skill bodies, important instructions and com
 
 ### Step D — Review *directed/security* pairs
 
-Open your copy of `validation_annotations_template.csv`. Keep the generated fields (`base_artifact_id`, `derived_artifact_id`, `edge_type`, `indicator_ids`, `uncertain_indicator_ids`, `coverage_status`, `sampling_stratum`, counts, etc.) **unchanged**. The scanner's `indicator_ids` are its predictions; your separate `manual_*` fields contain **your** conclusions.
+Open your copy of `annotations_template.csv`. Keep the generated fields (`base_artifact_id`, `derived_artifact_id`, `edge_type`, `indicator_ids`, `uncertain_indicator_ids`, `coverage_status`, `sampling_stratum`, counts, etc.) **unchanged**. The scanner's `indicator_ids` are its predictions; your separate `manual_*` fields contain **your** conclusions.
 
 Inspect the original base and derived instructions, all relevant changed source evidence and sibling files, and the stated direction evidence. Ask:
 

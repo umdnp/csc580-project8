@@ -178,8 +178,8 @@ def test_incremental_cohort_filters_old_scans_and_preserves_sources(repositories
     assert first["family_count"] == 1
     assert first["artifacts_skipped"] == 1
     assert first["status"] == "complete"
-    assert (results / "manual-review" / "relationship-pairs" / "relationship_validation_annotations_template.csv").exists()
-    assert (results / "manual-review" / "directed-pairs" / "validation_annotations_template.csv").exists()
+    assert (results / "manual-review" / "relationship-pairs" / "relationship_annotations_template.csv").exists()
+    assert (results / "manual-review" / "directed-pairs" / "annotations_template.csv").exists()
     cohort = json.loads((results / "sample_manifest.json").read_text())
     assert cohort["family_names"] == ["alpha"]
     assert len(cohort["families"][0]["artifacts"]) == 2

@@ -71,7 +71,7 @@ def test_independent_cohort_writes_cache_and_outputs(sources, tmp_path):
     assert manifest["version"] == 1
     assert "implementation_fingerprint" not in _json(results / ".scans" / "alpha.json")
     assert (results / "review" / "directed_pairs.csv").is_file()
-    assert (results / "manual-review" / "directed-pairs" / "validation_annotations_template.csv").is_file()
+    assert (results / "manual-review" / "directed-pairs" / "annotations_template.csv").is_file()
     assert (results / "manual-review" / "relationship-pairs" / "relationship_validation_sample.csv").is_file()
     assert (results / "figures" / "indicator_frequency.svg").is_file()
     assert (results / "audit" / "processing_summary.csv").is_file()
@@ -177,8 +177,8 @@ def test_review_metrics_use_saved_samples_without_loading_or_scanning(sources, t
     directed = adjudicated / "directed.csv"
     related = adjudicated / "relationships.csv"
 
-    directed_rows = list(csv.DictReader((manual / "directed-pairs" / "validation_annotations_template.csv").open()))
-    relationship_rows = list(csv.DictReader((manual / "relationship-pairs" / "relationship_validation_annotations_template.csv").open()))
+    directed_rows = list(csv.DictReader((manual / "directed-pairs" / "annotations_template.csv").open()))
+    relationship_rows = list(csv.DictReader((manual / "relationship-pairs" / "relationship_annotations_template.csv").open()))
     assert directed_rows and relationship_rows
     directed_rows[0].update({
         "reviewer": "team", "review_phase": "adjudicated", "review_status": "complete",
@@ -232,7 +232,7 @@ def test_review_fast_path_fails_closed_if_samples_or_inputs_change(sources, tmp_
     annotation = results / "manual-review" / "adjudicated" / "directed.csv"
     annotation.parent.mkdir()
     annotation.write_bytes((results / "manual-review" / "directed-pairs" /
-                            "validation_annotations_template.csv").read_bytes())
+                            "annotations_template.csv").read_bytes())
     relationship = results / "manual-review" / "relationship-pairs" / "relationship_validation_sample.csv"
     original = relationship.read_bytes()
     relationship.write_bytes(original + b"\n")
@@ -256,7 +256,7 @@ def test_review_fast_path_rejects_unsampled_rows_and_keeps_summary(sources, tmp_
     cohort.summarize_cohort(["alpha"], database=sources, results=results)
     annotation = results / "manual-review" / "adjudicated" / "directed.csv"
     annotation.parent.mkdir()
-    with (results / "manual-review" / "directed-pairs" / "validation_annotations_template.csv").open() as handle:
+    with (results / "manual-review" / "directed-pairs" / "annotations_template.csv").open() as handle:
         rows = list(csv.DictReader(handle))
     assert rows
     rows[0].update({"review_status": "complete", "review_phase": "adjudicated", "reviewer": "team",
@@ -294,7 +294,7 @@ def test_rescan_with_annotations_still_runs_scanner(sources, tmp_path, monkeypat
     annotation = results / "manual-review" / "adjudicated" / "directed.csv"
     annotation.parent.mkdir()
     annotation.write_bytes((results / "manual-review" / "directed-pairs" /
-                            "validation_annotations_template.csv").read_bytes())
+                            "annotations_template.csv").read_bytes())
     original = cohort.scan_family_report
     calls = []
     def counted(*args, **kwargs):
