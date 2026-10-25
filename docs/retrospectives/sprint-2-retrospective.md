@@ -66,6 +66,8 @@ We corrected the normalization order and added regression tests. We also learned
 
 Reviewing actual comparisons exposed misleading matches, incomplete evidence, and gaps in content coverage. These were not always apparent in isolated unit tests.
 
+For example, a `hello-world` sibling script reads operating system details but does not match our current security rules. A possible earlier counterpart has no stored content, so we cannot determine whether that behavior was introduced. This showed why visible differences, detected evidence, and complete comparison coverage must be considered separately.
+
 We added regression cases and refined validation to consider relatedness, detected evidence, and risk indicators separately. We also learned to keep the selected review cases, validation protocol, and generated results aligned.
 
 ### 8. Preserving evidence requires safe reporting
