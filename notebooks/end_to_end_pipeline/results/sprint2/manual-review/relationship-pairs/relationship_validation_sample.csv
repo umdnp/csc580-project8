@@ -1,0 +1,16 @@
+family,cluster,artifact_a_id,artifact_b_id,relationship_status,direction_basis,change_type,similarity_jaccard,similarity_containment,similarity_shared_shingles,sampling_stratum
+python-patterns,1,3247427,3323472,direction-unknown,similarity-only,skill-only,0.8227722772277227,0.9192477876106194,1662,ambiguous
+python-patterns,1,2528884,2599842,direction-unknown,similarity-only,skill+siblings,0.8986083499005965,0.9668449197860962,904,ambiguous
+python-patterns,1,3238142,3323472,direction-unknown,similarity-only,skill-only,0.7358130662851693,0.8737259343148358,1543,ambiguous
+python-patterns,1,2509960,2565151,direction-unknown,similarity-only,skill-only,0.9556962025316456,0.9956043956043956,906,ambiguous
+python-patterns,1,2490971,2553281,direction-unknown,similarity-only,skill-only,0.9567966280295047,0.9978021978021978,908,ambiguous
+python-patterns,1,2500195,2517836,equivalent,equivalent-state,equivalent,1.0,1.0,910,equivalent
+python-patterns,1,2590679,2607879,equivalent,equivalent-state,equivalent,1.0,1.0,975,equivalent
+python-patterns,1,2503593,2509960,equivalent,equivalent-state,equivalent,1.0,1.0,910,equivalent
+python-patterns,1,2509960,2603242,equivalent,equivalent-state,equivalent,1.0,1.0,910,equivalent
+python-patterns,1,2490971,2615507,equivalent,equivalent-state,equivalent,1.0,1.0,910,equivalent
+hello-world,,94686,158523,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+hello-world,,62326,156826,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+python-patterns,,2228258,2528717,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+python-patterns,,83346,2296260,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+hello-world,,77270,91923,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
