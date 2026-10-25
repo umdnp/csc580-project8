@@ -212,10 +212,10 @@ th{background:var(--panel)}
 <p class="muted">Explore candidate-family ancestry, uncertainty, artifact contents, sibling files, diffs, and static scan results.</p>
 
 <div class="controls">
-  <label>Report<select id="report"></select></label>
+  <label>Family analysis report<select id="report"></select></label>
   <button id="refresh">Refresh reports</button>
-  <label>Relationship cluster<select id="cluster"></select></label>
-  <label>View<select id="scope"><option value="local">Direct relationships</option><option value="lineage">Direct and indirect relationships</option><option value="cluster">Entire cluster</option></select></label>
+  <label>Similarity cluster<select id="cluster"></select></label>
+  <label>Relationship view<select id="scope"><option value="local">Direct relationships</option><option value="lineage">Direct and indirect relationships</option><option value="cluster">Entire cluster</option></select></label>
 </div>
 <div id="report-summary" class="report-summary" hidden></div>
 <div class="controls">
@@ -238,7 +238,7 @@ th{background:var(--panel)}
 </div>
 <p class="muted">Arrowheads show inferred earlier → later; gray peer lines have no direction. Node color distinguishes peer type.</p>
 <div class="actions">
-  <button id="fit">Fit visible family</button>
+  <button id="fit">Fit graph</button>
   <button id="focus">Focus selected</button>
   <button id="plus" aria-label="Zoom in">+</button>
   <button id="minus" aria-label="Zoom out">−</button>
@@ -257,7 +257,7 @@ th{background:var(--panel)}
       </div>
     </section>
     <section class="control-panel">
-      <h3>Compare To</h3>
+      <h3>Compare with</h3>
       <span class="field-label">Artifact</span>
       <div id="compare-control" class="compare-dropdown">
         <button id="compare-toggle" class="compare-toggle" type="button" aria-haspopup="listbox" aria-expanded="false">NONE</button>
@@ -271,7 +271,7 @@ th{background:var(--panel)}
       <p id="compare-note" class="muted"></p>
     </section>
     <section class="control-panel">
-      <h3>Artifact Siblings</h3>
+      <h3>Sibling files</h3>
       <label>File<select id="sibling"></select></label>
       <div class="detail-actions">
         <button id="view-sibling-content" hidden>View content</button>
@@ -283,7 +283,7 @@ th{background:var(--panel)}
     </section>
   </div>
   <div id="detail-content"></div>
-  <h3>Directed connections</h3><div id="neighbors"></div>
+  <h3>Directed relationships</h3><div id="neighbors"></div>
   <h3 id="ambiguous-heading">Peer relationships</h3><div id="ambiguous-neighbors"></div>
   <p id="edge-detail" aria-live="polite"></p>
 </section>
