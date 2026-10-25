@@ -121,10 +121,11 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
         run_cell(cells, index, namespace)
     execution = namespace["execution"]
     results = project / "notebooks/end_to_end_pipeline/results/sprint2"
-    reports = project / "apps/skilltrace/reports"
+    from gitskills.reporting.files import report_stem
+    scans_dir = results / ".scans"
     assert namespace["PROJECT_ROOT"] == project
     assert namespace["RESULT_DIR"] == results
-    assert namespace["SKILLTRACE_REPORTS"] == reports
+    assert "SKILLTRACE_REPORTS" not in namespace
     assert namespace["candidate_families"] == names
     assert namespace["EDGES"] == "all"
     assert execution["status"] == "complete"
@@ -142,7 +143,7 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
     assert (results / "audit/processing_summary.csv").is_file()
     assert (results / "review/summary.json").is_file()
 
-    positive = json.loads(Path(namespace["runs"][0]["scan_report"]).read_text())
+    positive = json.loads((scans_dir / f"{report_stem(names[0])}.json").read_text())
     assert positive["summary"]["pairs_flagged"] == 1
     pair, = positive["clusters"][0]["flagged_pairs"]
     assert (pair["source_artifact_id"], pair["destination_artifact_id"]) == (101, 102)
@@ -150,23 +151,23 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
         ("NET-001", "skill"), ("FS-001", "sibling"),
     }
     assert pair["sibling_scan"]["incomplete"] == missing_sibling_content
-    negative = json.loads(Path(namespace["runs"][1]["scan_report"]).read_text())
+    negative = json.loads((scans_dir / f"{report_stem(names[1])}.json").read_text())
     assert negative["summary"]["pairs_analyzed"] == 1
     assert negative["summary"]["pairs_flagged"] == 0
-    unknown = json.loads(Path(namespace["runs"][2]["scan_report"]).read_text())
+    unknown = json.loads((scans_dir / f"{report_stem(names[2])}.json").read_text())
     assert unknown["summary"]["pairs_analyzed"] == 0
     assert unknown["summary"]["ambiguous_edges_skipped"] == 1
 
-    templates = [results / "review" / filename for filename in (
-        "validation_annotations_template.csv", "relationship_validation_annotations_template.csv",
-    )]
+    templates = [
+        results / "manual-review/directed-pairs/validation_annotations_template.csv",
+        results / "manual-review/relationship-pairs/relationship_validation_annotations_template.csv",
+    ]
     template_bytes = {path: path.read_bytes() for path in templates}
-    scan_bytes = {Path(record["scan_report"]): Path(record["scan_report"]).read_bytes() for record in namespace["runs"]}
+    scan_bytes = {path: path.read_bytes() for path in scans_dir.glob("*.json")}
     # Reuse the same notebook namespace just as a user rerunning the analysis and
     # summary cells would; the same seed and cohort must preserve these outputs.
-    run_cell(cells, assignment_cell(cells, "runs")[0], namespace)
     run_cell(cells, assignment_cell(cells, "execution")[0], namespace)
-    assert all(not record["family_report_updated"] for record in namespace["runs"])
+    run_cell(cells, assignment_cell(cells, "runs")[0], namespace)
     assert {path: path.read_bytes() for path in templates} == template_bytes
     assert {path: path.read_bytes() for path in scan_bytes} == scan_bytes
     assert sha256(database.read_bytes()).hexdigest() == source_hash

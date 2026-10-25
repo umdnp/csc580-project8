@@ -10,7 +10,7 @@ import pytest
 from gitskills.analysis.family_models import Artifact
 from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_risk import FamilyRiskAnalyzer
-from gitskills.tools.summarize_scans import ResearchInputError, summarize
+from gitskills.reporting.cohort_summary import ResearchInputError, summarize
 
 
 PREFIX = "The agent skill performs safe and documented analysis of software artifacts and security patterns. " * 15 + "\n"

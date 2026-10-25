@@ -31,29 +31,6 @@
     }
   },
   "family": {
-    "artifact_ids": [
-      1244165,
-      2690162
-    ],
-    "skill_variant_count": 2,
-    "bundle_variant_count": 2,
-    "directed_edge_count": 0,
-    "within_group_directed_edge_count": 0,
-    "across_group_directed_edge_count": 0,
-    "undirected_edge_count": 0,
-    "equivalent_edge_count": 0,
-    "within_group_equivalent_edge_count": 0,
-    "across_group_equivalent_edge_count": 0,
-    "ambiguous_edge_count": 0,
-    "within_group_ambiguous_edge_count": 0,
-    "across_group_ambiguous_edge_count": 0,
-    "change_counts": {
-      "skill-only": 0,
-      "siblings-only": 0,
-      "skill+siblings": 0,
-      "equivalent": 0,
-      "unknown": 0
-    },
     "clusters": [
       {
         "cluster": 1,
@@ -66,30 +43,8 @@
           ],
           "directed_edges": [],
           "ambiguous_edges": [],
-          "related_edges": [],
-          "directed_edge_count": 0,
-          "within_group_directed_edge_count": 0,
-          "across_group_directed_edge_count": 0,
-          "undirected_edge_count": 0,
-          "equivalent_edge_count": 0,
-          "within_group_equivalent_edge_count": 0,
-          "across_group_equivalent_edge_count": 0,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          }
-        },
-        "skill_variant_count": 1,
-        "bundle_variant_count": 1,
-        "file_shas": [
-          "2c6007053f203da30f40b2017a75181a608c1b65"
-        ]
+          "related_edges": []
+        }
       },
       {
         "cluster": 2,
@@ -102,56 +57,12 @@
           ],
           "directed_edges": [],
           "ambiguous_edges": [],
-          "related_edges": [],
-          "directed_edge_count": 0,
-          "within_group_directed_edge_count": 0,
-          "across_group_directed_edge_count": 0,
-          "undirected_edge_count": 0,
-          "equivalent_edge_count": 0,
-          "within_group_equivalent_edge_count": 0,
-          "across_group_equivalent_edge_count": 0,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          }
-        },
-        "skill_variant_count": 1,
-        "bundle_variant_count": 1,
-        "file_shas": [
-          "ed296841d6309ef9b0db917097b2f9f1c266fd87"
-        ]
+          "related_edges": []
+        }
       }
     ]
   },
   "chronology_proxies": [],
-  "similarities": [
-    {
-      "left_file_sha": "2c6007053f203da30f40b2017a75181a608c1b65",
-      "right_file_sha": "ed296841d6309ef9b0db917097b2f9f1c266fd87",
-      "left_to_right_containment": 0.0,
-      "right_to_left_containment": 0.0,
-      "jaccard": 0.0,
-      "shared_shingles": 0,
-      "left_shingles": 373,
-      "right_shingles": 1086,
-      "left_artifact_ids": [
-        1244165
-      ],
-      "right_artifact_ids": [
-        2690162
-      ],
-      "left_representative_artifact_id": 1244165,
-      "right_representative_artifact_id": 2690162,
-      "shared_group_ids": [],
-      "same_artifact_group": false
-    }
-  ],
   "artifacts": [
     {
       "artifact_id": 1244165,
@@ -195,6 +106,5 @@
     "artifacts_skipped": 0,
     "incomplete": false
   },
-  "skipped_artifacts": [],
-  "implementation_fingerprint": "c95f52f02d5cbddb08013a9c10eb5ce2c29dc14c2fbc08f6a17f5881464d38a4"
+  "skipped_artifacts": []
 }

@@ -49,7 +49,7 @@ def test_single_family_interface_unchanged(mock_repos, tmp_path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert payload["name"] == "alpha"
     assert payload == json.loads((output / "alpha.json").read_text(encoding="utf-8"))
-    assert "similarities" in payload and "artifacts" in payload
+    assert "similarities" not in payload and "artifacts" in payload
 
 
 def test_batch_writes_per_family_reports_and_progress(mock_repos, tmp_path, capsys):
@@ -67,7 +67,7 @@ def test_batch_writes_per_family_reports_and_progress(mock_repos, tmp_path, caps
         assert path.is_file()
         payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["name"] == name
-        assert "similarities" in payload and "artifacts" in payload
+        assert "similarities" not in payload and "artifacts" in payload
 
 
 def test_limit_processes_first_n_only(mock_repos, tmp_path, capsys):
@@ -139,3 +139,13 @@ def test_case_insensitive_report_name_collision(mock_repos, tmp_path):
     assert {json.loads(file.read_text())["name"] for file in files} == {
         "alpha", "ALPHA"
     }
+
+
+def test_verbose_keeps_exhaustive_comparisons(mock_repos, tmp_path):
+    output = tmp_path / "verbose"
+    assert analyze_family.main(["alpha", "--db", str(mock_repos),
+                                "--output", str(output), "--verbose", "--json"]) == 0
+    payload = json.loads((output / "alpha.json").read_text())
+    assert len(payload["similarities"]) == 1
+    assert "groups" in payload
+    assert "file_shas" in payload["family"]["clusters"][0]

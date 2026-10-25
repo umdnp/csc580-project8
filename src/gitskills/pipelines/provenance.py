@@ -63,7 +63,6 @@ def compatible_family(report: dict, name: str, policy: SimilarityPolicy,
         return False
     artifacts = report.get("artifacts")
     if (not isinstance(artifacts, list)
-            or not isinstance(report.get("similarities"), list)
             or not isinstance(report.get("family"), dict)
             or not isinstance(report["family"].get("clusters"), list)
             or not all(isinstance(item, dict) for item in artifacts)):
@@ -113,8 +112,8 @@ def check_reports(name: str, family: dict, scan: dict) -> tuple[list[dict], int]
         raise ValueError(f"{name}: stored report has an unexpected family name")
     if scan.get("similarity_policy") != family.get("policy"):
         raise ValueError(f"{name}: scan and family similarity policies disagree; rerun run_family")
-    if not isinstance(family.get("artifacts"), list) or not isinstance(family.get("similarities"), list):
-        raise ValueError(f"{name}: SkillTrace report lacks artifacts/similarities; rerun run_family")
+    if not isinstance(family.get("artifacts"), list):
+        raise ValueError(f"{name}: SkillTrace report lacks artifacts; rerun analyze_family")
     sources = [{field: item.get(field) for field in SOURCE_FIELDS} for item in family["artifacts"]]
     if sorted(sources, key=lambda item: item["artifact_id"]) != scan.get("input_artifacts"):
         raise ValueError(f"{name}: scan inputs do not match the SkillTrace report; rerun run_family")
@@ -140,7 +139,7 @@ def git_revision(root: Path) -> str | None:
 
 def cohort_manifest(names: list[str], database: Path, scans: list[dict],
                     snapshots: list[dict], audit: list[dict],
-                    skilltrace_reports: Path, per_stratum: int, seed: int,
+                    project_root: Path, per_stratum: int | None, seed: int,
                     approval_reference: str | None) -> dict:
     if not database.is_file():
         raise FileNotFoundError(f"Prepared DuckDB database not found: {database}")
@@ -163,11 +162,15 @@ def cohort_manifest(names: list[str], database: Path, scans: list[dict],
         "similarity_policy": scans[0]["similarity_policy"],
         "active_rules": scans[0]["active_rules"],
         "implementation_fingerprint": implementation_fingerprint(),
-        "code_revision": git_revision(skilltrace_reports.parent.parent.parent),
+        "code_revision": git_revision(project_root),
         "python_version": sys.version.split()[0],
         "scanner_scope": scans[0]["scanner_scope"],
         "edge_selection": scans[0]["edge_selection"],
-        "sampling": {"per_stratum": per_stratum, "seed": seed},
+        "sampling": {
+            "per_stratum": per_stratum, "seed": seed, "unit": "selected cohort",
+            "directed_selection": "seeded shuffle without replacement",
+            "relationship_selection": "bounded seeded reservoir without replacement",
+        },
         "families": snapshots,
         "totals": {"families": len(names),
                    "artifacts_loaded": sum(row["artifacts_loaded"] for row in audit),
@@ -177,12 +180,15 @@ def cohort_manifest(names: list[str], database: Path, scans: list[dict],
 
 def protect_snapshot(manifest_path: Path, sample: dict) -> None:
     """Do not silently change a cohort with completed adjudication files."""
-    adjudication = manifest_path.parent / "review" / "adjudicated"
-    if manifest_path.is_file() and adjudication.exists() and any(adjudication.glob("*.csv")):
+    adjudications = (manifest_path.parent / "manual-review" / "adjudicated",
+                     manifest_path.parent / "review" / "adjudicated")
+    if manifest_path.is_file() and any(folder.exists() and any(folder.glob("*.csv"))
+                                      for folder in adjudications):
         previous = read_json(manifest_path)
         frozen = ("family_names", "similarity_policy", "edge_selection", "sampling",
                   "families", "active_rules")
-        if any(previous.get(key) != sample.get(key) for key in frozen):
+        if (any(previous.get(key) != sample.get(key) for key in frozen)
+                or previous.get("review_sample_fingerprint") != sample.get("review_sample_fingerprint")):
             raise ValueError("Selected sample changed after adjudication; archive the previous results first")
 
 

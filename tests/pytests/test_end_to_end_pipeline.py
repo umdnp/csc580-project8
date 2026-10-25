@@ -135,7 +135,7 @@ def make_artifact(name, artifact_id, content):
 
 @pytest.fixture
 def repositories(monkeypatch, tmp_path):
-    from gitskills.pipelines import family as pipeline
+    from gitskills.pipelines import family as pipeline, cohort as summarizer
 
     class FakeFamilies:
         def __init__(self, database):
@@ -159,6 +159,8 @@ def repositories(monkeypatch, tmp_path):
 
     monkeypatch.setattr(pipeline, "DuckDBFamilyRepository", FakeFamilies)
     monkeypatch.setattr(pipeline, "DuckDBSiblingRepository", FakeSiblings)
+    monkeypatch.setattr(summarizer, "DuckDBFamilyRepository", FakeFamilies)
+    monkeypatch.setattr(summarizer, "DuckDBSiblingRepository", FakeSiblings)
     db = tmp_path / "prepared.duckdb"
     db.touch()
     return db, tmp_path / "apps" / "skilltrace" / "reports", tmp_path / "results"
@@ -176,8 +178,8 @@ def test_incremental_cohort_filters_old_scans_and_preserves_sources(repositories
     assert first["family_count"] == 1
     assert first["artifacts_skipped"] == 1
     assert first["status"] == "complete"
-    assert (results / "review" / "relationship_validation_annotations_template.csv").exists()
-    assert (results / "review" / "validation_annotations_template.csv").exists()
+    assert (results / "manual-review" / "relationship-pairs" / "relationship_validation_annotations_template.csv").exists()
+    assert (results / "manual-review" / "directed-pairs" / "validation_annotations_template.csv").exists()
     cohort = json.loads((results / "sample_manifest.json").read_text())
     assert cohort["family_names"] == ["alpha"]
     assert len(cohort["families"][0]["artifacts"]) == 2
@@ -208,26 +210,25 @@ def test_old_compact_family_report_is_refreshed(repositories):
     assert again["family_report_updated"] is False
 
 
-def test_missing_and_mismatched_source_reports_are_rejected(repositories):
+def test_cohort_generates_missing_reports_and_refreshes_mismatched_scans(repositories):
     db, reports, results = repositories
-    with pytest.raises(FileNotFoundError, match="missing candidate families"):
-        summarize_cohort(["alpha"], database=db, skilltrace_reports=reports, results=results)
+    assert summarize_cohort(["alpha"], database=db, results=results)["family_count"] == 1
     with pytest.raises(ValueError, match="not found"):
         run_family("missing", database=db, skilltrace_reports=reports, scans=results / "scans")
     run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
-    path = results / "scans" / "alpha.json"
+    path = results / ".scans" / "alpha.json"
     report = json.loads(path.read_text())
     report["input_artifacts"][0]["file_sha"] = "unrelated"
     path.write_text(json.dumps(report))
-    with pytest.raises(ValueError, match="do not match"):
-        summarize_cohort(["alpha"], database=db, skilltrace_reports=reports, results=results)
+    summarize_cohort(["alpha"], database=db, results=results)
+    assert json.loads(path.read_text())["input_artifacts"][0]["file_sha"] != "unrelated"
 
 
 def test_default_family_output_supplies_relationship_analysis(repositories):
     db, reports, results = repositories
     run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
     report = json.loads((reports / "alpha.json").read_text())
-    assert isinstance(report["similarities"], list)
+    assert "similarities" not in report
     assert "artifacts" in report
     assert "groups" not in report  # Optional verbose diagnostics.
     assert "directed_edges" in report["family"]["clusters"][0]["evolution"]
@@ -239,8 +240,8 @@ def test_reviewer_snapshot_is_not_silently_replaced(repositories):
     for name in ("alpha", "beta"):
         run_family(name, database=db, skilltrace_reports=reports, scans=results / "scans")
     summarize_cohort(["alpha"], database=db, skilltrace_reports=reports, results=results)
-    adjudicated = results / "review" / "adjudicated"
-    adjudicated.mkdir()
+    adjudicated = results / "manual-review" / "adjudicated"
+    adjudicated.mkdir(parents=True)
     (adjudicated / "directed.csv").write_text("original review", encoding="utf-8")
     with pytest.raises(ValueError, match="archive the previous results"):
         summarize_cohort(["alpha", "beta"], database=db,
@@ -336,7 +337,7 @@ def test_legacy_scan_fingerprint_does_not_invalidate_completed_review(repositori
 def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch, tmp_path):
     """Regression: all must accept valid additional edges, not just primary."""
     from gitskills.data.families import FamilyLoad
-    from gitskills.pipelines import family as module
+    from gitskills.pipelines import family as module, cohort as summarizer
 
     prefix = ("The agent skill performs safe and documented analysis of software artifacts "
               "and security patterns. " * 15) + "\n"
@@ -365,6 +366,8 @@ def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch
 
     monkeypatch.setattr(module, "DuckDBFamilyRepository", Families)
     monkeypatch.setattr(module, "DuckDBSiblingRepository", Siblings)
+    monkeypatch.setattr(summarizer, "DuckDBFamilyRepository", Families)
+    monkeypatch.setattr(summarizer, "DuckDBSiblingRepository", Siblings)
     db = tmp_path / "prepared.duckdb"
     db.touch()
     reports = tmp_path / "apps" / "skilltrace" / "reports"
@@ -372,17 +375,18 @@ def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch
     run_family("edges", database=db, skilltrace_reports=reports, scans=results / "scans")
     result = summarize_cohort(["edges"], database=db, skilltrace_reports=reports, results=results)
     assert result["directed_pairs_analyzed"] == 6
-    scan_file = results / "scans" / "edges.json"
+    scan_file = results / ".scans" / "edges.json"
     scan = json.loads(scan_file.read_text())
     additional = [pair for cluster in scan["clusters"] for pair in cluster["pair_observations"]
                   if pair["edge_type"] == "additional"]
     assert len(additional) == 3
 
-    # A pair cannot falsely claim primary status if it is an additional edge.
+    # A modified cache must be rejected and recreated, never accepted on mere existence.
     additional[0]["edge_type"] = "primary"
     scan_file.write_text(json.dumps(scan))
-    with pytest.raises(ValueError, match="not traceable"):
-        summarize_cohort(["edges"], database=db, skilltrace_reports=reports, results=results)
+    summarize_cohort(["edges"], database=db, results=results)
+    repaired = json.loads(scan_file.read_text())
+    assert repaired["clusters"][0]["pair_observations"] != scan["clusters"][0]["pair_observations"]
 
 
 def test_fresh_family_analysis_is_reused_for_security_scan(repositories, monkeypatch):
