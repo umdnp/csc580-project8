@@ -57,22 +57,22 @@ Across the 33 comparisons:
   `CMD-001` (+3), `NET-001` (+2), and `SYS-002` (+1).
 
 Flagged comparisons are recorded in
-[`security_changes.json`](./security_changes.json), including the base and
+[`security_changes.json`](./sprint2/security_changes.json), including the base and
 derived artifact metadata, rule deltas, and evidence added or removed.
 
 ## Output files
 
-- [`execution_summary.json`](./execution_summary.json): pipeline status,
+- [`execution_summary.json`](./sprint2/execution_summary.json): pipeline status,
   counts, hash, and generation timestamp.
-- [`sample_membership.json`](./sample_membership.json): the 43 artifacts used
+- [`sample_membership.json`](./sprint2/sample_membership.json): the 43 artifacts used
   in this run.
-- [`security_profiles.json`](./security_profiles.json): extracted capabilities,
+- [`security_profiles.json`](./sprint2/security_profiles.json): extracted capabilities,
   rule counts, matches, and evidence for each artifact.
-- [`security_changes.json`](./security_changes.json): security-profile
+- [`security_changes.json`](./sprint2/security_changes.json): security-profile
   comparisons and flagged changes.
-- [`artifact_processing_log.csv`](./artifact_processing_log.csv): per-artifact
+- [`artifact_processing_log.csv`](./sprint2/artifact_processing_log.csv): per-artifact
   processing status.
-- [`comparison_processing_log.csv`](./comparison_processing_log.csv):
+- [`comparison_processing_log.csv`](./sprint2/comparison_processing_log.csv):
   per-comparison processing status.
 
 The sample was reused from Sprint 1 and analyzed against the

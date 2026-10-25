@@ -65,6 +65,8 @@ The run can legitimately contain **zero direction-supported pairs**. This does n
 
 ## 3. Manual validation: what reviewers actually do
 
+These steps are also summarized in the [Manual Annotation Protocol](../../docs/instructions/manual_annotation_protocol.md).
+
 There are **two different review assignments**. Give each reviewer independent copies of *both* annotation templates; do not edit the originals or each other's judgments.
 
 | Review | File to copy | Question to answer |

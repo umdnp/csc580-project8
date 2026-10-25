@@ -14,8 +14,6 @@ This document describes the project command-line tools and the options most deve
 
 Use `<tool> --help` for the complete command-line help. When running directly from the source tree, the equivalent form is `python -m gitskills.tools.<tool>`.
 
-**Console-script migration:** In your existing `pyproject.toml`, replace the old `[project.scripts]` entry `summarize_scans = "gitskills.tools.summarize_scans:main"` with `summarize_cohort = "gitskills.tools.summarize_cohort:main"`, then reinstall the editable package (for example `uv pip install -e .`). The project ZIP supplied for these changes did not contain `pyproject.toml`; it is therefore not overwritten by the archive. Until the entry point is updated, `uv run python -m gitskills.tools.summarize_cohort` works directly. There are no legacy CLI or reporting-module aliases; use `gitskills.tools.summarize_cohort` and `gitskills.reporting.cohort_summary` directly.
-
 ## `family_picker`
 
 ### Purpose
@@ -521,6 +519,8 @@ results/
 ├── sample_manifest.json
 └── execution_summary.json
 ```
+
+For how to complete the templates and adjudicate them, see the [Manual Annotation Protocol](docs/instructions/manual_annotation_protocol.md).
 
 Generated directed and relationship validation samples are stratified research-review aids, **not** the populations used to calculate indicator frequencies. All eligible directed pairs remain in `directed_pairs.csv` and the full statistics. Directed-pair validation examines scanner findings, direction, and coverage; relationship-pair validation examines ambiguous, equivalent, and **no-related-edge** decisions.
 
