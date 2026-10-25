@@ -31,32 +31,6 @@
     }
   },
   "family": {
-    "artifact_ids": [
-      2449887,
-      2450269,
-      2457192,
-      2609593,
-      2616525
-    ],
-    "skill_variant_count": 5,
-    "bundle_variant_count": 5,
-    "directed_edge_count": 0,
-    "within_group_directed_edge_count": 0,
-    "across_group_directed_edge_count": 0,
-    "undirected_edge_count": 4,
-    "equivalent_edge_count": 1,
-    "within_group_equivalent_edge_count": 1,
-    "across_group_equivalent_edge_count": 0,
-    "ambiguous_edge_count": 3,
-    "within_group_ambiguous_edge_count": 3,
-    "across_group_ambiguous_edge_count": 0,
-    "change_counts": {
-      "skill-only": 0,
-      "siblings-only": 0,
-      "skill+siblings": 0,
-      "equivalent": 0,
-      "unknown": 0
-    },
     "clusters": [
       {
         "cluster": 1,
@@ -122,32 +96,8 @@
               "same_artifact_group": true
             }
           ],
-          "related_edges": [],
-          "directed_edge_count": 0,
-          "within_group_directed_edge_count": 0,
-          "across_group_directed_edge_count": 0,
-          "undirected_edge_count": 3,
-          "equivalent_edge_count": 0,
-          "within_group_equivalent_edge_count": 0,
-          "across_group_equivalent_edge_count": 0,
-          "ambiguous_edge_count": 3,
-          "within_group_ambiguous_edge_count": 3,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          }
-        },
-        "skill_variant_count": 3,
-        "bundle_variant_count": 3,
-        "file_shas": [
-          "107f798fcab1f2abc876872572a3d9ba248f695a",
-          "2d8a202ecd04369690fd31ec8188949ec096fccd",
-          "e207a66d907506bd28e34f016bcf03625d2b7e73"
-        ]
+          "related_edges": []
+        }
       },
       {
         "cluster": 2,
@@ -179,31 +129,8 @@
               "same_artifact_group": true
             }
           ],
-          "related_edges": [],
-          "directed_edge_count": 0,
-          "within_group_directed_edge_count": 0,
-          "across_group_directed_edge_count": 0,
-          "undirected_edge_count": 1,
-          "equivalent_edge_count": 1,
-          "within_group_equivalent_edge_count": 1,
-          "across_group_equivalent_edge_count": 0,
-          "ambiguous_edge_count": 0,
-          "within_group_ambiguous_edge_count": 0,
-          "across_group_ambiguous_edge_count": 0,
-          "change_counts": {
-            "skill-only": 0,
-            "siblings-only": 0,
-            "skill+siblings": 0,
-            "equivalent": 0,
-            "unknown": 0
-          }
-        },
-        "skill_variant_count": 2,
-        "bundle_variant_count": 2,
-        "file_shas": [
-          "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
-          "d4887c6b0d8ffce5faf13816cd45554dff22b640"
-        ]
+          "related_edges": []
+        }
       }
     ]
   },
@@ -213,228 +140,6 @@
       "effective_chronology": "2026-02-05T06:56:05Z",
       "chronology_basis": "equivalent-peer",
       "chronology_source_artifact_id": 2609593
-    }
-  ],
-  "similarities": [
-    {
-      "left_file_sha": "107f798fcab1f2abc876872572a3d9ba248f695a",
-      "right_file_sha": "2d8a202ecd04369690fd31ec8188949ec096fccd",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 1.0,
-      "jaccard": 1.0,
-      "shared_shingles": 850,
-      "left_shingles": 850,
-      "right_shingles": 850,
-      "left_artifact_ids": [
-        2449887
-      ],
-      "right_artifact_ids": [
-        2457192
-      ],
-      "left_representative_artifact_id": 2449887,
-      "right_representative_artifact_id": 2457192,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "107f798fcab1f2abc876872572a3d9ba248f695a",
-      "right_file_sha": "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
-      "left_to_right_containment": 0.06235294117647059,
-      "right_to_left_containment": 0.06302021403091558,
-      "jaccard": 0.03235653235653236,
-      "shared_shingles": 53,
-      "left_shingles": 850,
-      "right_shingles": 841,
-      "left_artifact_ids": [
-        2449887
-      ],
-      "right_artifact_ids": [
-        2616525
-      ],
-      "left_representative_artifact_id": 2449887,
-      "right_representative_artifact_id": 2616525,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "107f798fcab1f2abc876872572a3d9ba248f695a",
-      "right_file_sha": "d4887c6b0d8ffce5faf13816cd45554dff22b640",
-      "left_to_right_containment": 0.06235294117647059,
-      "right_to_left_containment": 0.06302021403091558,
-      "jaccard": 0.03235653235653236,
-      "shared_shingles": 53,
-      "left_shingles": 850,
-      "right_shingles": 841,
-      "left_artifact_ids": [
-        2449887
-      ],
-      "right_artifact_ids": [
-        2609593
-      ],
-      "left_representative_artifact_id": 2449887,
-      "right_representative_artifact_id": 2609593,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "107f798fcab1f2abc876872572a3d9ba248f695a",
-      "right_file_sha": "e207a66d907506bd28e34f016bcf03625d2b7e73",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 1.0,
-      "jaccard": 1.0,
-      "shared_shingles": 850,
-      "left_shingles": 850,
-      "right_shingles": 850,
-      "left_artifact_ids": [
-        2449887
-      ],
-      "right_artifact_ids": [
-        2450269
-      ],
-      "left_representative_artifact_id": 2449887,
-      "right_representative_artifact_id": 2450269,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "2d8a202ecd04369690fd31ec8188949ec096fccd",
-      "right_file_sha": "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
-      "left_to_right_containment": 0.06235294117647059,
-      "right_to_left_containment": 0.06302021403091558,
-      "jaccard": 0.03235653235653236,
-      "shared_shingles": 53,
-      "left_shingles": 850,
-      "right_shingles": 841,
-      "left_artifact_ids": [
-        2457192
-      ],
-      "right_artifact_ids": [
-        2616525
-      ],
-      "left_representative_artifact_id": 2457192,
-      "right_representative_artifact_id": 2616525,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "2d8a202ecd04369690fd31ec8188949ec096fccd",
-      "right_file_sha": "d4887c6b0d8ffce5faf13816cd45554dff22b640",
-      "left_to_right_containment": 0.06235294117647059,
-      "right_to_left_containment": 0.06302021403091558,
-      "jaccard": 0.03235653235653236,
-      "shared_shingles": 53,
-      "left_shingles": 850,
-      "right_shingles": 841,
-      "left_artifact_ids": [
-        2457192
-      ],
-      "right_artifact_ids": [
-        2609593
-      ],
-      "left_representative_artifact_id": 2457192,
-      "right_representative_artifact_id": 2609593,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "2d8a202ecd04369690fd31ec8188949ec096fccd",
-      "right_file_sha": "e207a66d907506bd28e34f016bcf03625d2b7e73",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 1.0,
-      "jaccard": 1.0,
-      "shared_shingles": 850,
-      "left_shingles": 850,
-      "right_shingles": 850,
-      "left_artifact_ids": [
-        2457192
-      ],
-      "right_artifact_ids": [
-        2450269
-      ],
-      "left_representative_artifact_id": 2457192,
-      "right_representative_artifact_id": 2450269,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
-      "right_file_sha": "d4887c6b0d8ffce5faf13816cd45554dff22b640",
-      "left_to_right_containment": 1.0,
-      "right_to_left_containment": 1.0,
-      "jaccard": 1.0,
-      "shared_shingles": 841,
-      "left_shingles": 841,
-      "right_shingles": 841,
-      "left_artifact_ids": [
-        2616525
-      ],
-      "right_artifact_ids": [
-        2609593
-      ],
-      "left_representative_artifact_id": 2616525,
-      "right_representative_artifact_id": 2609593,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "9a448616c5ab8b1cb4df1dea2aa829413ba6f79d",
-      "right_file_sha": "e207a66d907506bd28e34f016bcf03625d2b7e73",
-      "left_to_right_containment": 0.06302021403091558,
-      "right_to_left_containment": 0.06235294117647059,
-      "jaccard": 0.03235653235653236,
-      "shared_shingles": 53,
-      "left_shingles": 841,
-      "right_shingles": 850,
-      "left_artifact_ids": [
-        2616525
-      ],
-      "right_artifact_ids": [
-        2450269
-      ],
-      "left_representative_artifact_id": 2616525,
-      "right_representative_artifact_id": 2450269,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
-    },
-    {
-      "left_file_sha": "d4887c6b0d8ffce5faf13816cd45554dff22b640",
-      "right_file_sha": "e207a66d907506bd28e34f016bcf03625d2b7e73",
-      "left_to_right_containment": 0.06302021403091558,
-      "right_to_left_containment": 0.06235294117647059,
-      "jaccard": 0.03235653235653236,
-      "shared_shingles": 53,
-      "left_shingles": 841,
-      "right_shingles": 850,
-      "left_artifact_ids": [
-        2609593
-      ],
-      "right_artifact_ids": [
-        2450269
-      ],
-      "left_representative_artifact_id": 2609593,
-      "right_representative_artifact_id": 2450269,
-      "shared_group_ids": [
-        437527
-      ],
-      "same_artifact_group": true
     }
   ],
   "artifacts": [
@@ -534,6 +239,5 @@
     "artifacts_skipped": 0,
     "incomplete": false
   },
-  "skipped_artifacts": [],
-  "implementation_fingerprint": "c95f52f02d5cbddb08013a9c10eb5ce2c29dc14c2fbc08f6a17f5881464d38a4"
+  "skipped_artifacts": []
 }
