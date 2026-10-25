@@ -50,6 +50,10 @@ class SkillAnalyzer:
             for rule_match in rule.evaluate(scan_text)
         )
 
+        rule_matches = self._evidence_extractor.filter_matches(
+            scan_text, rule_matches, filename=filename,
+        )
+
         profile = RiskProfile.from_categories(
             rule_match.category for rule_match in rule_matches
         )
