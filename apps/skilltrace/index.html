@@ -1695,6 +1695,49 @@ async function openSiblingDiff() {
   }
 }
 
+// These are display hints only. The scanner still compares exact sibling paths.
+function siblingFilenameStem(path) {
+  const filename = String(path || '').replace(/\\/g, '/').split('/').pop().toLowerCase();
+  const dot = filename.lastIndexOf('.');
+  return dot > 0 ? filename.slice(0, dot) : filename;
+}
+
+function siblingPathGuidance(entryName, baseId, derivedId, basePathMissing, derivedPathMissing) {
+  if (!basePathMissing && !derivedPathMissing) return [];
+  const notes = [
+    `This view compares only the exact sibling path "${entryName}". A blank side does not prove the file or its behavior was introduced or removed.`,
+  ];
+  // Artifact details already contain both sibling listings; no new database query is needed.
+  const sameComparison = currentDetails?.comparison?.kind === 'parent' &&
+    Number(currentDetails?.comparison?.id) === Number(baseId) &&
+    Number(currentDetails?.artifact?.id) === Number(derivedId);
+  if (!sameComparison) return notes;
+  for (const [missing, label, id, records] of [
+    [basePathMissing, 'Base', baseId, currentDetails.comparison_siblings || []],
+    [derivedPathMissing, 'Derived', derivedId, currentDetails.siblings || []],
+  ]) {
+    if (!missing) continue;
+    const candidates = records.filter(record => record.entry_name !== entryName &&
+      siblingFilenameStem(record.entry_name) === siblingFilenameStem(entryName));
+    if (!candidates.length) continue;
+    const examples = candidates.slice(0, 3).map(record =>
+      `${record.entry_name} (${record.content_available === false ? 'content unavailable' : 'content available'})`
+    ).join('; ');
+    notes.push(`Possible counterpart on ${label} ${id}: ${examples}${candidates.length > 3 ? `; and ${candidates.length - 3} more` : ''}. This is a filename similarity, not a verified rename. Select that path separately to inspect it.`);
+    if (candidates.some(record => record.content_available === false)) {
+      notes.push('Missing sibling content counts in this scan apply to the selected path only; other recorded paths may have unavailable content.');
+    }
+  }
+  return notes;
+}
+
+function appendSiblingPathGuidance(parent, result, basePathMissing, derivedPathMissing) {
+  for (const note of siblingPathGuidance(
+    result.entry_name, result.base_id ?? result.left_id, result.derived_id ?? result.right_id,
+    basePathMissing, derivedPathMissing
+  )) parent.append(tagEl('p', note, 'warning'));
+}
+
 function renderDiff(result, sibling = false) {
   const body = $('#diff-body'); body.replaceChildren();
   const headings = document.createElement('div'); headings.className = 'diff-headings';
@@ -1715,8 +1758,8 @@ function renderDiff(result, sibling = false) {
   if (sibling) {
     leftCopy.disabled = result.left_exists === false;
     rightCopy.disabled = result.right_exists === false;
-    leftCopy.title = leftCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
-    rightCopy.title = rightCopy.disabled ? 'This sibling file does not exist for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    leftCopy.title = leftCopy.disabled ? 'No sibling is recorded at this path for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
+    rightCopy.title = rightCopy.disabled ? 'No sibling is recorded at this path for this artifact.' : 'Copy the raw sibling-file content from DuckDB.';
     leftCopy.onclick = () => copySiblingContents(result.left_id, result.entry_name, leftCopy);
     rightCopy.onclick = () => copySiblingContents(result.right_id, result.entry_name, rightCopy);
   } else {
@@ -1743,15 +1786,18 @@ function renderDiff(result, sibling = false) {
   }
 
   if (sibling && result.left_exists === false) {
-    left.replaceChildren(Object.assign(document.createElement('div'), {className:'missing-file', textContent:'No such file for this artifact.'}));
+    left.replaceChildren(Object.assign(document.createElement('div'), {className:'missing-file', textContent:'No sibling recorded at this path.'}));
   }
   if (sibling && result.right_exists === false) {
-    right.replaceChildren(Object.assign(document.createElement('div'), {className:'missing-file', textContent:'No such file for this artifact.'}));
+    right.replaceChildren(Object.assign(document.createElement('div'), {className:'missing-file', textContent:'No sibling recorded at this path.'}));
   }
 
   let syncing = false;
   left.addEventListener('scroll', () => { if (!syncing) { syncing = true; right.scrollTop = left.scrollTop; right.scrollLeft = left.scrollLeft; syncing = false; } });
   right.addEventListener('scroll', () => { if (!syncing) { syncing = true; left.scrollTop = right.scrollTop; left.scrollLeft = right.scrollLeft; syncing = false; } });
+  if (sibling && (result.left_exists === false || result.right_exists === false)) {
+    appendSiblingPathGuidance(body, result, result.left_exists === false, result.right_exists === false);
+  }
   panes.append(left, right); body.append(headings, panes);
 }
 
@@ -2178,11 +2224,24 @@ async function openComparisonEvidence() {
   } catch (error) { $('#scan-body').replaceChildren(tagEl('p', error.message)); }
 }
 
+function appendOneSidedScanGuidance(parent, result) {
+  const coverage = result.coverage || {};
+  appendSiblingPathGuidance(parent, result,
+    coverage.base_status === 'absent' || coverage.base_status === 'not_recorded',
+    coverage.derived_status === 'absent' || coverage.derived_status === 'not_recorded');
+  const observedMatches = result.available_scan?.matches || [];
+  if (result.available_scan && observedMatches.length === 0) {
+    const side = result.available_side === 'base' ? 'base' : 'derived';
+    parent.append(tagEl('p', `No configured security rules matched the available ${side} file. The raw diff can still show code changes: only rule detections appear as extracted security evidence. Zero matches do not establish that a file is safe or that behavior was introduced.`, 'muted'));
+  }
+}
+
 function renderComparisonEvidence(result) {
   const body = $('#scan-body'); body.replaceChildren();
   body.append(tagEl('p', 'Compare extracted evidence side by side. Differences only is the default; select All evidence for matching records or Extraction issues for partial/unsupported records. Expand a group to see source context.', 'muted'));
   switchComparisonView(body, '← Back to scan results', () => renderScan(result));
   if (!result.scan_diff) {
+    appendOneSidedScanGuidance(body, result);
     appendCoverage(body, result.coverage);
     appendPairedSourceEvidence(body,
       result.available_side === 'base' ? result.available_scan : null,
@@ -2211,7 +2270,8 @@ async function openSiblingScan() {
 function renderScan(result) {
   const body = $('#scan-body'); body.replaceChildren();
   if (!result.scan_diff) {
-    body.append(tagEl('p', 'A sibling is not available on both sides. Rule observations from the available side are shown, but no directional risk claim is made.', 'warning'));
+    body.append(tagEl('p', 'This sibling path cannot be compared on both sides. Available rule observations are shown, but no directional risk claim is made.', 'warning'));
+    appendOneSidedScanGuidance(body, result);
     appendCoverage(body, result.coverage);
     const source = result.available_scan;
     if (source) {
@@ -2225,6 +2285,9 @@ function renderScan(result) {
   }
   const scan = result.scan_diff;
   body.append(tagEl('p', `Surface: ${result.surface === 'sibling' ? `Sibling ${result.entry_name}` : 'SKILL.md'} · direction basis: ${result.relationship?.basis || 'directed relationship'}`, 'muted'));
+  if (result.surface === 'sibling' && !scan.base?.rule_match_count && !scan.derived?.rule_match_count) {
+    body.append(tagEl('p', 'No configured security rules matched either sibling. A raw file diff can still show changes that are outside the scanner’s current detection rules.', 'muted'));
+  }
   const summary = document.createElement('div'); summary.className = 'scan-summary';
   summary.append(
     scanSummaryBox(`Base ${result.base_id}`, scan.base.profile, scan.base.rule_match_count),
