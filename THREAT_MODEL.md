@@ -65,6 +65,8 @@ Extracted evidence is identified as **complete**, **partial**, or **unsupported*
 
 Regex-based static analysis can miss obfuscated or indirect actions, unfamiliar syntax, and risky instructions expressed only in prose, including non-English prose without recognizable technical indicators. It may also flag benign documentation, examples, or warnings. Neither the absence of a detection nor the absence of a supported risk indicator establishes that an artifact is safe.
 
+Environment discovery, such as reading operating system details through Node.js `os` APIs, is not a separate detection category. Such behavior may be routine diagnostics or security-relevant in context, but the current rules do not flag it on that basis alone.
+
 ## Interpretation and Safe Reporting
 
 Our results describe **static detections, observable evidence changes, and supported or uncertain risk indicators requiring review**. They do not establish runtime execution, successful network access, actual credential disclosure, exploitability, malicious intent, or verified artifact lineage.

@@ -15,7 +15,7 @@ The main concerns are:
 - A change in match count does not necessarily mean that risk increased or decreased.
 - A security-sensitive capability is not necessarily malicious or unsafe.
 
-For example, a skill may mention `curl` while explaining an API without instructing an agent to run it.
+For example, a skill may mention `curl` while explaining an API without instructing an agent to run it. Conversely, a script using Node.js `os.platform()` or `os.arch()` to read system information may produce no rule matches. These calls can be legitimate, but their absence from findings does not establish that all security-relevant behavior was detected.
 
 Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. In Sprint 2, manual validation will be used to estimate false positives, false negatives, and important coverage gaps.
 
@@ -91,7 +91,7 @@ Missing data can:
 - hide behavior contained in unavailable related files; or
 - bias the analysis toward records that have more complete metadata and history.
 
-Missing information should be reported as missing or unresolved rather than interpreted as evidence that a behavior or relationship is absent.
+Missing information should be reported as missing or unresolved rather than interpreted as evidence that a behavior or relationship is absent. For example, in `hello-world`, the content of a possible earlier `.cjs` counterpart to a `.js` script is unavailable, so we cannot determine whether the observed system-information gathering was introduced.
 
 ## External Validity
 
