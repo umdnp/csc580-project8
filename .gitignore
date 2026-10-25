@@ -234,3 +234,6 @@ data/**/*.db
 # Ignore OS metadata files
 .DS_Store
 Thumbs.db
+
+# Generated scan cache
+.scans/
