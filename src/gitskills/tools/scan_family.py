@@ -13,6 +13,7 @@ import tracemalloc
 from pathlib import Path
 from typing import Sequence
 
+from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import SimilarityPolicy
 from gitskills.analysis.family_risk_models import (
     ClusterRiskAnalysis,
@@ -222,11 +223,22 @@ def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: b
     artifacts = loaded.artifacts
     if not artifacts and not loaded.skipped_artifacts:
         raise ValueError(f"Candidate family not found: {name}")
-    sibling_files = DuckDBSiblingRepository(database).load(
-        artifact.artifact_id for artifact in artifacts
-    )
+    family_analysis = None
+    if edges == "primary" and artifacts:
+        family_analysis = FamilyAnalyzer(policy).analyze(artifacts)
+        sibling_artifact_ids = {
+            artifact_id
+            for cluster in family_analysis.family.clusters
+            for edge in cluster.evolution.directed_edges
+            for artifact_id in (edge.source_artifact_id, edge.target_artifact_id)
+        }
+    else:
+        sibling_artifact_ids = {artifact.artifact_id for artifact in artifacts}
+
+    sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
     result, payload = scan_family_report(
-        name, loaded, sibling_files, policy=policy, edges=edges, verbose=verbose
+        name, loaded, sibling_files, policy=policy, edges=edges,
+        verbose=verbose, family_analysis=family_analysis,
     )
     return result, payload, loaded, artifacts
 
