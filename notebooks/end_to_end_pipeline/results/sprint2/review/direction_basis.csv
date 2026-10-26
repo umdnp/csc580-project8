@@ -1,6 +1,6 @@
 direction_basis,pairs_analyzed,pairs_flagged,pairs_with_indicators,pairs_coverage_incomplete
-chronology,17,9,4,2
-containment,51,26,3,0
-declared-source,3,3,0,0
-equivalent-peer-chronology,94,14,1,0
-repo-created-boundary,57,13,0,1
+chronology,237,146,43,33
+containment,1713,1307,401,74
+declared-source,5,5,0,0
+equivalent-peer-chronology,996,270,69,58
+repo-created-boundary,1046,513,75,41
