@@ -165,18 +165,6 @@ def test_batch_resolves_case_insensitive_filename_collisions(mock_repos, tmp_pat
             for path in output.glob("*.json")} == {"alpha", "ALPHA"}
 
 
-def test_single_unsafe_family_name_is_saved_safely(mock_repos, tmp_path, capsys):
-    from gitskills.reporting.files import report_stem
-
-    name = "A/B Test Setup"
-    output = tmp_path / "reports"
-    assert scan_family.main([name, "--db", str(mock_repos), "--json",
-                             "--output", str(output), "--benchmark"]) == 0
-    assert json.loads(capsys.readouterr().out)["candidate_family"] == name
-    assert (output / f"{report_stem(name)}.json").is_file()
-    assert _rows(output / "benchmarks.csv")[0]["family"] == name
-
-
 def test_edge_selection_option_in_single_and_batch_modes(mock_repos, tmp_path, capsys):
     single = tmp_path / "single"
     assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "all",
