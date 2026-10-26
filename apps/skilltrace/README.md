@@ -96,7 +96,7 @@ Stop the server with `Ctrl+C`.
 
 ## What SkillTrace Shows
 
-Choose an `analyze_family` report from the **Report** dropdown. SkillTrace displays the report's inferred family structure as an interactive graph.
+Choose an `analyze_family` report from **Family analysis report**, select a **Similarity cluster**, and use **Relationship view** to control the graph scope.
 
 The graph supports:
 
@@ -129,7 +129,7 @@ Diff panes contain alignment rows for side-by-side display. Use **Copy Contents*
 ## Evidence and Risk-Indicator Inspection
 
 The **Selected Artifact** panel offers **Inspect evidence** for its stored
-`SKILL.md`. The **Artifact Siblings** panel offers **Run scan** and
+`SKILL.md`. The **Sibling files** panel offers **Run scan** and
 **Inspect evidence** for the chosen sibling path. Paths recorded on either side
 of the relationship are selectable.
 

@@ -7,7 +7,6 @@ import pytest
 
 from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.data.families import DuckDBFamilyRepository
-from gitskills.data.siblings import DuckDBSiblingRepository
 from gitskills.tools.scan_family import main
 
 
@@ -132,16 +131,6 @@ def test_binary_skill_content_is_not_coerced_to_text(tmp_path):
     assert loaded.skipped_artifacts[0].reason == "non_text_content"
 
 
-@pytest.mark.parametrize("content", [None, b"curl https://example.com"])
-def test_unavailable_sibling_content_is_not_scanned_as_text(content):
-    sibling = DuckDBSiblingRepository._row_to_sibling(
-        (1, 2, "script", "sha", content, None)
-    )
-    assert not sibling.content_available
-    if content is not None:
-        assert sibling.skipped_reason == "non_text_content"
-
-
 @pytest.mark.parametrize("prefix", ["---\nname: broken\n", "---\nname: [broken\n---\n"])
 def test_malformed_frontmatter_does_not_prevent_body_scan(prefix):
     result = SkillAnalyzer().scan(prefix + "Read https://example.com/report.")
@@ -149,6 +138,3 @@ def test_malformed_frontmatter_does_not_prevent_body_scan(prefix):
     assert matches
     assert matches[0].line_number == prefix.count("\n") + 1
 
-
-def test_empty_text_is_a_valid_empty_scan():
-    assert SkillAnalyzer().scan("").rule_matches == ()

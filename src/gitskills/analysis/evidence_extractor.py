@@ -149,6 +149,18 @@ class _SourceContext:
         return current[:320]
 
 
+def _prose_parenthetical(arguments: str) -> bool:
+    """Recognize natural-language parentheticals, not general JS syntax."""
+    if "—" in arguments or "–" in arguments:
+        return True
+    if not re.fullmatch(r"[A-Za-z_]\w*(?:[ \t]+[A-Za-z_]\w*)+", arguments):
+        return False
+    # These keywords can form valid JavaScript/TypeScript expressions.
+    js_keywords = {"await", "new", "typeof", "void", "delete", "in",
+                   "instanceof", "as", "yield"}
+    return not any(word in js_keywords for word in arguments.split())
+
+
 class EvidenceExtractor:
     """Recover each matching construct once and associate all covering rules."""
 
@@ -158,6 +170,43 @@ class EvidenceExtractor:
         self._api = ApiCallExtractor()
         self._reference = ReferenceExtractor()
         self._normalizer = EvidenceNormalizer()
+
+    def filter_matches(
+        self, text: str, matches: tuple[RuleMatch, ...], *, filename: str,
+    ) -> tuple[RuleMatch, ...]:
+        """Exclude obvious prose-only fetch references before profile creation."""
+        if not filename.replace("\\", "/").lower().endswith(".md"):
+            return matches
+        if not any(match.rule_id == "NET-002" and
+                   re.fullmatch(r"fetch[ \t]*\(", match.matched_text or "", re.I)
+                   for match in matches):
+            return matches
+
+        contexts = _SourceContext(text, filename)
+        filtered: list[RuleMatch] = []
+        for match in matches:
+            if (match.rule_id != "NET-002" or
+                    not re.fullmatch(r"fetch[ \t]*\(", match.matched_text or "", re.I) or
+                    not self._valid_offsets(text, match)):
+                filtered.append(match)
+                continue
+            start = match.start_offset
+            end = match.end_offset
+            assert start is not None and end is not None
+            context = contexts.at(start, SourceSpan("api_call", start, end), filename)
+            if context.kind not in {"markdown_prose", "blockquote", "markdown_heading"}:
+                filtered.append(match)
+                continue
+            call = self._api.extract(text, start, end)
+            arguments = dict(call.values).get("arguments", "").strip()
+            # Only reject balanced, same-line, clearly explanatory parentheses.
+            # Valid fetch(url), fetch (url, opts), and code examples remain.
+            if (call.status == ExtractionStatus.COMPLETE and
+                    "\n" not in text[start:call.end] and
+                    _prose_parenthetical(arguments)):
+                continue
+            filtered.append(match)
+        return tuple(filtered)
 
     def extract(
         self,

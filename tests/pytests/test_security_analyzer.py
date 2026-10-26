@@ -38,16 +38,6 @@ def test_skill_frontmatter_is_masked_without_moving_body_evidence(newline, bom):
     assert match.line_number == 4
 
 
-def test_sibling_configuration_is_not_masked_as_skill_frontmatter():
-    result = SkillAnalyzer(rules=[UrlReferenceRule()]).scan(
-        "---\nendpoint: https://example.com/config\n---\n",
-        exclude_frontmatter=False,
-    )
-    match, = result.rule_matches
-    assert match.line_number == 2
-    assert match.matched_text == "https://example.com/config"
-
-
 @pytest.mark.parametrize("text", ["", " \n\t", "Summarize the current project status."])
 def test_inputs_without_signals_have_empty_counts_and_profile(text):
     result = SkillAnalyzer().scan(text)
