@@ -51,7 +51,11 @@ RESULT_DIR/
 │   ├── indicator_frequency.csv
 │   ├── indicator_frequency_by_edge_type.csv
 │   └── direction_basis.csv
-├── figures/indicator_frequency.svg
+├── figures/
+│   ├── indicator_frequency.svg
+│   ├── indicators_by_edge_type.svg
+│   ├── indicators_by_family.svg
+│   └── pair_outcomes.svg
 ├── audit/
 │   ├── processing_summary.csv
 │   └── skipped_artifacts.csv
@@ -192,7 +196,37 @@ It **does not re-run family similarity analysis or security scans**. If only one
 
 If a cache, dataset, selected family, sampling setting, rule/policy, or implementation has changed, **the fast rerun refuses to reuse stale evidence**. Preserve the previous result directory and adjudications and start a newly labeled cohort run rather than overwriting reviewed samples. Use `--rescan` / `rescan=True` only when you deliberately want to regenerate security scans—not when simply adding human judgments.
 
-## 5. Automated checks and interpretation
+## 5. Generate and interpret figures
+
+The end-to-end notebook generates the figures automatically as part of the analysis. To create or regenerate them:
+
+1. From the project root, start Jupyter:
+
+   ```bash
+   uv run --with jupyterlab jupyter lab
+   ```
+
+2. Open `notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb`.
+3. Set the analysis configuration, including `RUN_LABEL`, in the configuration cell.
+4. Run the notebook cells in order through **Findings for manual review**. The analysis cells create the figures from the full analyzed population; the risk-indicator cell displays the generated indicator-frequency figure.
+5. Find the generated files under:
+
+   ```text
+   notebooks/end_to_end_pipeline/results/<RUN_LABEL>/figures/
+   ```
+
+The notebook generates these SVG figures:
+
+| Figure | Contents |
+|---|---|
+| `indicator_frequency.svg` | Frequency of each risk indicator across directed comparisons |
+| `indicators_by_edge_type.svg` | Risk-indicator counts separated by primary and additional edges |
+| `indicators_by_family.svg` | Risk-indicator distribution across artifact families |
+| `pair_outcomes.svg` | Directed comparisons grouped as not flagged, flagged without a supported indicator, or containing a supported indicator |
+
+The figures summarize the full analyzed population, not only the stratified manual-review samples. Indicator counts refer to pairs containing an indicator, and one pair may contain multiple indicator types. Preserve reviewed results under a separate `RUN_LABEL` before rerunning an analysis so that generated figures and research outputs do not overwrite an already-reviewed run.
+
+## 6. Automated checks and interpretation
 
 Run the notebook integration test from the repository root:
 
