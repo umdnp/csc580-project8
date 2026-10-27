@@ -13,7 +13,7 @@ The notebook sets `EDGES = "all"`, so the results include **primary and addition
 
 The selected families are matched by exact name against `artifact_groupings.name` in the prepared GitSkills DuckDB database. The sample is **purposively selected, not random**; results describe this cohort and should not be generalized to all GitSkills artifacts. The complete family list and input provenance are recorded in `sample_manifest.json`.
 
-**Status:** The pipeline completed successfully, but the manifest still records the sample as `provisional` with no approval reference. Independent review and adjudication are pending. These results are not validated findings of malicious behavior.
+**Status:** The pipeline completed successfully, but the manifest still records the sample as `provisional` with no approval reference. The annotation files contain draft entries for 21 of 30 directed cases and all 15 relationship cases. Every row remains `pending`; the notes identify AI-assisted proposals awaiting human acceptance, and adjudication has not occurred. These preliminary records do not make the automated results validated findings of malicious behavior or completed accuracy estimates.
 
 ## Artifact Coverage
 
@@ -92,7 +92,7 @@ The directed sample is in `manual-review/directed-pairs/validation_sample.csv`. 
 | Unflagged directed comparison | 5 |
 | Coverage-limited comparison | 5 |
 
-The annotation templates are in the corresponding `manual-review/` subdirectories. Both templates currently have review status **pending**; they are not completed accuracy evaluations. Reviewers should inspect the source artifacts and sibling files, preserve independent judgments, and adjudicate disagreements without executing untrusted content. The notebook describes the optional step for incorporating completed adjudications.
+The samples, draft annotation files, and templates are in the corresponding `manual-review/` subdirectories. The draft files currently contain 21 directed-pair entries and all 15 relationship-pair entries, but every row has review status **pending** and the notes record human acceptance as outstanding. They are not completed accuracy evaluations. Reviewers should inspect the source artifacts and sibling files, preserve independent judgments, and adjudicate disagreements without executing untrusted content. The notebook describes the optional step for incorporating completed adjudications.
 
 ## Detected Security Signals
 
@@ -202,8 +202,8 @@ The result set includes:
 - `review/families.csv`, `review/edge_types.csv`, and `review/direction_basis.csv` — family and relationship summaries.
 - `review/directed_pairs.csv` — pair-level changes, indicators, and coverage.
 - `review/indicator_frequency.csv` and `review/indicator_frequency_by_edge_type.csv` — supported-indicator frequencies.
-- `manual-review/directed-pairs/validation_sample.csv` and `annotations_template.csv` — 30 directed-comparison review cases and pending annotation template.
-- `manual-review/relationship-pairs/relationship_validation_sample.csv` and `relationship_annotations_template.csv` — 15 relationship review cases and pending annotation template.
+- `manual-review/directed-pairs/validation_sample.csv`, `annotations.csv`, and `annotations_template.csv` — 30 directed-comparison review cases, 21 pending draft annotation entries, and the annotation template.
+- `manual-review/relationship-pairs/relationship_validation_sample.csv`, `annotations.csv`, and `relationship_annotations_template.csv` — 15 relationship review cases, 15 pending draft annotation entries, and the annotation template.
 - Four generated SVG figures under `figures/`.
 
 This directory contains **preliminary, reproducible pipeline outputs**. Interpretations of scanner accuracy and security significance require manual validation.
