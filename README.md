@@ -1,14 +1,8 @@
 # CSC 580 Group Project - Mining AI-Native Software Engineering
 
-This group project investigates AI-native software engineering using datasets and research directions inspired
-by the [MSR 2027 Mining Challenge](https://2027.msrconf.org/track/msr-2027-mining-challenge). Our team will define
-a focused research question, build a reproducible data-mining and analysis pipeline using the GitSkills, SpecMine,
-or related datasets, and use the results to identify meaningful patterns in areas such as artifact reuse, quality,
-maintenance, security, specification-to-code relationships, or human–AI collaboration. The project will be developed
-iteratively using Scrum and will include tested code, documented methods, reproducible results, validation,
-analysis of limitations, and a final research report and presentation.
+This group project investigates AI-native software engineering using research directions inspired by the [MSR 2027 Mining Challenge](https://2027.msrconf.org/track/msr-2027-mining-challenge). Our team focuses on **skill security and supply-chain risk** in the GitSkills dataset: whether modified or reused skills introduce security-sensitive behavior not present in related artifacts. We use a reproducible pipeline to analyze artifact relationships, detect changes with static security rules, and validate findings through manual review. The project is developed iteratively using Scrum, with tested code, documented methods, reproducible results, and analysis of limitations.
 
-More information about the research question selected by the team is available in the [Research Question](RESEARCH_QUESTION.md) document.
+More information is available in our [Research Question](RESEARCH_QUESTION.md) and [Threat Model](THREAT_MODEL.md).
 
 ## Team and Roles
 
@@ -19,10 +13,7 @@ More information about the research question selected by the team is available i
 
 ## Getting Started
 
-For a guided first run, start with [data/README.md](data/README.md), then follow
-the [Project Guide](docs/instructions/getting_started.md) for tool examples and a SkillTrace walkthrough.
-
-The steps below set up the project source code, Python environment, project dependencies, and the local DuckDB database used for analysis.
+The steps below set up the project source code, Python environment, dependencies, and local DuckDB database. You will need Git, Python 3.12 or newer, and the [DuckDB CLI](https://duckdb.org/docs/installation/). See the [data setup guide](data/README.md) for detailed database instructions.
 
 ### 1. Clone the repository
 
@@ -35,13 +26,11 @@ cd csc580-project8
 
 ### 2. Install `uv`
 
-We recommend using [`uv`](https://docs.astral.sh/uv/) to manage the Python virtual environment and project dependencies.
-
-If `uv` is not already installed, follow the [official `uv` installation instructions](https://docs.astral.sh/uv/getting-started/installation).
+We recommend [`uv`](https://docs.astral.sh/uv/) for managing Python environments and dependencies. If needed, follow the [official installation instructions](https://docs.astral.sh/uv/getting-started/installation/).
 
 ### 3. Create the Python virtual environment
 
-From the repository root, create a virtual environment with:
+From the repository root:
 
 ```bash
 uv venv
@@ -49,7 +38,7 @@ uv venv
 
 ### 4. Install project dependencies
 
-Application and test dependencies are defined in `pyproject.toml`. Install the project's configured dependencies with:
+Dependencies are defined in `pyproject.toml`. Install them with:
 
 ```bash
 uv sync
@@ -57,125 +46,99 @@ uv sync
 
 ### 5. Download the GitSkills dataset
 
-This project uses the GitSkills database as the source dataset. Download the original database from the [GitSkills dataset on Zenodo](https://zenodo.org/records/21875637).
-
-The project imports the original SQLite database into DuckDB and applies a small set of project-specific changes needed for the analysis.
+Download the original **SQLite** database from the [GitSkills dataset on Zenodo](https://zenodo.org/records/21875637). The project imports this database into DuckDB and creates additional tables used for analysis.
 
 ### 6. Build the local DuckDB database
 
-Run the database creation script from the repository root:
+From the repository root, run:
 
 ```bash
 bash bin/create_gitskills_db.sh
 ```
 
-Then create the analysis tables and update the artifact groupings:
+Then create the analysis tables and artifact groupings:
 
 ```bash
 duckdb /c/data/duckdb/agent_skills_release.db < sql/create_analysis_tables.sql
 duckdb /c/data/duckdb/agent_skills_release.db < sql/update_artifact_groupings.sql
 ```
 
-For additional details about the local DuckDB setup, see the [data setup documentation](data/README.md#local-duckdb-development-setup).
+These are the default Git Bash paths on Windows. Adjust the script and commands for your system (for example, `/mnt/c/...` in WSL). See the [local database setup instructions](data/README.md#local-duckdb-development-setup) and [Data Dictionary](DATA_DICTIONARY.md) for details.
 
-The [Data Dictionary](DATA_DICTIONARY.md) documents the database structure, including the fields used by the project and modifications made by the team for the analysis.
+### 7. Configure the database path
 
-## End-to-End Research Pipeline
-
-The [end-to-end notebook](notebooks/end_to_end_pipeline/README.md) runs `summarize_cohort()` for the selected families. It performs the required relationship analysis and security scanning, reuses compatible scan caches, and produces research summaries and manual-review samples under `notebooks/end_to_end_pipeline/results/<run>/`. There is no need to run `analyze_family` or `scan_family` first. SkillTrace uses separately generated compact family reports under `apps/skilltrace/reports/`; they are not inputs to cohort summarization. For human review, see the [Manual Annotation Protocol](docs/instructions/manual_annotation_protocol.md).
-
-The older `notebooks/end-to-end_pipeline/` materials document the Sprint 1 workflow.
-
-## Automated Tests
-
-From the repository root:
-
-```shell
-uv sync
-uv run pytest
-```
-
-Analysis tests use constructed inputs and temporary databases; the live GitSkills
-dataset is not required. See the [testing guide](tests/sample_skills/README.md#testing)
-for focused test commands and coverage descriptions.
-
-## Running the Project
-
-### Reproduce the Sprint 1 notebook output
-
-Use [Sample Extraction and Exploration](notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb) to regenerate the sample analysis, Parquet results, and figures. The [notebook README](notebooks/extraction_pipeline/README.md) explains the analysis and how to interpret its results.
-
-#### 1. Prepare the environment and database
-
-Complete the [Getting Started](#getting-started) steps above, using Python 3.12 or newer within the project's supported range. Run `uv sync` from the repository root to install the project package and dependencies into `.venv`.
-
-Follow the [data setup instructions](data/README.md#local-duckdb-development-setup) to install the DuckDB CLI, acquire the source SQLite database, create the separate DuckDB database, and build the analysis tables and artifact groupings in order. If those steps are already complete, reuse the prepared DuckDB database.
-
-The setup scripts use `/c/data/...` paths for Git Bash on Windows. In WSL, Windows drive C is normally mounted at `/mnt/c`; adjust the configuration paths in `bin/create_gitskills_db.sh` and the paths in SQL commands to match your environment. Keep the source SQLite database and generated DuckDB database in separate locations.
-
-#### 2. Create the Sprint 1 sample view
-
-From the repository root, run the sample-view script against the prepared DuckDB database. For Git Bash with the default Windows storage location:
-
-```bash
-duckdb -bail /c/data/duckdb/agent_skills_release.db < sql/create_sprint1_samples_view.sql
-```
-
-For WSL, use `/mnt/c/data/duckdb/agent_skills_release.db` instead. The script should report **43 artifacts**. The fixed artifact-ID list and selection rationale are documented in [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
-
-#### 3. Configure the notebook's database path
-
-Set `GITSKILLS_DB` before launching the notebook environment. Use a path that the selected Python interpreter can read. For the Windows `.venv` interpreter launched from Git Bash:
+Set `GITSKILLS_DB` to the generated **DuckDB** file before launching the notebook or SkillTrace. For example, in Git Bash with Windows Python:
 
 ```bash
 export GITSKILLS_DB="C:/data/duckdb/agent_skills_release.db"
 ```
 
-For a Linux Python interpreter in WSL:
+Use `/mnt/c/data/duckdb/agent_skills_release.db` in WSL, or follow the [Project Guide](docs/instructions/getting_started.md) for other environments.
+
+## End-to-End Research Pipeline
+
+Our primary pipeline is the [`end_to_end_pipeline.ipynb` notebook](notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb). It identifies relationships between skill artifacts, scans security-sensitive changes in skills and associated files, and generates analysis results and samples for manual validation. You do not need to run the individual family-analysis or scanning tools beforehand.
+
+Open the notebook in a supported IDE using the project's `.venv` Python environment, or launch JupyterLab from the repository root:
 
 ```bash
-export GITSKILLS_DB="/mnt/c/data/duckdb/agent_skills_release.db"
+uv run --with jupyterlab jupyter lab
 ```
 
-If your database is elsewhere, substitute its actual path. The notebook requires the prepared **DuckDB** database, not the downloaded SQLite database.
+In JupyterLab, open `notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb`, review its configuration, and run the analysis cells in order. The final validation cell is intended for use after manual review and adjudication.
 
-#### 4. Open the notebook and run all cells
+Results are saved under [`notebooks/end_to_end_pipeline/results/`](notebooks/end_to_end_pipeline/results/), including tables, figures, audit records, and manual-review samples. For full execution instructions and output descriptions, see the [Pipeline README](notebooks/end_to_end_pipeline/README.md) and [saved results guide](notebooks/end_to_end_pipeline/results/sprint2/README.md).
 
-In your notebook editor, open `notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb`, select the project `.venv` Python interpreter as the kernel, and set the kernel's working directory to `notebooks/extraction_pipeline`. On Windows, the interpreter is `.venv/Scripts/python.exe`; on Linux or WSL, it is `.venv/bin/python`.
+## Automated Tests
 
-Alternatively, launch JupyterLab from the repository root with:
+From the repository root:
 
 ```bash
-uv run --with jupyterlab jupyter lab --notebook-dir=notebooks/extraction_pipeline
+uv run pytest
 ```
 
-This command supplies JupyterLab for the run and uses the project environment. Open `samples_extraction_and_exploration.ipynb` in the file browser and select its Python kernel.
+Tests use constructed inputs and temporary databases; the full GitSkills dataset is not required. See the [testing guide](tests/sample_skills/README.md#testing).
 
-Restart the kernel and run all cells from top to bottom. In the **Set Variables** output, confirm that the notebook directory is `notebooks/extraction_pipeline`, the Parquet output is under its `results/` directory, and the figures directory is its `figures/` directory. If these paths differ, correct the kernel's working directory before continuing. The notebook reads artifact content as text and does not execute dataset instructions.
+## Limitations
 
-#### 5. Check the regenerated results
+Inferred relationships do not establish historical copying or ancestry, and scanner detections are not proof of malicious behavior. Incomplete data and static-analysis limitations can affect findings. See [Threats to Validity](THREATS_TO_VALIDITY.md) and the [design documentation](docs/design/ARCHITECTURE.md). Dataset content is inspected, **not executed**.
 
-Confirm that all cells finish without errors and that these files are regenerated:
+## SkillTrace - Visual Inspection and Manual Validation
 
-```text
-notebooks/extraction_pipeline/results/sample_artifacts_scanner_results.parquet
-notebooks/extraction_pipeline/figures/pair_scan_outcomes.png
-notebooks/extraction_pipeline/figures/flagged_rules.png
-notebooks/extraction_pipeline/figures/flagged_risk_categories.png
+**SkillTrace** is a local browser application we use to inspect artifact relationships, compare `SKILL.md` and sibling-file contents, and examine scanner matches and supporting evidence alongside visual diffs. It supports manual validation but does not automatically verify findings.
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="figures/skilltrace/skilltrace_home.png?raw=1">
+        <img src="figures/skilltrace/skilltrace_home.png" alt="SkillTrace home" width="240">
+      </a>
+    </td>
+    <td align="center">
+      <a href="figures/skilltrace/skilltrace_diff.png?raw=1">
+        <img src="figures/skilltrace/skilltrace_diff.png" alt="SkillTrace artifact diff" width="240">
+      </a>
+    </td>
+    <td align="center">
+      <a href="figures/skilltrace/skilltrace_scan.png?raw=1">
+        <img src="figures/skilltrace/skilltrace_scan.png" alt="SkillTrace scan evidence" width="240">
+      </a>
+    </td>
+  </tr>
+</table>
+
+To inspect a family, first generate its report from the repository root:
+
+```bash
+uv run python -m gitskills.tools.analyze_family cometchat-core --output apps/skilltrace/reports
 ```
 
-Check the notebook's tables against the saved Sprint 1 exploratory baseline:
+Then start SkillTrace:
 
-| Measure | Saved baseline |
-| --- | --- |
-| Sample artifacts | 43 |
-| Skill-name groups | 10 |
-| Adjacent comparisons scanned | 33 |
-| Comparisons skipped | 0 |
-| Comparisons with a positive rule delta | 13 |
-| Positive rule-delta events | 35 |
-| Additional rule matches | 77 |
+```bash
+uv run python -m apps.skilltrace --host 127.0.0.1 --port 8000
+```
 
-These are adjacent-comparison notebook results, distinct from the 17 directed comparisons in the family reports. Scanner-rule or dataset changes can change the detection totals; record and explain differences instead of silently replacing the baseline. The persistent manual-review section contains the two completed annotations and the corrected derived SHA for the first example; the automatically generated candidate table may still show its original SHA and `TODO` fields.
+Open **http://127.0.0.1:8000**, select a family report, and choose artifacts to inspect. Use the diff views and **Run scan** / **Inspect evidence** tools to compare detections against the original content. SkillTrace's on-demand scans inspect a selected skill or sibling file; the notebook performs the broader family-level analysis.
 
-To complete the story's reproducibility check, record the repository commit, dataset used, execution date, environment, observed counts, and regenerated output paths in the story issue after successfully following these instructions.
+For manual validation, we use the notebook's directed-pair and relationship-pair samples to check inferred relationships and scanner accuracy. Working review records are stored in the [directed-pair annotations](notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/annotations.csv) and [relationship-pair annotations](notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/annotations.csv). See the [Manual Annotation Protocol](docs/instructions/manual_annotation_protocol.md) and [SkillTrace README](apps/skilltrace/README.md) for the review process and additional app instructions.
