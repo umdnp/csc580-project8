@@ -2,7 +2,7 @@
 
 ## What is established by the saved run
 
-The pipeline completed the automated workflow for the supplied cohort, loaded all 1,151 selected artifacts, preserved pair-level outcomes, and generated review samples. Completion establishes that those stages produced the saved outputs. It does not establish that relationships are historical facts, that every supported RI is correct, or that unflagged cases lack in-scope changes. The execution summary explicitly states that independent review and adjudication are awaited.
+The pipeline completed the automated workflow for the supplied cohort, loaded all 1,151 selected artifacts, preserved pair-level outcomes, and generated review samples. Completion establishes that those stages produced the saved outputs. It does not establish that relationships are historical facts, that every supported RI is correct, or that unflagged cases lack in-scope changes. The committed annotation files contain draft entries for 21 of the 30 directed cases and all 15 relationship cases. Their entries are marked `review_phase=independent` but `review_status=pending`; the notes identify AI-assisted proposals awaiting human acceptance. This records review work in progress, not completed independent or adjudicated labels.
 
 Earlier development checks exercised constructed fixtures, file-input comparisons, extraction, and output round trips. These provide regression evidence for specified behavior, not independent estimates of detector precision or recall. Appendix C summarizes the current validation scope and status. No new scanner test result is claimed from rebuilding this report, and an older passing test count is not presented as validation of the current research run.
 

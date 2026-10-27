@@ -301,12 +301,14 @@ comparisons have incomplete evidence coverage. Local script execution,
 network expansion, and credential-related changes are the most
 frequently reported categories. Additional graph edges account for most
 comparisons, and repeated artifacts make observations dependent. The
-selected families are not a representative sample of GitSkills.
-Independent review and adjudication for this run remain pending, so
-these counts measure automated findings rather than validated security
-incidents or scanner accuracy. The study provides evidence of candidate
-security-sensitive changes and an auditable way to examine them, while
-leaving their validated frequency and historical lineage unresolved.</p>
+selected families are not a representative sample of GitSkills. Review
+annotation files now contain draft entries for 21 of 30 directed cases
+and all 15 relationship cases, but all entries remain pending human
+acceptance and adjudication. The automated counts therefore are not
+validated security incidents or scanner-accuracy estimates. The study
+provides evidence of candidate security-sensitive changes and an
+auditable way to examine them, while leaving their validated frequency
+and historical lineage unresolved.</p>
 <h1 id="introduction">Introduction</h1>
 <p>Adopting a familiar agent skill can introduce unfamiliar
 instructions. A reused file may preserve its name and most of its text
@@ -848,9 +850,13 @@ cohort, loaded all 1,151 selected artifacts, preserved pair-level
 outcomes, and generated review samples. Completion establishes that
 those stages produced the saved outputs. It does not establish that
 relationships are historical facts, that every supported RI is correct,
-or that unflagged cases lack in-scope changes. The execution summary
-explicitly states that independent review and adjudication are
-awaited.</p>
+or that unflagged cases lack in-scope changes. The committed annotation
+files contain draft entries for 21 of the 30 directed cases and all 15
+relationship cases. Their entries are marked
+<code>review_phase=independent</code> but
+<code>review_status=pending</code>; the notes identify AI-assisted
+proposals awaiting human acceptance. This records review work in
+progress, not completed independent or adjudicated labels.</p>
 <p>Earlier development checks exercised constructed fixtures, file-input
 comparisons, extraction, and output round trips. These provide
 regression evidence for specified behavior, not independent estimates of
@@ -1008,16 +1014,18 @@ Consequently, the percentages describe these outputs; they are not
 population estimates, independent incident rates, or causal effects of
 modification/reuse. Historical Sprint 1 results use different units and
 must not be pooled with them.</p>
-<p><strong>Validation and reproducibility.</strong> Independent
-adjudication for the current sample is pending, so accuracy and
-agreement are unknown. AI-assisted draft judgments do not supply an
-independent human reference standard. Numeric IDs are local to a
-prepared database build; stable source identity, content hashes, policy,
-code revision, and sample checksums are needed to reconnect labels to a
-run. The manifest records fingerprints but the prepared database size
-alone is not a cryptographic identity check. A regenerated cohort or
-changed implementation requires checking compatibility before reusing
-annotations.</p>
+<p><strong>Validation and reproducibility.</strong> Draft annotations
+have been committed for 21 of 30 directed cases and all 15 relationship
+cases, but every row remains pending and the notes identify AI-assisted
+proposals awaiting human acceptance. Independent adjudication has not
+occurred, so the entries do not yet provide an accepted human reference
+standard and accuracy and agreement remain unknown. Numeric IDs are
+local to a prepared database build; stable source identity, content
+hashes, policy, code revision, and sample checksums are needed to
+reconnect labels to a run. The manifest records fingerprints but the
+prepared database size alone is not a cryptographic identity check. A
+regenerated cohort or changed implementation requires checking
+compatibility before reusing annotations.</p>
 <p>These limits are addressed by retaining source evidence, direction
 bases, uncertain outcomes, and coverage separately, and by providing
 reproducible inputs and review forms. They are not eliminated by those
@@ -1034,8 +1042,10 @@ automated indicators in 588 of 3,997 directed comparisons, with
 local-script, network, and credential-related changes reported most
 frequently.</p>
 <p>These findings establish a set of candidate changes for review, not
-588 confirmed incidents or a population-wide risk rate. Independent
-adjudication remains pending, coverage is incomplete for some
+588 confirmed incidents or a population-wide risk rate. Draft
+annotations have been recorded for part of the directed review sample
+and all relationship cases, but human acceptance and independent
+adjudication remain pending. Coverage is incomplete for some
 comparisons, and many directions rely on structural rather than temporal
 evidence. The research question therefore has a qualified empirical
 answer: observable candidate introductions occur in the analyzed
@@ -1352,8 +1362,12 @@ manually supported in-scope indicator absent from the scanner’s
 supported set. Retained behavior, equivalent syntax, and observations
 outside RI-001 through RI-011 do not automatically constitute missed
 indicators.</p>
-<p>The current saved summary contains no completed independent
-validation metrics. Precision, recall, and agreement therefore remain
+<p>The annotation files contain draft entries for 21 of 30 directed
+cases and all 15 relationship cases. Every row remains
+<code>pending</code>, and the notes identify AI-assisted proposals
+awaiting human acceptance; the entries are not completed or adjudicated
+labels. The current saved summary contains no completed independent
+validation metrics, so precision, recall, and agreement remain
 unreported. Detailed annotation instructions and field definitions are
 retained in the repository resources listed in Appendix E rather than
 reproduced here.</p>

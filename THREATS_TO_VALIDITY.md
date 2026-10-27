@@ -17,7 +17,7 @@ The main concerns are:
 
 For example, a skill may mention `curl` while explaining an API without instructing an agent to run it. Conversely, a script using Node.js `os.platform()` or `os.arch()` to read system information may produce no rule matches. These calls can be legitimate, but their absence from findings does not establish that all security-relevant behavior was detected.
 
-Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. A manual-validation protocol and 13-case purposeful sample have been prepared for Sprint 2, but the cases have not yet been annotated. False-positive, false-negative, reviewer-agreement, and coverage-gap results are therefore not available yet.
+Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. Sprint 2 now has 30 directed-pair review cases and 15 relationship-pair review cases. The committed annotation files contain draft entries for 21 of the 30 directed cases and all 15 relationship cases; every entry is still marked `pending`, and the notes identify AI-assisted proposals awaiting human acceptance. These are real review records, but they are not completed or adjudicated validation labels, so false-positive, false-negative, reviewer-agreement, and coverage-gap metrics are not yet reported.
 
 ### Candidate-Family Matching and Similarity
 
@@ -107,7 +107,7 @@ As a result:
 - The sample may favor cases that are easier for the current comparison or scanner methods to detect.
 - Additional cases may be needed if later validation exposes behaviors that are not represented in the current sample.
 
-The 13-case validation set is selected from this Sprint 1 sample: five cases with an automated security finding, four cases without one (including a same-name pair for which no related edge was emitted), and four ambiguous or equivalent-state cases. The set is intentionally purposeful and tests the method; it is not a random sample and does not estimate population prevalence or scanner accuracy. The protocol and still-unannotated sample are in [`docs/validation/validation_protocol.md`](docs/validation/validation_protocol.md) and [`data/validation/validation_sample.csv`](data/validation/validation_sample.csv).
+The Sprint 2 review samples comprise 30 directed comparisons across six strata and 15 relationship comparisons across three strata. They are purposeful method-validation samples, not random samples, and do not estimate population prevalence. Draft annotations are stored alongside the samples in [`notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/`](notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/) and [`notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/`](notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/). Because all entries remain pending, they do not yet support scanner-accuracy estimates.
 
 See [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
 
