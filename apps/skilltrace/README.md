@@ -63,6 +63,17 @@ python -m gitskills.tools.analyze_family \
 
 SkillTrace loads valid current `analyze_family` JSON reports from that directory. Reports from `scan_family`, malformed JSON, and older unsupported report formats are ignored.
 
+After generating reports while SkillTrace is running, click **Refresh reports**
+to populate the **Report** dropdown; a server restart is not required.
+
+All six exact-name families in
+[`validation_sample.csv`](../../data/validation/validation_sample.csv) have
+corresponding reports. The `A/B Test Setup` family uses `ab-test-setup.json`
+because `/` cannot be used inside a filename. For names containing path
+separators, generate with `--json` and save the output under a filesystem-safe
+name in the reports directory rather than using the family name as the
+`--output` filename. Keep the exact family name in the JSON's `name` field.
+
 For `analyze_family` options and similarity-policy details, see [`TOOLS.md`](../../TOOLS.md).
 
 ## Start SkillTrace

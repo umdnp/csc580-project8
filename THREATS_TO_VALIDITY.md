@@ -17,7 +17,7 @@ The main concerns are:
 
 For example, a skill may mention `curl` while explaining an API without instructing an agent to run it. Conversely, a script using Node.js `os.platform()` or `os.arch()` to read system information may produce no rule matches. These calls can be legitimate, but their absence from findings does not establish that all security-relevant behavior was detected.
 
-Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. In Sprint 2, manual validation will be used to estimate false positives, false negatives, and important coverage gaps.
+Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. A manual-validation protocol and 13-case purposeful sample have been prepared for Sprint 2, but the cases have not yet been annotated. False-positive, false-negative, reviewer-agreement, and coverage-gap results are therefore not available yet.
 
 ### Candidate-Family Matching and Similarity
 
@@ -106,6 +106,8 @@ As a result:
 - Sprint 1 percentages should not be used to estimate how common security-sensitive changes are across all GitSkills artifacts.
 - The sample may favor cases that are easier for the current comparison or scanner methods to detect.
 - Additional cases may be needed if later validation exposes behaviors that are not represented in the current sample.
+
+The 13-case validation set is selected from this Sprint 1 sample: five cases with an automated security finding, four cases without one (including a same-name pair for which no related edge was emitted), and four ambiguous or equivalent-state cases. The set is intentionally purposeful and tests the method; it is not a random sample and does not estimate population prevalence or scanner accuracy. The protocol and still-unannotated sample are in [`docs/validation/validation_protocol.md`](docs/validation/validation_protocol.md) and [`data/validation/validation_sample.csv`](data/validation/validation_sample.csv).
 
 See [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
 
