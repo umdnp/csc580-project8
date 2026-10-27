@@ -1,0 +1,7 @@
+# Background and related work
+
+GitSkills supplies the empirical basis for studying skill occurrences and their copies. Its release retains repository/path identities alongside content hashes, with enrichment for representative content [@gitskills]. That distinction motivates the separation of occurrence-level comparisons from distinct content and bundle states. Many comparisons can reuse the same content, so comparison counts cannot be interpreted as independent historical modification events.
+
+The Agent Skills specification defines the instruction file and optional resource organization [@agentskills]. It describes a format; it does not establish that a particular skill is trustworthy or that its instructions executed. The assessment uses this structure to inspect available bodies and associated files without execution.
+
+The project's specific contribution is the combination of relatedness, recorded direction evidence, construct-level comparison, and an explicit indicator assessment. The supply-chain concern is the opportunity for changed instructions or dependencies to enter an adopted artifact. The method tests for bounded static signals of that change. It does not classify all artifacts as safe or unsafe, reconstruct complete copying histories, or replace runtime investigation. The scope also distinguishes the present results from the earlier Sprint 1 integration checks, which primarily exercised rule-count comparisons.

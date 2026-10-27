@@ -58,7 +58,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -74,7 +74,7 @@
                 "first_commit_at"
               ],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             }
@@ -92,7 +92,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -108,7 +108,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -124,7 +124,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -140,7 +140,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -156,7 +156,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -172,7 +172,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             }
@@ -188,7 +188,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             },
@@ -202,7 +202,7 @@
               "change_type": "skill-only",
               "evidence": [],
               "shared_group_ids": [
-                279922
+                292573
               ],
               "same_artifact_group": true
             }
@@ -211,5 +211,103 @@
       }
     ]
   },
-  "chronology_proxies": []
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 3273850,
+      "group_id": 292573,
+      "repo_id": 25696,
+      "repo_full_name": "salemkode/chat",
+      "path": ".agents/skills/argent-react-native-app-workflow/SKILL.md",
+      "file_sha": "93b380a100ec34220845a61e268d205267183d88",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-18T05:32:33Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3291033,
+      "group_id": 292573,
+      "repo_id": 110840,
+      "repo_full_name": "edwardloopez/travel-app-repack-example",
+      "path": ".cursor/skills/argent-react-native-app-workflow/SKILL.md",
+      "file_sha": "cd167e2bba1ee61eeafeb40a25e19424910973fb",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-08-18T01:53:44Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3315007,
+      "group_id": 292573,
+      "repo_id": 25717,
+      "repo_full_name": "felipejh/MyFrench",
+      "path": ".claude/skills/argent-react-native-app-workflow/SKILL.md",
+      "file_sha": "eba0c797519ec7eab8d6b3e9ec5905b604a26a76",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-23T17:47:49Z",
+      "repo_created_at": "2025-09-30T12:32:27Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3329361,
+      "group_id": 292573,
+      "repo_id": 128522,
+      "repo_full_name": "TrainLCD/MobileApp",
+      "path": ".claude/skills/argent-react-native-app-workflow/SKILL.md",
+      "file_sha": "d4e0a4bad3649052d52c70bf695caba5c7e7d258",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-16T22:22:04Z",
+      "repo_created_at": "2019-10-26T13:43:14Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3378260,
+      "group_id": 292573,
+      "repo_id": 25536,
+      "repo_full_name": "Uniswap/interface",
+      "path": ".agents/skills/argent-react-native-app-workflow/SKILL.md",
+      "file_sha": "0861656372406937987d36f189179badb1b1f8a4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2017-10-29T05:09:58Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
 }

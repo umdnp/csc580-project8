@@ -13,6 +13,11 @@ class DownloadAndExecuteRule(RegexRule):
     description = "Downloaded content is piped to a shell interpreter"
     patterns = (
         r"\b(?:curl|wget)\b[^\n|]*\|[ \t]*(?:bash|sh|zsh)\b",
+        # Explicit shell continuations, not arbitrary neighboring lines.
+        r"\b(?:curl|wget)\b[^\n|]*(?:\\\r?\n[ \t]*[^\n|]*)+"
+        r"\|[ \t]*(?:bash|sh|zsh)\b",
+        r"\b(?:curl|wget)\b[^\n|]*\|[ \t]*\\\r?\n[ \t]*"
+        r"(?:bash|sh|zsh)\b",
     )
 
 
@@ -25,4 +30,5 @@ class PackageInstallRule(RegexRule):
     patterns = (
         r"\b(?:pip(?:3)?[ \t]+install|npm[ \t]+install|npm[ \t]+i)\b",
         r"\b(?:apt(?:-get)?|dnf|yum|brew)[ \t]+install\b",
+        r"(?<![\w.-])(?:pnpm|yarn|bun)[ \t]+add\b",
     )

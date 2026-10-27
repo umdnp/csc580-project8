@@ -20,7 +20,7 @@ More information about the research question selected by the team is available i
 ## Getting Started
 
 For a guided first run, start with [data/README.md](data/README.md), then follow
-the [Project Guide](docs/start_guide/start_guide.md) for tool examples and a SkillTrace walkthrough.
+the [Project Guide](docs/instructions/getting_started.md) for tool examples and a SkillTrace walkthrough.
 
 The steps below set up the project source code, Python environment, project dependencies, and the local DuckDB database used for analysis.
 
@@ -79,6 +79,25 @@ duckdb /c/data/duckdb/agent_skills_release.db < sql/update_artifact_groupings.sq
 For additional details about the local DuckDB setup, see the [data setup documentation](data/README.md#local-duckdb-development-setup).
 
 The [Data Dictionary](DATA_DICTIONARY.md) documents the database structure, including the fields used by the project and modifications made by the team for the analysis.
+
+## End-to-End Research Pipeline
+
+The [end-to-end notebook](notebooks/end_to_end_pipeline/README.md) runs `summarize_cohort()` for the selected families. It performs the required relationship analysis and security scanning, reuses compatible scan caches, and produces research summaries and manual-review samples under `notebooks/end_to_end_pipeline/results/<run>/`. There is no need to run `analyze_family` or `scan_family` first. SkillTrace uses separately generated compact family reports under `apps/skilltrace/reports/`; they are not inputs to cohort summarization. For human review, see the [Manual Annotation Protocol](docs/instructions/manual_annotation_protocol.md).
+
+The older `notebooks/end-to-end_pipeline/` materials document the Sprint 1 workflow.
+
+## Automated Tests
+
+From the repository root:
+
+```shell
+uv sync
+uv run pytest
+```
+
+Analysis tests use constructed inputs and temporary databases; the live GitSkills
+dataset is not required. See the [testing guide](tests/sample_skills/README.md#testing)
+for focused test commands and coverage descriptions.
 
 ## Running the Project
 

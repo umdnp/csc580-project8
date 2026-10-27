@@ -1,4 +1,4 @@
-"""Analyze similarity and inferred evolution within one candidate family."""
+"""Analyze similarity and inferred evolution for candidate families."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import (
     ChangeType,
     ClusterAnalysis,
@@ -18,7 +17,9 @@ from gitskills.analysis.family_models import (
     SimilarityPolicy,
 )
 from gitskills.data.families import DuckDBFamilyRepository
+from gitskills.analysis.family_reporting import analyze_family_report
 from . import _output
+from ._family_input import read_family_names
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -30,12 +31,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Analyze SKILL.md similarity, clusters, root candidates, and "
-            "inferred evolution for one GitSkills candidate family."
+            "inferred evolution for one or more GitSkills candidate families."
         )
     )
-    parser.add_argument(
-        "name",
+    family_input = parser.add_mutually_exclusive_group(required=True)
+    family_input.add_argument(
+        "name", nargs="?",
         help="Exact candidate-family skill name, for example busybox-on-windows.",
+    )
+    family_input.add_argument(
+        "--input", type=Path, metavar="FILE",
+        help="UTF-8 file containing one candidate-family name per line (# comments allowed).",
+    )
+    parser.add_argument(
+        "--limit", type=int, metavar="N",
+        help="With --input, analyze only the first N names for a smoke test.",
     )
     parser.add_argument(
         "--db",
@@ -79,8 +89,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--verbose",
         action="store_true",
         help=(
-            "Show artifact metadata, the full pairwise similarity matrix, and "
-            "detailed relationship evidence."
+            "Include additional group, variant, and provenance diagnostics. "
+            "Full pairwise similarities are included only with --verbose."
         ),
     )
     parser.add_argument(
@@ -93,15 +103,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run candidate-family analysis."""
+    """Analyze one candidate family or a list of families."""
 
-    args = build_parser().parse_args(argv)
-
-    try:
-        output_dir = _output.prepare_directory(args.output)
-    except _output.OutputError as exc:
-        print(exc, file=sys.stderr)
-        return 2
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.limit is not None and (args.input is None or args.limit < 1):
+        parser.error("--limit requires --input and a positive integer")
+    if args.input is not None and args.output is None:
+        parser.error("--input requires --output for per-family JSON reports")
 
     database = args.db or _database_from_environment()
     if database is None:
@@ -112,6 +121,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     try:
+        names = read_family_names(args.input, args.limit) if args.input else [args.name]
+        output_dir = _output.prepare_directory(args.output)
+        output_stems = _output.report_stems(names) if output_dir is not None else {}
+        if args.input is not None:
+            if not database.is_file():
+                raise ValueError(f"Database not found: {database}")
+            assert output_dir is not None
+            if any(output_dir.glob("*.json")) or (output_dir / "benchmarks.csv").exists():
+                raise ValueError(
+                    "Batch output already contains reports or benchmarks; "
+                    "use a new output directory"
+                )
         policy = SimilarityPolicy(
             shingle_size=args.shingle_size,
             min_containment=args.min_containment,
@@ -119,39 +140,39 @@ def main(argv: Sequence[str] | None = None) -> int:
             min_shared_shingles=args.min_shared_shingles,
             direction_containment_margin=args.direction_margin,
         )
-        artifacts = DuckDBFamilyRepository(database).load(args.name)
-        if not artifacts:
-            print(
-                f"Candidate family not found: {args.name}",
-                file=sys.stderr,
-            )
-            return 1
+    except (OSError, ValueError, _output.OutputError) as exc:
+        print(f"Invalid analysis input: {exc}", file=sys.stderr)
+        return 2
 
-        result = FamilyAnalyzer(policy).analyze(artifacts)
-    except (OSError, RuntimeError, ValueError) as exc:
-        print(f"Unable to analyze candidate family: {exc}", file=sys.stderr)
-        return 1
-
-    payload = result.to_dict(verbose=args.verbose)
-
-    output_path = None
-    if output_dir is not None:
+    repository = DuckDBFamilyRepository(database)
+    failed = False
+    for index, name in enumerate(names, 1):
         try:
-            output_path = _output.write_json(output_dir, args.name, payload)
-        except _output.OutputError as exc:
-            print(exc, file=sys.stderr)
-            return 1
+            loaded = repository.load_available(name)
+            result, payload = analyze_family_report(
+                name, loaded, policy=policy, verbose=args.verbose
+            )
+            output_path = (
+                _output.write_json(output_dir, output_stems[name], payload)
+                if output_dir is not None else None
+            )
+            if args.input is None:
+                if args.json:
+                    print(json.dumps(payload, indent=2))
+                else:
+                    _print_report(result, verbose=args.verbose)
+                    if output_path is not None:
+                        print()
+                        print(f"JSON report:      {output_path.resolve()}")
+            status = "ok"
+        except (OSError, RuntimeError, ValueError, _output.OutputError) as exc:
+            print(f"Unable to analyze candidate family {name!r}: {exc}", file=sys.stderr)
+            status = "failed"
+            failed = True
+        if args.input is not None:
+            print(f"[{index}/{len(names)}] {name}: {status}", flush=True)
 
-    if args.json:
-        print(json.dumps(payload, indent=2))
-    else:
-        _print_report(result, verbose=args.verbose)
-        if output_path is not None:
-            print()
-            suffix = " (verbose)" if args.verbose else ""
-            print(f"JSON report:      {output_path.resolve()}{suffix}")
-
-    return 0
+    return 1 if failed else 0
 
 
 def _database_from_environment() -> Path | None:

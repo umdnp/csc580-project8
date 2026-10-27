@@ -34,12 +34,14 @@ if SRC_DIR.is_dir() and str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from gitskills import RiskCategory, SkillAnalyzer, compare_results  # noqa: E402
+from gitskills.analysis.risk_assessor import RiskAssessor  # noqa: E402
+from gitskills.reporting.redaction import redact_text, safe_excerpt  # noqa: E402
 
 REPORT_DIR = (HERE / "reports").resolve()
 DEFAULT_DB_PATH = r"C:/data/duckdb/agent_skills_release.db"
 DB_ENV = "GITSKILLS_DB"
 
-app = FastAPI(title="SkillTrace – GitSkills Similarity & Security Analyzer", version="0.5.1")
+app = FastAPI(title="SkillTrace – GitSkills Similarity & Security Analyzer", version="0.6.0")
 _lock = Lock()
 _cached_key: tuple[Path, int, int] | None = None
 _cached_report: dict | None = None
@@ -76,8 +78,6 @@ def database_source() -> str:
     if _database_path_override is not None:
         return "--db"
     return "default"
-
-
 
 
 def database_source_label() -> str:
@@ -163,8 +163,7 @@ def _is_analyze_family_report(raw: object) -> bool:
     if not isinstance(raw.get("policy"), dict) or not isinstance(raw.get("summary"), dict):
         return False
 
-    # Compact analyze_family reports intentionally omit verbose diagnostic
-    # collections. When present, validate their types; do not require them.
+    # Similarity comparisons are optional verbose diagnostics; graph edges are required.
     for key in (
         "groups",
         "skill_variants",
@@ -174,6 +173,11 @@ def _is_analyze_family_report(raw: object) -> bool:
     ):
         if key in raw and not isinstance(raw.get(key), list):
             return False
+
+    if "artifacts" in raw and not isinstance(raw["artifacts"], list):
+        return False
+    if "similarities" in raw and not isinstance(raw["similarities"], list):
+        return False
 
     summary = raw["summary"]
     for key in ("artifact_count", "cluster_count", "directed_edge_count", "ambiguous_edge_count"):
@@ -484,6 +488,8 @@ _ARTIFACT_FIELDS = (
     "file_sha",
     "discovered_at",
     "content_fetched",
+    "composition_fetched",
+    "sibling_count",
     "frontmatter_valid",
     "name",
     "description",
@@ -597,8 +603,9 @@ def fetch_sibling_records(
     *,
     entry_name: str | None = None,
     include_content: bool = False,
+    require_content: bool = True,
 ) -> list[dict]:
-    """Read content-bearing file siblings for one artifact from DuckDB."""
+    """Read stored file siblings; optionally retain rows with missing content."""
 
     database = database_path()
     if not database.exists():
@@ -626,6 +633,7 @@ def fetch_sibling_records(
             )
 
         candidate_fields = [
+            "id",
             "artifact_id",
             "entry_name",
             "entry_type",
@@ -636,7 +644,12 @@ def fetch_sibling_records(
             fields.append("content")
 
         selections = [f'"{field}"' for field in fields]
-        conditions = ["artifact_id = ?", "entry_type = 'file'", "content IS NOT NULL"]
+        if not include_content:
+            selections.append('(content IS NOT NULL) AS content_available')
+            fields.append('content_available')
+        conditions = ["artifact_id = ?", "entry_type = 'file'"]
+        if require_content:
+            conditions.append("content IS NOT NULL")
         parameters: list[object] = [int(artifact_id)]
         if entry_name is not None:
             conditions.append("entry_name = ?")
@@ -928,9 +941,7 @@ def _safe_rule_match(rule_match) -> dict:
     if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
         text = "[credential-related content redacted]"
     else:
-        text = " ".join(text.split())
-        if len(text) > 180:
-            text = f"{text[:177]}..."
+        text = safe_excerpt(text, limit=180)
     return {
         "rule_id": rule_match.rule_id,
         "category": rule_match.category.value,
@@ -938,6 +949,164 @@ def _safe_rule_match(rule_match) -> dict:
         "line_number": rule_match.line_number,
         "matched_text": text,
     }
+
+
+def _evidence_record(evidence, content: str) -> dict:
+    """Expose all evidence, including unchanged partial constructs, safely."""
+    start = evidence.start_offset
+    end = evidence.end_offset
+    context = evidence.context
+    return {
+        "type": evidence.kind,
+        "rule_ids": list(evidence.rule_ids),
+        "source": {
+            "filename": redact_text(evidence.filename),
+            "source_id": redact_text(evidence.source_id) if evidence.source_id else None,
+            "start_offset": start,
+            "end_offset": end,
+            "start_line": content.count("\n", 0, start) + 1 if start is not None else None,
+            "end_line": content.count("\n", 0, max(start or 0, end - 1)) + 1
+            if end is not None else None,
+        },
+        "context": {
+            "type": context.kind,
+            "language": context.language,
+            "heading": redact_text(context.heading) if context.heading else None,
+            "nearby_text": safe_excerpt(context.nearby_text or "", limit=320),
+        },
+        "extraction_status": evidence.extraction_status.value,
+        "excerpt": ("[credential-related content redacted]" if evidence.kind == "credential_reference"
+                    else safe_excerpt(evidence.raw_text, limit=320)),
+    }
+
+
+def _source_scan(result, content: str) -> dict:
+    """Include every evidence record so unchanged partial records can be inspected."""
+    from collections import Counter
+    statuses = Counter(item.extraction_status.value for item in result.evidence)
+    return {
+        "filename": redact_text(result.filename),
+        "source_id": redact_text(result.source_id) if result.source_id else None,
+        "profile": result.profile.to_dict(),
+        "rule_match_count": result.rule_match_count,
+        "rule_counts": result.rule_counts(),
+        "matches": [_safe_rule_match(match) for match in result.rule_matches],
+        "evidence_count": len(result.evidence),
+        "extraction": {
+            "complete": statuses["complete"],
+            "partial": statuses["partial"],
+            "unsupported": statuses["unsupported"],
+        },
+        "evidence": [_evidence_record(item, content) for item in result.evidence],
+    }
+
+
+
+def _risk_report(assessment, base_content: str, derived_content: str) -> dict:
+    """Report the RDR-010 assessment with safe excerpts and line locations."""
+    def indicator_record(item) -> dict:
+        return {
+            "id": item.indicator_id,
+            "reason": redact_text(item.reason),
+            "evidence": {
+                "added": [_evidence_record(e, derived_content) for e in item.added],
+                "removed": [_evidence_record(e, base_content) for e in item.removed],
+            },
+        }
+    return {
+        "policy_version": assessment.policy_version,
+        "indicator_count": assessment.indicator_count,
+        "finding_count": assessment.finding_count,
+        "indicators": [indicator_record(item) for item in assessment.supported],
+        "uncertain": [indicator_record(item) for item in assessment.uncertain],
+        "coverage": {
+            "status": assessment.coverage,
+            "notes": [redact_text(note) for note in assessment.coverage_notes],
+            "evidence_records": {
+                "total": assessment.evidence_total,
+                "complete": assessment.evidence_complete,
+                "partial": assessment.evidence_partial,
+                "unsupported": assessment.evidence_unsupported,
+            },
+            "missing_sibling_content": assessment.missing_sibling_content,
+            "unknown_sibling_hashes": assessment.unknown_sibling_hashes,
+            "sibling_listing_incomplete": assessment.sibling_listing_incomplete,
+        },
+    }
+
+
+def _compare_scans(base_text: str, derived_text: str, *,
+                   base_filename: str = "SKILL.md", derived_filename: str = "SKILL.md",
+                   base_source_id: str | None = None,
+                   derived_source_id: str | None = None) -> dict:
+    analyzer = SkillAnalyzer()
+    base = analyzer.scan(base_text, filename=base_filename, source_id=base_source_id)
+    derived = analyzer.scan(derived_text, filename=derived_filename,
+                            source_id=derived_source_id)
+    comparison = compare_results(base, derived)
+    assessment = RiskAssessor().assess(comparison)
+    payload = comparison.to_dict(verbose=True)
+    payload["base"] = _source_scan(base, base_text)
+    payload["derived"] = _source_scan(derived, derived_text)
+    payload["evidence_comparison"] = {
+        "removed": [_evidence_record(e, base_text) for e in comparison.evidence_removed],
+        "added": [_evidence_record(e, derived_text) for e in comparison.evidence_added],
+    }
+    # RDR-010 serializer includes all indicator categories and coverage counts.
+    payload["risk_indicators"] = _risk_report(assessment, base_text, derived_text)
+    return payload
+
+
+def _artifact_source(artifact_id: int) -> tuple[dict, str]:
+    try:
+        records = fetch_artifact_records((artifact_id,), include_content=True)
+    except DatabaseAccessError as exc:
+        raise HTTPException(503, str(exc)) from exc
+    record = records.get(artifact_id)
+    if record is None:
+        raise HTTPException(404, f"Artifact ID {artifact_id} was not found in DuckDB.")
+    text = record.get("content")
+    if not isinstance(text, str):
+        raise HTTPException(422, f"Artifact {artifact_id} content is unavailable.")
+    return record, text
+
+
+def _sibling_source(artifact_id: int, entry_name: str) -> dict | None:
+    try:
+        rows = fetch_sibling_records(artifact_id, entry_name=entry_name,
+                                     include_content=True, require_content=False)
+    except DatabaseAccessError as exc:
+        raise HTTPException(503, str(exc)) from exc
+    return rows[0] if rows else None
+
+
+@app.get("/api/reports/{filename}/artifacts/{artifact_id}/evidence")
+def inspect_artifact_evidence(filename: str, artifact_id: int):
+    """On-demand source analysis for one stored SKILL.md, including partial evidence."""
+    report = load_report(filename)
+    _cluster_for_artifact(report, artifact_id)
+    record, content = _artifact_source(artifact_id)
+    source_name = record.get("filename") or "SKILL.md"
+    result = SkillAnalyzer().scan(content, filename=source_name, source_id=str(artifact_id))
+    return {"artifact_id": artifact_id, "surface": "skill", "scan": _source_scan(result, content)}
+
+
+@app.get("/api/reports/{filename}/artifacts/{artifact_id}/siblings/evidence")
+def inspect_sibling_evidence(filename: str, artifact_id: int,
+                             entry_name: str = Query(min_length=1)):
+    """Analyze an available sibling file; do not run its contents."""
+    report = load_report(filename)
+    _cluster_for_artifact(report, artifact_id)
+    sibling = _sibling_source(artifact_id, entry_name)
+    if not sibling or not isinstance(sibling.get("content"), str):
+        raise HTTPException(404, "Content-bearing sibling file was not found.")
+    result = SkillAnalyzer().scan(
+        sibling["content"], filename=entry_name,
+        source_id=str(sibling.get("id") or f"{artifact_id}:{entry_name}"),
+    )
+    return {"artifact_id": artifact_id, "surface": "sibling", "entry_name": entry_name,
+            "scan": _source_scan(result, sibling["content"])}
+
 
 
 @app.get("/", include_in_schema=False)
@@ -1039,7 +1208,7 @@ def artifact_details(
     siblings = []
     siblings_error = None
     try:
-        siblings = fetch_sibling_records(artifact_id)
+        siblings = fetch_sibling_records(artifact_id, require_content=False)
     except DatabaseAccessError as exc:
         siblings_error = str(exc)
         database_errors.append(siblings_error)
@@ -1047,7 +1216,7 @@ def artifact_details(
     compare_siblings = []
     if selected_comparison is not None:
         try:
-            compare_siblings = fetch_sibling_records(selected_comparison["id"])
+            compare_siblings = fetch_sibling_records(selected_comparison["id"], require_content=False)
         except DatabaseAccessError as exc:
             database_errors.append(str(exc))
 
@@ -1100,6 +1269,7 @@ def artifact_details(
         "ambiguous": ambiguous,
         "comparisons": comparisons,
         "siblings": siblings,
+        "comparison_siblings": compare_siblings,
         "siblings_error": siblings_error,
         "root": bool(node.get("root")),
         "counts": {
@@ -1198,8 +1368,10 @@ def sibling_diff(
     comparison = _comparison_for(report, compare_id, selected_id)
 
     try:
-        left_rows = fetch_sibling_records(compare_id, entry_name=entry_name, include_content=True)
-        right_rows = fetch_sibling_records(selected_id, entry_name=entry_name, include_content=True)
+        left_rows = fetch_sibling_records(compare_id, entry_name=entry_name,
+                                         include_content=True, require_content=False)
+        right_rows = fetch_sibling_records(selected_id, entry_name=entry_name,
+                                          include_content=True, require_content=False)
     except DatabaseAccessError as exc:
         raise HTTPException(503, str(exc)) from exc
 
@@ -1228,24 +1400,117 @@ def sibling_diff(
 
 @app.post("/api/reports/{filename}/scan/{base_id}/{derived_id}")
 def scan_diff(filename: str, base_id: int, derived_id: int):
+    """Compare directed SKILL.md artifacts, reporting rules, evidence and indicators."""
     report = load_report(filename)
     relationship = _directed_relationship(report, base_id, derived_id)
-    base_text, derived_text, _ = _require_contents(base_id, derived_id)
-
-    analyzer = SkillAnalyzer()
-    base_result = analyzer.scan(base_text)
-    derived_result = analyzer.scan(derived_text)
-    comparison = compare_results(base_result, derived_result)
-    payload = comparison.to_dict(verbose=True)
-    payload["base"]["matches"] = [_safe_rule_match(match) for match in base_result.rule_matches]
-    payload["derived"]["matches"] = [_safe_rule_match(match) for match in derived_result.rule_matches]
-
+    base_record, base_text = _artifact_source(base_id)
+    derived_record, derived_text = _artifact_source(derived_id)
+    payload = _compare_scans(
+        base_text, derived_text,
+        base_filename=base_record.get("filename") or "SKILL.md",
+        derived_filename=derived_record.get("filename") or "SKILL.md",
+        base_source_id=str(base_id), derived_source_id=str(derived_id),
+    )
     return {
         "base_id": base_id,
         "derived_id": derived_id,
+        "surface": "skill",
         "relationship": relationship,
         "scan_diff": payload,
     }
+
+
+def _sibling_status(sibling: dict | None, artifact: dict | None) -> str:
+    """Distinguish recorded absence from a file whose content is missing.
+
+    A missing row is only classified as absent when the artifact explicitly
+    reports zero siblings from a complete composition. Even this establishes
+    absence from the stored snapshot, not historical absence from a repository.
+    """
+    if sibling is not None:
+        return "available" if isinstance(sibling.get("content"), str) else "unavailable"
+    if (artifact is not None and artifact.get("sibling_count") == 0
+            and artifact.get("composition_fetched") in (1, True)
+            and not artifact.get("composition_truncated")):
+        return "absent"
+    return "not_recorded"
+
+
+@app.post("/api/reports/{filename}/sibling-scan/{base_id}/{derived_id}")
+def scan_sibling_diff(filename: str, base_id: int, derived_id: int,
+                      entry_name: str = Query(min_length=1)):
+    """Compare same-path stored sibling contents in an established direction."""
+    report = load_report(filename)
+    relationship = _directed_relationship(report, base_id, derived_id)
+    base = _sibling_source(base_id, entry_name)
+    derived = _sibling_source(derived_id, entry_name)
+    if base is None and derived is None:
+        raise HTTPException(404, "Sibling is not recorded for either artifact.")
+    # Query artifact metadata only when a sibling row is missing. In particular,
+    # no matching row is not interchangeable with a row whose content is NULL.
+    artifact_metadata = {}
+    if base is None or derived is None:
+        try:
+            artifact_metadata = fetch_artifact_records((base_id, derived_id))
+        except DatabaseAccessError as exc:
+            raise HTTPException(503, str(exc)) from exc
+    base_status = _sibling_status(base, artifact_metadata.get(base_id))
+    derived_status = _sibling_status(derived, artifact_metadata.get(derived_id))
+    if base_status != "available" or derived_status != "available":
+        available_side = "base" if base_status == "available" else (
+            "derived" if derived_status == "available" else None
+        )
+        available = base if available_side == "base" else (
+            derived if available_side == "derived" else None
+        )
+        available_artifact_id = base_id if available_side == "base" else derived_id
+        observation = None
+        if available is not None:
+            scan = SkillAnalyzer().scan(
+                available["content"], filename=entry_name,
+                source_id=str(available.get("id") or f"{available_artifact_id}:{entry_name}"),
+            )
+            observation = _source_scan(scan, available["content"])
+        notes = ["One-sided sibling comparison; no directional security claims made."]
+        if "unavailable" in (base_status, derived_status):
+            notes.append("A sibling record exists but its content could not be retrieved.")
+        if "absent" in (base_status, derived_status):
+            notes.append("No sibling is recorded on one side of a complete stored composition; this does not prove historical introduction or deletion.")
+        if "not_recorded" in (base_status, derived_status):
+            notes.append("No sibling row was found and listing completeness could not be established.")
+        return {
+            "base_id": base_id, "derived_id": derived_id, "surface": "sibling",
+            "entry_name": entry_name, "relationship": relationship,
+            "scan_diff": None,
+            "available_side": available_side,
+            "available_scan": observation,
+            "coverage": {
+                "status": "one-sided" if "absent" in (base_status, derived_status)
+                          and "unavailable" not in (base_status, derived_status)
+                          and "not_recorded" not in (base_status, derived_status)
+                          else "incomplete",
+                "comparison_status": "one-sided",
+                "notes": notes,
+                "base_status": base_status, "derived_status": derived_status,
+                "base_available": base_status == "available",
+                "derived_available": derived_status == "available",
+                "missing_sibling_content": int(base_status == "unavailable") + int(derived_status == "unavailable"),
+                "sibling_listing_incomplete": "not_recorded" in (base_status, derived_status),
+            },
+        }
+    base_text, derived_text = base["content"], derived["content"]
+    payload = _compare_scans(
+        base_text, derived_text,
+        base_filename=entry_name, derived_filename=entry_name,
+        base_source_id=str(base.get("id") or f"{base_id}:{entry_name}"),
+        derived_source_id=str(derived.get("id") or f"{derived_id}:{entry_name}"),
+    )
+    return {
+        "base_id": base_id, "derived_id": derived_id,
+        "surface": "sibling", "entry_name": entry_name,
+        "relationship": relationship, "scan_diff": payload,
+    }
+
 
 def build_argument_parser() -> argparse.ArgumentParser:
     """Build command-line options for the local SkillTrace server."""

@@ -31,10 +31,10 @@ uv sync
 
 ### Run the Test Suite
 
-Run all pytest tests with:
+Run the full pytest suite, including SkillTrace's application tests, with:
 
 ```shell
-uv run pytest tests/pytests -v
+uv run pytest -v
 ```
 
 To run only the sample-skill analyzer tests:
@@ -48,6 +48,150 @@ A specific sample case can be selected with `-k`:
 ```shell
 uv run pytest tests/pytests/test_sample_skills.py -v -k repo-status-reporter
 ```
+
+### SQL Preparation Tests (Story 6.1)
+
+Run the SQL preparation tests from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_data_preparation.py -v
+```
+
+The tests execute the production `sql/create_analysis_tables.sql` and
+`sql/update_artifact_groupings.sql` directly against synthetic records in an
+isolated in-memory DuckDB. They do not read or alter the local GitSkills database,
+download data, or execute artifact content.
+
+Coverage includes description normalization, eligibility filters and the
+50-character body boundary, exact-name selection, description variants, source
+artifact/repository links, and retention of identical artifact occurrences.
+Sibling tests check sorted multiset fingerprints, duplicate hashes, file renames,
+directory exclusion, missing content versus missing hashes, known-empty versus
+unknown composition, stale-value clearing, repeatable updates, and summary counts.
+Group IDs are checked for consistent membership within a run, not fixed numeric
+values across database builds.
+
+The normalization regression checks that leading tabs and trailing newlines do
+not split equivalent descriptions. Whitespace is collapsed before the final
+trim. A scanner integration test checks that merging description groups preserves
+the family scanner's full structured findings for a constructed comparison.
+The [normalization change record](../../docs/decisions/RDR-011-description-whitespace-normalization.md)
+documents database compatibility, measured population impact, and verification.
+These checks exercise the preparation policy documented in
+[RDR-003](../../docs/decisions/RDR-003-grouping-and-sibling-fingerprints.md);
+they do not validate the research population or inferred relationships manually.
+
+### Artifact Matching and Direction Tests (Story 6.1)
+
+Run the focused tests from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_artifact_similarity.py tests/pytests/test_artifact_matching.py -v
+```
+
+These tests use constructed artifacts and known shingle sets. They need no
+GitSkills database, network access, or execution of artifact instructions.
+
+| Test file | Behavior checked |
+| --- | --- |
+| `test_artifact_similarity.py` | Directional containment and Jaccard calculations, repeated shingles, short/empty bodies, metadata and formatting normalization, non-English tokens, exact acceptance thresholds, and invalid policy settings. |
+| `test_artifact_matching.py` | Identical/equivalent states, rejection of unrelated same-name artifacts, matching across description groups, preserved source IDs and metadata, direction evidence precedence, provenance ambiguity/conflict, timestamp offsets, equivalent-peer constraints, containment margins, and cycle prevention. |
+
+Expected behavior follows [RDR-004](../../docs/decisions/RDR-004-skillmd-similarity-strategy.md)
+and [RDR-007](../../docs/decisions/RDR-007-effective-chronology-and-direction-evidence.md).
+Assertions use explicit expected relationships rather than treating current tool
+output as ground truth. Tests protect the implemented exploratory policy; they
+do not establish that its thresholds or inferred lineage are correct for real
+dataset artifacts. Manual validation remains separate.
+
+Recovery from missing/non-text artifact content is exercised separately in
+`tests/pytests/test_scan_family_inputs.py`, at the database-loading boundary.
+The matching tests exercise empty/short strings and unusable chronology within
+the analyzer's supported input types. Security-change classification tests are
+also separate from these relationship tests.
+
+### Notebook End-to-End Tests (Story 6.1)
+
+```shell
+uv run pytest tests/pytests/test_pipeline_notebook.py -v
+```
+
+These checks connect the production preparation SQL to every code cell in the
+current family pipeline notebook, using real temporary DuckDB tables and the
+actual analysis, scanner, report, and cohort implementations. They verify
+complete and incomplete sibling inputs, positive/negative comparisons,
+unresolved direction, final output files/counts, repeatable review templates,
+and early rejection of an unprepared database. Outputs stay in a temporary
+project, and the source database remains unchanged during analysis.
+
+See the [notebook testing notes](../../notebooks/end_to_end_pipeline/README.md#automated-end-to-end-check)
+for scope and limitations. This tests the notebook's Python code and parameter
+wiring, not Jupyter's browser or kernel implementation.
+
+### Security Comparison and Pipeline Tests (Story 6.1)
+
+Run the comparison and pipeline checks from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_security_comparison.py tests/pytests/test_family_risk_indicators.py tests/pytests/test_end_to_end_pipeline.py -v
+```
+
+Comparator cases distinguish category introductions from increased matches in an
+existing category. They cover unchanged/empty results, complete removal, removal
+of one rule while another retains the category, equal totals with different rule
+changes, and reversed comparisons with repeated evidence occurrences. A retained
+category means it is detected at both endpoints; it does not establish that all
+underlying behavior is identical.
+
+Family-scanner cases verify that unresolved direction prevents directional
+findings under both primary-only and all-directed-edge policies. The database
+integration cases create a temporary prepared DuckDB and use the actual family
+and sibling repositories, analysis, scanner, report writers, report-reuse logic,
+and cohort summarizer. They check artifact/file traceability, skipped artifacts,
+available sibling findings alongside missing sibling content, saved audit
+records, and an unchanged source database. Other existing pipeline cases use
+substituted repositories to isolate orchestration behavior.
+
+These tests require no live GitSkills database and do not execute artifact
+instructions. They verify known constructed cases, not accuracy on real-world
+artifacts. No production comparison behavior is changed by adding these tests.
+
+### Focused Security Function Tests (Story 5.2)
+
+Run the security function tests from the repository root:
+
+```shell
+uv run pytest tests/pytests/test_security_rules.py tests/pytests/test_security_analyzer.py tests/pytests/test_security_siblings.py -v
+```
+
+These tests use constructed text and in-memory artifact/sibling objects; they do
+not require the GitSkills database or execute the supplied instructions.
+
+| Test file | Coverage |
+| --- | --- |
+| `test_security_rules.py` | Positive and negative examples for every active rule, all six categories, supported command/API variants, evidence locations, and overlapping-match deduplication. |
+| `test_security_analyzer.py` | Capability/count aggregation, LF/CRLF and BOM frontmatter handling, sibling configuration scope, empty/benign text, rule configuration, and a static-only scanning check. |
+| `test_security_siblings.py` | Extension-independent sibling scanning, artifact/file traceability, unchanged-content handling, incomplete coverage alongside available findings, and credential-evidence redaction. |
+
+The static-only check supplies executable-looking text, rejects attempts to launch
+processes through common Python APIs, and checks that a supplied file-writing
+instruction has no effect. This is a regression check for the exercised scanner
+path, not an exhaustive proof about every possible execution mechanism.
+
+For the separate Story 5.2 non-execution criterion, run:
+
+```shell
+uv run pytest tests/pytests/test_static_analysis_boundary.py -v
+```
+
+See the [static-analysis boundary review](../../docs/security/static_analysis_boundary.md)
+for the file CLI, database-backed family CLI, SkillTrace scan-handler checks,
+source-review findings, and verification limits.
+
+These tests verify the documented operational behavior of the scanner. They do
+not establish real-world detection accuracy, complete syntax coverage, or manual
+validation of dataset findings. Artifact relatedness and complete security-change
+classification need separate tests under Stories 5.1 and 5.3.
 
 ### Sample Skill Test Design
 

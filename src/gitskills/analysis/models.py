@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Iterable
 
+from .evidence_models import Evidence, EvidenceChanges
+
 
 class RiskCategory(str, Enum):
     """Normalized security-sensitive capabilities detected in an artifact."""
@@ -28,6 +30,8 @@ class RuleMatch:
     message: str
     line_number: int | None = None
     matched_text: str | None = None
+    start_offset: int | None = None
+    end_offset: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +66,9 @@ class AnalysisResult:
 
     profile: RiskProfile
     rule_matches: tuple[RuleMatch, ...]
+    filename: str = "SKILL.md"
+    source_id: str | None = None
+    evidence: tuple[Evidence, ...] = ()
 
     @property
     def rule_match_count(self) -> int:
@@ -108,6 +115,17 @@ class AnalysisComparison:
     derived: AnalysisResult
     introduced: RiskProfile
     rule_deltas: tuple[RuleDelta, ...]
+    evidence_changes: EvidenceChanges = EvidenceChanges()
+
+    @property
+    def evidence_added(self) -> tuple[Evidence, ...]:
+        """Source evidence occurrences found only in the derived artifact."""
+        return self.evidence_changes.added
+
+    @property
+    def evidence_removed(self) -> tuple[Evidence, ...]:
+        """Source evidence occurrences found only in the base artifact."""
+        return self.evidence_changes.removed
 
     @property
     def rule_match_delta(self) -> int:

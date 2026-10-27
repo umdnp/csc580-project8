@@ -14,16 +14,18 @@ input-files:
   - report/sections/01-abstract.md
   - report/sections/02-introduction.md
   - report/sections/03-research-question.md
-  - report/sections/04-dataset-and-preparation.md
-  - report/sections/05-method-and-implementation.md
-  - report/sections/06-evaluation-and-validation.md
+  - report/sections/04-related-work.md
+  - report/sections/05-dataset-and-preparation.md
+  - report/sections/06-method-and-implementation.md
   - report/sections/07-results.md
-  - report/sections/08-discussion.md
-  - report/sections/09-threats-to-validity.md
-  - report/sections/10-related-work.md
+  - report/sections/08-evaluation-and-validation.md
+  - report/sections/09-discussion.md
+  - report/sections/10-threats-to-validity.md
   - report/sections/11-conclusion.md
-  - report/sections/12-artifact-appendix.md
-
-resource-path:
-  - .
-  - report/generated-report
+  - report/sections/12-references.md
+  - report/appendices/A-dataset-and-preparation.md
+  - report/appendices/B-implementation-details.md
+  - report/appendices/C-validation-materials.md
+  - report/appendices/D-extended-results.md
+  - report/appendices/E-reproducibility-and-artifacts.md
+  - report/appendices/F-disclosures.md

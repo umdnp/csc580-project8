@@ -1,5 +1,5 @@
 ---
-title: "Security-Relevant Evolution of a GitSkills"
+title: "Security Relevant Changes in Reused Agent Skills"
 subtitle: "SWE 380 / CSC 580 Group 8 Project Report"
 author:
   - "Jim Prantzalos"
@@ -9,6 +9,13 @@ author:
 date: "Fall 2026"
 lang: en-US
 papersize: letter
+fontsize: 11pt
+classoption:
+  - titlepage
+header-includes:
+  - |
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
 geometry:
   - margin=1.25in
 ---

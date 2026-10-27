@@ -222,5 +222,103 @@
       "chronology_basis": "equivalent-peer",
       "chronology_source_artifact_id": 3498458
     }
-  ]
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 3485370,
+      "group_id": 433605,
+      "repo_id": 249245,
+      "repo_full_name": "cometchat/cometchat-cursor-plugin",
+      "path": "plugins/cometchat/skills/cometchat-core/SKILL.md",
+      "file_sha": "8d4b7e95915a5d1b782d30823961c4381cabe87f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-29T02:32:12Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3498417,
+      "group_id": 433605,
+      "repo_id": 249243,
+      "repo_full_name": "cometchat/cometchat-replit-template",
+      "path": ".agents/skills/cometchat-core/SKILL.md",
+      "file_sha": "a066c884d6a957cecf81a22521bd6a7e9b12813c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-28T13:11:42Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3498458,
+      "group_id": 433605,
+      "repo_id": 240727,
+      "repo_full_name": "MAX5271/CometChat",
+      "path": ".claude/skills/cometchat-core/SKILL.md",
+      "file_sha": "6d50b2a26d91f5379998e01aa0588aad59d47658",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-28T23:30:00Z",
+      "repo_created_at": "2026-05-28T23:26:07Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3572584,
+      "group_id": 433605,
+      "repo_id": 240736,
+      "repo_full_name": "AgamPandey133/Take_Home",
+      "path": "cometchat-app/.claude/skills/cometchat-core/SKILL.md",
+      "file_sha": "6f4c71e38e3a24ec57da6d75b30cbe3aaad5972e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-05T16:00:13Z",
+      "repo_created_at": "2026-06-05T15:55:56Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3602273,
+      "group_id": 433605,
+      "repo_id": 130791,
+      "repo_full_name": "cometchat/cometchat-skills",
+      "path": "skills/cometchat-core/SKILL.md",
+      "file_sha": "8845d257f4cd36b181f8f920e437a30fe28686f7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-03T08:57:51Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
 }

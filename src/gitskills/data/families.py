@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from dataclasses import dataclass
 
 from gitskills.analysis.family_models import Artifact
 from gitskills.analysis.provenance import extract_declared_provenance
@@ -30,6 +31,30 @@ _FAMILY_SQL = """
               """
 
 
+@dataclass(frozen=True, slots=True)
+class SkippedArtifact:
+    """An input excluded from comparison, never a negative scanner result."""
+
+    artifact_id: int
+    repo_full_name: str | None
+    path: str | None
+    reason: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "artifact_id": self.artifact_id,
+            "repo_full_name": self.repo_full_name,
+            "path": self.path,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class FamilyLoad:
+    artifacts: tuple[Artifact, ...]
+    skipped_artifacts: tuple[SkippedArtifact, ...]
+
+
 class DuckDBFamilyRepository:
     """Load candidate-family artifacts from the project DuckDB database."""
 
@@ -43,6 +68,40 @@ class DuckDBFamilyRepository:
     def load(self, name: str) -> tuple[Artifact, ...]:
         """Load every artifact for one exact candidate-family name."""
 
+        return tuple(self._row_to_artifact(row) for row in self._load_rows(name))
+
+    def load_available(self, name: str) -> FamilyLoad:
+        """Load usable inputs and retain per-artifact content failures."""
+
+        artifacts = []
+        skipped = []
+        for row in self._load_rows(name):
+            reason = self._unavailable_reason(row)
+            if reason is not None:
+                skipped.append(SkippedArtifact(
+                    artifact_id=int(row[1]),
+                    repo_full_name=row[9],
+                    path=row[10],
+                    reason=reason,
+                ))
+            else:
+                artifacts.append(self._row_to_artifact(row))
+        return FamilyLoad(tuple(artifacts), tuple(skipped))
+
+    @staticmethod
+    def _unavailable_reason(row: tuple[object, ...]) -> str | None:
+        file_sha, content = row[7:9]
+        if content is None:
+            return "missing_content"
+        if not isinstance(content, str):
+            return "non_text_content"
+        if not content.strip():
+            return "empty_content"
+        if not isinstance(file_sha, str) or not file_sha.strip():
+            return "missing_file_sha"
+        return None
+
+    def _load_rows(self, name: str) -> list[tuple[object, ...]]:
         try:
             import duckdb
         except ImportError as exc:  # pragma: no cover - environment failure
@@ -63,7 +122,7 @@ class DuckDBFamilyRepository:
         finally:
             connection.close()
 
-        return tuple(self._row_to_artifact(row) for row in rows)
+        return rows
 
     @staticmethod
     def _row_to_artifact(row: tuple[object, ...]) -> Artifact:

@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
+import csv
 import json
 import os
 import sys
+import time
+import tracemalloc
 from pathlib import Path
 from typing import Sequence
 
+from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import SimilarityPolicy
-from gitskills.analysis.family_risk import FamilyRiskAnalyzer
 from gitskills.analysis.family_risk_models import (
     ClusterRiskAnalysis,
     FamilyRiskAnalysis,
@@ -23,7 +27,10 @@ from gitskills.analysis.family_risk_models import (
 from gitskills.analysis.models import RiskCategory, RuleMatch
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
+from gitskills.analysis.family_reporting import scan_family_report
 from . import _output
+from ._family_input import read_family_names
+from gitskills.reporting.redaction import redact_text, safe_excerpt
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -35,13 +42,34 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze one candidate family and scan its directed evolution edges "
+            "Analyze one or more candidate families and scan their directed evolution edges "
             "for security-rule findings in SKILL.md bodies and changed siblings."
         )
     )
-    parser.add_argument(
-        "name",
+    family_input = parser.add_mutually_exclusive_group(required=True)
+    family_input.add_argument(
+        "name", nargs="?",
         help="Exact candidate-family skill name, for example busybox-on-windows.",
+    )
+    family_input.add_argument(
+        "--input", type=Path, metavar="FILE",
+        help="UTF-8 file containing one candidate-family name per line (# comments allowed).",
+    )
+    parser.add_argument(
+        "--edges", choices=("primary", "all"), default="primary",
+        help="Relationships to scan: primary evolution edges (default) or all direction-supported related edges.",
+    )
+    parser.add_argument(
+        "--benchmark", action="store_true",
+        help="Write per-family timing and status to benchmarks.csv in the output directory.",
+    )
+    parser.add_argument(
+        "--tracemalloc", action="store_true",
+        help="With --benchmark, also measure peak Python allocations (affects timings; not native RSS).",
+    )
+    parser.add_argument(
+        "--limit", type=int, metavar="N",
+        help="With --input, scan only the first N names for a smoke test.",
     )
     parser.add_argument(
         "--db",
@@ -99,26 +127,35 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run candidate-family security review."""
+    """Run security scans for a named family or a pinned input list."""
 
-    args = build_parser().parse_args(argv)
-
-    try:
-        output_dir = _output.prepare_directory(args.output)
-    except _output.OutputError as exc:
-        print(exc, file=sys.stderr)
-        return 2
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.tracemalloc and not args.benchmark:
+        parser.error("--tracemalloc requires --benchmark")
+    if args.limit is not None and (args.input is None or args.limit < 1):
+        parser.error("--limit requires --input and a positive integer")
+    if args.input is not None and args.output is None:
+        parser.error("--input requires --output for per-family JSON reports")
 
     database = args.db or _database_from_environment()
-
     if database is None:
-        print(
-            f"Database path required: pass --db or set {DEFAULT_DB_ENV}.",
-            file=sys.stderr,
-        )
+        print(f"Database path required: pass --db or set {DEFAULT_DB_ENV}.", file=sys.stderr)
         return 2
 
     try:
+        names = read_family_names(args.input, args.limit) if args.input else [args.name]
+        output_dir = _output.prepare_directory(
+            args.output if args.output is not None else _output.DEFAULT_OUTPUT_DIR if args.benchmark else None
+        )
+        output_stems = _output.report_stems(names) if output_dir is not None else {}
+        if args.input is not None:
+            if not database.is_file():
+                raise ValueError(f"Database not found: {database}")
+            assert output_dir is not None
+            if any(output_dir.glob("*.json")) or (output_dir / "benchmarks.csv").exists():
+                raise ValueError("Batch output already contains scan reports or benchmarks; "
+                                 "use a new output directory")
         policy = SimilarityPolicy(
             shingle_size=args.shingle_size,
             min_containment=args.min_containment,
@@ -126,37 +163,93 @@ def main(argv: Sequence[str] | None = None) -> int:
             min_shared_shingles=args.min_shared_shingles,
             direction_containment_margin=args.direction_margin,
         )
-        artifacts = DuckDBFamilyRepository(database).load(args.name)
-        if not artifacts:
-            print(f"Candidate family not found: {args.name}", file=sys.stderr)
-            return 1
+    except (OSError, ValueError, _output.OutputError) as exc:
+        print(f"Invalid scan input: {exc}", file=sys.stderr)
+        return 2
 
-        sibling_files = DuckDBSiblingRepository(database).load(
-            artifact.artifact_id for artifact in artifacts
-        )
-        result = FamilyRiskAnalyzer(policy=policy).analyze(
-            artifacts,
-            sibling_files=sibling_files,
-        )
-    except (OSError, RuntimeError, ValueError) as exc:
-        print(f"Unable to scan candidate family: {exc}", file=sys.stderr)
-        return 1
-
-    payload = result.to_dict(verbose=args.verbose)
-
-    if output_dir is not None:
+    rows = []
+    failed = False
+    for index, name in enumerate(names, 1):
+        if args.benchmark and args.tracemalloc:
+            tracemalloc.start()
+        started = time.perf_counter()
         try:
-            _output.write_json(output_dir, args.name, payload)
-        except _output.OutputError as exc:
-            print(exc, file=sys.stderr)
+            result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose, edges=args.edges)
+            if output_dir is not None:
+                _output.write_json(output_dir, output_stems[name], payload)
+            if args.input is None:
+                if args.json:
+                    print(json.dumps(payload, indent=2))
+                else:
+                    _print_input_summary(loaded, artifacts)
+                    _print_report(result, verbose=args.verbose)
+            status = "ok"
+        except (OSError, RuntimeError, ValueError, _output.OutputError) as exc:
+            print(f"Unable to scan candidate family {name!r}: {exc}", file=sys.stderr)
+            status = "failed"
+            failed = True
+        seconds = time.perf_counter() - started
+        peak = tracemalloc.get_traced_memory()[1] if args.benchmark and args.tracemalloc else None
+        if args.benchmark and args.tracemalloc:
+            tracemalloc.stop()
+        if args.benchmark:
+            rows.append({
+                "family": name, "seconds": f"{seconds:.3f}",
+                "peak_python_memory_mib": f"{peak / 1024 / 1024:.2f}" if peak is not None else "",
+                "status": status,
+            })
+        if args.input is not None:
+            print(f"[{index}/{len(names)}] {name}: {status}" +
+                  (f" in {seconds:.2f}s" if args.benchmark else ""), flush=True)
+
+    if args.benchmark:
+        assert output_dir is not None
+        try:
+            with (output_dir / "benchmarks.csv").open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(
+                    handle, fieldnames=("family", "seconds", "peak_python_memory_mib", "status")
+                )
+                writer.writeheader()
+                writer.writerows(rows)
+        except OSError as exc:
+            print(f"Unable to write benchmarks.csv: {exc}", file=sys.stderr)
             return 1
+        print(f"Benchmark log: {output_dir / 'benchmarks.csv'}", file=sys.stderr)
+    return 1 if failed else 0
 
-    if args.json:
-        print(json.dumps(payload, indent=2))
+
+def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool, edges: str = "primary"):
+    loaded = DuckDBFamilyRepository(database).load_available(name)
+    artifacts = loaded.artifacts
+    if not artifacts and not loaded.skipped_artifacts:
+        raise ValueError(f"Candidate family not found: {name}")
+    family_analysis = None
+    if edges == "primary" and artifacts:
+        family_analysis = FamilyAnalyzer(policy).analyze(artifacts)
+        sibling_artifact_ids = {
+            artifact_id
+            for cluster in family_analysis.family.clusters
+            for edge in cluster.evolution.directed_edges
+            for artifact_id in (edge.source_artifact_id, edge.target_artifact_id)
+        }
     else:
-        _print_report(result, verbose=args.verbose)
+        sibling_artifact_ids = {artifact.artifact_id for artifact in artifacts}
 
-    return 0
+    sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
+    result, payload = scan_family_report(
+        name, loaded, sibling_files, policy=policy, edges=edges,
+        verbose=verbose, family_analysis=family_analysis,
+    )
+    return result, payload, loaded, artifacts
+
+
+def _print_input_summary(loaded, artifacts) -> None:
+    print(f"Artifacts loaded:        {len(artifacts)}")
+    print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
+    for artifact in loaded.skipped_artifacts:
+        print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
+    if loaded.skipped_artifacts:
+        print("Input coverage incomplete; skipped artifacts have no scan result.")
 
 
 def _database_from_environment() -> Path | None:
@@ -166,9 +259,19 @@ def _database_from_environment() -> Path | None:
 
 def _print_report(result: FamilyRiskAnalysis, *, verbose: bool) -> None:
     print(f"Candidate family:        {result.name}")
+    print(f"Edge selection:          {result.edge_selection}")
     print(f"Pairs analyzed:          {result.pairs_analyzed}")
+    edge_counts = Counter(item.edge_type for cluster in result.clusters
+                          for item in cluster.pair_observations)
+    print(f"  Primary: {edge_counts['primary']}; additional: {edge_counts['additional']}")
     print(f"Pairs flagged:           {result.pairs_flagged}")
     print(f"Pairs incomplete:        {result.pairs_incomplete}")
+    print(f"Pairs with evidence changes: {result.pairs_with_evidence_changes}")
+    print(f"Pairs with indicators:       {result.pairs_with_indicators}")
+    if result.indicator_frequency:
+        print("Indicator frequency (pairs):")
+        for indicator_id, count in result.indicator_frequency.items():
+            print(f"  {indicator_id}: {count}")
     print(f"Ambiguous edges skipped: {result.ambiguous_edges_skipped}")
     print("Scanner scope:           SKILL.md body + changed sibling files")
 
@@ -188,6 +291,7 @@ def _print_report(result: FamilyRiskAnalysis, *, verbose: bool) -> None:
         print(f"  Pairs analyzed:   {cluster.pairs_analyzed}")
         print(f"  Pairs flagged:    {cluster.pairs_flagged}")
         print(f"  Pairs incomplete: {cluster.pairs_incomplete}")
+        print(f"  Pairs with indicators: {cluster.pairs_with_indicators}")
         _print_flagged_pairs(cluster, verbose=verbose, indent="  ")
         _print_incomplete_pairs(cluster, indent="  ")
         print()
@@ -217,7 +321,7 @@ def _print_flagged_pair(
     print(
         f"{indent}base: {pair.source_artifact_id}, "
         f"derived: {pair.destination_artifact_id}, "
-        f"change: {pair.change_type.value}, "
+        f"edge: {pair.edge_type}, change: {pair.change_type.value}, "
         f"basis: {pair.direction_basis}"
     )
 
@@ -237,8 +341,56 @@ def _print_flagged_pair(
     for rule in pair.flagged_rules:
         _print_flagged_rule(rule, verbose=verbose, indent=f"{indent}  ")
 
-    if pair.sibling_scan is not None and pair.sibling_scan.incomplete:
-        _print_sibling_warning(pair.sibling_scan, indent=f"{indent}  ")
+    for label, changes in (("SKILL.md", pair.skill_evidence),
+                           ("siblings", pair.sibling_evidence)):
+        count_added, count_removed = len(changes.added), len(changes.removed)
+        if count_added or count_removed:
+            print(f"{indent}  {label} evidence: +{count_added}, -{count_removed}")
+            if verbose:
+                for change_label, items in (("removed", changes.removed),
+                                            ("added", changes.added)):
+                    for item in items:
+                        print(f"{indent}    {change_label}: "
+                              f"[{', '.join(item.rule_ids)}] "
+                              f"{redact_text(item.filename)}: {safe_excerpt(item.raw_text)}")
+
+    assessment = pair.risk_assessment
+    if assessment.indicators:
+        categories, findings = assessment.indicator_count, assessment.finding_count
+        print(f"{indent}  Risk indicators: {categories} "
+              f"{'category' if categories == 1 else 'categories'}, "
+              f"{findings} {'finding' if findings == 1 else 'findings'}")
+        for indicator in assessment.supported:
+            print(f"{indent}    [{indicator.indicator_id}] {redact_text(indicator.reason)}")
+        if assessment.uncertain:
+            print(f"{indent}    Uncertain observations: {len(assessment.uncertain)}")
+    if assessment.coverage != "complete":
+        sibling_incomplete = (assessment.missing_sibling_content
+                              or assessment.unknown_sibling_hashes
+                              or assessment.sibling_listing_incomplete)
+        label = "incomplete" if sibling_incomplete else "partial"
+        print(f"{indent}  Evidence coverage: {label}")
+        print(f"{indent}    {assessment.evidence_complete} of {assessment.evidence_total} "
+              "evidence records fully extracted")
+        print(f"{indent}    Partially extracted: {assessment.evidence_partial}")
+        print(f"{indent}    Unsupported: {assessment.evidence_unsupported}")
+        missing = str(assessment.missing_sibling_content) if assessment.missing_sibling_content else "none"
+        print(f"{indent}    Missing sibling content: {missing}")
+        if assessment.unknown_sibling_hashes:
+            print(f"{indent}    Unknown sibling hashes: {assessment.unknown_sibling_hashes}")
+        if assessment.sibling_listing_incomplete:
+            print(f"{indent}    Sibling listing incomplete")
+
+    if pair.sibling_scan is not None:
+        summary = pair.sibling_scan
+        if summary.recorded_base_only_paths or summary.recorded_derived_only_paths:
+            print(f"{indent}  Sibling paths recorded on one side (not proof of historical introduction/removal):")
+            for label, paths in (("base only", summary.recorded_base_only_paths),
+                                 ("derived only", summary.recorded_derived_only_paths)):
+                if paths:
+                    print(f"{indent}    {label}: {', '.join(json.dumps(path) for path in paths)}")
+        if summary.incomplete:
+            _print_sibling_warning(summary, indent=f"{indent}  ")
 
 
 def _print_flagged_rule(
@@ -328,7 +480,7 @@ def _print_incomplete_pairs(
         print(
             f"{indent}  base: {pair.source_artifact_id}, "
             f"derived: {pair.destination_artifact_id}, "
-            f"change: {pair.change_type.value}, "
+            f"edge: {pair.edge_type}, change: {pair.change_type.value}, "
             f"basis: {pair.direction_basis}"
         )
         _print_sibling_warning(pair.sibling_scan, indent=f"{indent}    ")
@@ -353,6 +505,8 @@ def _print_sibling_warning(summary: SiblingScanSummary, *, indent: str) -> None:
             "source SHA unknown="
             + ",".join(str(value) for value in summary.unknown_sha_source_ids)
         )
+    if summary.listing_incomplete:
+        details.append("sibling listing incomplete")
     if summary.unknown_sha_destination_ids:
         details.append(
             "derived SHA unknown="
@@ -369,11 +523,7 @@ def _safe_excerpt(rule_match: RuleMatch) -> str:
     if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
         return "[credential-related content redacted]"
 
-    text = " ".join((rule_match.matched_text or "").split())
-    if len(text) <= MAX_EXCERPT_LENGTH:
-        return text
-
-    return f"{text[:MAX_EXCERPT_LENGTH - 3]}..."
+    return safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
 
 
 if __name__ == "__main__":

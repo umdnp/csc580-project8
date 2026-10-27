@@ -34,17 +34,11 @@ class DuckDBSiblingRepository:
             raise RuntimeError(f"Database not found: {self._database}")
 
         placeholders = ", ".join("?" for _ in ids)
-        query = f"""
-            SELECT id AS sibling_id,
-                   artifact_id,
-                   entry_name,
-                   entry_sha,
-                   content,
-                   skipped_reason
+        metadata_query = f"""
+            SELECT id, artifact_id, entry_name, entry_sha, skipped_reason
             FROM artifact_siblings
             WHERE artifact_id IN ({placeholders})
               AND entry_type = 'file'
-            ORDER BY artifact_id, id
         """
 
         try:
@@ -55,22 +49,46 @@ class DuckDBSiblingRepository:
             ) from exc
 
         try:
-            rows = connection.execute(query, list(ids)).fetchall()
+            metadata_rows = connection.execute(metadata_query, list(ids)).fetchall()
+            content_by_id = {}
+            if metadata_rows:
+                sibling_ids = [int(row[0]) for row in metadata_rows]
+                sibling_placeholders = ", ".join("?" for _ in sibling_ids)
+                content_rows = connection.execute(
+                    f"SELECT id, content FROM artifact_siblings "
+                    f"WHERE id IN ({sibling_placeholders})",
+                    sibling_ids,
+                ).fetchall()
+                content_by_id = {
+                    int(sibling_id): content for sibling_id, content in content_rows
+                }
         finally:
             connection.close()
 
-        return tuple(self._row_to_sibling(row) for row in rows)
+        # Preserve the previous artifact-ID / sibling-ID ordering without a SQL sort.
+        return tuple(
+            self._row_to_sibling(
+                (sibling_id, artifact_id, entry_name, entry_sha,
+                 content_by_id.get(int(sibling_id)), skipped_reason)
+            )
+            for sibling_id, artifact_id, entry_name, entry_sha, skipped_reason in sorted(
+                metadata_rows, key=lambda row: (int(row[1]), int(row[0]))
+            )
+        )
 
     @staticmethod
     def _row_to_sibling(row: tuple[object, ...]) -> SiblingFile:
         sibling_id, artifact_id, entry_name, entry_sha, content, skipped_reason = row
+        if content is not None and not isinstance(content, str):
+            content = None
+            skipped_reason = "non_text_content"
 
         return SiblingFile(
             sibling_id=int(sibling_id),
             artifact_id=int(artifact_id),
             entry_name=str(entry_name),
             entry_sha=str(entry_sha) if entry_sha is not None else None,
-            content=str(content) if content is not None else None,
+            content=content,
             skipped_reason=(
                 str(skipped_reason) if skipped_reason is not None else None
             ),

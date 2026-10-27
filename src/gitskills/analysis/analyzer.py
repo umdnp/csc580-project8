@@ -8,6 +8,7 @@ from gitskills.rules.base import Rule
 from gitskills.rules.registry import DEFAULT_RULES
 
 from .content import mask_frontmatter
+from .evidence_extractor import EvidenceExtractor
 from .models import AnalysisResult, RiskProfile
 
 
@@ -17,6 +18,7 @@ class SkillAnalyzer:
     def __init__(self, rules: Iterable[Rule] | None = None) -> None:
         self._rules = tuple(DEFAULT_RULES if rules is None else rules)
         self._validate_rule_ids()
+        self._evidence_extractor = EvidenceExtractor()
 
     @property
     def rules(self) -> tuple[Rule, ...]:
@@ -28,19 +30,28 @@ class SkillAnalyzer:
         self,
         text: str,
         *,
-        exclude_frontmatter: bool = True,
+        exclude_frontmatter: bool | None = None,
+        filename: str = "SKILL.md",
+        source_id: str | None = None,
     ) -> AnalysisResult:
         """Analyze text and return its profile and rule matches.
 
-        SKILL.md scans exclude YAML frontmatter by default. Callers scanning
-        non-skill resources, such as sibling scripts, can disable that behavior.
+        SKILL.md scans exclude YAML frontmatter by default. Other file types
+        do not; callers may override this behavior explicitly.
         """
 
+        if exclude_frontmatter is None:
+            basename = filename.replace("\\", "/").rsplit("/", 1)[-1]
+            exclude_frontmatter = basename.lower() == "skill.md"
         scan_text = mask_frontmatter(text) if exclude_frontmatter else text
         rule_matches = tuple(
             rule_match
             for rule in self._rules
             for rule_match in rule.evaluate(scan_text)
+        )
+
+        rule_matches = self._evidence_extractor.filter_matches(
+            scan_text, rule_matches, filename=filename,
         )
 
         profile = RiskProfile.from_categories(
@@ -50,6 +61,11 @@ class SkillAnalyzer:
         return AnalysisResult(
             profile=profile,
             rule_matches=rule_matches,
+            filename=filename,
+            source_id=source_id,
+            evidence=self._evidence_extractor.extract(
+                scan_text, rule_matches, filename=filename, source_id=source_id,
+            ),
         )
 
     def _validate_rule_ids(self) -> None:

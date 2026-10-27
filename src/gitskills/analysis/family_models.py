@@ -751,6 +751,26 @@ class FamilyAnalysis:
             ],
         }
 
+        # The exhaustive pairwise matrix is diagnostic data, not a graph input.
+        if verbose:
+            output["similarities"] = self._similarities_to_dict()
+        output["artifacts"] = [
+            {
+                "artifact_id": artifact.artifact_id,
+                "group_id": artifact.group_id,
+                "repo_id": artifact.repo_id,
+                "repo_full_name": artifact.repo_full_name,
+                "path": artifact.path,
+                "file_sha": artifact.file_sha,
+                "provenance": artifact.provenance.to_dict(),
+                "first_commit_at": artifact.first_commit_at,
+                "repo_created_at": artifact.repo_created_at,
+                "sibling_file_count": artifact.sibling_file_count,
+                "sibling_content_sha": artifact.sibling_content_sha,
+            }
+            for artifact in self.artifacts
+        ]
+
         if verbose:
             output["groups"] = [group.to_dict() for group in self.groups]
             output["skill_variants"] = [
@@ -783,23 +803,7 @@ class FamilyAnalysis:
                 for artifact in self.artifacts
                 if artifact.provenance.has_values()
             ]
-            output["similarities"] = self._similarities_to_dict()
-            output["artifacts"] = [
-                {
-                    "artifact_id": artifact.artifact_id,
-                    "group_id": artifact.group_id,
-                    "repo_id": artifact.repo_id,
-                    "repo_full_name": artifact.repo_full_name,
-                    "path": artifact.path,
-                    "file_sha": artifact.file_sha,
-                    "provenance": artifact.provenance.to_dict(),
-                    "first_commit_at": artifact.first_commit_at,
-                    "repo_created_at": artifact.repo_created_at,
-                    "sibling_file_count": artifact.sibling_file_count,
-                    "sibling_content_sha": artifact.sibling_content_sha,
-                }
-                for artifact in self.artifacts
-            ]
+
 
         return output
 
