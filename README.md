@@ -105,23 +105,23 @@ Inferred relationships do not establish historical copying or ancestry, and scan
 
 ## SkillTrace - Visual Inspection and Manual Validation
 
-**SkillTrace** is a local browser application we use to inspect artifact relationships, compare `SKILL.md` and sibling-file contents, and examine scanner matches and supporting evidence alongside visual diffs. It supports manual validation but does not automatically verify findings.
+**SkillTrace** is a browser-based tool we built to support manual inspection of GitSkills artifacts. It visualizes artifact relationships, compares differences between skill files (`SKILL.md`) and sibling resources, and runs scans to display detected changes and supporting evidence alongside visual diffs. We use it to manually validate the pipeline's findings.
 
 <table>
   <tr>
-    <td align="center">
-      <a href="figures/skilltrace/skilltrace_home.png?raw=1">
-        <img src="figures/skilltrace/skilltrace_home.png" alt="SkillTrace home" width="240">
+    <td width="33%" align="center">
+      <a href="figures/skilltrace/skilltrace_home.png">
+        <img src="figures/skilltrace/skilltrace_home.png" alt="SkillTrace home" width="100%">
       </a>
     </td>
-    <td align="center">
-      <a href="figures/skilltrace/skilltrace_diff.png?raw=1">
-        <img src="figures/skilltrace/skilltrace_diff.png" alt="SkillTrace artifact diff" width="240">
+    <td width="33%" align="center">
+      <a href="figures/skilltrace/skilltrace_diff.png">
+        <img src="figures/skilltrace/skilltrace_diff.png" alt="SkillTrace artifact diff" width="100%">
       </a>
     </td>
-    <td align="center">
-      <a href="figures/skilltrace/skilltrace_scan.png?raw=1">
-        <img src="figures/skilltrace/skilltrace_scan.png" alt="SkillTrace scan evidence" width="240">
+    <td width="33%" align="center">
+      <a href="figures/skilltrace/skilltrace_scan.png">
+        <img src="figures/skilltrace/skilltrace_scan.png" alt="SkillTrace scan evidence" width="100%">
       </a>
     </td>
   </tr>
