@@ -1,101 +1,63 @@
-\clearpage
-
 # Results
 
-This section distinguishes saved Sprint 1 observations, a locally reproduced methodological example, and population-level results that remain to be produced. The worked example demonstrates tool behavior; it does not estimate prevalence or validate historical ancestry.
+## Automated comparison outcomes
 
-## Dataset Processing Results
+The saved run reports at least one supported indicator in **588 of 3,997 directed comparisons (14.7%)**, across 19 of the 30 provisional families. This is an automated result under the implemented indicator policy. It is not the rate of confirmed vulnerabilities, successful attacks, or independently validated modifications. The saved research summary and pair-level CSV are the sources for the tables in this section.
 
-The local candidate-selection audit on October 15, 2026 retained 943,257 of 3,797,117 source artifact occurrences, a reduction of 75.16 percent. The retained rows represent 162,995 exact-name families and 628,026 name-and-normalized-description groups. Dataset and Data Preparation provides the executable SQL, cumulative counts, and filter rationale. These totals describe candidate construction, not completed similarity analyses, directed comparisons, or security scans. Unique analyzed SHA counts, final relationship totals, scan completion and exclusion counts remain to be measured by the broader pipeline.
-
-### Saved Sprint 1 Extraction Outcomes
-
-Inspection of `notebooks/extraction_pipeline/results/sample_artifacts_scanner_results.parquet` confirmed the following saved results. This is an audit of the saved output, not a rerun of every dataset comparison with the current rules.
-
-| Saved notebook measure | Observed value |
+| Measure | Saved result |
 | --- | ---: |
-| Artifact rows | 43 |
-| Exact-name groups | 10 |
-| Adjacent comparisons with stored scanner output | 33 |
-| Comparisons with at least one positive rule-count delta | 13 (39.4%) |
-| Positive rule-delta events across those comparisons | 35 |
-| Sum of positive rule-count deltas | 77 |
+| Selected families / artifacts loaded | 30 / 1,151 |
+| Directed pairs analyzed | 3,997 |
+| Pairs with changed extracted evidence | 1,998 (50.0%) |
+| Pairs with at least one supported RI | 588 (14.7%) |
+| Pairs flagged for any reported reason | 2,241 (56.1%) |
+| Pairs with incomplete evidence coverage | 206 (5.2%) |
+| Ambiguous edges excluded from directional scanning | 2,244 |
 
-The 77 additional matches sum positive deltas only; they are not the net change after accounting for decreases, a count of unique actions, or a count of newly introduced capabilities. Multiple rules can increase in one pair, and multiple matches can contribute to one rule's delta.
+The broader flagged total includes evidence and rule observations and must not be substituted for the supported-indicator total. Likewise, the 1,998 pairs with evidence changes include ordinary differences that do not support an RI. The gap between these measures illustrates why a detected difference is insufficient to answer the research question.
 
-The 33 notebook pairs follow view-order adjacency within names, whereas the saved family-analysis reports contain 17 selected directed relationships. These outputs test different parts of the workflow and must not be combined into one relationship denominator. The 39.4 percent figure describes this purposeful notebook sample only, not population prevalence or a rate of proven harmful changes.
+## Types of reported change
 
-## Security-Pattern Results
+Local script execution (RI-010), network expansion/redirection (RI-003), and credential access/potential exposure (RI-007) occur most often in the automated output. Each row below counts pairs supporting that indicator at least once. A pair may appear in several rows; percentages are not portions of a mutually exclusive distribution.
 
-[TODO: Report the prevalence of detected rules and categories.]
+| Indicator | Pairs | Percent of all 3,997 pairs |
+| --- | ---: | ---: |
+| RI-001 Download and execute | 96 | 2.40% |
+| RI-002 Executed code source changed | 0 | 0.00% |
+| RI-003 Network expanded or redirected | 381 | 9.53% |
+| RI-004 Network security weakened | 22 | 0.55% |
+| RI-005 Code or dependency acquisition | 179 | 4.48% |
+| RI-006 Destructive or privileged file operation | 41 | 1.03% |
+| RI-007 Credential access or potential exposure | 231 | 5.78% |
+| RI-008 System or permissions modification | 53 | 1.33% |
+| RI-009 Sensitive file-system access | 0 | 0.00% |
+| RI-010 Local script execution | 413 | 10.33% |
+| RI-011 External instruction dependency | 0 | 0.00% |
 
-## Introduced Risk Signals
+Zero supported observations for RI-002, RI-009, and RI-011 do not establish that those changes never occur. Their absence can reflect this cohort, limited evidence, matching logic, uncertain assessments, or the difficulty of associating operations across artifacts. Validation must inspect negative cases before concluding that a zero frequency demonstrates successful absence detection.
 
-[TODO: Report how frequently derived artifacts introduced rules or categories that were absent from their base artifacts.]
+The assessor reports 5,551 supporting findings summed across comparisons. These are deduplicated constructs within pairs, not 5,551 globally unique actions. Repeated artifacts and additional edges can count related evidence again. The report uses the figure only to describe report volume, not as a measure of distinct harmful behavior.
 
-## Removed and Retained Signals
+## Edge selection and direction evidence
 
-[TODO: Report how frequently signals were removed, retained, or unchanged.]
+Primary edges contribute 468 comparisons, of which 81 have supported indicators (17.3%). Additional edges contribute 3,529 comparisons, of which 507 have indicators (14.4%). Most observations therefore come from comparisons beyond the single selected predecessor. Pooling them without an edge-type breakdown would obscure how the graph contributes to the reported frequency.
 
-## Results by Relationship Type
+Direction is based on direct chronology for 237 pairs, equivalent-peer chronology for 996, repository boundaries for 1,046, containment for 1,713, and resolved source declarations for five. Containment alone accounts for 42.9% of comparisons and 401 of the 588 indicator-bearing pairs. Consequently, many apparent introductions depend on the weakest direction basis. These cases can show meaningful differences even where the historical order remains contestable.
 
-[TODO: Compare meaningful relationship groups when supported by the data.]
+Family contributions are also uneven. One family contributes 1,136 comparisons (28.4% of the cohort) and 298 indicator-bearing pairs (50.7% of all indicator-bearing pairs). This concentration makes the pooled rate sensitive to family selection and graph density. Appendix D provides the complete family and direction-basis tables so readers can inspect this imbalance rather than assume every family contributes equally.
 
-## Validation Results
+## Coverage and complete-case description
 
-The configured sample-skill test selection passed seven cases at the documented code revision, and a separate local verification passed all 21 extraction-pipeline test cases. These deterministic checks establish expected outputs for those fixtures; they do not estimate accuracy on dataset artifacts. The worked example below was reproduced from local data, but neither its inferred direction nor its scanner findings have been established here as independently annotated ground truth. Numerical manual-review results remain pending the review protocol and annotations described in Evaluation and Validation.
+Of the 3,997 pairs, 206 have incomplete evidence coverage, including 117 with missing sibling content. The remaining incompleteness can involve partial or unsupported extraction and other recorded evidence issues. The execution summary's 117 incomplete sibling comparisons is therefore narrower than the research summary's 206 pairs with incomplete evidence coverage; these are different fields, not interchangeable totals.
 
-## Representative Examples
+The pair-level table contains 3,791 comparisons labelled complete, with 484 indicator-bearing pairs (12.8%). Another 104 indicator-bearing pairs occur among the 206 incomplete comparisons. Restricting to complete-labelled cases changes the descriptive rate, but cannot correct selection bias or prove that the detector recognized all relevant operations. The main total of 588 includes both groups and should always be accompanied by this coverage distinction.
 
-### Worked Example: Similarity, Inferred Direction, and Scanner Change
+## Representative interpretation cases
 
-The example uses one five-artifact candidate family from the prepared local DuckDB database. Family and endpoint identities are omitted under the report's reporting policy; the selected source and target are labeled A and B. The analysis was rerun locally on October 15, 2026 at code revision `f2b4c7d`, using the default similarity policy and current registered scanner rules. The database release identifier and integrity hash have not yet been documented, so this is a local demonstration rather than a fully frozen dataset experiment.
+**Equivalent installation syntax.** A reviewed development example replaces `bun add` with `npm install` for the same dependencies and sync workflow. Installation is already present, and no new registry or source is demonstrated. The rule can correctly identify both commands while RI-005 is a false positive for a newly introduced acquisition operation. An explicitly incorrect missing-sync example must not add independent positive support. This is a test of the existing RI definition, not a request to detect additional categories.
 
-#### From Candidate Family to Selected Pair
+**A retained credential pattern.** A client SDK example adds another initialization block using a framework-exposed authentication-key variable. The base already contains the same key-based initialization pattern. The name may attract review, but its added occurrence alone does not establish introduced RI-007. A separate, newly credential-bearing outbound operation would need its own evidence. This case illustrates why keyword presence and a change in credential behavior must be judged separately.
 
-The family contains five skill variants and five bundle variants in one similarity cluster. All ten distinct skill-variant pairs pass the relatedness policy, but the resulting graph selects only two directed predecessor edges. It also records one equivalent undirected relationship and two direction-unknown relationships; other supported directed candidates are retained as additional relationships.
+**Download and permission changes.** Another example adds remote retrieval followed by an executable-permission change and invocation of the downloaded file. The saved assessor reports network expansion and permission modification. Inspection can ask whether acquisition or deletion also satisfies an existing indicator. However, a download-then-execute sequence is not automatically the direct interpreter pipeline defined by RI-001, and a newly introduced HTTP URL is not automatically RI-004's HTTPS downgrade. Payload format, unavailable content, and direction limitations must remain explicit.
 
-For the selected A-to-B edge, the analysis reports 2,936 shared shingles, containment of approximately 0.962, and Jaccard of approximately 0.414. Thus, about 96.2 percent of A's distinct shingles occur in B, while their shared shingles account for about 41.4 percent of the combined set. These are representation-overlap measures, not percentages of lines copied or probabilities of common ancestry.
-
-The selected edge has `containment` as its direction basis and is classified as `skill-only`. This supplies a structural hypothesis for treating A as base and B as derived; it does not establish that A was published first or directly copied. The second selected edge in the family uses chronology, illustrating that one family can contain relationships with different evidential bases.
-
-```text
-Five exact-name artifact occurrences
-          |
-Five skill variants; ten qualifying similarity pairs
-          |
-One cluster; two selected directed predecessor edges
-          |
-Selected pair A -> B (containment-based, skill-only)
-          |
-Scan both skill bodies with the same 13-rule catalog
-          |
-25 base matches -> 49 derived matches; no new categories
-```
-
-#### Paired Scanner Results
-
-| Changed rule | Base A | Derived B | Delta |
-| --- | ---: | ---: | ---: |
-| CMD-001: shell-language code fences | 3 | 5 | +2 |
-| CMD-002: command invocations | 2 | 6 | +4 |
-| CRED-001: secret-related terms | 11 | 14 | +3 |
-| CRED-002: credential-file references | 5 | 12 | +7 |
-| EXT-002: package installation | 1 | 3 | +2 |
-| FS-003: file-reading commands/APIs | 1 | 2 | +1 |
-| NET-001: HTTP/HTTPS URLs | 2 | 7 | +5 |
-| **Total rule matches** | **25** | **49** | **+24** |
-
-Each changed rule already matches the base, so none of these increases constitutes new rule presence. All introduced-category flags are false. This example therefore demonstrates increased matches within existing capabilities rather than the introduction of a previously absent category. It cannot support a claim that the derived artifact is more harmful, that instructions executed, or that any credential was exposed.
-
-These counts describe the current code revision and local inputs. Counts depend on the rule catalog, input handling, and analyzed text. Runs using different definitions or processing settings must be labeled separately rather than pooled as measurements from an identical instrument.
-
-#### Scan Scope and Review Implications
-
-This table compares the two skill bodies using `SkillAnalyzer` and `compare_results`, the same scanning and comparison components used by `scan_diff`. It does not present sibling findings. The broader `scan_family` path reviews selected directed edges and applicable sibling changes, and can flag matches in new destination content even without a positive aggregate count delta.
-
-A reviewer should inspect the matched instructions in context, assess the direction evidence separately, and distinguish missing sibling evidence from a negative result. This case shows that the pipeline can connect candidate selection, inferred direction, and rule-level differences; it supplies neither population-level generalization nor independent ground truth.
-
-## Results Summary
-
-The reproduced family example contains five artifacts, ten qualifying similarity pairs, and two selected directed relationships. Its selected containment-based pair has 25 base matches and 49 derived matches, with increases in seven rules and no introduced categories. Seven configured sample-skill tests pass. These observations demonstrate selected implementation behavior; population introduction rates and independently measured validation accuracy remain unreported.
+These examples illustrate interpretation issues identified during development and review discussion. They are not a completed, independently adjudicated accuracy sample for the current frozen outputs. Appendix D provides the current cohort tables, while Appendix E identifies the underlying result artifacts.
