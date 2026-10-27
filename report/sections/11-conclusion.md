@@ -1,23 +1,7 @@
-\clearpage
+# Conclusion
 
-# Conclusion and Future Work
+Project Group 8 investigated whether modified or reused agent skills introduce security-sensitive behavior absent from an earlier or source artifact. The implemented method combines candidate relatedness, recorded direction evidence, static construct comparison, and eleven explicit risk indicators. The saved provisional cohort yields supported automated indicators in 588 of 3,997 directed comparisons, with local-script, network, and credential-related changes reported most frequently.
 
-## Conclusion
+These findings establish a set of candidate changes for review, not 588 confirmed incidents or a population-wide risk rate. Independent adjudication remains pending, coverage is incomplete for some comparisons, and many directions rely on structural rather than temporal evidence. The research question therefore has a qualified empirical answer: observable candidate introductions occur in the analyzed outputs, while their validated frequency and historical interpretation require further evidence.
 
-[TODO: Restate the research question, summarize the method, and present the most important findings.]
-
-## Contributions
-
-[TODO: Summarize the project’s technical, empirical, and methodological contributions.]
-
-## Limitations
-
-[TODO: Briefly acknowledge the limitations most important to interpreting the conclusion.]
-
-## Future Work
-
-[TODO: Identify reasonable extensions, such as additional rules, improved relationship detection, broader validation, or analysis of other datasets.]
-
-## Final Takeaway
-
-[TODO: End with the principal implication for AI-agent skill development, review, or security.]
+The next research step is to freeze and approve the cohort, complete both review assignments, adjudicate disagreements, and calculate accuracy only for assessable cases. Tool refinements should first improve fidelity to the existing eleven definitions, including equivalent installation operations and explicit counterexamples. Keeping detection, comparison, and indicator interpretation separate makes the pipeline useful without claiming comprehensive security detection.

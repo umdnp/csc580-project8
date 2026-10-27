@@ -4,7 +4,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam defaultFontSize 15
 skinparam dpi 150
-title Candidate population and evaluation paths
+title Candidate preparation and cohort analysis
 start
 :Import SQLite release into local DuckDB\n3,797,117 artifact occurrences;
 :Require valid frontmatter\nRetained: 1,627,753;
@@ -17,13 +17,11 @@ note right
   Local audit: October 15, 2026
 end note
 :Enrich known sibling fingerprints;\npreserve unavailable evidence as NULL;
-if (Analysis objective?) then (family review)
-  :Analyze an exact-name family;\ninfer relatedness and direction;
-  :Scan selected directed pairs\nand applicable sibling changes;
-else (Sprint 1 validation)
-  :Purposefully select Sprint 1 sample:\n43 artifacts across 10 families;
-  :Exercise family analysis and\nnotebook extraction separately;
-endif
+:Supply selected exact-name families\nto the end-to-end notebook;
+:Infer relatedness and direction;\nretain ambiguous cases separately;
+:Scan supported directed pairs\nand available sibling changes;
+:Assess eleven risk indicators;\nrecord evidence and coverage;
+:Write cohort results, manifest\nand validation samples;
 :Review outputs with their scope\nand evidence limitations;
 stop
 @enduml

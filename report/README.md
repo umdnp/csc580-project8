@@ -1,6 +1,44 @@
-# Build the project report
+# Research report
 
-The report is assembled from `sections/*.md` using `pandoc.yaml`. Pandoc includes
+## Main narrative and appendices
+
+The main report targets 12-15 pages of research content, including its tables.
+Title material, references, and appendices are outside that budget. The narrative
+centers on the research question, the eleven RIs, the selected cohort, results,
+validation and interpretation. Pagination must be checked on the rebuilt PDF;
+the source word count alone does not establish the page count.
+
+The October 26, 2026 PDF refactor renders 13 pages of main content (physical
+pages 2-14), followed by references and Appendices A-F. This is a verified PDF
+count; Word pagination can differ. After appendix trimming, the complete PDF
+contains 28 pages: one title page, 13 main-content pages, one references page,
+and 13 appendix pages.
+
+`pandoc.yaml` defines the reading order. Section filenames run from 01 through
+12 in that same order, ending with the conclusion (11) and references (12).
+Appendices A-F are stored together in `appendices/`. Background precedes the dataset and
+method; results precede validation, discussion, and validity limits. Main sections
+flow continuously rather than forcing a new page for each heading. References
+and each appendix start on a new page.
+
+| Appendix | Supporting material | Source |
+| --- | --- | --- |
+| A | Selection SQL, preparation workflow, and selection audit | [Dataset preparation](appendices/A-dataset-and-preparation.md) |
+| B | Extraction rule definitions, pipeline settings, and component diagrams | [Implementation](appendices/B-implementation-details.md) |
+| C | Validation scope and current status | [Validation materials](appendices/C-validation-materials.md) |
+| D | Current family, direction, and RI tables | [Extended results](appendices/D-extended-results.md) |
+| E | Links to supporting repository material and result artifacts | [Supporting material](appendices/E-reproducibility-and-artifacts.md) |
+| F | AI assistance in development and report preparation | [Disclosures](appendices/F-disclosures.md) |
+
+The current main results describe the saved provisional 30-family `sprint2` run.
+They are automated counts, not completed independent validation or population
+prevalence. When results are refreshed, verify the manifest, code/policy
+identity, sample checksums, and annotation status before revising report claims.
+Changing this report does not rerun the pipeline or adjudicate review labels.
+
+## Build the project report
+
+The report is assembled from `sections/*.md` and `appendices/*.md` using `pandoc.yaml`. Pandoc includes
 Lua; no separate Lua installation is required. The Lua filter renders PlantUML
 figures locally using portable Java and PlantUML with the bundled Smetana layout
 engine. Diagram text never goes to a public rendering service.
@@ -53,6 +91,8 @@ uv run python bin/build_report.py --format pdf
 ```
 
 PDF generation additionally requires XeLaTeX from MiKTeX or TeX Live on PATH.
+The PDF preamble uses `fvextra` to wrap long appendix code lines; this standard
+package must be available in the TeX installation.
 The portable setup does not install a TeX distribution. HTML and Word builds do
 not need TeX. To inspect the generated LaTeX without a TeX installation:
 
@@ -114,7 +154,7 @@ output. Use a deliberate manifest update when upgrading the rendering toolchain.
 
 ## Diagrams included
 
-- `preparation-activity.puml`: candidate reduction and alternative analysis paths,
+- `preparation-activity.puml`: candidate reduction and end-to-end cohort analysis,
   in Dataset and Data Preparation.
 - `relationship-state.puml`: conceptual relationship classification, in Method
   and Implementation. These are classification outcomes, not stored mutable states.
