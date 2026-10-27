@@ -4,7 +4,7 @@
 
 ## Method Overview
 
-The study measures whether modified or reused GitSkills introduce security-relevant behavior that was absent from an earlier version or source artifact. For each eligible ordered comparison, the method scans the base and derived artifacts with the same versioned rule catalog, constructs a rule and category profile for each artifact, and measures which signals were introduced, removed, or retained in the derived artifact.
+The study measures whether modified or reused GitSkills introduce security-relevant behavior that was absent from an earlier version or source artifact. For each eligible ordered comparison, the method scans the base and derived artifacts with the same rule catalog at a recorded code revision, constructs a rule and category profile for each artifact, and measures which signals were introduced, removed, or retained in the derived artifact.
 
 The current implementation combines exact-name candidate loading, token-shingle similarity, evidence-based direction inference, and a static scanner with 13 registered rules across six categories. The executable tools support individual file comparisons and family-level review. A completed population census and statistical validation are separate research tasks; the existence of these tools does not establish that those tasks have been completed. Rule definitions, dependency versions, code revision, and analysis settings must be recorded for each reported run.
 
@@ -192,7 +192,7 @@ The implementation is organized around four functional components:
 
 1. **Extractor:** Reads the relevant records and metadata from `agent_skills_release.db`.
 2. **Relationship builder:** Produces candidate ordered base-derived relationships and eligibility evidence.
-3. **Static analyzer:** Applies the versioned rule catalog to unique artifact content and creates rule and category profiles.
+3. **Static analyzer:** Applies the registered rule catalog (identified by code revision) to unique artifact content and creates rule and category profiles.
 4. **Comparator and reporter:** Joins profiles to eligible relationships, computes changes and aggregate measures, and writes reproducible analysis artifacts.
 
 The project uses Python 3.12 or newer, DuckDB for analysis queries, and dependencies recorded in `pyproject.toml` and `uv.lock`. `FamilyAnalyzer` implements relationship construction; `SkillAnalyzer` and `compare_results` implement text scanning and paired comparison; `FamilyRiskAnalyzer` orchestrates directed-family review. Tests use pytest. SkillTrace is a FastAPI application for inspecting generated family reports, content, diffs, and pair scans. The report sources are Markdown combined through `report/pandoc.yaml`.
@@ -227,7 +227,7 @@ The broader population-analysis target is:
 8. Compare base and derived profiles to calculate introduced, removed, and retained rules and categories.
 9. Produce structured result tables, summary measures, validation inputs, logs, and report-ready figures or tables.
 
-The pipeline records the scanner version, rule-catalog version, configuration, and other run metadata needed to connect every result to the implementation that produced it.
+For reproducibility, each completed run should record the scanner and rule definitions by code revision, along with configuration and other run metadata. The current family tools emit structured JSON reports, but the repository does not yet contain a completed population-run manifest or an integrated population-wide results pipeline.
 
 The implemented family workflow is narrower than that census target: `DuckDBFamilyRepository` loads one exact-name family, `FamilyAnalyzer` selects relationships, and `FamilyRiskAnalyzer` scans selected edges using per-analysis caches. Skill scans are reused by skill SHA; sibling scans reuse available content by SHA, with occurrence-based fallback where necessary. This does not establish a persisted, population-wide profile store.
 
@@ -239,7 +239,7 @@ The earlier or source artifact serves as the within-relationship baseline for ea
 
 The implementation uses constructed base and derived pairs under `tests/sample_skills`, with expected outputs under `tests/pytests/test_configs`. The shared pytest runner checks introduced categories, total counts, and individual rule deltas. These fixtures establish expected behavior on selected inputs; they are not empirical population observations or a measurement of scanner precision and recall. Additional coverage of removals, unchanged counts with changed text, and difficult direction cases should be evaluated explicitly.
 
-[TODO: Define any additional baseline rule set, heuristic, comparison method, or ablation required by the final evaluation, and explain what question that baseline answers.]
+No independent baseline detector or ablation study has been completed. The implemented comparison is paired: each selected base and derived artifact is scanned by the same rule catalog, and their profiles and rule counts are compared. This within-pair baseline answers whether a pattern was detected in one endpoint but not the other; it does not measure performance against an independent ground-truth system. Comparisons using view-order adjacency in the Sprint 1 extraction notebook are an integration workflow, not an alternative lineage method.
 
 ## Design Decisions
 
@@ -295,9 +295,11 @@ A reproducible run must identify:
 - the required environment and dependency versions;
 - configuration and command-line arguments;
 - scanner and rule-catalog versions;
-- random seeds used for validation sampling;
+- the validation-sample selection procedure and any random seed, when applicable;
 - executable commands for each pipeline stage and the complete pipeline;
 - output locations and expected artifacts; and
 - known platform, resource, or data-availability limitations.
 
-[TODO: Add the final setup instructions and exact clean-environment execution command after the implementation is complete.]
+For a local analysis, prepare the DuckDB database and analysis tables as described in [`data/README.md`](data/README.md), install the locked project dependencies with `uv sync`, and set `GITSKILLS_DB` to the local DuckDB path. Run `uv run analyze_family "<exact skill name>" --json` to inspect candidate similarity and direction, then `uv run scan_family "<exact skill name>" --json` to scan selected directed family edges and applicable sibling changes. For a direct file pair, run `uv run scan_diff "<base path>" "<derived path>"`. These commands analyze the requested family or pair; they do not execute a population-wide census.
+
+The committed Sprint 1 notebook can be rerun from the repository root with the configured `GITSKILLS_DB` and the `sample_artifacts` view by opening `notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb` and running its cells in order. Its Parquet output and figures are saved below `notebooks/extraction_pipeline/`. The manual-validation sample and review instructions are in `data/validation/validation_sample.csv` and `docs/validation/validation_protocol.md`; manual annotation is a separate step. Run automated tests with `uv run pytest tests/pytests -q`. Build the report preview with `uv run python bin/build_report.py --format html --cached-only` when Pandoc and committed diagram renders are available. A complete Sprint 2 results-generation command and its results directory have not yet been supplied.

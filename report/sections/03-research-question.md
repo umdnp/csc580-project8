@@ -12,7 +12,7 @@ This project investigates Question 4, **Skill security and supply-chain risk**, 
 
 ## Expectations
 
-[TODO: Describe the patterns the team expects to observe. Clearly distinguish expectations from findings.]
+This is an exploratory question rather than a confirmatory test of a directional hypothesis. We expect the collected artifacts to contain a mixture of security-sensitive patterns and legitimate operational instructions, and we expect some same-name candidates not to be meaningfully comparable. We also expect incomplete provenance, history, or sibling data to leave some otherwise related pairs without a reliable direction. These expectations motivate the analysis and its uncertainty handling; they are not observed findings or claims about prevalence. Results are reported only from completed, traceable analysis outputs.
 
 ## Operational Definitions
 

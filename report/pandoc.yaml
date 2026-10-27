@@ -23,3 +23,7 @@ input-files:
   - report/sections/10-related-work.md
   - report/sections/11-conclusion.md
   - report/sections/12-artifact-appendix.md
+
+resource-path:
+  - .
+  - report/generated-report

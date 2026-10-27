@@ -2,7 +2,13 @@
 
 # Results
 
-This section distinguishes saved Sprint 1 observations, a locally reproduced methodological example, and population-level results that remain to be produced. The worked example demonstrates tool behavior; it does not estimate prevalence or validate historical ancestry.
+This section distinguishes completed Sprint 1 exploratory outputs from the Sprint 2 analysis and manual validation that remain to be completed. The Sprint 1 notebook outputs and worked family example demonstrate selected tool behavior; neither estimates population prevalence or validates historical ancestry.
+
+## Sprint 2 Evidence Status
+
+At this report revision, the Sprint 2 population-analysis and report-ready table/figure work has not produced committed result artifacts. GitHub Stories [7.1](https://github.com/umdnp/csc580-project8/issues/101) and [7.2](https://github.com/umdnp/csc580-project8/issues/102) remain open, and there is no repository-root `results/` directory containing their outputs. Accordingly, the artifact/exclusion totals, category counts, comparison totals, and security-change rates for the approved Sprint 2 analysis are **not reported** here. Sprint 1 results below are retained as historical exploratory evidence and are not relabeled as Sprint 2 results.
+
+Sprint 2 has produced a review design, not review outcomes: the manual-validation CSV contains 13 selected cases (5 positive, 4 negative, 4 ambiguous) and 20 distinct artifact occurrences. The reviewer and adjudication fields remain blank. Those counts describe sample construction only; they are not counts of validated true/false positives or negatives.
 
 ## Dataset Processing Results
 
@@ -27,23 +33,56 @@ The 33 notebook pairs follow view-order adjacency within names, whereas the save
 
 ## Security-Pattern Results
 
-[TODO: Report the prevalence of detected rules and categories.]
+The saved Sprint 1 notebook output records positive rule-count deltas in 13 of 33 adjacent artifact comparisons. Across those pairs it records 35 rule-level positive-delta events, summing to 77 additional rule matches. These are increases in matched text, not 35 unique behaviors or 35 newly introduced capabilities. The following category and rule counts come from the saved Parquet output and its then-current 12-rule catalog; they are not Sprint 2 measurements or population prevalence and should not be compared directly with runs using the current 13-rule catalog.
+
+| Category | Positive rule-delta events |
+| --- | ---: |
+| Command execution | 12 |
+| Credential access | 3 |
+| External code execution | 7 |
+| File-system access | 2 |
+| Network access | 8 |
+| System modification | 3 |
+| **Total** | **35** |
+
+| Rule | Positive-delta events |
+| --- | ---: |
+| CMD-001 | 5 |
+| CMD-002 | 7 |
+| CRED-001 | 1 |
+| CRED-002 | 2 |
+| EXT-001 | 0 |
+| EXT-002 | 7 |
+| FS-001 | 1 |
+| FS-002 | 1 |
+| NET-001 | 7 |
+| NET-002 | 1 |
+| SYS-001 | 0 |
+| SYS-002 | 3 |
+
+The original generated figures are reproduced below without altering their data. Each is based on the 33 view-order adjacent comparisons in the saved Sprint 1 Parquet output.
+
+![Sprint 1 adjacent-pair outcomes: 20 comparisons with no positive rule-count delta and 13 with one or more positive deltas.](../../notebooks/extraction_pipeline/figures/pair_scan_outcomes.png)
+
+![Sprint 1 count of adjacent comparisons with a positive rule-count delta for each scanner rule.](../../notebooks/extraction_pipeline/figures/flagged_rules.png)
+
+![Sprint 1 positive rule-delta events grouped by scanner risk category.](../../notebooks/extraction_pipeline/figures/flagged_risk_categories.png)
 
 ## Introduced Risk Signals
 
-[TODO: Report how frequently derived artifacts introduced rules or categories that were absent from their base artifacts.]
+The 13 positive-delta notebook pairs cannot be counted as 13 introductions. The notebook output summarizes changes in match counts; a rule can increase when it already matched the base, and the adjacent ordering comes from the sample view rather than the family method's direction evidence. A population-level introduction count and denominator require the completed Sprint 2 comparison output. No such summary is available in the repository at this report revision.
 
 ## Removed and Retained Signals
 
-[TODO: Report how frequently signals were removed, retained, or unchanged.]
+The saved notebook figure summarizes positive count deltas, not removed or retained rule sets. The worked family example below reports its own endpoint profiles and illustrates that counts can increase in already-present rules without introducing a category. Aggregate Sprint 2 removed, retained, or unchanged counts remain unavailable.
 
 ## Results by Relationship Type
 
-[TODO: Compare meaningful relationship groups when supported by the data.]
+The Sprint 1 extraction notebook's 33 adjacent pairs and the family-analysis reports' 17 selected directed relationships are different units produced by different workflows. The first uses view-order adjacency within each skill-name group; the second applies family similarity and direction logic. They are not combined or treated as interchangeable denominators. A Sprint 2 breakdown by relationship type awaits the generated output from Story 7.1.
 
 ## Validation Results
 
-The configured sample-skill test selection passed seven cases at the documented code revision, and a separate local verification passed all 21 extraction-pipeline test cases. These deterministic checks establish expected outputs for those fixtures; they do not estimate accuracy on dataset artifacts. The worked example below was reproduced from local data, but neither its inferred direction nor its scanner findings have been established here as independently annotated ground truth. Numerical manual-review results remain pending the review protocol and annotations described in Evaluation and Validation.
+The 35 passing pytest cases exercise deterministic scanner, extraction, Parquet, and report-generation behavior, not independent ground truth from dataset artifacts. The 13-case validation sample and annotation protocol are now stored in the repository, but the sample has not yet been manually reviewed; numerical manual-validation results therefore remain unavailable. The worked example below was reproduced from local data, but neither its inferred direction nor its scanner findings have been established here as independently annotated ground truth.
 
 ## Representative Examples
 

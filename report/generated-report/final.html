@@ -280,12 +280,39 @@
 <p class="date">Fall 2026</p>
 </header>
 <h1 id="abstract">Abstract</h1>
-<p>[TODO: In approximately 150-250 words, summarize the research
-problem, research question, dataset, method, principal results, and
-implications. Complete this section after the analysis is finished.]</p>
+<p>Agent skills can instruct AI agents to execute commands, access
+files, use networks, install code, modify systems, and handle
+credentials. This study asks whether modified or reused GitSkills
+artifacts contain security-sensitive instruction patterns that are
+absent from an earlier or related artifact. We use the GitSkills
+<code>agent_skills_release.db</code> dataset and a rule-based static
+analyzer that scans text without executing instructions. Candidate
+artifacts are grouped by exact skill name, compared using token-shingle
+similarity, and ordered only when provenance, observed chronology,
+repository boundaries, or asymmetric containment provides direction
+evidence.</p>
+<p>The completed Sprint 1 exploratory workflow analyzed 43 artifacts
+from 10 skill-name groups. Its view-order adjacent-pair analysis
+produced 33 scans; 13 pairs (39.4%) had at least one positive rule-count
+delta, comprising 35 rule-level increases and 77 additional matched
+instances. These are results from a purposeful development sample, not
+Sprint 2 population estimates. Sprint 2 has defined a separate 13-case
+manual-validation sample and protocol, but the reviews and the
+corresponding generated Sprint 2 results and figures are not yet
+available. A positive static match-count change is not proof of
+execution, maliciousness, exploitability, or increased harm. The
+preliminary evidence supports inspecting changed instructions in
+context; broader analysis, manual annotation, and robustness checks
+remain necessary.</p>
 <h1 id="introduction">Introduction</h1>
-<p>[TODO: Introduce AI-agent skills, GitSkills, and the broader
-software-engineering context of the project.]</p>
+<p>AI-agent skills are reusable instruction files that guide coding
+agents through tasks such as project setup, implementation, testing,
+deployment, and repository maintenance. Because these instructions can
+cause an agent to invoke tools or interact with a development
+environment, changes to a skill can affect what an agent is asked to do.
+GitSkills provides a mined dataset of skill artifacts collected from
+public repositories, making it possible to examine skill text and
+available repository metadata at scale.</p>
 <h2 id="background-and-context">Background and Context</h2>
 <p>GitSkills artifacts can contain instructions that direct AI agents to
 execute commands, access or modify files, communicate with external
@@ -337,8 +364,16 @@ vulnerabilities or malicious behavior.</li>
 examining both the presence and evolution of security-relevant
 instructions in GitSkills artifacts.</p>
 <h2 id="report-organization">Report Organization</h2>
-<p>[TODO: Briefly describe how the remainder of the report is
-organized.]</p>
+<p>The report states the research question and operational definitions,
+documents the GitSkills dataset and candidate preparation, and describes
+the comparison, static-analysis, and pipeline methods. It then
+distinguishes software tests and the manual-validation protocol from
+observed analysis results. The results and discussion identify what the
+existing exploratory evidence shows and what cannot yet be concluded;
+threats to validity and the artifact appendix document limitations and
+reproduction resources. Sprint 2 quantities are included only when
+supported by generated outputs; remaining analysis and validation are
+identified as work for later stages.</p>
 <h1 id="research-question-and-expectations">Research Question and
 Expectations</h1>
 <h2 id="selected-topic">Selected Topic</h2>
@@ -352,8 +387,16 @@ file-system access, network access, or other risky behavior that was
 absent from an earlier version or source artifact?</strong></p>
 </blockquote>
 <h2 id="expectations">Expectations</h2>
-<p>[TODO: Describe the patterns the team expects to observe. Clearly
-distinguish expectations from findings.]</p>
+<p>This is an exploratory question rather than a confirmatory test of a
+directional hypothesis. We expect the collected artifacts to contain a
+mixture of security-sensitive patterns and legitimate operational
+instructions, and we expect some same-name candidates not to be
+meaningfully comparable. We also expect incomplete provenance, history,
+or sibling data to leave some otherwise related pairs without a reliable
+direction. These expectations motivate the analysis and its uncertainty
+handling; they are not observed findings or claims about prevalence.
+Results are reported only from completed, traceable analysis
+outputs.</p>
 <h2 id="operational-definitions">Operational Definitions</h2>
 <p>These definitions specify how the research concepts are represented
 and measured by the tools. Scanner rules operationalize
@@ -509,15 +552,23 @@ algorithms and implementation pipeline are described in the Method and
 Implementation section.</p>
 <h2 id="dataset-source-and-acquisition">Dataset Source and
 Acquisition</h2>
-<p>The source dataset for this study is
-<code>agent_skills_release.db</code>, the GitSkills database provided
-for the MSR 2027 Mining Challenge. The source population consists of all
-GitSkills artifact records contained in the database.</p>
-<p>[TODO: Add the approved dataset access instructions, release or
-snapshot identifier, file integrity information, and the date on which
-the database was obtained. Explain that the full database is not
-committed to the project repository and identify the expected local
-storage location.]</p>
+<p>The source dataset is <code>agent_skills_release.db</code>, the
+GitSkills database provided for the MSR 2027 Mining Challenge. The
+repository’s data instructions point to the <a
+href="https://zenodo.org/records/21875637">GitSkills Zenodo record</a>,
+whose published download is a SQLite database. Local analysis uses a
+separately created DuckDB database; neither database is committed to
+this repository. Acquisition and local storage instructions are in <a
+href="data/README.md"><code>data/README.md</code></a>.</p>
+<p>The validation sample records the Zenodo record identifier and the
+analysis code revision used to prepare its automated metadata. A
+dataset-file checksum and the date on which the local database was
+obtained have not been recorded for the Sprint 1 analysis outputs; the
+record identifier alone is not a byte-level snapshot identifier. The
+reported local counts should therefore be treated as tied to the
+inspected database build, not as a fully integrity-frozen release
+experiment. The raw database remains local as described in
+<code>data/README.md</code>.</p>
 <h2 id="dataset-scope">Dataset Scope</h2>
 <p>The study distinguishes three populations:</p>
 <ol type="1">
@@ -1201,9 +1252,18 @@ conditions are not satisfied. The pipeline retains the exclusion status
 and reason so that filtering is auditable. Uncertain or invalid
 relationships may be reviewed and excluded according to the documented
 relationship method.</p>
-<p>[TODO: Add any implemented content-format, parsing, duplication,
-missing-value, or relationship-confidence filters and the exact
-exclusion codes used by the pipeline.]</p>
+<p>The implemented candidate-table gates are the SQL predicates listed
+above: valid frontmatter, body length greater than 50 characters,
+non-null content, name, and description, and at least two qualifying
+occurrences for an exact name. The materialized table preserves
+occurrences rather than deduplicating them; identical skill content can
+share a SHA and be cached during analysis. The current family tools do
+not emit a population-wide, coded exclusion ledger. At family level,
+unresolved or ambiguous relationships remain explicitly represented and
+are not treated as negative scanner results. Missing or incomplete
+sibling content is recorded as incomplete coverage where applicable.
+Thus the candidate-selection counts are not counts of artifacts fully
+scanned or eligible directed comparisons.</p>
 <h2 id="data-preparation">Data Preparation</h2>
 <p>The preparation process converts the source database into
 analysis-ready artifact and comparison data. It will:</p>
@@ -1222,10 +1282,19 @@ artifact occurrences;</li>
 <li>join base and derived profiles into the ordered comparison
 table.</li>
 </ol>
-<p>[TODO: Document the implemented text decoding, line-ending
-normalization, parsing, missing-content handling, and any other cleaning
-transformations. Distinguish transformations used for matching from the
-original content retained for traceability.]</p>
+<p>The SQL selection retains the stored artifact content and source
+occurrence identifiers; it does not rewrite or normalize the source
+text. The family-similarity tokenizer masks leading YAML frontmatter,
+lowercases tokens, and builds five-token shingles while preserving
+common technical tokens such as URLs, paths, flags, and dotted
+identifiers. The behavioral scanner masks leading frontmatter for
+<code>SKILL.md</code> scans while preserving source positions and line
+endings, then applies the registered patterns to text; sibling scans may
+include the full file. The direct file-comparison command reads UTF-8
+with an optional byte-order mark. Missing content prevents a scan rather
+than being treated as empty or safe. Similarity normalization and
+scanner input handling are separate from the original content retained
+in the local database.</p>
 <h2 id="population-analysis-and-sampling">Population Analysis and
 Sampling</h2>
 <h3 id="planned-automated-census">Planned Automated Census</h3>
@@ -1240,46 +1309,26 @@ the research sample, and will not replace the final population-level
 analysis.</p>
 <h3 id="planned-manual-validation-sample">Planned Manual Validation
 Sample</h3>
-<p>For the broader evaluation, the team plans to manually review a
-stratified sample of at least 100 eligible base-derived comparisons from
-the automated results. This future plan is separate from the 17 directed
-comparisons in the current Sprint 1 reports:</p>
-<ul>
-<li>at least 50 comparisons for which the scanner reports one or more
-newly introduced rules or categories; and</li>
-<li>at least 50 comparisons for which the scanner reports no newly
-introduced rules or categories.</li>
-</ul>
-<p>Within those two groups, the sample will represent the relationship
-types and scanner categories present in the results. Selection will use
-a recorded random seed after the strata are defined. If a stratum
-contains fewer cases than its allocation, all cases in that stratum will
-be reviewed and the remaining allocation will be redistributed using a
-documented procedure.</p>
-<p>The sample may be expanded if early review identifies unstable rules,
-poorly represented relationship types, or categories that require
-additional evidence. The manual-review procedure, labels, metrics, and
-error analysis belong in the Evaluation and Validation section.</p>
-<p>For each sampled comparison, reviewers will record:</p>
-<ul>
-<li>whether the relationship and base-derived ordering are supported by
-the retained evidence;</li>
-<li>whether each reported match corresponds to the text identified by
-the scanner;</li>
-<li>whether the assigned categories are appropriate;</li>
-<li>whether a reported introduction was absent from the base and present
-in the derived artifact;</li>
-<li>whether an unflagged comparison contains a relevant introduction
-missed by the current rules; and</li>
-<li>whether the case is a true positive, false positive, false negative,
-true negative, or ambiguous under the documented threat model.</li>
-</ul>
-<p>These records will support confirmed and rejected relationship
-counts, ordering disagreements, classification counts, precision and any
-other justified validation metrics, category- or relationship-specific
-breakdowns where sample size permits, and representative failure modes.
-The Evaluation and Validation section will define the final calculation
-and interpretation of those measures.</p>
+<p>The defined Sprint 2 manual-validation sample contains <strong>13
+fixed pair-level cases</strong> drawn from the 43-artifact Sprint 1
+tool-validation sample: five positive cases with a reported security
+finding, four negative cases (three unflagged directed edges and one
+same-name pair for which no related edge was emitted), and four
+ambiguous cases (three unresolved similarity-only edges and one
+equivalent-state pair without direction). The selection is purposeful
+and rule-based, not random; the protocol describes the ordering and
+selection rules. The CSV includes artifact IDs, repository/path, file
+hashes, direction and change metadata, security findings, scan-coverage
+notes, and fields for two independent reviewers and adjudication.</p>
+<p>This 13-case set replaces the earlier planning text for a stratified
+review of at least 100 population-level comparisons. It is a bounded
+method-validation sample and cannot estimate population prevalence or
+accuracy. The protocol and CSV are stored at <a
+href="docs/validation/validation_protocol.md"><code>docs/validation/validation_protocol.md</code></a>
+and <a
+href="data/validation/validation_sample.csv"><code>data/validation/validation_sample.csv</code></a>.
+The review itself has not yet been completed; no manual judgment or
+validation metric is reported.</p>
 <h3 id="sprint-1-sampling-strategy">Sprint 1 Sampling Strategy</h3>
 <p>Sprint 1 uses a small, purposeful tool-validation sample of
 <strong>43 artifacts across 10 exact-name families</strong>. The ten
@@ -1404,17 +1453,24 @@ text diffs, and serialize scanner comparisons with
 <code>verbose=False</code>. These measures limit exported content but do
 not guarantee anonymity or resolve licensing questions. Artifact IDs can
 be linked to source records by someone with access to the dataset.</p>
-<p>[TODO: Document the implemented redaction, access-control, retention,
-and safe-example-selection procedures.]</p>
+<p>The repository does not include the full GitSkills database or a copy
+of the sampled <code>SKILL.md</code> source text. The manual-validation
+CSV stores artifact IDs, source repository/path, hashes, automated
+findings, and blank reviewer fields; it does not store source text or
+match excerpts. Reviewers are instructed to inspect content locally and
+not copy source text, credentials, or scanner excerpts into committed
+artifacts. The source material remains subject to its original
+repository license; these measures limit reproduction in the report but
+do not constitute a formal access-control or retention policy.</p>
 <h1 id="method-and-implementation">Method and Implementation</h1>
 <h2 id="method-overview">Method Overview</h2>
 <p>The study measures whether modified or reused GitSkills introduce
 security-relevant behavior that was absent from an earlier version or
 source artifact. For each eligible ordered comparison, the method scans
-the base and derived artifacts with the same versioned rule catalog,
-constructs a rule and category profile for each artifact, and measures
-which signals were introduced, removed, or retained in the derived
-artifact.</p>
+the base and derived artifacts with the same rule catalog at a recorded
+code revision, constructs a rule and category profile for each artifact,
+and measures which signals were introduced, removed, or retained in the
+derived artifact.</p>
 <p>The current implementation combines exact-name candidate loading,
 token-shingle similarity, evidence-based direction inference, and a
 static scanner with 13 registered rules across six categories. The
@@ -1794,8 +1850,9 @@ components:</p>
 from <code>agent_skills_release.db</code>.</li>
 <li><strong>Relationship builder:</strong> Produces candidate ordered
 base-derived relationships and eligibility evidence.</li>
-<li><strong>Static analyzer:</strong> Applies the versioned rule catalog
-to unique artifact content and creates rule and category profiles.</li>
+<li><strong>Static analyzer:</strong> Applies the registered rule
+catalog (identified by code revision) to unique artifact content and
+creates rule and category profiles.</li>
 <li><strong>Comparator and reporter:</strong> Joins profiles to eligible
 relationships, computes changes and aggregate measures, and writes
 reproducible analysis artifacts.</li>
@@ -1891,9 +1948,11 @@ and retained rules and categories.</li>
 <li>Produce structured result tables, summary measures, validation
 inputs, logs, and report-ready figures or tables.</li>
 </ol>
-<p>The pipeline records the scanner version, rule-catalog version,
-configuration, and other run metadata needed to connect every result to
-the implementation that produced it.</p>
+<p>For reproducibility, each completed run should record the scanner and
+rule definitions by code revision, along with configuration and other
+run metadata. The current family tools emit structured JSON reports, but
+the repository does not yet contain a completed population-run manifest
+or an integrated population-wide results pipeline.</p>
 <p>The implemented family workflow is narrower than that census target:
 <code>DuckDBFamilyRepository</code> loads one exact-name family,
 <code>FamilyAnalyzer</code> selects relationships, and
@@ -1929,9 +1988,15 @@ empirical population observations or a measurement of scanner precision
 and recall. Additional coverage of removals, unchanged counts with
 changed text, and difficult direction cases should be evaluated
 explicitly.</p>
-<p>[TODO: Define any additional baseline rule set, heuristic, comparison
-method, or ablation required by the final evaluation, and explain what
-question that baseline answers.]</p>
+<p>No independent baseline detector or ablation study has been
+completed. The implemented comparison is paired: each selected base and
+derived artifact is scanned by the same rule catalog, and their profiles
+and rule counts are compared. This within-pair baseline answers whether
+a pattern was detected in one endpoint but not the other; it does not
+measure performance against an independent ground-truth system.
+Comparisons using view-order adjacency in the Sprint 1 extraction
+notebook are an integration workflow, not an alternative lineage
+method.</p>
 <h2 id="design-decisions">Design Decisions</h2>
 <h3 id="ordered-comparisons-rather-than-isolated-artifacts">Ordered
 Comparisons Rather Than Isolated Artifacts</h3>
@@ -2007,14 +2072,42 @@ results.</p>
 <li>the required environment and dependency versions;</li>
 <li>configuration and command-line arguments;</li>
 <li>scanner and rule-catalog versions;</li>
-<li>random seeds used for validation sampling;</li>
+<li>the validation-sample selection procedure and any random seed, when
+applicable;</li>
 <li>executable commands for each pipeline stage and the complete
 pipeline;</li>
 <li>output locations and expected artifacts; and</li>
 <li>known platform, resource, or data-availability limitations.</li>
 </ul>
-<p>[TODO: Add the final setup instructions and exact clean-environment
-execution command after the implementation is complete.]</p>
+<p>For a local analysis, prepare the DuckDB database and analysis tables
+as described in <a
+href="data/README.md"><code>data/README.md</code></a>, install the
+locked project dependencies with <code>uv sync</code>, and set
+<code>GITSKILLS_DB</code> to the local DuckDB path. Run
+<code>uv run analyze_family "&lt;exact skill name&gt;" --json</code> to
+inspect candidate similarity and direction, then
+<code>uv run scan_family "&lt;exact skill name&gt;" --json</code> to
+scan selected directed family edges and applicable sibling changes. For
+a direct file pair, run
+<code>uv run scan_diff "&lt;base path&gt;" "&lt;derived path&gt;"</code>.
+These commands analyze the requested family or pair; they do not execute
+a population-wide census.</p>
+<p>The committed Sprint 1 notebook can be rerun from the repository root
+with the configured <code>GITSKILLS_DB</code> and the
+<code>sample_artifacts</code> view by opening
+<code>notebooks/extraction_pipeline/samples_extraction_and_exploration.ipynb</code>
+and running its cells in order. Its Parquet output and figures are saved
+below <code>notebooks/extraction_pipeline/</code>. The manual-validation
+sample and review instructions are in
+<code>data/validation/validation_sample.csv</code> and
+<code>docs/validation/validation_protocol.md</code>; manual annotation
+is a separate step. Run automated tests with
+<code>uv run pytest tests/pytests -q</code>. Build the report preview
+with
+<code>uv run python bin/build_report.py --format html --cached-only</code>
+when Pandoc and committed diagram renders are available. A complete
+Sprint 2 results-generation command and its results directory have not
+yet been supplied.</p>
 <h1 id="evaluation-and-validation">Evaluation and Validation</h1>
 <h2 id="evaluation-objectives">Evaluation Objectives</h2>
 <p>Evaluation separates three questions: whether extraction preserves
@@ -2022,9 +2115,10 @@ the intended inputs, whether relatedness and direction are supported,
 and whether scanner findings correspond to the operational rule
 definitions. A correct count on an incorrectly ordered pair is not a
 valid introduction finding. A plausible relationship does not establish
-that a rule accurately captures the intended behavior. The broader
-census and manual-review plans remain distinct from the implemented test
-suite and illustrative local runs.</p>
+that a rule accurately captures the intended behavior. The
+not-yet-completed population analysis and manual-review work remain
+distinct from the implemented test suite and illustrative local
+runs.</p>
 <h2 id="independent-database-reconstruction">Independent Database
 Reconstruction</h2>
 <p>Team members independently downloaded
@@ -2049,14 +2143,16 @@ entry point. It checks successful completion, introduced-category
 membership, total base/derived match counts and their delta, and the
 full nonzero rule-delta mapping. This tests the file-input, scanning,
 comparison, and JSON-output path together.</p>
-<p>A local verification at code revision <code>f2b4c7d</code> on October
-15, 2026 passed all seven configured sample cases using:</p>
-<pre class="shell"><code>uv run pytest tests/pytests/test_sample_skills.py -q</code></pre>
-<p>This result describes that test selection, not a claim that all
-project tests passed or that the scanner achieves a population-level
-accuracy target. Systematic tests for similarity boundaries, provenance
-conflicts, missing chronology, cycle avoidance, and incomplete sibling
-coverage are additional validation needs.</p>
+<p>A local verification on October 19, 2026, based on code revision
+<code>04efa93</code>, passed all 35 tests in the repository’s three
+pytest files using:</p>
+<pre class="shell"><code>uv run pytest tests/pytests -q -rs</code></pre>
+<p>The selection covers constructed scanner comparisons, extraction and
+Parquet behavior, and report-diagram generation. These tests establish
+expected software behavior on their fixtures, not scanner accuracy on
+GitSkills artifacts. Dedicated coverage of similarity boundaries,
+provenance conflicts, missing chronology, cycle avoidance, and
+incomplete sibling handling remains a validation need.</p>
 <h2 id="constructed-test-fixtures">Constructed Test Fixtures</h2>
 <p>Constructed cases isolate recognizable changes rather than reproduce
 the distribution of real-world artifacts. The configured cases cover
@@ -2200,52 +2296,60 @@ match the definitions used in the saved run, or that findings generalize
 beyond this selected sample. Saved-run outcomes are reported separately
 in Results. Broader relationship review, scanner error estimation, and
 the planned population census remain additional evaluation tasks.</p>
-<h2 id="manual-validation-sample">Manual Validation Sample</h2>
-<p>The planned broader review comprises at least 100 eligible
-comparisons, divided initially between at least 50 with a reported
-rule/category introduction and at least 50 without one, as described in
-Dataset and Data Preparation. This review has not been established as
-completed. Before selection, the team must freeze the run, define
-relationship/category strata, record a random seed, and document
-allocation and replacement when a stratum is too small. Count increases
-within existing rules should be identified separately from introductions
-when constructing these strata.</p>
-<h2 id="annotation-protocol">Annotation Protocol</h2>
-<p>The proposed protocol records two separate judgments per comparison.
-First, reviewers inspect candidate scope, similarity, provenance and
-chronology evidence, direction basis, and unresolved alternatives.
-Second, they inspect both file bodies and the relevant match locations,
-checking whether each reported rule and introduced category is
-supported. For sibling findings, reviewers also check which destination
-resources changed and whether either endpoint lacks required
-content.</p>
-<p>Review records should distinguish supported findings, unsupported
-matches, missed in-scope patterns, uncertain direction, and incomplete
-inputs. Disagreements should retain both initial judgments and an
-adjudicated explanation. The number of reviewers, independence
-procedure, and final annotation form remain to be specified before
-claiming reviewer agreement.</p>
-<h2 id="validation-measures">Validation Measures</h2>
-<p>For independently reviewed findings, precision is supported positive
-findings divided by all reviewed positive findings under the operational
-labeling protocol. Recall requires an independently annotated set of
-actual in-scope positives, including missed findings; reviewing only
-scanner hits cannot estimate it. A balanced or stratified review sample
-does not directly estimate population prevalence without accounting for
-selection probabilities.</p>
-<p>Relationship support and direction agreement should be reported
-separately from scanner correctness. Ambiguous and incomplete cases
-require their own counts rather than automatic assignment as negatives.
-No numerical precision, recall, or reviewer-agreement result is claimed
-here before the corresponding annotations exist.</p>
+<h2 id="manual-validation-sample-and-protocol">Manual Validation Sample
+and Protocol</h2>
+<p>The protocol and frozen sample are available in <a
+href="docs/validation/validation_protocol.md"><code>docs/validation/validation_protocol.md</code></a>
+and <a
+href="data/validation/validation_sample.csv"><code>data/validation/validation_sample.csv</code></a>.
+The sample contains 13 pair-level cases selected purposefully from the
+43-artifact, 10-family Sprint 1 sample: five positive cases with a
+reported finding, four negative cases (including one same-name pair for
+which no relationship was emitted), and four ambiguous cases. The
+selection rules are fixed and reproducible, but the sample is not random
+and is not intended to estimate population prevalence or scanner
+accuracy.</p>
+<p>Two reviewer sets of fields are provided so reviewers can record
+independent judgments. For each pair, reviewers inspect source identity
+and content, judge relatedness (<code>related</code>,
+<code>not_related</code>, or <code>uncertain</code>), assess signal
+presence, scanner correctness and change direction, and record per-rule
+false-positive, false-negative, uncertain, or not-applicable judgments.
+They assess direction separately from relatedness and scanner
+correctness. The protocol distinguishes unscanned cases and incomplete
+sibling coverage from a negative finding.</p>
+<p>Uncertain cases remain uncertain rather than being forced into a
+binary label. Both reviewers’ original judgments are preserved. The team
+can record whether the outcome was agreed, resolved after discussion, or
+unresolved, with a rationale in the adjudication fields. The CSV
+contains automated metadata and blank annotation fields; it has not yet
+been filled with reviewer judgments.</p>
+<h2 id="validation-measures-and-current-status">Validation Measures and
+Current Status</h2>
+<p>Automated fixture tests check expected behavior for constructed
+inputs; passing tests establish regression consistency for those inputs,
+not independent scanner accuracy. Manual relationship support, direction
+agreement, scanner correctness, false positives, false negatives,
+uncertain cases, and incomplete coverage must be summarized separately
+after annotation. Precision requires reviewed true and false positive
+detections. Recall also requires independently identified missed
+in-scope behavior; a sample selected only from positive findings cannot
+estimate it. Because this 13-case sample is purposeful, its counts
+cannot be used as estimates of population prevalence or population-level
+precision and recall.</p>
+<p>No manual review counts, precision, recall, or reviewer-agreement
+statistic is reported: the annotations have not been conducted. Story
+6.3 is the follow-up for applying this protocol and comparing human
+judgments with automated output.</p>
 <h2 id="error-analysis">Error Analysis</h2>
-<p>Error analysis should distinguish candidate-generation failures,
-source-resolution failures, ordering uncertainty, missing content,
-syntax coverage gaps, documentation-only matches, and formatting
-sensitivity. Fixes must be checked against frozen regression cases and
-affected analyses rerun. The earlier Sprint 1 inspections motivated a
-line-ending correction; that historical observation does not establish
-that all formatting or rule-coverage issues have been resolved.</p>
+<p>When reviews are completed, error analysis should distinguish
+candidate generation and relatedness failures, source-resolution and
+ordering uncertainty, missing content, incomplete sibling scans, syntax
+coverage gaps, documentation-only matches, and formatting sensitivity.
+Fixes must be checked against frozen regression cases and affected
+analyses rerun. Earlier Sprint 1 inspections motivated a line-ending
+correction; that historical observation does not establish that all
+formatting or rule-coverage issues have been resolved.</p>
 <h2 id="risk-signal-interpretation-disclaimer">Risk-Signal
 Interpretation Disclaimer</h2>
 <p>A detected risk signal indicates that a skill contains an instruction
@@ -2280,10 +2384,29 @@ such as <strong>malicious</strong>, <strong>vulnerable</strong>, and
 <strong>exploitable</strong> will be used only when supported by
 additional evidence beyond a static rule match.</p>
 <h1 id="results">Results</h1>
-<p>This section distinguishes saved Sprint 1 observations, a locally
-reproduced methodological example, and population-level results that
-remain to be produced. The worked example demonstrates tool behavior; it
-does not estimate prevalence or validate historical ancestry.</p>
+<p>This section distinguishes completed Sprint 1 exploratory outputs
+from the Sprint 2 analysis and manual validation that remain to be
+completed. The Sprint 1 notebook outputs and worked family example
+demonstrate selected tool behavior; neither estimates population
+prevalence or validates historical ancestry.</p>
+<h2 id="sprint-2-evidence-status">Sprint 2 Evidence Status</h2>
+<p>At this report revision, the Sprint 2 population-analysis and
+report-ready table/figure work has not produced committed result
+artifacts. GitHub Stories <a
+href="https://github.com/umdnp/csc580-project8/issues/101">7.1</a> and
+<a href="https://github.com/umdnp/csc580-project8/issues/102">7.2</a>
+remain open, and there is no repository-root <code>results/</code>
+directory containing their outputs. Accordingly, the artifact/exclusion
+totals, category counts, comparison totals, and security-change rates
+for the approved Sprint 2 analysis are <strong>not reported</strong>
+here. Sprint 1 results below are retained as historical exploratory
+evidence and are not relabeled as Sprint 2 results.</p>
+<p>Sprint 2 has produced a review design, not review outcomes: the
+manual-validation CSV contains 13 selected cases (5 positive, 4
+negative, 4 ambiguous) and 20 distinct artifact occurrences. The
+reviewer and adjudication fields remain blank. Those counts describe
+sample construction only; they are not counts of validated true/false
+positives or negatives.</p>
 <h2 id="dataset-processing-results">Dataset Processing Results</h2>
 <p>The local candidate-selection audit on October 15, 2026 retained
 943,257 of 3,797,117 source artifact occurrences, a reduction of 75.16
@@ -2346,26 +2469,167 @@ must not be combined into one relationship denominator. The 39.4 percent
 figure describes this purposeful notebook sample only, not population
 prevalence or a rate of proven harmful changes.</p>
 <h2 id="security-pattern-results">Security-Pattern Results</h2>
-<p>[TODO: Report the prevalence of detected rules and categories.]</p>
+<p>The saved Sprint 1 notebook output records positive rule-count deltas
+in 13 of 33 adjacent artifact comparisons. Across those pairs it records
+35 rule-level positive-delta events, summing to 77 additional rule
+matches. These are increases in matched text, not 35 unique behaviors or
+35 newly introduced capabilities. The following category and rule counts
+come from the saved Parquet output and its then-current 12-rule catalog;
+they are not Sprint 2 measurements or population prevalence and should
+not be compared directly with runs using the current 13-rule
+catalog.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th style="text-align: right;">Positive rule-delta events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Command execution</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td>Credential access</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>External code execution</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td>File-system access</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Network access</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>System modification</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>35</strong></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th style="text-align: right;">Positive-delta events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CMD-001</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>CMD-002</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td>CRED-001</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>CRED-002</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>EXT-001</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>EXT-002</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td>FS-001</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>FS-002</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>NET-001</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td>NET-002</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>SYS-001</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>SYS-002</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+<p>The original generated figures are reproduced below without altering
+their data. Each is based on the 33 view-order adjacent comparisons in
+the saved Sprint 1 Parquet output.</p>
+<figure>
+<img
+src="../../notebooks/extraction_pipeline/figures/pair_scan_outcomes.png"
+alt="Sprint 1 adjacent-pair outcomes: 20 comparisons with no positive rule-count delta and 13 with one or more positive deltas." />
+<figcaption aria-hidden="true">Sprint 1 adjacent-pair outcomes: 20
+comparisons with no positive rule-count delta and 13 with one or more
+positive deltas.</figcaption>
+</figure>
+<figure>
+<img src="../../notebooks/extraction_pipeline/figures/flagged_rules.png"
+alt="Sprint 1 count of adjacent comparisons with a positive rule-count delta for each scanner rule." />
+<figcaption aria-hidden="true">Sprint 1 count of adjacent comparisons
+with a positive rule-count delta for each scanner rule.</figcaption>
+</figure>
+<figure>
+<img
+src="../../notebooks/extraction_pipeline/figures/flagged_risk_categories.png"
+alt="Sprint 1 positive rule-delta events grouped by scanner risk category." />
+<figcaption aria-hidden="true">Sprint 1 positive rule-delta events
+grouped by scanner risk category.</figcaption>
+</figure>
 <h2 id="introduced-risk-signals">Introduced Risk Signals</h2>
-<p>[TODO: Report how frequently derived artifacts introduced rules or
-categories that were absent from their base artifacts.]</p>
+<p>The 13 positive-delta notebook pairs cannot be counted as 13
+introductions. The notebook output summarizes changes in match counts; a
+rule can increase when it already matched the base, and the adjacent
+ordering comes from the sample view rather than the family method’s
+direction evidence. A population-level introduction count and
+denominator require the completed Sprint 2 comparison output. No such
+summary is available in the repository at this report revision.</p>
 <h2 id="removed-and-retained-signals">Removed and Retained Signals</h2>
-<p>[TODO: Report how frequently signals were removed, retained, or
-unchanged.]</p>
+<p>The saved notebook figure summarizes positive count deltas, not
+removed or retained rule sets. The worked family example below reports
+its own endpoint profiles and illustrates that counts can increase in
+already-present rules without introducing a category. Aggregate Sprint 2
+removed, retained, or unchanged counts remain unavailable.</p>
 <h2 id="results-by-relationship-type">Results by Relationship Type</h2>
-<p>[TODO: Compare meaningful relationship groups when supported by the
-data.]</p>
+<p>The Sprint 1 extraction notebook’s 33 adjacent pairs and the
+family-analysis reports’ 17 selected directed relationships are
+different units produced by different workflows. The first uses
+view-order adjacency within each skill-name group; the second applies
+family similarity and direction logic. They are not combined or treated
+as interchangeable denominators. A Sprint 2 breakdown by relationship
+type awaits the generated output from Story 7.1.</p>
 <h2 id="validation-results">Validation Results</h2>
-<p>The configured sample-skill test selection passed seven cases at the
-documented code revision, and a separate local verification passed all
-21 extraction-pipeline test cases. These deterministic checks establish
-expected outputs for those fixtures; they do not estimate accuracy on
-dataset artifacts. The worked example below was reproduced from local
-data, but neither its inferred direction nor its scanner findings have
-been established here as independently annotated ground truth. Numerical
-manual-review results remain pending the review protocol and annotations
-described in Evaluation and Validation.</p>
+<p>The 35 passing pytest cases exercise deterministic scanner,
+extraction, Parquet, and report-generation behavior, not independent
+ground truth from dataset artifacts. The 13-case validation sample and
+annotation protocol are now stored in the repository, but the sample has
+not yet been manually reviewed; numerical manual-validation results
+therefore remain unavailable. The worked example below was reproduced
+from local data, but neither its inferred direction nor its scanner
+findings have been established here as independently annotated ground
+truth.</p>
 <h2 id="representative-examples">Representative Examples</h2>
 <h3
 id="worked-example-similarity-inferred-direction-and-scanner-change">Worked
@@ -2507,28 +2771,84 @@ implementation behavior; population introduction rates and independently
 measured validation accuracy remain unreported.</p>
 <h1 id="discussion">Discussion</h1>
 <h2 id="interpretation-of-findings">Interpretation of Findings</h2>
-<p>[TODO: Explain what the results suggest about security-relevant
-changes in modified or reused GitSkills.]</p>
+<p>The available empirical observations are from the purposeful Sprint 1
+tool-validation sample, not a Sprint 2 population analysis. In its
+extraction workflow, 13 of 33 view-order adjacent comparisons had at
+least one positive rule-count delta, and those events summed to 77
+additional rule matches. This shows that the current rules detect
+differences in security-sensitive text in some selected pairs. It does
+not show that 13 skills acquired new capabilities: some rules were
+already present in the earlier endpoint, and the notebook’s
+adjacent-pair ordering does not establish lineage. Separately, the saved
+family workflow produced 17 directed comparisons from the same
+43-artifact sample; direction is an evidence-based hypothesis, not proof
+of ancestry.</p>
+<p>The Sprint 2 contribution available so far is a 13-case validation
+design, not a set of human judgments. Until those cases are reviewed and
+the approved Sprint 2 analysis outputs are generated, the report cannot
+say how often the method identifies supported changes, misses relevant
+behavior, or produces false positives.</p>
 <h2 id="comparison-with-expectations">Comparison With Expectations</h2>
-<p>[TODO: Compare the findings with the expectations stated earlier in
-the report.]</p>
+<p>The exploratory evidence is consistent with the expectation that the
+sample contains both pairs with increased rule matches and pairs without
+such an increase. The family reports also preserve ambiguous and
+equivalent relationships instead of forcing every same-name candidate
+into an ordered comparison. These observations describe the selected
+sample and method behavior only. They do not test whether such changes
+are common across GitSkills, and no confirmed relationship or
+scanner-accuracy rate is available.</p>
 <h2 id="simpler-and-competing-explanations">Simpler and Competing
 Explanations</h2>
-<p>[TODO: Discuss plausible explanations other than insecure or
-malicious propagation, such as legitimate operational requirements,
-artifact size, shared templates, or scanner bias.]</p>
+<p>Positive count changes have several plausible non-malicious
+explanations. A later instruction may be longer or more detailed, may
+support a new legitimate task, or may include examples and documentation
+that contain commands, URLs, or credential terminology. A count can rise
+without the underlying capability being new, and changes in formatting
+or wording can alter regex matches. Similarity may reflect shared
+templates or common conventions rather than copying. Finally, the
+purposeful sample and its selection criteria emphasize informative cases
+rather than a population distribution.</p>
 <h2 id="security-and-supply-chain-implications">Security and
 Supply-Chain Implications</h2>
-<p>[TODO: Discuss the implications for skill authors, reviewers, tool
-developers, repositories, and users.]</p>
+<p>The pipeline can help reviewers prioritize changes for contextual
+inspection by preserving source identifiers, direction evidence, scanner
+rule IDs, and change summaries. Its most defensible use is as a static
+review aid: authors and adopters can inspect whether a changed
+instruction is necessary, what files or services it affects, and whether
+it introduces an unexpected operation. The current evidence does not
+establish how often such review would find a real vulnerability or
+prevent harm. No claim about malicious authorship, actual execution, or
+supply-chain propagation follows from a text match alone.</p>
 <h2 id="practical-recommendations">Practical Recommendations</h2>
-<p>[TODO: Present recommendations supported by the findings.]</p>
+<p>For researchers and tool maintainers, keep relatedness, direction,
+scanner output, and scan coverage as separate judgments; preserve
+unresolved and incomplete cases; and rerun reports when rule definitions
+or inputs change. For skill authors and adopters, review the actual
+changed instructions and their operational context, especially commands,
+network access, credential handling, file operations, package
+installation, and system changes. Treat a positive match as a prompt to
+investigate, not as an automatic rejection or a security verdict.</p>
 <h2 id="unexpected-findings">Unexpected Findings</h2>
-<p>[TODO: Discuss surprising results and possible explanations.]</p>
+<p>Within the Sprint 1 adjacent-pair output, 20 of 33 pairs had no
+positive rule-count delta, while the remaining 13 had one or more.
+Positive events were distributed across all six categories, with
+different counts by rule. This variation is useful for testing the
+reporting path but is not a stable ranking of category risk: the sample
+is small and purposeful, a pair may contribute several events, and the
+event count depends on rule behavior and text volume. The family
+workflow’s smaller set of 17 directed edges also illustrates that
+candidate loading, view adjacency, and selected predecessor
+relationships are different analytic stages.</p>
 <h2 id="interpretation-boundaries">Interpretation Boundaries</h2>
-<p>[TODO: Reinforce what the evidence does and does not establish,
-including limits involving intent, execution, exploitability, causation,
-and provenance.]</p>
+<p>The measurements concern detected text patterns and their differences
+across selected artifact occurrences. They do not establish that
+instructions were executed, that an agent had the required permissions,
+that the referenced resources were sensitive, that an exploitable
+condition existed, or that authors intended harm. The relationship
+procedure does not prove copying, authorship, or causal propagation.
+Sprint 1 percentages are not population estimates; no Sprint 2
+manual-validation metrics are available yet. These limits are material
+to every security and supply-chain interpretation in this report.</p>
 <h1 id="threats-to-validity">Threats to Validity</h1>
 <h2 id="construct-validity">Construct Validity</h2>
 <p>The study uses rule-based indicators, candidate groupings, similarity
@@ -2603,6 +2923,15 @@ not because coverage was exhaustive or statistically optimized. Results
 describe the method’s behavior on selected cases and cannot estimate
 population-wide risk prevalence or generalize automatically to other
 repositories, platforms, or datasets.</p>
+<p>The Sprint 2 manual-validation design selects 13 pair-level cases
+from this same purposeful sample: five positive, four negative, and four
+ambiguous. It is a fixed method-validation set, not a random sample of
+GitSkills or of all eligible comparisons. Reviewers have not yet
+annotated these cases, so the sample provides no observed precision,
+recall, reviewer agreement, or error-rate estimate. See the <a
+href="docs/validation/validation_protocol.md">validation protocol</a>
+and <a href="data/validation/validation_sample.csv">validation
+sample</a>.</p>
 <h2 id="conclusion-validity">Conclusion Validity</h2>
 <p>Security-relevant instructions can be legitimate parts of
 development, deployment, or administration. Detected matches and changes
@@ -2622,6 +2951,13 @@ family with zero directed comparisons therefore provides no basis for
 concluding that its artifacts contain zero scanner matches. Similarly,
 unchanged aggregate counts can conceal differences in matched text and
 should not be interpreted as identical behavior.</p>
+<p>The available report figures and count summaries are generated from
+the Sprint 1 notebook’s 33 view-order adjacent comparisons. They are not
+output from the planned Sprint 2 analysis pipeline, and their positive
+count deltas do not identify introduced capabilities or verified
+parent-child changes. Sprint 2 analysis outputs and manual annotations
+are not yet available; conclusions about their rates and category
+distribution must wait for those outputs.</p>
 <h2 id="reproducibility-threats">Reproducibility Threats</h2>
 <p>Team members independently downloaded the source database and ran the
 SQL queries on their own machines, reporting accurate reproduction of

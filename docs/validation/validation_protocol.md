@@ -13,8 +13,8 @@ This is a purposeful method-validation sample, not a random or population-
 representative sample. It contains 13 fixed comparison cases drawn from the
 43-artifact Sprint 1 sample in `sample_artifacts`. The review itself is a
 separate activity: reviewer and adjudication columns in
-[`validation_sample.csv`](../../data/validation/validation_sample.csv) are
-intentionally blank.
+[`validation_sample.csv`](../../data/validation/validation_sample.csv) were
+initially blank. See the review status below for the current completion state.
 
 The sample was prepared against GitSkills dataset release
 [21875637](https://zenodo.org/records/21875637), the default analysis policy
@@ -157,6 +157,24 @@ or `unresolved`. Record the final judgment and a short rationale in
 case remains uncertain and is reported as such. Preserve disagreements as
 validation evidence, especially when they arise from ambiguous similarity,
 direction, rule context, or incomplete data.
+
+## Review status
+
+On 2026-10-20, `Copilot (AI-assisted)` filled only the `reviewer_1` fields for
+all 13 cases using the local SkillTrace content, comparison, metadata, sibling,
+and pair-scan APIs at project revision
+`04efa93ffe87d7f62f6a361cf7f49e39237ce11a`. Artifact identities and timestamps
+were checked against the frozen CSV. Local read-only sibling metadata also
+confirmed the four unavailable source files in P04, which SkillTrace's
+content-bearing sibling list does not display. Frozen automated fields were
+preserved; dataset contents were inspected statically and never executed.
+
+These entries are one explicitly identified AI-assisted review, not two
+independent human reviews or completed manual validation. `reviewer_2` and
+adjudication fields remain blank pending independent review and discussion.
+The notes distinguish positive match-count deltas from newly introduced
+capabilities, preserve uncertainty about containment-only direction and missing
+siblings, and do not treat unscanned pairs as negative security results.
 
 ## Sample interpretation
 

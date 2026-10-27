@@ -30,6 +30,8 @@ Cases were chosen for informative relationship outcomes, scanner-count changes, 
 
 Searching stopped because additional screening was time-consuming, not because coverage was exhaustive or statistically optimized. Results describe the method's behavior on selected cases and cannot estimate population-wide risk prevalence or generalize automatically to other repositories, platforms, or datasets.
 
+The Sprint 2 manual-validation design selects 13 pair-level cases from this same purposeful sample: five positive, four negative, and four ambiguous. It is a fixed method-validation set, not a random sample of GitSkills or of all eligible comparisons. Reviewers have not yet annotated these cases, so the sample provides no observed precision, recall, reviewer agreement, or error-rate estimate. See the [validation protocol](docs/validation/validation_protocol.md) and [validation sample](data/validation/validation_sample.csv).
+
 ## Conclusion Validity
 
 Security-relevant instructions can be legitimate parts of development, deployment, or administration. Detected matches and changes in their counts do not by themselves establish maliciousness, exploitability, or increased or decreased risk.
@@ -37,6 +39,8 @@ Security-relevant instructions can be legitimate parts of development, deploymen
 The 17 directed comparisons are not independent observations: relationships may share endpoints or repeated content. Small category counts and deliberately selected cases limit quantitative conclusions. The saved Sprint 1 reports demonstrated count deltas in 10 of the then-current 12 scanner rules, with no confirmed delta examples for EXT-001 and SYS-001 in that selection. The current catalog contains 13 rules. Historical coverage and counts cannot establish coverage or accuracy for the revised catalog; reruns must identify their code revision and scan scope.
 
 Ambiguous relationships are listed without directional scanning. A family with zero directed comparisons therefore provides no basis for concluding that its artifacts contain zero scanner matches. Similarly, unchanged aggregate counts can conceal differences in matched text and should not be interpreted as identical behavior.
+
+The available report figures and count summaries are generated from the Sprint 1 notebook's 33 view-order adjacent comparisons. They are not output from the planned Sprint 2 analysis pipeline, and their positive count deltas do not identify introduced capabilities or verified parent-child changes. Sprint 2 analysis outputs and manual annotations are not yet available; conclusions about their rates and category distribution must wait for those outputs.
 
 ## Reproducibility Threats
 

@@ -2,7 +2,7 @@
 
 # Introduction
 
-[TODO: Introduce AI-agent skills, GitSkills, and the broader software-engineering context of the project.]
+AI-agent skills are reusable instruction files that guide coding agents through tasks such as project setup, implementation, testing, deployment, and repository maintenance. Because these instructions can cause an agent to invoke tools or interact with a development environment, changes to a skill can affect what an agent is asked to do. GitSkills provides a mined dataset of skill artifacts collected from public repositories, making it possible to examine skill text and available repository metadata at scale.
 
 ## Background and Context
 
@@ -31,4 +31,4 @@ Together, these contributions will provide a repeatable method for examining bot
 
 ## Report Organization
 
-[TODO: Briefly describe how the remainder of the report is organized.]
+The report states the research question and operational definitions, documents the GitSkills dataset and candidate preparation, and describes the comparison, static-analysis, and pipeline methods. It then distinguishes software tests and the manual-validation protocol from observed analysis results. The results and discussion identify what the existing exploratory evidence shows and what cannot yet be concluded; threats to validity and the artifact appendix document limitations and reproduction resources. Sprint 2 quantities are included only when supported by generated outputs; remaining analysis and validation are identified as work for later stages.

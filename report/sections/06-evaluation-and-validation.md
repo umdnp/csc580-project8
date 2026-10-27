@@ -4,7 +4,7 @@
 
 ## Evaluation Objectives
 
-Evaluation separates three questions: whether extraction preserves the intended inputs, whether relatedness and direction are supported, and whether scanner findings correspond to the operational rule definitions. A correct count on an incorrectly ordered pair is not a valid introduction finding. A plausible relationship does not establish that a rule accurately captures the intended behavior. The broader census and manual-review plans remain distinct from the implemented test suite and illustrative local runs.
+Evaluation separates three questions: whether extraction preserves the intended inputs, whether relatedness and direction are supported, and whether scanner findings correspond to the operational rule definitions. A correct count on an incorrectly ordered pair is not a valid introduction finding. A plausible relationship does not establish that a rule accurately captures the intended behavior. The not-yet-completed population analysis and manual-review work remain distinct from the implemented test suite and illustrative local runs.
 
 ## Independent Database Reconstruction
 
@@ -16,13 +16,13 @@ This observation supports repeatability in the tested setups. The available team
 
 The shared runner `tests/pytests/test_sample_skills.py` discovers JSON expectations under `tests/pytests/test_configs`, loads matching base and derived `SKILL.md` files, and invokes the `scan_diff` entry point. It checks successful completion, introduced-category membership, total base/derived match counts and their delta, and the full nonzero rule-delta mapping. This tests the file-input, scanning, comparison, and JSON-output path together.
 
-A local verification at code revision `f2b4c7d` on October 15, 2026 passed all seven configured sample cases using:
+A local verification on October 19, 2026, based on code revision `04efa93`, passed all 35 tests in the repository's three pytest files using:
 
 ```shell
-uv run pytest tests/pytests/test_sample_skills.py -q
+uv run pytest tests/pytests -q -rs
 ```
 
-This result describes that test selection, not a claim that all project tests passed or that the scanner achieves a population-level accuracy target. Systematic tests for similarity boundaries, provenance conflicts, missing chronology, cycle avoidance, and incomplete sibling coverage are additional validation needs.
+The selection covers constructed scanner comparisons, extraction and Parquet behavior, and report-diagram generation. These tests establish expected software behavior on their fixtures, not scanner accuracy on GitSkills artifacts. Dedicated coverage of similarity boundaries, provenance conflicts, missing chronology, cycle avoidance, and incomplete sibling handling remains a validation need.
 
 ## Constructed Test Fixtures
 
@@ -65,25 +65,59 @@ The earlier inspections exposed uneven recognition of equivalent operations and 
 
 The saved notebook output can establish which comparisons were produced and how their scan results were summarized. It does not establish that every pair was manually reviewed, that the current rules match the definitions used in the saved run, or that findings generalize beyond this selected sample. Saved-run outcomes are reported separately in Results. Broader relationship review, scanner error estimation, and the planned population census remain additional evaluation tasks.
 
-## Manual Validation Sample
+## Manual Validation Sample and Protocol
 
-The planned broader review comprises at least 100 eligible comparisons, divided initially between at least 50 with a reported rule/category introduction and at least 50 without one, as described in Dataset and Data Preparation. This review has not been established as completed. Before selection, the team must freeze the run, define relationship/category strata, record a random seed, and document allocation and replacement when a stratum is too small. Count increases within existing rules should be identified separately from introductions when constructing these strata.
+The protocol and frozen sample are available in
+[`docs/validation/validation_protocol.md`](docs/validation/validation_protocol.md)
+and [`data/validation/validation_sample.csv`](data/validation/validation_sample.csv).
+The sample contains 13 pair-level cases selected purposefully from the 43-artifact,
+10-family Sprint 1 sample: five positive cases with a reported finding, four
+negative cases (including one same-name pair for which no relationship was
+emitted), and four ambiguous cases. The selection rules are fixed and
+reproducible, but the sample is not random and is not intended to estimate
+population prevalence or scanner accuracy.
 
-## Annotation Protocol
+Two reviewer sets of fields are provided so reviewers can record independent
+judgments. For each pair, reviewers inspect source identity and content, judge
+relatedness (`related`, `not_related`, or `uncertain`), assess signal presence,
+scanner correctness and change direction, and record per-rule false-positive,
+false-negative, uncertain, or not-applicable judgments. They assess direction
+separately from relatedness and scanner correctness. The protocol distinguishes
+unscanned cases and incomplete sibling coverage from a negative finding.
 
-The proposed protocol records two separate judgments per comparison. First, reviewers inspect candidate scope, similarity, provenance and chronology evidence, direction basis, and unresolved alternatives. Second, they inspect both file bodies and the relevant match locations, checking whether each reported rule and introduced category is supported. For sibling findings, reviewers also check which destination resources changed and whether either endpoint lacks required content.
+Uncertain cases remain uncertain rather than being forced into a binary label.
+Both reviewers' original judgments are preserved. The team can record whether
+the outcome was agreed, resolved after discussion, or unresolved, with a
+rationale in the adjudication fields. The CSV contains automated metadata and
+blank annotation fields; it has not yet been filled with reviewer judgments.
 
-Review records should distinguish supported findings, unsupported matches, missed in-scope patterns, uncertain direction, and incomplete inputs. Disagreements should retain both initial judgments and an adjudicated explanation. The number of reviewers, independence procedure, and final annotation form remain to be specified before claiming reviewer agreement.
+## Validation Measures and Current Status
 
-## Validation Measures
+Automated fixture tests check expected behavior for constructed inputs; passing
+tests establish regression consistency for those inputs, not independent
+scanner accuracy. Manual relationship support, direction agreement, scanner
+correctness, false positives, false negatives, uncertain cases, and incomplete
+coverage must be summarized separately after annotation. Precision requires
+reviewed true and false positive detections. Recall also requires independently
+identified missed in-scope behavior; a sample selected only from positive
+findings cannot estimate it. Because this 13-case sample is purposeful, its
+counts cannot be used as estimates of population prevalence or population-level
+precision and recall.
 
-For independently reviewed findings, precision is supported positive findings divided by all reviewed positive findings under the operational labeling protocol. Recall requires an independently annotated set of actual in-scope positives, including missed findings; reviewing only scanner hits cannot estimate it. A balanced or stratified review sample does not directly estimate population prevalence without accounting for selection probabilities.
-
-Relationship support and direction agreement should be reported separately from scanner correctness. Ambiguous and incomplete cases require their own counts rather than automatic assignment as negatives. No numerical precision, recall, or reviewer-agreement result is claimed here before the corresponding annotations exist.
+No manual review counts, precision, recall, or reviewer-agreement statistic is
+reported: the annotations have not been conducted. Story 6.3 is the follow-up
+for applying this protocol and comparing human judgments with automated output.
 
 ## Error Analysis
 
-Error analysis should distinguish candidate-generation failures, source-resolution failures, ordering uncertainty, missing content, syntax coverage gaps, documentation-only matches, and formatting sensitivity. Fixes must be checked against frozen regression cases and affected analyses rerun. The earlier Sprint 1 inspections motivated a line-ending correction; that historical observation does not establish that all formatting or rule-coverage issues have been resolved.
+When reviews are completed, error analysis should distinguish candidate
+generation and relatedness failures, source-resolution and ordering uncertainty,
+missing content, incomplete sibling scans, syntax coverage gaps,
+documentation-only matches, and formatting sensitivity. Fixes must be checked
+against frozen regression cases and affected analyses rerun. Earlier Sprint 1
+inspections motivated a line-ending correction; that historical observation
+does not establish that all formatting or rule-coverage issues have been
+resolved.
 
 ## Risk-Signal Interpretation Disclaimer
 

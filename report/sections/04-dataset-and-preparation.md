@@ -6,9 +6,9 @@ This section describes the dataset source, study scope, data schema, sampling st
 
 ## Dataset Source and Acquisition
 
-The source dataset for this study is `agent_skills_release.db`, the GitSkills database provided for the MSR 2027 Mining Challenge. The source population consists of all GitSkills artifact records contained in the database.
+The source dataset is `agent_skills_release.db`, the GitSkills database provided for the MSR 2027 Mining Challenge. The repository's data instructions point to the [GitSkills Zenodo record](https://zenodo.org/records/21875637), whose published download is a SQLite database. Local analysis uses a separately created DuckDB database; neither database is committed to this repository. Acquisition and local storage instructions are in [`data/README.md`](data/README.md).
 
-[TODO: Add the approved dataset access instructions, release or snapshot identifier, file integrity information, and the date on which the database was obtained. Explain that the full database is not committed to the project repository and identify the expected local storage location.]
+The validation sample records the Zenodo record identifier and the analysis code revision used to prepare its automated metadata. A dataset-file checksum and the date on which the local database was obtained have not been recorded for the Sprint 1 analysis outputs; the record identifier alone is not a byte-level snapshot identifier. The reported local counts should therefore be treated as tied to the inspected database build, not as a fully integrity-frozen release experiment. The raw database remains local as described in `data/README.md`.
 
 ## Dataset Scope
 
@@ -340,7 +340,7 @@ An ordered comparison is eligible when all of the following conditions are satis
 
 A candidate comparison is excluded when one or more of these conditions are not satisfied. The pipeline retains the exclusion status and reason so that filtering is auditable. Uncertain or invalid relationships may be reviewed and excluded according to the documented relationship method.
 
-[TODO: Add any implemented content-format, parsing, duplication, missing-value, or relationship-confidence filters and the exact exclusion codes used by the pipeline.]
+The implemented candidate-table gates are the SQL predicates listed above: valid frontmatter, body length greater than 50 characters, non-null content, name, and description, and at least two qualifying occurrences for an exact name. The materialized table preserves occurrences rather than deduplicating them; identical skill content can share a SHA and be cached during analysis. The current family tools do not emit a population-wide, coded exclusion ledger. At family level, unresolved or ambiguous relationships remain explicitly represented and are not treated as negative scanner results. Missing or incomplete sibling content is recorded as incomplete coverage where applicable. Thus the candidate-selection counts are not counts of artifacts fully scanned or eligible directed comparisons.
 
 ## Data Preparation
 
@@ -355,7 +355,7 @@ The preparation process converts the source database into analysis-ready artifac
 7. attach scanner profiles to artifact records; and
 8. join base and derived profiles into the ordered comparison table.
 
-[TODO: Document the implemented text decoding, line-ending normalization, parsing, missing-content handling, and any other cleaning transformations. Distinguish transformations used for matching from the original content retained for traceability.]
+The SQL selection retains the stored artifact content and source occurrence identifiers; it does not rewrite or normalize the source text. The family-similarity tokenizer masks leading YAML frontmatter, lowercases tokens, and builds five-token shingles while preserving common technical tokens such as URLs, paths, flags, and dotted identifiers. The behavioral scanner masks leading frontmatter for `SKILL.md` scans while preserving source positions and line endings, then applies the registered patterns to text; sibling scans may include the full file. The direct file-comparison command reads UTF-8 with an optional byte-order mark. Missing content prevents a scan rather than being treated as empty or safe. Similarity normalization and scanner input handling are separate from the original content retained in the local database.
 
 ## Population Analysis and Sampling
 
@@ -367,25 +367,9 @@ Smaller reproducible datasets may be used while developing and debugging the pip
 
 ### Planned Manual Validation Sample
 
-For the broader evaluation, the team plans to manually review a stratified sample of at least 100 eligible base-derived comparisons from the automated results. This future plan is separate from the 17 directed comparisons in the current Sprint 1 reports:
+The defined Sprint 2 manual-validation sample contains **13 fixed pair-level cases** drawn from the 43-artifact Sprint 1 tool-validation sample: five positive cases with a reported security finding, four negative cases (three unflagged directed edges and one same-name pair for which no related edge was emitted), and four ambiguous cases (three unresolved similarity-only edges and one equivalent-state pair without direction). The selection is purposeful and rule-based, not random; the protocol describes the ordering and selection rules. The CSV includes artifact IDs, repository/path, file hashes, direction and change metadata, security findings, scan-coverage notes, and fields for two independent reviewers and adjudication.
 
-- at least 50 comparisons for which the scanner reports one or more newly introduced rules or categories; and
-- at least 50 comparisons for which the scanner reports no newly introduced rules or categories.
-
-Within those two groups, the sample will represent the relationship types and scanner categories present in the results. Selection will use a recorded random seed after the strata are defined. If a stratum contains fewer cases than its allocation, all cases in that stratum will be reviewed and the remaining allocation will be redistributed using a documented procedure.
-
-The sample may be expanded if early review identifies unstable rules, poorly represented relationship types, or categories that require additional evidence. The manual-review procedure, labels, metrics, and error analysis belong in the Evaluation and Validation section.
-
-For each sampled comparison, reviewers will record:
-
-- whether the relationship and base-derived ordering are supported by the retained evidence;
-- whether each reported match corresponds to the text identified by the scanner;
-- whether the assigned categories are appropriate;
-- whether a reported introduction was absent from the base and present in the derived artifact;
-- whether an unflagged comparison contains a relevant introduction missed by the current rules; and
-- whether the case is a true positive, false positive, false negative, true negative, or ambiguous under the documented threat model.
-
-These records will support confirmed and rejected relationship counts, ordering disagreements, classification counts, precision and any other justified validation metrics, category- or relationship-specific breakdowns where sample size permits, and representative failure modes. The Evaluation and Validation section will define the final calculation and interpretation of those measures.
+This 13-case set replaces the earlier planning text for a stratified review of at least 100 population-level comparisons. It is a bounded method-validation sample and cannot estimate population prevalence or accuracy. The protocol and CSV are stored at [`docs/validation/validation_protocol.md`](docs/validation/validation_protocol.md) and [`data/validation/validation_sample.csv`](data/validation/validation_sample.csv). The review itself has not yet been completed; no manual judgment or validation metric is reported.
 
 ### Sprint 1 Sampling Strategy
 
@@ -435,4 +419,4 @@ The pipeline and reporting process will:
 
 Current orchestration reports identify endpoints by artifact ID, omit text diffs, and serialize scanner comparisons with `verbose=False`. These measures limit exported content but do not guarantee anonymity or resolve licensing questions. Artifact IDs can be linked to source records by someone with access to the dataset.
 
-[TODO: Document the implemented redaction, access-control, retention, and safe-example-selection procedures.]
+The repository does not include the full GitSkills database or a copy of the sampled `SKILL.md` source text. The manual-validation CSV stores artifact IDs, source repository/path, hashes, automated findings, and blank reviewer fields; it does not store source text or match excerpts. Reviewers are instructed to inspect content locally and not copy source text, credentials, or scanner excerpts into committed artifacts. The source material remains subject to its original repository license; these measures limit reproduction in the report but do not constitute a formal access-control or retention policy.

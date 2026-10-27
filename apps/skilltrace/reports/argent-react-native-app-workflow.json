@@ -1,0 +1,215 @@
+{
+  "name": "argent-react-native-app-workflow",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 1,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 1,
+    "related_skill_pair_count": 10,
+    "within_group_related_pair_count": 10,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 6,
+    "within_group_ambiguous_edge_count": 6,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 2,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3273850,
+          3291033,
+          3315007,
+          3329361,
+          3378260
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3273850,
+            3291033,
+            3315007
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3273850,
+              "target_artifact_id": 3378260,
+              "basis": "containment",
+              "containment": 0.9394719896973599,
+              "jaccard": 0.7379868487607486,
+              "shared_shingles": 1459,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3315007,
+              "target_artifact_id": 3329361,
+              "basis": "chronology",
+              "containment": 0.9769470404984424,
+              "jaccard": 0.9164231443600234,
+              "shared_shingles": 1568,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3273850,
+              "right_artifact_id": 3291033,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9948486799742434,
+              "containment_right_to_left": 0.9692597239648683,
+              "jaccard": 0.9644194756554307,
+              "shared_shingles": 1545,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3273850,
+              "right_artifact_id": 3315007,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9896973599484868,
+              "containment_right_to_left": 0.957632398753894,
+              "jaccard": 0.9481801357186922,
+              "shared_shingles": 1537,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3273850,
+              "right_artifact_id": 3329361,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9658725048293625,
+              "containment_right_to_left": 0.8960573476702509,
+              "jaccard": 0.8685581933989577,
+              "shared_shingles": 1500,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3291033,
+              "right_artifact_id": 3315007,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9949811794228356,
+              "containment_right_to_left": 0.9881619937694704,
+              "jaccard": 0.9832610043397396,
+              "shared_shingles": 1586,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3291033,
+              "right_artifact_id": 3329361,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9717691342534505,
+              "containment_right_to_left": 0.9253285543608124,
+              "jaccard": 0.9011052937754508,
+              "shared_shingles": 1549,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3378260,
+              "right_artifact_id": 3329361,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.7493361656930431,
+              "containment_right_to_left": 0.8428912783751493,
+              "jaccard": 0.657502329916123,
+              "shared_shingles": 1411,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 3291033,
+              "target_artifact_id": 3378260,
+              "basis": "containment",
+              "containment": 0.910288582183187,
+              "jaccard": 0.7161895360315893,
+              "shared_shingles": 1451,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3315007,
+              "target_artifact_id": 3378260,
+              "basis": "containment",
+              "containment": 0.8990654205607477,
+              "jaccard": 0.7056234718826406,
+              "shared_shingles": 1443,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                279922
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": []
+}
