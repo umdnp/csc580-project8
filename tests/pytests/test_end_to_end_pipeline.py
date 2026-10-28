@@ -198,13 +198,15 @@ def test_old_compact_family_report_is_refreshed(repositories):
     run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
     path = reports / "alpha.json"
     old = json.loads(path.read_text())
-    old.pop("similarities")
+    old["similarities"] = []  # Simulate the legacy noncompact report format.
     old.pop("artifacts")
     path.write_text(json.dumps(old))
     refreshed = run_family("alpha", database=db, skilltrace_reports=reports,
                            scans=results / "scans")
     assert refreshed["family_report_updated"] is True
-    assert len(json.loads(path.read_text())["artifacts"]) == 2
+    rebuilt = json.loads(path.read_text())
+    assert len(rebuilt["artifacts"]) == 2
+    assert "similarities" not in rebuilt
     again = run_family("alpha", database=db, skilltrace_reports=reports,
                        scans=results / "scans")
     assert again["family_report_updated"] is False

@@ -41,7 +41,9 @@ def notebook_workspace(tmp_path, monkeypatch):
     monkeypatch.setenv("GITSKILLS_DB", str(database))
     monkeypatch.chdir(notebook_directory)
     displayed = []
-    namespace = {"display": displayed.append}
+    # The notebook imports display from IPython, so capture it at the source.
+    monkeypatch.setattr("IPython.display.display", displayed.append)
+    namespace = {}
     try:
         yield project, database, cells, names, namespace, displayed
     finally:
@@ -134,7 +136,9 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
     assert execution["artifacts_skipped"] == 0
     assert execution["directed_pairs_analyzed"] == len(names) - 1
     assert execution["pairs_incomplete"] == int(missing_sibling_content)
-    assert displayed, "Notebook should display its run and summary tables"
+    assert len(displayed) >= 2, "Notebook should display its run and summary tables"
+    assert displayed[0].iloc[0]["status"] == "complete"
+    assert set(displayed[1]["family"]) == set(names)
     assert "Manual review is pending" in capsys.readouterr().out
     assert json.loads((results / "execution_summary.json").read_text()) == execution
     manifest = json.loads((results / "sample_manifest.json").read_text())
