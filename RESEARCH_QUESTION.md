@@ -12,34 +12,20 @@
 
 Agent skills can contain instructions involving commands, files, networks, scripts, and credentials. When skills are reused or modified, new security-sensitive behavior may be introduced without being obvious to someone adopting the skill.
 
-Understanding whether this occurs in GitSkills can provide evidence about potential security and software supply-chain risks associated with sharing and modifying agent skills.
+Comparing stored instructions and associated resources in GitSkills can help identify changes that warrant security review.
 
 ## Expected Contribution
 
-This study will provide evidence about whether related GitSkills artifacts introduce security-sensitive behavior that was absent from an earlier or source artifact, and what types of behavior are introduced when this occurs.
+This study provides a static comparison method, eleven defined risk indicators, and exploratory evidence of candidate security-sensitive changes between related GitSkills artifacts. The indicators are review signals rather than confirmed vulnerabilities; their validated frequency and historical lineage remain unresolved.
 
 ## Interpretation and Feasibility
 
-We interpret the research question as asking whether a related skill artifact contains security-sensitive behavior that was not present in an earlier or source artifact. **Other risky behavior** includes security-sensitive actions beyond command execution, file-system access, and network access, such as credential-related or script-based behavior. The presence of this behavior does not necessarily mean that a skill is malicious.
+We interpret the research question as a comparison of stored instructions and associated resources between related artifacts. The assessment uses eleven defined [risk indicators](docs/decisions/RDR-010-evidence-based-risk-indicators.md) to identify specific introduced or changed operations, rather than treating new keywords or increased rule-match counts as sufficient evidence of risk.
 
-Based on our Sprint 1 exploration, we believe the GitSkills release dataset contains enough artifact content, repository information, dates, and related skill records to investigate the research question as written. The available data does not always prove that one artifact was directly copied from another or that the earliest observed artifact is the true original, so conclusions about source and modification relationships need to be made carefully.
+GitSkills provides artifact content, repository information, and dates for assessing relatedness and comparison direction. Sharing a name does not establish reuse, and the designations **base** and **derived** describe comparison orientation rather than proven original authorship or direct copying. Equivalent and direction-unknown relationships are retained separately.
 
-The team's decision to retain the original research question and the alternatives considered are documented in [RDR-001](docs/decisions/RDR-001-retain-question-4-versioning-strategy.md).
+The study does not execute instructions, measure a causal effect of reuse, or attempt comprehensive security detection. Behavior outside the eleven indicators is not automatically a scanner error.
 
 ## Competing Explanation
 
-Differences in security-sensitive behavior may reflect legitimate changes in a skill's intended functionality rather than evidence that reuse or modification itself increased security risk.
-
-## Study Definition
-
-| Item | Definition |
-| --- | --- |
-| **Unit of analysis** | A comparison between two related GitSkills artifacts where the available evidence supports an earlier/source and later/modified ordering. |
-| **Population** | Qualifying `SKILL.md` artifacts in the selected GitSkills release dataset and the related artifact comparisons that can be identified among them using the project's study criteria. |
-| **Sprint 1 sample** | A purposeful sample of 43 artifacts across 10 skill families, producing 17 directed comparisons in the saved Sprint 1 analysis reports. The sample is intended to support feasibility and tool validation, not population-wide risk estimates. |
-| **Variables** | Artifact relationship and ordering; security-sensitive behavior observed in each artifact; and whether a behavior is newly present in the later artifact. |
-| **Outcome measures** | Whether newly introduced security-sensitive behavior is detected in a comparison, and the type of behavior introduced. |
-
-## Supporting Analysis
-
-Exploratory and sample analysis are maintained under [`notebooks/`](notebooks/). Detailed research and methodology decisions are maintained under [`docs/decisions/`](docs/decisions/).
+Differences may reflect routine adaptation, packaging, or legitimate functionality. A reported indicator may identify an intended feature rather than unwanted exposure; it does not by itself establish malicious intent or increased security risk.
