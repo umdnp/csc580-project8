@@ -1,137 +1,15 @@
 # Threats to Validity
 
-This document records the main threats to validity identified during Sprint 1. It will be updated as the implementation and validation continue.
+This document summarizes the limitations of the current Sprint 2 analysis and matches the [final report's threats to validity](report/sections/10-threats-to-validity.md). Risk indicators (RIs) refer to the eleven operational definitions in [RDR-010](docs/decisions/RDR-010-evidence-based-risk-indicators.md).
 
-## Construct Validity
+**Construct validity.** The eleven RIs are an operational definition of selected security-sensitive changes, not an exhaustive taxonomy of security behavior. Regex matches, recovered constructs, and source-context checks can misinterpret warnings, examples, aliases, or equivalent operations. Complete extraction means a construct was recovered, not that its runtime effect was resolved. Zero supported RIs therefore cannot establish safety, and larger counts cannot establish greater danger.
 
-### Rule-Based Security Detection
+**Relatedness and historical order.** Exact-name candidate generation can miss renamed relatives and group independent skills together. Shingle overlap supports substantive similarity but does not prove copying; connected clusters need not have pairwise-related endpoints everywhere. Commit history follows current paths and can omit earlier states. Equivalent-peer dates and repository boundaries are useful evidence but do not establish original authorship. Containment-based direction, used for 42.9% of this run's pairs, is particularly weak for a historical introduction claim.
 
-The scanner uses rule-based text patterns to identify security-sensitive behavior such as command execution, file-system access, network access, credential handling, external code execution, and system modification.
+**Missing evidence and scope.** Source enrichment is uneven, especially for sibling resources and chronology. Unknown composition is not an empty bundle. The run reports 206 incomplete comparisons, while even complete-labelled coverage cannot guarantee all risky instructions were recognized. Conditional sibling scanning and unavailable implementations can limit conclusions about indirect execution. Coverage must be checked against stored source availability during validation rather than accepted solely from a summary label.
 
-The main concerns are:
+**Selection and dependence.** The 30-family list is provisional and not a representative sample. Eligibility filters exclude metadata-poor, short, and singleton skills. The 3,997 comparisons share artifacts, and a single family contributes half the indicator-bearing pairs. Primary and additional edges have different selection roles. Consequently, the percentages describe these outputs; they are not population estimates, independent incident rates, or causal effects of modification/reuse. Historical Sprint 1 results use different units and must not be pooled with them.
 
-- A match may appear in documentation or an example rather than an instruction that will actually be executed.
-- The scanner may miss behavior expressed in a form that the current rules do not recognize.
-- A change in match count does not necessarily mean that risk increased or decreased.
-- A security-sensitive capability is not necessarily malicious or unsafe.
+**Validation and reproducibility.** Draft annotations have been committed for 21 of 30 directed cases and all 15 relationship cases, but every row remains pending and the notes identify AI-assisted proposals awaiting human acceptance. Independent adjudication has not occurred, so the entries do not yet provide an accepted human reference standard and accuracy and agreement remain unknown. Numeric IDs are local to a prepared database build; stable source identity, content hashes, policy, code revision, and sample checksums are needed to reconnect labels to a run. The manifest records fingerprints but the prepared database size alone is not a cryptographic identity check. A regenerated cohort or changed implementation requires checking compatibility before reusing annotations.
 
-For example, a skill may mention `curl` while explaining an API without instructing an agent to run it. Conversely, a script using Node.js `os.platform()` or `os.arch()` to read system information may produce no rule matches. These calls can be legitimate, but their absence from findings does not establish that all security-relevant behavior was detected.
-
-Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. Sprint 2 now has 30 directed-pair review cases and 15 relationship-pair review cases. The committed annotation files contain draft entries for 21 of the 30 directed cases and all 15 relationship cases; every entry is still marked `pending`, and the notes identify AI-assisted proposals awaiting human acceptance. These are real review records, but they are not completed or adjudicated validation labels, so false-positive, false-negative, reviewer-agreement, and coverage-gap metrics are not yet reported.
-
-### Candidate-Family Matching and Similarity
-
-The project first uses same-name skills to find possible comparison candidates and then uses content similarity and other available evidence to determine whether artifacts appear to be related.
-
-The main concerns are:
-
-- Two unrelated skills may share the same name.
-- A reused skill that was renamed may be missed by the initial grouping.
-- Similarity results depend on the selected method and thresholds.
-- Candidate-family membership does not establish copying, authorship, or the original source.
-
-A matching name or similarity score is therefore treated as evidence of a possible relationship, not proof of one. Similarity thresholds and representative relationships will require validation before broader conclusions are made.
-
-See [RDR-003](docs/decisions/RDR-003-grouping-and-sibling-fingerprints.md) and [RDR-004](docs/decisions/RDR-004-skillmd-similarity-strategy.md).
-
-### Language and Frontmatter
-
-Behavioral scanning excludes YAML frontmatter and keeps non-English skills in the analysis population.
-
-This creates two known limitations:
-
-- Security-relevant information that appears only in frontmatter is outside the behavioral scan.
-- Risky behavior written only in non-English prose may be missed when it does not contain recognizable technical indicators such as commands, URLs, paths, tool names, or credential references.
-
-This tradeoff reduces false positives from descriptive metadata while preserving non-English artifacts that still contain recognizable technical behavior.
-
-See [RDR-002](docs/decisions/RDR-002-language-and-frontmatter-scanning.md).
-
-## Internal Validity
-
-### Earlier/Later Ordering
-
-Question 4 requires us to determine whether security-sensitive behavior was **introduced**, so related artifacts need a reasonable earlier/later ordering.
-
-GitSkills does not provide complete historical file contents or commit history for every artifact.
-
-The main concerns are:
-
-- `first_commit_at` is the earliest commit observed for the artifact in the available GitSkills history, not guaranteed proof of when the skill was originally created or introduced.
-- File moves or renames may hide earlier history.
-- The earliest artifact observed in the dataset may not be the true original.
-- Source information written in a skill may be incomplete or incorrect.
-- Some relationships may not contain enough evidence to determine which artifact came first.
-
-The project uses the strongest available evidence to establish direction and leaves a relationship unresolved when the evidence is not strong enough. Unresolved relationships should not be used to claim that a behavior was introduced or removed.
-
-See [RDR-007](docs/decisions/RDR-007-effective-chronology-and-direction-evidence.md).
-
-### Alternative Explanations
-
-A newly introduced security-sensitive behavior does not automatically mean that reuse or modification made a skill less secure.
-
-For example, a later skill may add a network request, package installation, or file operation because its intended functionality changed.
-
-The analysis therefore needs to separate:
-
-- **what changed**, which can be observed from the artifacts; from
-- **what the change means**, which requires interpretation.
-
-A security-sensitive change should not be treated as evidence of malicious intent or increased risk without supporting evidence.
-
-### Missing and Incomplete Data
-
-Some GitSkills records have incomplete history, metadata, or related-file information.
-
-Missing data can:
-
-- prevent a relationship from being established;
-- leave the earlier/later direction unresolved;
-- hide behavior contained in unavailable related files; or
-- bias the analysis toward records that have more complete metadata and history.
-
-Missing information should be reported as missing or unresolved rather than interpreted as evidence that a behavior or relationship is absent. For example, in `hello-world`, the content of a possible earlier `.cjs` counterpart to a `.js` script is unavailable, so we cannot determine whether the observed system-information gathering was introduced.
-
-## External Validity
-
-### Sprint 1 Sample
-
-The Sprint 1 sample contains **43 artifacts across 10 skill families** and produces **17 directed comparisons** in the saved analysis reports.
-
-The sample was purposefully selected to provide useful variation for developing and evaluating the analysis. It is not a random or representative sample of the full GitSkills population.
-
-As a result:
-
-- Sprint 1 percentages should not be used to estimate how common security-sensitive changes are across all GitSkills artifacts.
-- The sample may favor cases that are easier for the current comparison or scanner methods to detect.
-- Additional cases may be needed if later validation exposes behaviors that are not represented in the current sample.
-
-The Sprint 2 review samples comprise 30 directed comparisons across six strata and 15 relationship comparisons across three strata. They are purposeful method-validation samples, not random samples, and do not estimate population prevalence. Draft annotations are stored alongside the samples in [`notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/`](notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/) and [`notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/`](notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/). Because all entries remain pending, they do not yet support scanner-accuracy estimates.
-
-See [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
-
-### Dataset Coverage
-
-The analysis is limited to the selected GitSkills release dataset and the artifacts collected by its mining process.
-
-The dataset should not be assumed to represent every agent skill, repository, platform, or development workflow. Results from this project therefore apply first to the data that was actually collected and analyzed.
-
-## Conclusion Validity
-
-Sprint 1 results are exploratory and should be interpreted cautiously.
-
-In particular:
-
-- Only selected comparisons have been manually inspected; automated output is not independent ground truth.
-- Some directed comparisons may share artifacts or repeated content, so they are not necessarily independent observations.
-- Ambiguous relationships are intentionally left without directional conclusions.
-- Counts and percentages from the purposeful Sprint 1 sample should not be treated as population-wide risk estimates.
-
-These limitations will be revisited as validation and broader analysis continue.
-
-## Reproducibility
-
-The analysis depends on the selected GitSkills release dataset, the project's derived analysis tables, the fixed Sprint 1 sample, and the versions of the analysis code and rules used to generate the results.
-
-The repository documents how to acquire the data, build the analysis tables, reconstruct the sample, and run the notebooks. Results should identify the dataset release, sample, and analysis configuration used to generate them so that later changes to the data or rules can be distinguished from the original Sprint 1 results.
+These limits are addressed by retaining source evidence, direction bases, uncertain outcomes, and coverage separately, and by providing reproducible inputs and review forms. They are not eliminated by those mechanisms. The strongest remaining requirement is an approved, frozen cohort with independent source-based review and adjudication before numerical accuracy or general prevalence is claimed.
