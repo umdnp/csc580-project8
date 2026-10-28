@@ -1,186 +1,63 @@
 # Data
 
-This directory contains information and setup instructions for the datasets used by the project.
-
-## GitSkills Database
-
-The GitSkills dataset is available from Zenodo:
-
-[GitSkills: A Dataset of Agent Skills on GitHub](https://zenodo.org/records/21875637)
-
-Direct database download:
-
-[agent_skills_release.db](https://zenodo.org/records/21875637/files/agent_skills_release.db?download=1)
-
-The downloaded `agent_skills_release.db` file is a **SQLite database**.
-
-For local project development, we create a separate **DuckDB database** and import the SQLite tables into it. DuckDB is well suited for analytical SQL workloads and includes a convenient browser-based notebook UI through the DuckDB CLI.
-
-The original SQLite database and the generated DuckDB database are separate files, even though they use the same filename.
-
-For example:
-
-```text
-C:\data
-├── sqlite
-│   └── agent_skills_release.db    <-- original SQLite database downloaded from Zenodo
-└── duckdb
-    └── agent_skills_release.db    <-- DuckDB database created locally
-```
-
-> **Note:** The downloaded SQLite database and the locally generated DuckDB database are local development artifacts and should not be committed to this repository.
-
-Do not overwrite or open the downloaded SQLite file as though it were already a DuckDB database.
-
-## License and Data Use
-
-The GitSkills dataset's collected metadata and aggregation are released under the
-[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
-
-The dataset also contains source content collected from public GitHub repositories.
-That content remains subject to the license of the original repository. Before
-reproducing or redistributing specific `SKILL.md` files, sibling files, or other
-source content, review the corresponding repository license in `repos.license`
-and the original repository.
-
-Do not commit the GitSkills SQLite database, the locally generated DuckDB database,
-or extracted raw source content from the dataset into this repository. These files
-are intended for local analysis only.
-
-Project code, notebooks, queries, aggregate statistics, and analysis results may be
-committed normally, provided they do not reproduce source content in a way that
-conflicts with its original license.
-
-For complete dataset licensing and reuse information, see the
-[GitSkills dataset record on Zenodo](https://zenodo.org/records/21875637)
-and the
-[GitSkills dataset documentation on Hugging Face](https://huggingface.co/datasets/mvaccargiu/gitskills).
+The project imports the [GitSkills SQLite release](https://zenodo.org/records/21875637) into a separate **DuckDB database** for local analysis. See the [Data Dictionary](../DATA_DICTIONARY.md) for table and column descriptions.
 
 ## Local DuckDB Development Setup
 
-The project uses the GitSkills SQLite release as the source dataset and builds a separate DuckDB database for local analysis.
+Install the DuckDB CLI and project dependencies using the [root README](../README.md#getting-started). Run the commands below from the repository root.
 
-The setup scripts currently expect:
+### 1. Download and import the dataset
 
-```text
-/c/data/sqlite/agent_skills_release.db    # downloaded SQLite source
-/c/data/duckdb/agent_skills_release.db    # generated DuckDB database
-```
-
-If you use different locations, update the configuration values at the top of `bin/create_gitskills_db.sh`.
-
-Run the following commands from the repository root.
-
-### 1. Install the DuckDB CLI
-
-In Linux or WSL:
-
-```bash
-curl https://install.duckdb.org | bash
-export PATH="$HOME/.duckdb/cli/latest:$PATH"
-```
-
-Confirm that the CLI is available:
-
-```bash
-duckdb --version
-```
-
-### 2. Build the DuckDB Database
-
-Download the GitSkills SQLite database and place it at:
+Download [agent_skills_release.db](https://zenodo.org/records/21875637/files/agent_skills_release.db?download=1) to the SQLite source location:
 
 ```text
-/c/data/sqlite/agent_skills_release.db
+C:/data/sqlite/agent_skills_release.db    # Downloaded SQLite source
+C:/data/duckdb/agent_skills_release.db    # Separate DuckDB output
 ```
 
-Then run:
+The import script defaults to Git Bash paths (`/c/data/...`). For WSL, use `/mnt/c/...`; for other locations, update `SQLITE_DB` and `DB_DIR` in [`bin/create_gitskills_db.sh`](../bin/create_gitskills_db.sh) and adjust the commands below.
 
 ```bash
 bash bin/create_gitskills_db.sh
 ```
 
-The script creates:
+The script imports the source tables, adds local identifiers and relationships, and stops if the DuckDB output already exists. Keep the source and output files separate.
 
-```text
-/c/data/duckdb/agent_skills_release.db
-```
+### 2. Prepare the analysis tables
 
-It imports the GitSkills source tables into DuckDB and adds the local identifiers and relationships used by the project.
-
-The script will stop if the DuckDB database already exists. Remove the existing DuckDB file first if you intentionally want to rebuild it.
-
-### 3. Build the Analysis Tables
-
-After the database import completes, create the project analysis tables:
+Run these scripts in order:
 
 ```bash
-duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/create_analysis_tables.sql
+duckdb -bail /c/data/duckdb/agent_skills_release.db < sql/create_analysis_tables.sql
+duckdb -bail /c/data/duckdb/agent_skills_release.db < sql/update_artifact_groupings.sql
 ```
 
-Then populate the derived artifact-grouping fields:
+For an existing database, rerun both scripts to apply the description-normalization correction in [RDR-011](../docs/decisions/RDR-011-description-whitespace-normalization.md). Rebuilt group IDs can differ.
+
+### 3. Configure the database path
+
+Set `GITSKILLS_DB` to the generated DuckDB file before starting notebooks or SkillTrace. For Git Bash with Windows Python:
 
 ```bash
-duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/update_artifact_groupings.sql
+export GITSKILLS_DB="C:/data/duckdb/agent_skills_release.db"
 ```
 
-Run these scripts in this order. The update script prints a validation summary when it completes.
+For WSL Python, use `/mnt/c/data/duckdb/agent_skills_release.db`.
 
-Description normalization was corrected in
-[RDR-011](../docs/decisions/RDR-011-description-whitespace-normalization.md).
-Existing databases retain their old groups until both scripts above are rerun.
-Rebuilt description groups and group IDs can differ; the current scanner selects
-comparisons across exact-name families rather than by description group. The
-decision record explains the measured impact and reproducibility considerations.
+The database is now ready for the [current end-to-end pipeline](../notebooks/end_to_end_pipeline/README.md). See the [Manual Annotation Protocol](../docs/instructions/manual_annotation_protocol.md) for validation instructions.
 
-At this point the local DuckDB database is ready for project notebooks and analysis.
+## Original Sprint 1 Notebook
 
-### 4. Sprint 1 Sample Population
-
-Sprint 1 uses a frozen sample population for development and validation of the analysis pipeline.
-
-After completing step 3, run the follow command to generate the frozen Sprint 1 sample view:
+To reproduce the original sample extraction notebook, create its 43-artifact `sample_artifacts` view after the setup above:
 
 ```bash
-duckdb -bail /c/data/duckdb/agent_skills_release.db     < sql/create_sprint1_samples_view.sql
+duckdb -bail /c/data/duckdb/agent_skills_release.db < sql/create_sprint1_samples_view.sql
 ```
 
-Reference [`docs/decisions/RDR-006-sprint1-sample-design-and-selection.md`](../docs/decisions/RDR-006-sprint1-sample-design-and-selection.md) for more information.
+Then follow the [original notebook README](../notebooks/extraction_pipeline/README.md). This view is only needed for that notebook. Historical review material is retained under [`validation/archive/`](validation/archive/).
 
-### 5. Sprint 2 Manual Validation
+## License and Data Use
 
-Manual validation uses reproducible samples generated by `summarize_scans` from
-`scan_family` reports. When matching standard `analyze_family` JSON reports are supplied,
-it also selects ambiguous, equivalent, and unrelated candidate pairs for
-relationship review. The active samples and annotation templates are written to
-`notebooks/end_to_end_pipeline/results/sprint2/review/` by the end-to-end notebook
-(or `results/review/` by the standalone tool); the former fixed Sprint 1 pair sample is retained under
-[`data/validation/archive/`](validation/archive/).
+GitSkills metadata and aggregation are released under CC BY 4.0; collected source content remains subject to its original repository license. See the [dataset record](https://zenodo.org/records/21875637) and `repos.license` before redistributing source content.
 
-See the [Manual Validation Protocol](../docs/validation/manual_validation_protocol.md)
-for sampling, independent review, adjudication, and interpretation of results.
-The CSV files contain identifiers and analysis metadata, not source content.
-Inspect artifacts using the local DuckDB database and do not commit original
-skill text or credentials to the repository.
-
-## Configure the Local Database Path
-
-Project code can use the `GITSKILLS_DB` environment variable to locate the generated DuckDB database.
-
-For the default WSL setup:
-
-```bash
-export GITSKILLS_DB="/c/data/duckdb/agent_skills_release.db"
-```
-
-Verify the value:
-
-```bash
-echo "$GITSKILLS_DB"
-```
-
-If the database is stored somewhere else, set `GITSKILLS_DB` to that path before starting the notebook or development environment.
-
-## Data Dictionary
-
-For descriptions of the GitSkills tables and columns, see the project [Data Dictionary](../DATA_DICTIONARY.md).
+Keep databases and extracted raw source content out of Git. Project code, notebooks, queries, aggregate statistics, and analysis results may be committed when consistent with the applicable licenses.
