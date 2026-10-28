@@ -94,7 +94,7 @@ Results are saved under [`notebooks/end_to_end_pipeline/results/`](notebooks/end
 From the repository root:
 
 ```bash
-uv run pytest
+uv run python -m pytest
 ```
 
 Tests use constructed inputs and temporary databases; the full GitSkills dataset is not required. See the [testing guide](tests/sample_skills/README.md#testing).
