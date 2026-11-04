@@ -10,7 +10,7 @@ This document describes the project command-line tools and the options most deve
 | [`analyze_family`](#analyze_family) | Analyze similarity, clusters, chronology, and inferred relationships for one candidate family or a batch of families. |
 | [`scan_family`](#scan_family) | Scan one candidate family or a list of families for security-sensitive evidence changes and risk indicators; optionally benchmark scans. |
 | [`summarize_cohort`](#summarize_cohort) | Independently analyze selected families, reuse compatible scans, and generate audited research results and manual-validation samples. |
-| [`family_picker`](#family_picker) | Interactively browse candidate families and run [`analyze_family`](#analyze_family). |
+| [`family_picker`](#family_picker) | Generate a stratified family sample for a separate pipeline run. |
 
 Use `<tool> --help` for the complete command-line help. When running directly from the source tree, the equivalent form is `python -m gitskills.tools.<tool>`.
 
@@ -18,36 +18,58 @@ Use `<tool> --help` for the complete command-line help. When running directly fr
 
 ### Purpose
 
-`family_picker` is an interactive convenience interface for repeatedly running `analyze_family` while exploring candidate families. It does not replace the `analyze_family` command or expose its analysis configuration options.
-
-The picker reads candidate-family names from `artifact_groupings` using the database configured by `GITSKILLS_DB`. Each selection screen shows 10 randomly selected families together with the number of artifacts that share each family name.
+`family_picker` generates a stratified random sample without prompts or analysis.
+Edit `src/gitskills/tools/family_picker.toml` to set sample size, seed, group
+boundaries, percentages, and minimum usable-pair count. Group sizes use total
+artifact counts by exact family name. Usable pairs require loadable content and
+either different primary hashes or different, non-null derived sibling hashes.
+There is no repository restriction.
 
 ### Usage
-
-**Run the picker from the project root:**
 
 ```bash
 python -m gitskills.tools.family_picker
 ```
 
-The selection screen supports:
+Optional arguments are `--config FILE`, `--db FILE` (otherwise `GITSKILLS_DB`),
+and `--output DIR` (default: `output/family_samples`). The default config is beside
+the tool. The output path is relative to the working directory.
 
-- entering `1` through `10` to analyze one of the displayed random families;
-- typing an exact family name directly;
-- entering `R` to refresh the list with 10 new random families; and
-- entering `Q` or pressing `Ctrl+C` to exit cleanly.
+Percentages must total 100. Largest-remainder allocation fills the requested
+sample size; ties follow config group order. With example percentages
+20 / 60 / 14 / 5 / 1, a sample of 10 selects 2 / 6 / 1 / 1 / 0 families.
+Zero-percent groups are excluded. A shortage causes an error without silently
+changing group allocations. Sampling is without replacement within each group.
 
-After an analysis finishes, the picker returns to the family-selection screen with a new random set so additional families can be reviewed without restarting the tool.
+An empty seed (`seed = ""`) generates a fresh seed saved with the sample. Set
+that integer in the config to replay the selection with the same database,
+configuration, and sampling implementation.
 
-### Analysis Command
+The picker targets the fixed, previously inspected database snapshot. The
+`family_picker_exclusions.json` file beside the tool lists 617 families with no
+usable pair. These names are excluded before selection. All grouped artifacts
+in this snapshot were verified loadable, so sampling reads family counts and
+selected-family hashes without scanning stored content again. The saved sample
+record includes the exclusion list. Group totals describe candidates after
+exclusions; selected families have their pair counts checked against the config.
 
-For the selected family, the picker runs the equivalent of:
+### Output and Pipeline Handoff
+
+Names print one per line to standard output. The seed, group allocation counts,
+and saved paths print to standard error. Each run creates a new directory under
+the output parent, preserving previous samples:
+
+- `families.txt` contains the names in pipeline input format.
+- `sample.json` records the seed, config, database file metadata, candidate group
+  counts, and selected families with artifact and usable-pair counts.
+
+Run analysis separately using the saved family-list path:
 
 ```bash
-python -m gitskills.tools.analyze_family NAME --output apps/skilltrace/reports
+python -m gitskills.tools.analyze_family --input output/family_samples/<run>/families.txt --output apps/skilltrace/reports
 ```
 
-Reports produced through the picker are therefore written to `apps/skilltrace/reports`. Use `analyze_family` directly when custom similarity thresholds, JSON output, verbose output, a different database path, or a different output directory are required.
+The same list can be passed to `scan_family` or `summarize_cohort` with `--input`.
 
 ---
 

@@ -108,7 +108,7 @@ The tools read and scan stored text without executing its instructions.
 | `analyze_family` | Find similar artifacts and inferred relationships. | Exact family name + DuckDB |
 | `scan_diff` | Compare security-rule counts for two skill files. | Two local files, base first |
 | `scan_family` | Scan the selected directed relationships in a family, including changed siblings. | Exact family name + DuckDB |
-| `family_picker` | Browse family names interactively and generate analysis reports. | DuckDB |
+| `family_picker` | Generate a stratified family sample for a separate pipeline run. | DuckDB |
 
 The full command reference is [TOOLS.md](../../TOOLS.md). For help with an individual
 tool, add `--help`, for example:
@@ -478,23 +478,55 @@ Keep `scan_family` output separate from `analyze_family` reports: both use
 `<NAME>.json`, but SkillTrace needs the **analysis** format. Writing a family
 scan into `apps/skilltrace/reports` could overwrite the graph report.
 
-## 7. Browse other families with family_picker
+## 7. Sample families with family_picker
 
 ```shell
 uv run python -m gitskills.tools.family_picker
 ```
 
-The picker shows ten randomly chosen family names and their artifact counts.
-At its prompt:
+The picker runs once without prompts and does not launch analysis. Edit
+`src/gitskills/tools/family_picker.toml` to set the number of families, group
+boundaries, percentages, and seed. Percentages must total 100. Fractional quotas
+use largest-remainder rounding; ties follow the group order in the config.
+A zero percentage excludes a group. Insufficient eligible families cause an
+error rather than a smaller sample or an automatic redistribution.
 
-- Enter `1` through `10` to analyze a displayed family.
-- Type an exact name, such as `cometchat-core`, to analyze that family directly.
-- Enter `R` to get another random list.
-- Enter `Q`, or press `Ctrl+C`, to quit.
+For example, a sample size of 10 with Low / Medium / Large / X-Large / Extreme
+percentages of 20 / 60 / 14 / 5 / 1 selects 2 / 6 / 1 / 1 / 0 families.
+Group sizes use total artifact counts by exact family name. Each selected family
+must have at least one usable unordered pair of loadable artifacts: either the
+primary file hashes differ, or both derived sibling hashes are non-null and
+differ. There is no cross-repository requirement.
 
-After each analysis it returns to the selection screen. Reports are saved in
-`apps/skilltrace/reports`. For custom thresholds, a different database path, or
-a different output directory, use `analyze_family` directly.
+The picker targets the fixed, previously inspected database snapshot. The
+`family_picker_exclusions.json` file beside the tool lists 617 families with no
+usable pair. These names are excluded before selection. All grouped artifacts
+in this snapshot were verified loadable, so sampling reads family counts and
+selected-family hashes without scanning stored content again. The saved sample
+record includes the exclusion list. Group totals describe candidates after
+exclusions; selected families have their pair counts checked against the config.
+
+Leave `seed = ""` for a fresh generated seed. Enter the saved integer seed to
+repeat a selection against the same database, configuration, and sampling
+implementation. The seed does not control the sample size.
+
+Family names print one per line to standard output; the seed, allocation counts,
+and saved paths print to standard error. Each run also creates a new directory
+under `output/family_samples/` containing:
+
+- `families.txt`: the selected names, ready for pipeline `--input` options.
+- `sample.json`: the generated seed, configuration, database file metadata,
+  allocation counts, and selected families with artifact and usable-pair counts.
+
+Run the pipeline separately, using the actual saved path printed by the picker:
+
+```shell
+uv run python -m gitskills.tools.analyze_family --input output/family_samples/<run>/families.txt --output apps/skilltrace/reports
+```
+
+Optional picker arguments are `--config FILE`, `--db FILE`, and `--output DIR`.
+The output directory is relative to the current working directory. The default
+config is located beside the tool, regardless of the working directory.
 
 ## 8. Start SkillTrace
 
