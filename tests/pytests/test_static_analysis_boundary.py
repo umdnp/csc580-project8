@@ -140,12 +140,14 @@ def test_skilltrace_scan_handler_does_not_execute_artifact_text(tmp_path, monkey
     assert not sentinel.exists()
 
 
-def test_family_picker_passes_dataset_name_as_a_literal_argument(monkeypatch):
+def test_family_picker_keeps_dataset_names_as_data(monkeypatch):
     name = "example; echo dataset-name-must-not-be-a-command"
-    launch = Mock(return_value=Mock(returncode=0))
-    monkeypatch.setattr(family_picker.subprocess, "run", launch)
-    family_picker.run_analyze_family(name)
-    command = launch.call_args.args[0]
-    assert isinstance(command, list)
-    assert command[1:4] == ["-m", "gitskills.tools.analyze_family", name]
-    assert launch.call_args.kwargs == {"check": False}
+    config = {
+        "sampling": {"sample_size": 1},
+        "eligibility": {"min_usable_pairs": 1},
+        "groups": [{"name": "Low", "min_artifacts": 2, "percentage": 100}],
+    }
+    candidates = [{"name": name, "artifact_count": 2, "usable_pair_count": 1}]
+    with reject_execution(monkeypatch):
+        selected, _ = family_picker.select_sample(candidates, config, 580)
+    assert selected[0]["name"] == name
