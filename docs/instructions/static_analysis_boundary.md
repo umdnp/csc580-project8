@@ -24,11 +24,10 @@ Python rules, modified project code, or manually running an exported artifact.
 | [SkillTrace server](../../apps/skilltrace/app.py) | Returns content as JSON, builds text diffs, and calls the same scanner for on-demand comparisons. The scan handler does not launch a skill. |
 | [SkillTrace viewer](../../apps/skilltrace/index.html) | Content dialogs, diff lines, and rule evidence use `textContent`. Dataset HTML/JavaScript is displayed as text rather than inserted as executable markup. Copying content copies text to the clipboard. This display path was source-reviewed; the Python tests do not execute a browser. |
 
-A search of production Python under `src/gitskills` and `apps/skilltrace` found
-one subprocess launcher: [the family picker](../../src/gitskills/tools/family_picker.py).
-It starts the project's `gitskills.tools.analyze_family` module using a fixed
-argument list and the default `shell=False`. A selected dataset family name is
-one literal argument, not a shell command. It does not run artifact content.
+The [family picker](../../src/gitskills/tools/family_picker.py) reads DuckDB
+metadata, samples eligible family names, and writes a family list and sample
+record. It does not launch analysis or execute artifact content. Dataset names
+remain strings in the sample, including names containing shell syntax.
 Executing trusted project code and registered rule implementations is necessary
 to perform analysis; dataset text is never promoted to that role in these paths.
 
@@ -48,7 +47,7 @@ The six constructed test cases check:
   reports scanner findings, and neither runs nor materializes the sibling script.
 - SkillTrace's scan handler treats returned artifact text as data. Report and
   database lookups are substituted; the actual scanner and comparison run.
-- The family picker passes a command-looking dataset name as a literal argument.
+- The family picker samples a command-looking dataset name as inert data.
 
 During the scan calls, tests reject `exec`, `eval`, common process-launch APIs,
 and common network entry points. Python and shell payloads include a temporary

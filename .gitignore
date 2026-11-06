@@ -237,3 +237,6 @@ Thumbs.db
 
 # Generated scan cache
 .scans/
+
+# Generated family samples and their seed records
+output/family_samples/

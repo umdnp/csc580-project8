@@ -38,3 +38,6 @@ analyze_family = "gitskills.tools.analyze_family:main"
 scan_diff = "gitskills.tools.scan_diff:main"
 scan_family = "gitskills.tools.scan_family:main"
 summarize_cohort = "gitskills.tools.summarize_cohort:main"
+
+[tool.setuptools.package-data]
+"gitskills.tools" = ["family_picker.toml", "family_picker_exclusions.json"]
