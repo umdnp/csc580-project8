@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import posixpath
 import re
+import shlex
 from dataclasses import dataclass
 
 from .evidence_models import ExtractionStatus
@@ -86,6 +88,98 @@ def described_network_operation(text: str, start: int) -> str | None:
     if _DESCRIBED_OUTBOUND.search(prefix):
         return "outbound"
     return None
+
+
+_REDIRECT = re.compile(r"(?:[0-9]?>/dev/null|[0-9]?>&[0-9])$")
+
+
+def _and_steps(line: str) -> list[str] | None:
+    """Split an explicit single-line && chain without crossing quoted text."""
+    if "\n" in line or "\r" in line:
+        return None
+    parts: list[str] = []
+    quote: str | None = None
+    escaped = False
+    beginning = 0
+    i = 0
+    while i < len(line):
+        char = line[i]
+        if escaped:
+            escaped = False
+        elif char == "\\":
+            escaped = True
+        elif quote:
+            if char == quote:
+                quote = None
+        elif char in "\"'":
+            quote = char
+        elif line[i:i + 2] == "&&":
+            parts.append(line[beginning:i].strip())
+            i += 1
+            beginning = i + 1
+        elif char in ";|":
+            return None
+        i += 1
+    if quote or escaped:
+        return None
+    parts.append(line[beginning:].strip())
+    return parts if len(parts) in (2, 3) and all(parts) else None
+
+
+def _tokens(command: str) -> list[str] | None:
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        return None
+    # Ignore only simple output suppression, never arbitrary shell syntax.
+    while tokens and _REDIRECT.fullmatch(tokens[-1]):
+        tokens.pop()
+    return tokens
+
+
+def _literal_path(path: str) -> str | None:
+    if (not path or path == "-" or re.search(r"[\s$*?`{}()<>|;&]", path)
+            or path.startswith("-")):
+        return None
+    return posixpath.normpath(path)
+
+
+def staged_download_execution(line: str) -> bool:
+    """Recognize a literal download followed by execution of that same file."""
+    parts = _and_steps(line)
+    if not parts:
+        return False
+    steps = [_tokens(part) for part in parts]
+    if any(not tokens for tokens in steps):
+        return False
+    download = steps[0]
+    client = download[0].lower()
+    if client not in {"curl", "wget"}:
+        return False
+    options = {"wget": ("-O", "--output-document"),
+               "curl": ("-o", "--output")}[client]
+    output: str | None = None
+    for i, token in enumerate(download[1:], start=1):
+        if token in options and i + 1 < len(download):
+            output = download[i + 1]
+        elif any(token.startswith(option + "=") for option in options):
+            output = token.split("=", 1)[1]
+    path = _literal_path(output or "")
+    if not path or sum(bool(re.fullmatch(r"https?://\S+", t, re.I)) for t in download) != 1:
+        return False
+
+    following = steps[1:]
+    if len(following) == 2:
+        chmod = following.pop(0)
+        if (len(chmod) != 3 or chmod[:2] != ["chmod", "+x"]
+                or _literal_path(chmod[2]) != path):
+            return False
+    execute = following[0]
+    if execute[0].startswith(("./", "../", "/")):
+        return _literal_path(execute[0]) == path
+    if execute[0] in {"bash", "sh", "zsh", "python", "python3", "node"}:
+        return len(execute) >= 2 and _literal_path(execute[1]) == path
+    return False
 
 
 def _trim_span(text: str, start: int, end: int) -> tuple[int, int]:
@@ -182,10 +276,11 @@ class ShellExtractor:
         boundaries = sorted(set(boundaries))
         segment_start = left
         segment_end = right
-        for a, b in zip(boundaries, boundaries[1:]):
-            if a <= start < b:
-                segment_start, segment_end = a, b
-                break
+        if not staged_download_execution(text[left:right].strip()):
+            for a, b in zip(boundaries, boundaries[1:]):
+                if a <= start < b:
+                    segment_start, segment_end = a, b
+                    break
         # Earlier invocations on the same pipeline or privilege prefixes belong
         # to the same command, while prose before the first command does not.
         preceding = text[segment_start:start]

@@ -243,13 +243,22 @@ class RiskAssessor:
             is_network = self._network(e)
             urls = _urls(e)
 
-            if "EXT-001" in rules and not (old and "EXT-001" in old.rule_ids):
-                ambiguous = any("EXT-001" in p.rule_ids and p.filename == e.filename
-                                for p in changes.removed)
-                add("RI-001", "Direct download-to-interpreter operation introduced"
-                    if not ambiguous else "Download-to-interpreter operation changed without clear correspondence",
+            staged = "EXT-003" in rules
+            prior_execution = bool(old and (
+                "EXT-001" in old.rule_ids or "EXT-003" in old.rule_ids
+            ))
+            if ("EXT-001" in rules or staged) and not prior_execution:
+                ambiguous = any(p.filename == e.filename and (
+                    "EXT-001" in p.rule_ids or "EXT-003" in p.rule_ids
+                ) for p in changes.removed)
+                reason = ("Staged download-and-execute operation introduced" if staged
+                          else "Direct download-to-interpreter operation introduced")
+                add("RI-001", reason if not ambiguous else
+                    "Download-and-execute operation changed without clear correspondence",
                     e, old=old, status=IndicatorStatus.UNCERTAIN if ambiguous else None)
-            if old and "EXT-001" in rules and "EXT-001" in old.rule_ids and urls != _urls(old):
+            if (old and urls != _urls(old) and
+                    any(rule in rules and rule in old.rule_ids
+                        for rule in ("EXT-001", "EXT-003"))):
                 add("RI-002", "Source URL of remotely executed code changed", e, old=old)
             if is_network:
                 if any(host not in original_network_hosts for url in urls
