@@ -161,7 +161,7 @@ The run configuration is recorded in `sample_manifest.json` and the notebook `en
 - Edge selection `all`, review sample seed `580`, and five samples per validation stratum.
 - Implementation and output fingerprints for reproducibility checks.
 
-The notebook calls `summarize_cohort()` and may reuse compatible family scan reports in `.scans/`; missing or stale reports are regenerated. The archive contains **30 individual family scan JSON files**, corresponding to the 30 selected families. It does not depend on saved SkillTrace reports.
+The notebook calls `summarize_cohort()` and may reuse compatible family scan reports in `../../.scans/`; missing or stale reports are regenerated. The archive contains **30 individual family scan JSON files**, corresponding to the 30 selected families. It does not depend on saved SkillTrace reports.
 
 The manifest currently identifies this as a **provisional** cohort (`approval_reference: null`). Record the team's sample approval before presenting it as an approved Sprint 2 sample. If the sample, rules, or policy change after independent review begins, archive the earlier results and reviewer copies before regenerating samples.
 
@@ -195,8 +195,8 @@ The result set includes:
 
 - `sample_manifest.json` — selected cohort, source artifacts, scanner configuration, and provenance fingerprints.
 - `execution_summary.json` — pipeline execution status and high-level counts.
-- `.scans/<family>.json` — individual family scan outputs, one per selected family.
-- `.scans/.metadata/scan-manifest.json` — scan-cache metadata.
+- `../../.scans/<family>.json` — shared family scan outputs, reusable across sprint cohorts.
+- `../../.scans/.metadata/scan-manifest.json` — shared scan-cache metadata.
 - `audit/processing_summary.csv` and `audit/skipped_artifacts.csv` — input and processing audit.
 - `review/summary.json` — consolidated metrics and validation-sample summary.
 - `review/families.csv`, `review/edge_types.csv`, and `review/direction_basis.csv` — family and relationship summaries.

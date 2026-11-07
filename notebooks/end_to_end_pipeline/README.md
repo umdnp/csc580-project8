@@ -32,6 +32,9 @@ The notebook pairs each family-selection folder with its matching results folder
 ```text
 notebooks/end_to_end_pipeline/
 ├── end_to_end_pipeline.ipynb
+├── .scans/                           # Shared scan cache for all cohorts
+│   ├── .metadata/scan-manifest.json
+│   └── <family>.json                 # Existing scans; variants may have suffixes
 ├── sprint2/
 │   ├── samples/
 │   │   └── families.txt               # Existing 30-family selection
@@ -51,10 +54,6 @@ For **every** run, `RESULT_DIR` contains:
 
 ```text
 RESULT_DIR/
-├── .scans/                         # Reusable security-scan cache
-│   ├── .metadata/
-│   │   └── scan-manifest.json      # Cache bookkeeping
-│   └── <family>.json               # Scan result for each family
 ├── manual-review/
 │   ├── directed-pairs/
 │   │   ├── validation_sample.csv
@@ -77,9 +76,13 @@ RESULT_DIR/
 └── execution_summary.json         # Run status and coverage
 ```
 
+Scans are shared only when the database snapshot, source artifacts, implementation, rules, and policy match. Incompatible versions are stored separately to protect results in other cohorts. The shared cache has a single manifest recording these variants.
+
 A successful automated run reports `status: "complete"` in `execution_summary.json`. **That does not mean human validation is complete.** The `.scans/` directory is an intermediate cache; the two `manual-review/` sample CSVs and the adjudicated decisions are review evidence. You can ignore `.scans/` in Git, but retain the research outputs and adjudicated records according to your team's data-management plan.
 
-The existing Sprint 2 outputs have been moved without regenerating or changing their results. If you rerun the Sprint 2 analysis, the notebook writes to the new `sprint2/results/` location.
+The existing Sprint 2 scans have been moved to the shared `.scans/` directory without regenerating them. Existing Sprint 2 research outputs remain in `sprint2/results/`. The `summarize_cohort()` call uses `scan_cache=SCAN_CACHE_DIR`; other callers can omit this argument to retain the previous per-results cache behavior. If you rerun the Sprint 2 analysis, the notebook writes to the new `sprint2/results/` location.
+
+**Migration note:** The archived Sprint 2 `sample_manifest.json` contains absolute scan paths from the previous layout and an implementation fingerprint from the earlier code. Before using the fast adjudication cell for Sprint 2, back up that run's outputs and rerun its initial analysis cells so the manifest records the shared cache paths and current code. Do not regenerate an already-finalized, adjudicated run without preserving its original evidence.
 
 The run can legitimately contain **zero direction-supported pairs**. This does not establish that a skill is safe. Check `audit/skipped_artifacts.csv` and the coverage columns before drawing conclusions.
 
