@@ -94,7 +94,9 @@ class EvidenceNormalizer:
             language = dict(evidence.values).get("language", "")
             return f"shell_fence:{language.lower()}"
         if kind == "url_reference":
-            return _normalize_url(raw.strip())
+            operation = dict(evidence.values).get("documented_operation")
+            url = _normalize_url(raw.strip())
+            return f"{operation}:{url}" if operation else url
         if kind == "markdown_link":
             values = dict(evidence.values)
             destination = _normalize_url(values.get("destination", ""))
@@ -102,5 +104,7 @@ class EvidenceNormalizer:
             # Ordinary link-label wording is presentation, but a displayed URL
             # is itself relevant evidence when it differs from the destination.
             label_url = _normalize_url(label) if _URL.fullmatch(label) else ""
-            return f"destination:{destination}\nlabel_url:{label_url}"
+            operation = values.get("documented_operation")
+            prefix = f"{operation}:" if operation else ""
+            return f"{prefix}destination:{destination}\nlabel_url:{label_url}"
         return raw.strip()

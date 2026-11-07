@@ -10,13 +10,9 @@ from pathlib import Path
 from typing import Sequence
 
 from gitskills.analysis.family_models import SimilarityPolicy
+from gitskills.analysis.source_fields import SOURCE_FIELDS
 from gitskills.reporting.files import report_stems
 
-
-SOURCE_FIELDS = (
-    "artifact_id", "group_id", "repo_full_name", "path", "file_sha",
-    "sibling_file_count", "sibling_content_sha",
-)
 
 
 def read_json(path: Path) -> dict:

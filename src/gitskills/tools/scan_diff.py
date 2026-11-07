@@ -18,15 +18,13 @@ from gitskills.analysis.analyzer import SkillAnalyzer
 from gitskills.analysis.comparator import compare_results
 from gitskills.analysis.models import (
     AnalysisComparison,
-    RiskCategory,
     RuleMatch,
 )
 from . import _output
-from gitskills.reporting.redaction import redact_text, safe_excerpt
+from gitskills.reporting.redaction import redact_text, safe_excerpt, safe_rule_excerpt
 
 
 LOGGER = logging.getLogger("gitskills.scan_diff")
-MAX_EXCERPT_LENGTH = 120
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -167,7 +165,7 @@ def _log_rule_changes(
                 LOGGER.info(
                     "  line %s: %s",
                     rule_match.line_number or "?",
-                    _safe_excerpt(rule_match),
+                    safe_rule_excerpt(rule_match),
                 )
 
 
@@ -240,10 +238,6 @@ def _log_evidence_changes(
             )
 
 
-def _safe_excerpt(rule_match: RuleMatch) -> str:
-    if rule_match.category is RiskCategory.CREDENTIAL_ACCESS:
-        return "[credential-related content redacted]"
-    return safe_excerpt(rule_match.matched_text or "", limit=MAX_EXCERPT_LENGTH)
 
 
 

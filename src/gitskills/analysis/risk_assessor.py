@@ -8,6 +8,10 @@ from collections.abc import Mapping
 from urllib.parse import urlsplit
 
 from .evidence_models import Evidence, ExtractionStatus
+from .install_commands import (
+    INSTALL_PATTERN, _js_install_pairs, _manifest_install_pairs,
+    _direct_install_pairs, _workspace_scope, _source_change,
+)
 from .external_instructions import InstructionRole, instruction_role
 from .models import AnalysisComparison
 from .risk_models import IndicatorStatus, RiskAssessment, RiskIndicator
@@ -53,13 +57,6 @@ _SYSTEM_CHANGE = re.compile(
     r"\bservice\s+\S+\s+(?:start|stop|restart|reload|force-reload)\b|"
     r"\bcrontab\s+(?:-u\s+[\w.-]+\s+)?(?:-e|-r|--edit|--remove|-(?=\s|$)|"
     r"(?!-)[\w./~$-]+(?=\s|$))", re.I,
-)
-_INSTALL = re.compile(
-    r"\b(?:pip\d*|npm|apt(?:-get)?|dnf|yum|brew)\s+(?:install|i)\b|"
-    r"\b(?:pnpm|yarn|bun)\s+add\b", re.I,
-)
-_INSTALL_SOURCE = re.compile(
-    r"(?:--index-url|--extra-index-url|--registry|--find-links)\s*(?:=|\s)\s*([^\s]+)", re.I,
 )
 # Treat script extensions as complete suffixes, not prefixes of .json etc.
 # Keep acquisition scoped to one shell command/line, not neighboring prose.
@@ -181,13 +178,6 @@ def _delete_flags(text: str) -> frozenset[str]:
     return frozenset(result)
 
 
-def _source_change(e: Evidence) -> str | None:
-    if not _INSTALL.search(e.raw_text):
-        return None
-    match = _INSTALL_SOURCE.search(e.raw_text)
-    return match.group(0).strip().lower() if match else None
-
-
 def _sensitive_target(e: Evidence) -> str | None:
     if not _FILE_ACTION.search(e.raw_text):
         return None
@@ -209,6 +199,9 @@ class RiskAssessor:
         previous = comparison.base.evidence
         changes = comparison.evidence_changes
         pairs = _pair_changes(changes)
+        install_pairs = _direct_install_pairs(changes)
+        install_pairs.update(_manifest_install_pairs(changes))
+        install_pairs.update(_js_install_pairs(changes))
         base_hashes = {k.replace("\\", "/").removeprefix("./"): v
                        for k, v in (base_script_hashes or {}).items()}
         derived_hashes = {k.replace("\\", "/").removeprefix("./"): v
@@ -238,99 +231,10 @@ class RiskAssessor:
             if not _new(e, previous):
                 continue
             old = pairs.get(e)
-            text = e.raw_text
-            rules = set(e.rule_ids)
-            is_network = self._network(e)
-            urls = _urls(e)
-
-            if "EXT-001" in rules and not (old and "EXT-001" in old.rule_ids):
-                ambiguous = any("EXT-001" in p.rule_ids and p.filename == e.filename
-                                for p in changes.removed)
-                add("RI-001", "Direct download-to-interpreter operation introduced"
-                    if not ambiguous else "Download-to-interpreter operation changed without clear correspondence",
-                    e, old=old, status=IndicatorStatus.UNCERTAIN if ambiguous else None)
-            if old and "EXT-001" in rules and "EXT-001" in old.rule_ids and urls != _urls(old):
-                add("RI-002", "Source URL of remotely executed code changed", e, old=old)
-            if is_network:
-                if any(host not in original_network_hosts for url in urls
-                       if (host := _host(url))):
-                    add("RI-003", "New network-operation hostname observed", e, old=old)
-                if _TRANSFER.search(text) and not (old and _TRANSFER.search(old.raw_text)):
-                    add("RI-003", "Explicit outbound payload transfer introduced", e, old=old)
-                if _BYPASS.search(text) and not (old and _BYPASS.search(old.raw_text)):
-                    add("RI-004", "Certificate verification bypass introduced", e, old=old)
-                if old and any(urlsplit(a).scheme == "http" and
-                               urlsplit(b).scheme == "https" for a in urls for b in _urls(old)):
-                    add("RI-004", "Network operation changed from HTTPS to HTTP", e, old=old)
-            if "EXT-002" in rules and _INSTALL.search(text):
-                was_install = old is not None and _INSTALL.search(old.raw_text)
-                possible_replacement = any(
-                    p.filename == e.filename and _group(p) == _group(e)
-                    and _INSTALL.search(p.raw_text) for p in changes.removed
-                )
-                if not was_install and not possible_replacement:
-                    add("RI-005", "External package installation introduced", e, old=old)
-                elif was_install and _source_change(e) != _source_change(old):
-                    add("RI-005", "Explicit package source or registry changed", e, old=old)
-            if is_network and "EXT-001" not in rules and _ACQUIRE.search(text) and not (old and _ACQUIRE.search(old.raw_text)):
-                add("RI-005", "External script acquisition introduced", e, old=old)
-            if "FS-001" in rules and re.search(r"\b(?:rm|Remove-Item)\s+", text, re.I):
-                if not old or not re.search(r"\b(?:rm|Remove-Item)\s+", old.raw_text, re.I):
-                    uncertain = any(p.filename == e.filename and _group(p) == _group(e)
-                                    and re.search(r"\b(?:rm|Remove-Item)\s+", p.raw_text, re.I)
-                                    for p in changes.removed)
-                    add("RI-006", "Destructive file operation introduced"
-                        if not uncertain else "Destructive operation changed without clear correspondence",
-                        e, old=old, status=IndicatorStatus.UNCERTAIN if uncertain else None)
-                elif _delete_flags(text) - _delete_flags(old.raw_text):
-                    add("RI-006", "Deletion scope or force options expanded", e, old=old)
-                elif "SYS-001" in rules and "SYS-001" not in old.rule_ids:
-                    add("RI-006", "File deletion gained elevated privileges", e, old=old)
-            if "FS-001" in rules and "SYS-001" in rules and not (old and "SYS-001" in old.rule_ids):
-                add("RI-006", "Privileged file operation introduced", e, old=old)
-            target = _sensitive_target(e)
-            prior_target = _sensitive_target(old) if old else None
-            new_credential_read = (
-                "FS-003" in rules and "CRED-002" in rules and bool(target)
-                and (old is None or target != prior_target or "FS-003" not in old.rule_ids)
-            )
-            if new_credential_read:
-                add("RI-007", "Read operation newly targets a recognized credential file", e, old=old)
-            if is_network and "CRED-001" in rules and _CREDENTIAL.search(text):
-                before_credential = bool(old and _CREDENTIAL.search(old.raw_text))
-                before_hosts = {_host(u) for u in _urls(old)} if old else set()
-                current_hosts = {_host(u) for u in urls}
-                if not before_credential or before_hosts != current_hosts:
-                    reason = (
-                        "Outbound network operation introduces a credential reference"
-                        if not before_credential else
-                        "Credential-bearing network operation changes destination"
-                    )
-                    add("RI-007", reason, e, old=old)
-            if "SYS-002" in rules and _SYSTEM_CHANGE.search(text):
-                add("RI-008", "System or permissions modification introduced or changed", e, old=old)
-            if rules & {"FS-001", "FS-002", "FS-003"} and target and (
-                target != prior_target or not old or
-                (rules & {"FS-002", "FS-003"}) != (set(old.rule_ids) & {"FS-002", "FS-003"})
-            ):
-                add("RI-009", "File operation newly targets a recognized sensitive path", e, old=old)
-
-            script = _script(e)
-            if script:
-                prior_scripts = [p for p in previous if p.filename == e.filename and _script(p)]
-                if not prior_scripts:
-                    add("RI-010", "Local script invocation introduced", e)
-                elif old and (old_script := _script(old)) and old_script != script:
-                    before_hash = base_hashes.get(old_script)
-                    after_hash = derived_hashes.get(script)
-                    if before_hash and after_hash and before_hash != after_hash:
-                        add("RI-010", "Invoked local script has different known content", e, old=old)
-                    elif not (before_hash and after_hash):
-                        add("RI-010", "Local script target changed; sibling content unavailable", e,
-                            old=old, status=IndicatorStatus.UNCERTAIN)
-                elif old is None:
-                    add("RI-010", "Local script invocation changed without clear correspondence", e,
-                        status=IndicatorStatus.UNCERTAIN)
+            self._assess_remote_operations(e, old, changes, original_network_hosts, add)
+            self._assess_acquisition(e, old, changes, install_pairs, add)
+            self._assess_file_operations(e, old, changes, add)
+            self._assess_script_invocation(e, old, previous, base_hashes, derived_hashes, add)
 
         self._external_instructions(comparison, add)
 
@@ -354,6 +258,148 @@ class RiskAssessor:
             evidence_partial=partial,
             evidence_unsupported=unsupported,
         )
+
+    def _assess_remote_operations(self, e: Evidence, old: Evidence | None, changes,
+                                  original_network_hosts: set[str], add) -> None:
+        text = e.raw_text
+        rules = set(e.rule_ids)
+        urls = _urls(e)
+        is_network = self._network(e)
+        staged = "EXT-003" in rules
+        prior_execution = bool(old and (
+            "EXT-001" in old.rule_ids or "EXT-003" in old.rule_ids
+        ))
+        if ("EXT-001" in rules or staged) and not prior_execution:
+            ambiguous = any(p.filename == e.filename and (
+                "EXT-001" in p.rule_ids or "EXT-003" in p.rule_ids
+            ) for p in changes.removed)
+            reason = ("Staged download-and-execute operation introduced" if staged
+                      else "Direct download-to-interpreter operation introduced")
+            add("RI-001", reason if not ambiguous else
+                "Download-and-execute operation changed without clear correspondence",
+                e, old=old, status=IndicatorStatus.UNCERTAIN if ambiguous else None)
+        if (old and urls != _urls(old) and
+                any(rule in rules and rule in old.rule_ids
+                    for rule in ("EXT-001", "EXT-003"))):
+            add("RI-002", "Source URL of remotely executed code changed", e, old=old)
+        if is_network:
+            if any(host not in original_network_hosts for url in urls
+                   if (host := _host(url))):
+                add("RI-003", "New network-operation hostname observed", e, old=old)
+            if (_TRANSFER.search(text) or "outbound" in _values(e, "documented_operation")) and not (
+                old and (_TRANSFER.search(old.raw_text) or
+                         "outbound" in _values(old, "documented_operation"))
+            ):
+                add("RI-003", "Explicit outbound payload transfer introduced", e, old=old)
+            if _BYPASS.search(text) and not (old and _BYPASS.search(old.raw_text)):
+                add("RI-004", "Certificate verification bypass introduced", e, old=old)
+            if old and any(urlsplit(a).scheme == "http" and
+                           urlsplit(b).scheme == "https" for a in urls for b in _urls(old)):
+                add("RI-004", "Network operation changed from HTTPS to HTTP", e, old=old)
+
+    def _assess_acquisition(self, e: Evidence, old: Evidence | None, changes,
+                            install_pairs: dict[Evidence, Evidence], add) -> None:
+        text = e.raw_text
+        rules = set(e.rule_ids)
+        urls = _urls(e)
+        is_network = self._network(e)
+        if rules & {"EXT-002", "EXT-004"} and INSTALL_PATTERN.search(text):
+            install_old = install_pairs.get(e) or old
+            was_install = bool(install_old and INSTALL_PATTERN.search(install_old.raw_text))
+            possible_replacement = any(
+                p.filename == e.filename and _group(p) == _group(e)
+                and INSTALL_PATTERN.search(p.raw_text) for p in changes.removed
+            )
+            if not was_install and not possible_replacement:
+                add("RI-005", "External package installation introduced", e, old=old)
+            elif was_install and _source_change(e) != _source_change(install_old):
+                add("RI-005", "Explicit package source or registry changed", e,
+                    old=install_old)
+            elif (was_install and
+                  _workspace_scope(e) != _workspace_scope(install_old)):
+                add("RI-005", "Dependency installation workspace scope changed", e,
+                    old=install_old)
+        if "EXT-003" in rules:
+            if old and "EXT-003" in old.rule_ids:
+                if urls != _urls(old):
+                    add("RI-005", "External executable acquisition source changed", e, old=old)
+            else:
+                ambiguous = any(
+                    p.filename == e.filename and "EXT-003" in p.rule_ids
+                    for p in changes.removed
+                )
+                add("RI-005", "External executable acquisition introduced" if not ambiguous
+                    else "External executable acquisition changed without clear correspondence",
+                    e, old=old,
+                    status=IndicatorStatus.UNCERTAIN if ambiguous else None)
+        if is_network and "EXT-001" not in rules and _ACQUIRE.search(text) and not (old and _ACQUIRE.search(old.raw_text)):
+            add("RI-005", "External script acquisition introduced", e, old=old)
+
+    def _assess_file_operations(self, e: Evidence, old: Evidence | None, changes, add) -> None:
+        text = e.raw_text
+        rules = set(e.rule_ids)
+        urls = _urls(e)
+        is_network = self._network(e)
+        if "FS-001" in rules and re.search(r"\b(?:rm|Remove-Item)\s+", text, re.I):
+            if not old or not re.search(r"\b(?:rm|Remove-Item)\s+", old.raw_text, re.I):
+                uncertain = any(p.filename == e.filename and _group(p) == _group(e)
+                                and re.search(r"\b(?:rm|Remove-Item)\s+", p.raw_text, re.I)
+                                for p in changes.removed)
+                add("RI-006", "Destructive file operation introduced"
+                    if not uncertain else "Destructive operation changed without clear correspondence",
+                    e, old=old, status=IndicatorStatus.UNCERTAIN if uncertain else None)
+            elif _delete_flags(text) - _delete_flags(old.raw_text):
+                add("RI-006", "Deletion scope or force options expanded", e, old=old)
+            elif "SYS-001" in rules and "SYS-001" not in old.rule_ids:
+                add("RI-006", "File deletion gained elevated privileges", e, old=old)
+        if "FS-001" in rules and "SYS-001" in rules and not (old and "SYS-001" in old.rule_ids):
+            add("RI-006", "Privileged file operation introduced", e, old=old)
+        target = _sensitive_target(e)
+        prior_target = _sensitive_target(old) if old else None
+        new_credential_read = (
+            "FS-003" in rules and "CRED-002" in rules and bool(target)
+            and (old is None or target != prior_target or "FS-003" not in old.rule_ids)
+        )
+        if new_credential_read:
+            add("RI-007", "Read operation newly targets a recognized credential file", e, old=old)
+        if is_network and "CRED-001" in rules and _CREDENTIAL.search(text):
+            before_credential = bool(old and _CREDENTIAL.search(old.raw_text))
+            before_hosts = {_host(u) for u in _urls(old)} if old else set()
+            current_hosts = {_host(u) for u in urls}
+            if not before_credential or before_hosts != current_hosts:
+                reason = (
+                    "Outbound network operation introduces a credential reference"
+                    if not before_credential else
+                    "Credential-bearing network operation changes destination"
+                )
+                add("RI-007", reason, e, old=old)
+        if "SYS-002" in rules and _SYSTEM_CHANGE.search(text):
+            add("RI-008", "System or permissions modification introduced or changed", e, old=old)
+        if rules & {"FS-001", "FS-002", "FS-003"} and target and (
+            target != prior_target or not old or
+            (rules & {"FS-002", "FS-003"}) != (set(old.rule_ids) & {"FS-002", "FS-003"})
+        ):
+            add("RI-009", "File operation newly targets a recognized sensitive path", e, old=old)
+
+    @staticmethod
+    def _assess_script_invocation(e: Evidence, old: Evidence | None, previous,
+                                  base_hashes, derived_hashes, add) -> None:
+        script = _script(e)
+        if script:
+            prior_scripts = [p for p in previous if p.filename == e.filename and _script(p)]
+            if not prior_scripts:
+                add("RI-010", "Local script invocation introduced", e)
+            elif old and (old_script := _script(old)) and old_script != script:
+                before_hash = base_hashes.get(old_script)
+                after_hash = derived_hashes.get(script)
+                if before_hash and after_hash and before_hash != after_hash:
+                    add("RI-010", "Invoked local script has different known content", e, old=old)
+                elif not (before_hash and after_hash):
+                    add("RI-010", "Local script target changed; sibling content unavailable", e,
+                        old=old, status=IndicatorStatus.UNCERTAIN)
+            elif old is None:
+                add("RI-010", "Local script invocation changed without clear correspondence", e,
+                    status=IndicatorStatus.UNCERTAIN)
 
     @staticmethod
     def _external_instructions(comparison: AnalysisComparison, add) -> None:
@@ -414,11 +460,14 @@ class RiskAssessor:
 
     @staticmethod
     def _network(e: Evidence) -> bool:
+        if ("NET-001" in e.rule_ids and e.kind in {"url_reference", "markdown_link"}
+                and _values(e, "documented_operation")):
+            return True
         if "NET-002" not in e.rule_ids or e.kind not in {"shell_command", "api_call"}:
             return False
         if e.kind == "api_call":
             call = _operation(e) or ""
-            return call == "fetch" or call == "axios" or call.startswith(
+            return call in {"fetch", "axios", "urllib.request.urlopen"} or call.startswith(
                 ("requests.", "httpx.", "axios.")
             )
         return bool(re.match(r"^\s*(?:curl|wget|Invoke-WebRequest|Invoke-RestMethod)\b", e.raw_text, re.I))

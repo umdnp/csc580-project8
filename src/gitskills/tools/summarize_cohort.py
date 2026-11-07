@@ -7,19 +7,19 @@ import os
 import sys
 from pathlib import Path
 
-from gitskills.analysis.family_models import SimilarityPolicy
 from gitskills.pipelines.cohort import summarize_cohort
 from gitskills.reporting.cohort_summary import ResearchInputError
 from ._family_input import read_family_names
+from ._family_args import add_family_input, add_similarity_options, similarity_policy
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    families = parser.add_mutually_exclusive_group(required=True)
-    families.add_argument("name", nargs="?", help="Exact candidate-family name")
-    families.add_argument("--input", type=Path,
-                          help="UTF-8 list of names, one per line; blank lines and # comments ignored")
-    parser.add_argument("--limit", type=int, help="With --input, process at most N families")
+    add_family_input(
+        parser, name_help="Exact candidate-family name",
+        input_help="UTF-8 list of names, one per line; blank lines and # comments ignored",
+        limit_help="With --input, process at most N families", input_metavar=None,
+    )
     parser.add_argument("--db", type=Path, help="Prepared DuckDB (default: $GITSKILLS_DB)")
     parser.add_argument("--output", required=True, type=Path, help="Research results directory")
     parser.add_argument("--scan-cache", type=Path,
@@ -38,11 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--relationship-annotations", type=Path,
                         help="Adjudicated relationship review CSV (a copy of the template)")
     parser.add_argument("--approval-reference", help="Reference to cohort selection approval")
-    parser.add_argument("--shingle-size", type=int, default=5)
-    parser.add_argument("--min-containment", type=float, default=0.80)
-    parser.add_argument("--min-jaccard", type=float, default=0.30)
-    parser.add_argument("--min-shared-shingles", type=int, default=5)
-    parser.add_argument("--direction-margin", type=float, default=0.10)
+    add_similarity_options(parser)
     return parser
 
 
@@ -61,11 +57,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     try:
         names = read_family_names(args.input, args.limit) if args.input else [args.name]
-        policy = SimilarityPolicy(
-            shingle_size=args.shingle_size, min_containment=args.min_containment,
-            min_jaccard=args.min_jaccard, min_shared_shingles=args.min_shared_shingles,
-            direction_containment_margin=args.direction_margin,
-        )
+        policy = similarity_policy(args)
     except (ValueError, OSError) as exc:
         parser.error(str(exc))
     try:

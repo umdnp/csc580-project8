@@ -16,8 +16,10 @@ from gitskills.analysis.family_risk import FamilyRiskAnalyzer
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.data.siblings import DuckDBSiblingRepository
 from gitskills.reporting.cohort_summary import (
-    RelationshipSampler, ResearchInputError, _read_report, _rows, _sample,
-    apply_adjudications, summarize,
+    RelationshipSampler, ResearchInputError, apply_adjudications, summarize,
+)
+from gitskills.reporting.cohort_records import (
+    read_scan_report, validated_pair_rows, sample_directed_pairs,
 )
 
 from .provenance import (
@@ -68,8 +70,8 @@ def _scan_matches(scan: dict, name: str, records: list[dict], skipped: list[dict
             or scan.get("skipped_artifacts") != skipped):
         return False
     try:
-        _read_report(scan)
-        _rows(scan)  # Validate recorded directed pairs and aggregate counts.
+        read_scan_report(scan)
+        validated_pair_rows(scan)  # Validate recorded directed pairs and aggregate counts.
     except (KeyError, TypeError, ValueError, ResearchInputError):
         return False
     return True
@@ -141,7 +143,8 @@ def _review_exists(results: Path) -> bool:
 def _research_fingerprint() -> str:
     """Fingerprint the orchestration and summarization logic used for this cohort."""
     digest = hashlib.sha256()
-    for path in (Path(__file__), Path(__file__).resolve().parents[1] / "reporting" / "cohort_summary.py"):
+    for path in (Path(__file__), *(Path(__file__).resolve().parents[1] / "reporting" / name
+                                   for name in ("cohort_summary.py", "cohort_records.py"))):
         digest.update(path.name.encode("utf-8"))
         digest.update(path.read_bytes())
     return digest.hexdigest()
@@ -390,7 +393,7 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                 _atomic_json(cache_manifest, {"version": _CACHE_VERSION, "families": entries})
         if cached is not None and family_analysis is not None:
             _verify_lineage(family_analysis, scan)
-        _rows(scan)  # Reject internally inconsistent results before research outputs.
+        validated_pair_rows(scan)  # Reject internally inconsistent results before research outputs.
         scans.append(scan)
         snapshots.append({
             "name": name, "scan_report": path.name, "scan_cache_key": cache_key,
@@ -423,12 +426,12 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                              approval_reference)
     sample["cohort_implementation_fingerprint"] = _research_fingerprint()
     if per_stratum is not None:
-        rows = sorted((item for scan in scans for item in _rows(scan)),
+        rows = sorted((item for scan in scans for item in validated_pair_rows(scan)),
                       key=lambda row: (row["family"], row["cluster"], row["base_artifact_id"],
                                        row["derived_artifact_id"]))
         # Prevent silent replacement of independently adjudicated sampled pairs.
         sample["review_sample_fingerprint"] = fingerprint({
-            "directed": _sample(rows, per_stratum, seed),
+            "directed": sample_directed_pairs(rows, per_stratum, seed),
             "relationships": selected_relationships,
         })
     protect_snapshot(results / "sample_manifest.json", sample)

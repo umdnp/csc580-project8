@@ -8,19 +8,13 @@ from gitskills.analysis.family_risk import FamilyRiskAnalyzer
 from gitskills.analysis.family_risk_models import FamilyRiskAnalysis, SiblingFile
 from gitskills.data.families import FamilyLoad
 
+from .source_fields import SOURCE_FIELDS
+
 
 def source_records(loaded: FamilyLoad) -> list[dict]:
     """Return a stable source reference for every analyzable artifact."""
     return [
-        {
-            "artifact_id": item.artifact_id,
-            "group_id": item.group_id,
-            "repo_full_name": item.repo_full_name,
-            "path": item.path,
-            "file_sha": item.file_sha,
-            "sibling_file_count": item.sibling_file_count,
-            "sibling_content_sha": item.sibling_content_sha,
-        }
+        {field: getattr(item, field) for field in SOURCE_FIELDS}
         for item in sorted(loaded.artifacts, key=lambda artifact: artifact.artifact_id)
     ]
 

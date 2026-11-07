@@ -12,6 +12,7 @@ from .evidence_extractors import (
     ShellExtractor,
     SourceSpan,
     UrlExtractor,
+    described_network_operation,
 )
 from .evidence_models import Evidence, EvidenceContext, ExtractionStatus
 from .evidence_normalizer import EvidenceNormalizer
@@ -223,7 +224,7 @@ class EvidenceExtractor:
         for match in matches:
             if not self._valid_offsets(text, match):
                 continue
-            candidates.append(self._candidate(text, match, contexts))
+            candidates.append(self._candidate(text, match, contexts, filename))
         # Prefer the complete containing construct, rather than one URL or
         # credential record for each regex match inside the same command.
         priority = {"shell_command": 0, "api_call": 1, "markdown_link": 2}
@@ -331,7 +332,7 @@ class EvidenceExtractor:
                 and 0 <= match.start_offset < match.end_offset <= len(text))
 
     def _candidate(
-        self, text: str, match: RuleMatch, contexts: _SourceContext,
+        self, text: str, match: RuleMatch, contexts: _SourceContext, filename: str,
     ) -> SourceSpan:
         start, end = match.start_offset, match.end_offset
         assert start is not None and end is not None
@@ -340,7 +341,8 @@ class EvidenceExtractor:
             language = opener.group(1).lower() if opener else ""
             return SourceSpan("shell_code_block", start, end, values=(("language", language),))
         matched = text[start:end]
-        if (re.match(r"(?:requests\.|httpx\.|axios(?:\.|\s*\()|fetch\s*\(|"
+        if (re.match(r"(?:urllib\.request\.urlopen\s*\(|"
+                     r"requests\.|httpx\.|axios(?:\.|\s*\()|fetch\s*\(|"
                      r"fs(?:\.promises)?\.|subprocess\.|os\.system\s*\(|"
                      r"open\s*\(|\.[\w]+\s*\()", matched, re.I)
                 or match.rule_id == "FS-002"):
@@ -349,7 +351,7 @@ class EvidenceExtractor:
             reference = self._shell.referenced_command(text, start, end)
             if reference is not None:
                 return reference
-        if match.rule_id in {"CMD-002", "NET-002", "FS-001", "FS-003", "EXT-001", "EXT-002", "SYS-001", "SYS-002"}:
+        if match.rule_id in {"CMD-002", "NET-002", "FS-001", "FS-003", "EXT-001", "EXT-002", "EXT-003", "EXT-004", "SYS-001", "SYS-002"}:
             bounds = contexts.inline_code_bounds(start)
             if bounds is not None and end <= bounds[1]:
                 # Isolate a command from neighboring backtick spans and prose.
@@ -360,7 +362,13 @@ class EvidenceExtractor:
                 return replace(span, start=span.start + left, end=span.end + left)
             return self._shell.extract(text, start, end)
         if match.rule_id == "NET-001":
-            return self._url.extract(text, start, end)
+            span = self._url.extract(text, start, end)
+            context = contexts.at(start, span, filename)
+            if context.kind in {"markdown_prose", "markdown_link", "inline_code"}:
+                operation = described_network_operation(text, start)
+                if operation:
+                    return replace(span, values=(*span.values, ("documented_operation", operation)))
+            return span
         if match.rule_id in {"CRED-001", "CRED-002"}:
             kind = "credential_file" if match.rule_id == "CRED-002" else "credential_reference"
             return self._reference.extract(text, start, end, kind=kind)
