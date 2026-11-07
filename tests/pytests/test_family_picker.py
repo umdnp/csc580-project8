@@ -1,185 +1,196 @@
-"""Sampling quotas, eligibility, and reproducible pipeline handoff."""
+"""Stratified family selection, directed eligibility, and reproducible outputs."""
 
-from itertools import combinations
+from hashlib import sha1
 import json
 
 import duckdb
 import pytest
 
+from gitskills.analysis.family_models import SimilarityPolicy
+from gitskills.sampling import families as sampling
 from gitskills.tools import family_picker as picker
 from gitskills.tools._family_input import read_family_names
 
 
+BODY = "Read and document the available source project configuration. " * 18
+
+
 @pytest.fixture
 def database(tmp_path):
-    path = tmp_path / "families.db"
-    connection = duckdb.connect(str(path))
-    connection.execute("CREATE TABLE artifact_groupings(name VARCHAR, artifact_id BIGINT, sibling_content_sha VARCHAR)")
-    connection.execute("CREATE TABLE artifacts(id BIGINT, content VARCHAR, file_sha VARCHAR)")
-    records = [
-        ("siblings", "same", "a", "text"),
-        ("siblings", "same", "b", "text"),
-        ("identical", "same", "a", "text"),
-        ("identical", "same", "a", "text"),
-        ("unknown", "same", None, "text"),
-        ("unknown", "same", "b", "text"),
-        ("mixed", "one", None, "text"),
-        ("mixed", "one", "a", "text"),
-        ("mixed", "one", "a", "text"),
-        ("mixed", "one", "b", "text"),
-        ("mixed", "two", None, "text"),
-        ("mixed", "two", "c", "text"),
+    path = tmp_path / "families.duckdb"
+    with duckdb.connect(str(path)) as connection:
+        connection.execute("""
+            CREATE TABLE artifacts (
+                id BIGINT, file_sha VARCHAR, content VARCHAR,
+                repo_full_name VARCHAR, path VARCHAR, first_commit_at VARCHAR
+            );
+            CREATE TABLE artifact_groupings (
+                id BIGINT, artifact_id BIGINT, repo_id BIGINT, name VARCHAR,
+                normalized_description VARCHAR, sibling_file_count BIGINT,
+                sibling_content_sha VARCHAR
+            );
+            CREATE TABLE repos (id BIGINT, created_at VARCHAR);
+        """)
+        records = [
+            ("eligible", BODY, "base", "2026-01-01"),
+            ("eligible", BODY + "\nDocument the changed URL.\n", "derived", "2026-01-02"),
+            ("identical", BODY, "same", "2026-01-01"),
+            ("identical", BODY, "same", "2026-01-02"),
+            ("unknown", BODY, None, "2026-01-01"),
+            ("unknown", BODY, "known", "2026-01-02"),
+            ("ambiguous", BODY, "base", None),
+            ("ambiguous", BODY, "derived", None),
+            ("#unrepresentable", BODY, "base", "2026-01-01"),
+            ("#unrepresentable", BODY + "\nUpdate.\n", "derived", "2026-01-02"),
+        ]
+        for artifact_id, (name, content, sibling, timestamp) in enumerate(records, 1):
+            connection.execute(
+                "INSERT INTO artifacts VALUES (?, ?, ?, ?, 'skills/skill.md', ?)",
+                [artifact_id, sha1(content.encode()).hexdigest(), content, f"team/repo{artifact_id}", timestamp],
+            )
+            connection.execute("INSERT INTO repos VALUES (?, '2025-01-01')", [artifact_id])
+            connection.execute("INSERT INTO artifact_groupings VALUES (?, ?, ?, ?, 'desc', 0, ?)",
+                               [artifact_id, artifact_id, artifact_id, name, sibling])
+    return path
+
+
+def test_hash_distinct_query_omits_exact_duplicates_and_bad_names(database):
+    candidates = {row["name"]: row for row in sampling.load_candidates(database)}
+    assert "eligible" in candidates
+    assert candidates["eligible"]["unique_variants"] == 2
+    assert "identical" not in candidates
+    assert "#unrepresentable" not in candidates
+    assert "unknown" in candidates  # Candidate, but not a usable pair.
+
+
+def test_fast_pair_validation_rejects_unknown_sibling_state(database):
+    with duckdb.connect(str(database), read_only=True) as connection:
+        assert sampling._hash_pair_counts(connection, "identical")["usable_pair_count"] == 0
+        assert sampling._hash_pair_counts(connection, "unknown")["usable_pair_count"] == 0
+        assert sampling._hash_pair_counts(connection, "eligible")["usable_pair_count"] == 1
+
+
+def test_relationship_check_requires_a_usable_primary_directed_edge(database):
+    candidates = {row["name"]: row for row in sampling.load_candidates(database)}
+    good = sampling.validate_family(database, candidates["eligible"])
+    assert good["primary_directed_relationships"] >= 1
+    assert good["usable_pair_count"] == 1
+    unknown = sampling.validate_family(database, candidates["unknown"])
+    assert unknown["primary_directed_relationships"] == 0
+    assert unknown["usable_pair_count"] == 0
+    ambiguous = sampling.validate_family(database, candidates["ambiguous"])
+    assert ambiguous["usable_pair_count"] == 1
+    assert ambiguous["primary_directed_relationships"] == 0
+
+
+def test_stratum_quotas_and_remainder_ties():
+    assert sampling.allocate_groups(100) == [20, 55, 20, 4, 1]
+    assert sampling.allocate_groups(10) == [2, 6, 2, 0, 0]
+    assert sum(sampling.allocate_groups(31)) == 31
+    with pytest.raises(ValueError, match="sample_size"):
+        sampling.allocate_groups(0)
+
+
+def test_large_allocations_use_exact_integer_remainders():
+    for size in (1, 3, 31, 101, 1001, 10**18 + 77):
+        quotas = sampling.allocate_groups(size)
+        assert sum(quotas) == size
+        assert all(quota >= 0 for quota in quotas)
+
+
+def test_shortages_fail_before_any_relationship_validation(tmp_path, monkeypatch):
+    db = tmp_path / "unused.duckdb"
+    db.touch()
+    monkeypatch.setattr(sampling, "STRATA", (("Low", 2, 2, 50), ("Medium", 3, 15, 50)))
+    monkeypatch.setattr(sampling, "load_candidates", lambda _: [
+        {"name": "only-low", "artifact_count": 2, "unique_variants": 2},
+    ])
+    monkeypatch.setattr(sampling, "validate_family", lambda *a, **kw:
+                        pytest.fail("No validation should run when quotas are impossible"))
+    monkeypatch.setattr(sampling.duckdb, "connect", lambda *a, **kw:
+                        pytest.fail("No connection needed after candidate discovery"))
+    with pytest.raises(ValueError, match="Medium: requested 1 families"):
+        sampling.pick_families(database=db, sample_size=2, seed=5801)
+
+
+def test_picker_replaces_failed_candidate_and_tracks_exclusions(tmp_path, monkeypatch):
+    db = tmp_path / "unused.duckdb"
+    db.touch()
+    # A size-1 sample allocates the single slot to Medium.
+    candidates = [
+        {"name": f"test-{i}", "artifact_count": 3, "unique_variants": 2}
+        for i in range(6)
     ]
-    for identifier, (name, sha, sibling, content) in enumerate(records):
-        connection.execute("INSERT INTO artifacts VALUES (?, ?, ?)", [identifier, content, sha])
-        connection.execute("INSERT INTO artifact_groupings VALUES (?, ?, ?)", [name, identifier, sibling])
-    connection.close()
-    return path, records
-
-
-def test_selected_hash_counts_match_explicit_pairs(database):
-    path, records = database
-    with duckdb.connect(str(path), read_only=True) as connection:
-        result = {f["name"]: picker.validate_family(connection, f)
-                  for f in picker.load_candidates(path)}
-    for name, family in result.items():
-        members = [(sha, sibling) for n, sha, sibling, content in records
-                   if n == name and content is not None and content.strip() and sha.strip()]
-        expected = sum(a != b or (s is not None and t is not None and s != t)
-                       for (a, s), (b, t) in combinations(members, 2))
-        assert family["usable_pair_count"] == expected
-        assert family["usable_artifact_count"] == len(members)
-    assert result["siblings"]["usable_pair_count"] == 1
-    assert result["identical"]["usable_pair_count"] == 0
-    assert result["unknown"]["usable_pair_count"] == 0
-
-
-def test_candidate_pool_does_not_read_content(database):
-    path, _ = database
-    with duckdb.connect(str(path)) as connection:
-        connection.execute("ALTER TABLE artifacts DROP COLUMN content")
-    candidates = {f["name"]: f for f in picker.load_candidates(path)}
-    assert candidates["siblings"]["potential_pair_count"] == 1
-    assert candidates["unknown"]["potential_pair_count"] == 1
-
-
-def test_fixed_snapshot_exclusions_are_applied(database):
-    path, _ = database
-    exclusions = json.loads(picker.DEFAULT_EXCLUSIONS.read_text(encoding="utf-8"))["families"]
-    assert len(exclusions) == len(set(exclusions)) == 617
-    with duckdb.connect(str(path)) as connection:
-        connection.execute("INSERT INTO artifact_groupings VALUES (?, 999, NULL), (?, 1000, NULL)",
-                           [exclusions[0], exclusions[0]])
-    assert exclusions[0] not in {f["name"] for f in picker.load_candidates(path)}
-
-
-def test_failed_candidates_are_replaced_in_the_same_group():
-    config = {"sampling": {"sample_size": 2}, "eligibility": {"min_usable_pairs": 1},
-              "groups": [{"name": "Low", "min_artifacts": 2, "percentage": 100}]}
-    candidates = [{"name": str(n), "artifact_count": 2, "usable_pair_count": 1} for n in range(4)]
+    monkeypatch.setattr(sampling, "load_candidates", lambda _: candidates)
     checked = []
 
-    def validate(family):
-        checked.append(family["name"])
-        return {**family, "usable_pair_count": 0 if len(checked) == 1 else 1}
+    class Connection:
+        def close(self):
+            pass
 
-    selected, summaries = picker.select_sample(candidates, config, 580, validate)
-    assert len(selected) == 2
-    assert len(checked) == len(set(checked)) == 3
-    assert summaries[0]["rejected_families"] == checked[:1]
-    assert checked[0] not in {f["name"] for f in selected}
+    monkeypatch.setattr(sampling.duckdb, "connect", lambda *a, **kw: Connection())
 
+    def validate(_, candidate, **kwargs):
+        checked.append(candidate["name"])
+        return {**candidate, "usable_pair_count": 1,
+                "primary_directed_relationships": int(len(checked) > 1)}
 
-@pytest.mark.parametrize("size, expected", [(10, [2, 6, 1, 1, 0]), (100, [20, 60, 14, 5, 1])])
-def test_agreed_allocations(size, expected):
-    config = {"sampling": {"sample_size": size}, "groups": [
-        {"percentage": percentage} for percentage in [20, 60, 14, 5, 1]]}
-    assert picker.allocate_groups(config) == expected
-
-
-def test_remainder_ties_follow_group_order_and_zero_stays_zero():
-    config = {"sampling": {"sample_size": 1}, "groups": [
-        {"percentage": 0}, {"percentage": 50}, {"percentage": 50}]}
-    assert picker.allocate_groups(config) == [0, 1, 0]
-
-
-@pytest.mark.parametrize("before, after", [
-    ("sample_size = 10", "sample_size = 0"),
-    ('seed = ""', 'seed = "abc"'),
-    ("percentage = 20", "percentage = 21"),
-    ("min_artifacts = 3", "min_artifacts = 2"),
-    ("min_usable_pairs = 1", "min_usable_pairs = 0"),
-])
-def test_invalid_config_rejected(tmp_path, before, after):
-    path = tmp_path / "bad.toml"
-    text = '''[sampling]
-sample_size = 10
-seed = ""
-allocation_method = "largest_remainder"
-[eligibility]
-min_usable_pairs = 1
-[[groups]]
-name = "Low"
-min_artifacts = 2
-max_artifacts = 2
-percentage = 20
-[[groups]]
-name = "Other"
-min_artifacts = 3
-percentage = 80
-'''
-    path.write_text(text.replace(before, after), encoding="utf-8")
-    with pytest.raises(ValueError):
-        picker.load_config(path)
+    monkeypatch.setattr(sampling, "validate_family", validate)
+    sample = sampling.pick_families(database=db, sample_size=1, seed=5801,
+                                   exclude_names={"test-0"})
+    assert len(sample.names) == 1
+    assert sample.names[0] != "test-0"
+    assert len(checked) == 2
+    assert sample.excluded_count == 1
+    assert sample.groups[1]["rejected_families"][0]["reason"] == "no_usable_primary_edge"
+    checked.clear()
+    again = sampling.pick_families(database=db, sample_size=1, seed=5801,
+                                   exclude_names={"test-0"})
+    assert sample.names == again.names
 
 
-def test_sampling_is_order_independent_and_without_replacement():
-    config = {"sampling": {"sample_size": 5}, "eligibility": {"min_usable_pairs": 1},
-              "groups": [{"name": "Low", "min_artifacts": 2, "percentage": 100}]}
-    candidates = [{"name": str(n), "artifact_count": 2, "usable_pair_count": 1} for n in range(20)]
-    first, _ = picker.select_sample(candidates, config, 999999999999999999999999)
-    again, _ = picker.select_sample(list(reversed(candidates)), config, 999999999999999999999999)
-    assert first == again
-    assert len({f["name"] for f in first}) == 5
-    with pytest.raises(ValueError, match="only 2 are eligible"):
-        picker.select_sample(candidates[:2], config, 580)
+def test_cli_writes_directly_and_never_overwrites(database, tmp_path, monkeypatch, capsys):
+    # Exercise CLI integration with an actual FamilyAnalyzer on a small test database.
+    monkeypatch.setattr(sampling, "STRATA", (("Any", 2, None, 100),))
+    output = tmp_path / "selected"
+    arguments = ["--db", str(database), "--sample-size", "1", "--seed", "5801", "--output", str(output)]
+    # Remove the candidates which cannot pass validation, leaving the directed case.
+    excluded = tmp_path / "prior.txt"
+    excluded.write_text("ambiguous\nunknown\n", encoding="utf-8")
+    arguments += ["--exclude-files", str(excluded), "--verbose"]
+    assert picker.main(arguments) == 0
+    messages = capsys.readouterr()
+    assert messages.out.splitlines() == ["eligible"]
+    assert "Checking" in messages.err
+    assert read_family_names(output / "families.txt") == ["eligible"]
+    manifest = json.loads((output / "sampling_report.json").read_text(encoding="utf-8"))
+    assert manifest["seed"] == 5801
+    assert manifest["groups"][0]["percentage"] == 100
+    assert manifest["similarity_policy"] == SimilarityPolicy().to_dict()
+    assert manifest["exclusion_files"][0]["sha256"]
+    assert manifest["excluded_families"] == 2
+    before = (output / "families.txt").read_bytes()
+    assert picker.main(arguments) == 1
+    assert "already exist" in capsys.readouterr().err
+    assert (output / "families.txt").read_bytes() == before
 
 
-def test_headless_handoff_and_saved_seed_replay(database, tmp_path, monkeypatch, capsys):
-    path, _ = database
-    config = tmp_path / "picker.toml"
-    config.write_text('''[sampling]
-sample_size = 2
-seed = ""
-allocation_method = "largest_remainder"
-[eligibility]
-min_usable_pairs = 1
-[[groups]]
-name = "All"
-min_artifacts = 2
-percentage = 100
-''', encoding="utf-8")
-    output = tmp_path / "samples"
-    monkeypatch.setattr(picker.secrets, "randbits", lambda _: 123456789)
-    argv = ["--config", str(config), "--db", str(path), "--output", str(output)]
-    assert picker.main(argv) == 0
-    printed = capsys.readouterr()
-    assert "Seed: 123456789" in printed.err
-    run = next(output.iterdir())
-    names = read_family_names(run / "families.txt")
-    assert printed.out.splitlines() == names
-    assert set(names) == {"siblings", "mixed"}
-    manifest = json.loads((run / "sample.json").read_text(encoding="utf-8"))
-    assert manifest["seed"] == 123456789
-    config.write_text(config.read_text().replace('seed = ""', 'seed = 123456789'))
-    assert picker.main(argv) == 0
-    assert capsys.readouterr().out.splitlines() == names
-    assert len(list(output.iterdir())) == 2
-
-
-def test_shortage_creates_no_sample(database, tmp_path, capsys):
-    path, _ = database
-    output = tmp_path / "samples"
-    assert picker.main(["--db", str(path), "--output", str(output)]) == 1
-    assert "only" in capsys.readouterr().err
+def test_shortage_does_not_write_files(database, tmp_path, capsys):
+    output = tmp_path / "empty"
+    assert picker.main(["--db", str(database), "--sample-size", "100", "--output", str(output)]) == 1
+    assert "requested" in capsys.readouterr().err
     assert not output.exists()
+
+
+def test_invalid_exclusion_file_fails_before_sampling(database, tmp_path, capsys):
+    output = tmp_path / "out"
+    assert picker.main(["--db", str(database), "--exclude-files", str(tmp_path / "missing.txt"),
+                        "--output", str(output)]) == 1
+    assert not output.exists()
+    assert "Unable to generate" in capsys.readouterr().err
+
+
+def test_name_representation_round_trips():
+    assert sampling._representable("code-review; echo harmless")
+    for name in ["#comment", " leading", "trailing ", "two\nlines", ""]:
+        assert not sampling._representable(name)

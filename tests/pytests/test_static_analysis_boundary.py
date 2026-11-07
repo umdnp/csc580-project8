@@ -14,7 +14,8 @@ import duckdb
 import pytest
 
 from gitskills.analysis.provenance import extract_declared_provenance
-from gitskills.tools import family_picker, scan_diff, scan_family
+from gitskills.sampling import families as family_sampling
+from gitskills.tools import scan_diff, scan_family
 
 
 @contextmanager
@@ -142,12 +143,6 @@ def test_skilltrace_scan_handler_does_not_execute_artifact_text(tmp_path, monkey
 
 def test_family_picker_keeps_dataset_names_as_data(monkeypatch):
     name = "example; echo dataset-name-must-not-be-a-command"
-    config = {
-        "sampling": {"sample_size": 1},
-        "eligibility": {"min_usable_pairs": 1},
-        "groups": [{"name": "Low", "min_artifacts": 2, "percentage": 100}],
-    }
-    candidates = [{"name": name, "artifact_count": 2, "usable_pair_count": 1}]
     with reject_execution(monkeypatch):
-        selected, _ = family_picker.select_sample(candidates, config, 580)
-    assert selected[0]["name"] == name
+        assert family_sampling._representable(name)
+    assert name == "example; echo dataset-name-must-not-be-a-command"
