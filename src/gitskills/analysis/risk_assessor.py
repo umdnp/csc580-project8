@@ -56,8 +56,8 @@ _SYSTEM_CHANGE = re.compile(
     r"(?!-)[\w./~$-]+(?=\s|$))", re.I,
 )
 _INSTALL = re.compile(
-    r"\b(?:pip\d*|npm|apt(?:-get)?|dnf|yum|brew)\s+(?:install|i)\b|"
-    r"\b(?:pnpm|yarn|bun)\s+add\b", re.I,
+    r"\b(?:pip\d*|npm|apt(?:-get)?|dnf|yum|brew)\s+(?:install|i|ci)\b|"
+    r"\b(?:pnpm|yarn|bun)\s+(?:add|install)\b", re.I,
 )
 _INSTALL_SOURCE = re.compile(
     r"(?P<option>--index-url|--extra-index-url|--registry|--find-links)"
@@ -195,6 +195,47 @@ def _js_install_pairs(changes) -> dict[Evidence, Evidence]:
     return pairs
 
 
+def _manifest_install_key(e: Evidence) -> tuple[str, str | None, str] | None:
+    """Pair project installs across managers without inventing package targets."""
+    if e.kind != "shell_command" or "EXT-004" not in e.rule_ids:
+        return None
+    try:
+        parts = shlex.split(e.raw_text)
+    except ValueError:
+        return None
+    if len(parts) < 2:
+        return None
+    manager = parts[0].lower()
+    if manager in {"npm", "bun", "pnpm", "yarn"}:
+        kind = "javascript-project"
+    elif re.fullmatch(r"pip\d*", manager):
+        # A Python local-project install should not be equated with JS installs.
+        kind = "python-project"
+    else:
+        return None
+    return (e.filename.replace("\\", "/"), e.context.heading, kind)
+
+
+def _manifest_install_pairs(changes) -> dict[Evidence, Evidence]:
+    """Match existing project installs by location and explicit package source."""
+    previous: dict[tuple[str, str | None, str], list[Evidence]] = defaultdict(list)
+    for e in changes.removed:
+        if e.extraction_status == ExtractionStatus.COMPLETE and (key := _manifest_install_key(e)):
+            previous[key].append(e)
+    pairs: dict[Evidence, Evidence] = {}
+    for e in changes.added:
+        if e.extraction_status != ExtractionStatus.COMPLETE or not (key := _manifest_install_key(e)):
+            continue
+        candidates = previous.get(key)
+        if candidates:
+            source = _source_change(e)
+            counterpart = next((old for old in candidates if _source_change(old) == source),
+                               candidates[0])
+            pairs[e] = counterpart
+            candidates.remove(counterpart)
+    return pairs
+
+
 def _context_status(e: Evidence) -> IndicatorStatus | None:
     line = e.context.nearby_text or ""
     if _WARNING.search(line):
@@ -247,7 +288,23 @@ def _source_change(e: Evidence) -> str | None:
     if not _INSTALL.search(e.raw_text):
         return None
     match = _INSTALL_SOURCE.search(e.raw_text)
-    return (match.group("option").lower() + "=" + match.group("value").strip("\"'").lower()) if match else None
+    if match:
+        return match.group("option").lower() + "=" + match.group("value").strip("\"'").lower()
+    if "EXT-004" in e.rule_ids and re.match(r"^pip\d*\s+install\b", e.raw_text, re.I):
+        try:
+            arguments = shlex.split(e.raw_text)[2:]
+        except ValueError:
+            return None
+        for index, argument in enumerate(arguments):
+            if argument in {"-r", "--requirement", "-e", "--editable"} and index + 1 < len(arguments):
+                source = "requirements" if argument in {"-r", "--requirement"} else "project"
+                return source + "=" + arguments[index + 1].lower()
+            if re.match(r"^-(?:r|e)\S+", argument):
+                return ("requirements" if argument[1] == "r" else "project") + "=" + argument[2:].lower()
+        for argument in arguments:
+            if argument in {".", ".."} or argument.startswith(("./", "../")):
+                return "project=" + argument.lower()
+    return None
 
 
 def _sensitive_target(e: Evidence) -> str | None:
@@ -272,6 +329,7 @@ class RiskAssessor:
         changes = comparison.evidence_changes
         pairs = _pair_changes(changes)
         js_install_pairs = _js_install_pairs(changes)
+        manifest_install_pairs = _manifest_install_pairs(changes)
         base_hashes = {k.replace("\\", "/").removeprefix("./"): v
                        for k, v in (base_script_hashes or {}).items()}
         derived_hashes = {k.replace("\\", "/").removeprefix("./"): v
@@ -337,8 +395,8 @@ class RiskAssessor:
                 if old and any(urlsplit(a).scheme == "http" and
                                urlsplit(b).scheme == "https" for a in urls for b in _urls(old)):
                     add("RI-004", "Network operation changed from HTTPS to HTTP", e, old=old)
-            if "EXT-002" in rules and _INSTALL.search(text):
-                install_old = js_install_pairs.get(e) or old
+            if rules & {"EXT-002", "EXT-004"} and _INSTALL.search(text):
+                install_old = js_install_pairs.get(e) or manifest_install_pairs.get(e) or old
                 was_install = bool(install_old and _INSTALL.search(install_old.raw_text))
                 possible_replacement = any(
                     p.filename == e.filename and _group(p) == _group(e)

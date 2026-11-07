@@ -208,14 +208,14 @@ def test_markdown_inline_commands_are_separate_even_with_long_prose_and_apostrop
     analyzer = SkillAnalyzer()
     initial = analyzer.scan(base)
     later = analyzer.scan(derived)
-    assert initial.rule_counts() == {'CMD-002': 1, 'EXT-002': 1, 'FS-001': 1}
-    assert later.rule_counts() == {'CMD-002': 1, 'FS-001': 1}
+    assert initial.rule_counts() == {'CMD-002': 1, 'EXT-004': 1, 'FS-001': 1}
+    assert later.rule_counts() == {'CMD-002': 1, 'EXT-004': 1, 'FS-001': 1}
     assert [(e.raw_text, e.rule_ids) for e in initial.evidence] == [
-        ('npm install', ('CMD-002', 'EXT-002')),
+        ('npm install', ('CMD-002', 'EXT-004')),
         ('rm -rf build Pods Podfile.lock', ('FS-001',)),
     ]
     assert [(e.raw_text, e.rule_ids) for e in later.evidence] == [
-        ('npm ci', ('CMD-002',)),
+        ('npm ci', ('CMD-002', 'EXT-004')),
         ('rm -rf build Pods', ('FS-001',)),
     ]
     assert all(e.extraction_status == ExtractionStatus.COMPLETE
@@ -397,3 +397,25 @@ def test_bunx_invocation_has_complete_shell_evidence():
     assert ("command", "bunx") in command.values
     assert ("arguments", "cap sync") in command.values
     assert command.extraction_status == ExtractionStatus.COMPLETE
+
+
+def test_manifest_install_preserves_complete_shell_evidence():
+    results = SkillAnalyzer().scan("- [ ] If missing, run `bun install`.")
+    assert results.rule_counts() == {"CMD-002": 1, "EXT-004": 1}
+    command, = [e for e in results.evidence if e.kind == "shell_command"]
+    assert command.raw_text == "bun install"
+    assert command.rule_ids == ("CMD-002", "EXT-004")
+    assert command.extraction_status == ExtractionStatus.COMPLETE
+
+
+def test_bun_project_script_preserves_complete_shell_evidence():
+    results = SkillAnalyzer().scan(
+        "## Start Metro\n```bash\nbun mobile start\n```\n"
+        "Optional: `bun mobile start --reset-cache`."
+    )
+    assert results.rule_counts() == {"CMD-001": 1, "CMD-002": 2}
+    commands = [e for e in results.evidence if e.kind == "shell_command"]
+    assert [e.raw_text for e in commands] == [
+        "bun mobile start", "bun mobile start --reset-cache",
+    ]
+    assert all(e.extraction_status == ExtractionStatus.COMPLETE for e in commands)

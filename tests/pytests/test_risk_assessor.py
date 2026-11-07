@@ -551,3 +551,75 @@ def test_multiple_registries_are_not_reported_as_changed_when_reordered():
 def test_unrecognized_install_flags_are_not_assumed_equivalent():
     _, assessment = _check("bun add foo", "npm install foo --global")
     assert "RI-005" in {i.indicator_id for i in assessment.supported}
+
+
+@pytest.mark.parametrize(("base", "derived"), (
+    ("npm install", "bun install"),
+    ("bun install", "yarn install"),
+    ("yarn install", "pnpm install"),
+    ("npm install", "npm ci"),
+))
+def test_project_dependency_install_replacements_do_not_raise_ri005(base, derived):
+    comparison, assessment = _check(base, derived)
+    assert comparison.base.rule_counts()["EXT-004"] == 1
+    assert comparison.derived.rule_counts()["EXT-004"] == 1
+    assert "RI-005" not in {i.indicator_id for i in assessment.supported}
+
+
+def test_argent_react_native_manifest_swap_preserves_dependency_capability():
+    base = (
+        "## 1.1 Explore Configuration\n- [ ] `npm install`\n"
+        "## 1.2 Start Metro\n```bash\nnpx react-native start\n```\n"
+        "## 3.1 When Build Fails\n- reinstall: `npm install`\n"
+        "## 3.4 When to Reinstall\n| dependencies | `npm install` |\n"
+    )
+    derived = (
+        base.replace("npm install", "bun install")
+        .replace("npx react-native start\n", "bun mobile start\n")
+        .replace("## 3.4 When", "Optional: `bun mobile start --reset-cache`\n## 3.4 When")
+    )
+    comparison, assessment = _check(base, derived)
+    assert comparison.base.rule_counts()["EXT-004"] == 3
+    assert comparison.derived.rule_counts()["EXT-004"] == 3
+    assert comparison.derived.rule_counts()["CMD-002"] >= 5
+    assert comparison.base.profile.to_dict()["external_code_execution"]
+    assert comparison.derived.profile.to_dict()["external_code_execution"]
+    assert not comparison.introduced.to_dict()["external_code_execution"]
+    assert assessment.indicator_count == assessment.finding_count == 0
+
+
+def test_introduced_manifest_install_remains_ri005():
+    comparison, assessment = _check("", "```bash\nbun install\n```")
+    assert comparison.derived.rule_counts()["EXT-004"] == 1
+    assert any(i.indicator_id == "RI-005" for i in assessment.supported)
+
+
+def test_manifest_install_registry_change_remains_ri005_across_managers():
+    base = "npm install --registry=https://old.example.test"
+    derived = "bun install --registry=https://new.example.test"
+    comparison, assessment = _check(base, derived)
+    assert comparison.base.rule_counts()["EXT-004"] == 1
+    assert comparison.derived.rule_counts()["EXT-004"] == 1
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].reason == "Explicit package source or registry changed"
+    assert matches[0].removed[0].raw_text == base
+
+
+def test_project_install_not_equated_with_explicit_package_target():
+    comparison, assessment = _check("npm install foo", "bun install")
+    assert comparison.base.rule_counts()["EXT-002"] == 1
+    assert comparison.derived.rule_counts()["EXT-004"] == 1
+    assert any(i.indicator_id == "RI-005" for i in assessment.supported)
+
+
+def test_manifest_install_local_project_path_change_is_source_change():
+    _, assessment = _check("pip install -e .", "pip install -e ../other-project")
+    assert any(i.indicator_id == "RI-005" and "source" in i.reason.lower()
+               for i in assessment.supported)
+
+
+def test_manifest_install_requirements_file_change_is_source_change():
+    _, assessment = _check("pip install -r requirements.txt", "pip install -r other.txt")
+    assert any(i.indicator_id == "RI-005" and "source" in i.reason.lower()
+               for i in assessment.supported)

@@ -351,7 +351,7 @@ class EvidenceExtractor:
             reference = self._shell.referenced_command(text, start, end)
             if reference is not None:
                 return reference
-        if match.rule_id in {"CMD-002", "NET-002", "FS-001", "FS-003", "EXT-001", "EXT-002", "EXT-003", "SYS-001", "SYS-002"}:
+        if match.rule_id in {"CMD-002", "NET-002", "FS-001", "FS-003", "EXT-001", "EXT-002", "EXT-003", "EXT-004", "SYS-001", "SYS-002"}:
             bounds = contexts.inline_code_bounds(start)
             if bounds is not None and end <= bounds[1]:
                 # Isolate a command from neighboring backtick spans and prose.
