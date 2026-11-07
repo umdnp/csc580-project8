@@ -1,209 +1,94 @@
-# Sprint 2 Analysis Results
+# Sprint 2 Cohort
 
-## Scope
+Sprint 2 analyzes **30 purposively selected GitSkills families** using the [end-to-end notebook](../end_to_end_pipeline.ipynb). Family names are in [`samples/families.txt`](samples/families.txt); generated artifacts are under [`results/`](results/). The selection is not random, so the findings describe this cohort rather than the GitSkills population.
 
-This directory contains preliminary results from the Sprint 2 end-to-end GitSkills artifact comparison and security-signal analysis. The selected cohort contains **30 candidate families**. The pipeline compares direction-supported relationships using:
+The pipeline compares direction-supported artifact relationships, scans changes to skill bodies and available sibling files, and records security-sensitive indicators. It does not execute untrusted scripts. The configured edge selection is `all` (primary and additional comparisons); ambiguous relationships are excluded from directed-change analysis but included in relationship validation sampling.
 
-- Changes to `SKILL.md` body content and relevant sibling files (`artifact_siblings.entry_type = 'file'`).
-- Similarity, chronology, containment, declared-source, and equivalent-peer information to assess relationships and infer direction where supported.
-- Static detection rules, extracted evidence, and evidence-based risk indicators (RI-001 through RI-011).
-- Stratified samples for independent validation of directed comparisons and relationship classifications.
+**Review status:** Automated processing is complete; independent human validation and adjudication are pending. The manifest marks the cohort `provisional` (`approval_reference: null`). Draft annotation CSVs contain pending AI-assisted proposals, not accepted reviewer judgments.
 
-The notebook sets `EDGES = "all"`, so the results include **primary and additional directed edges**. Relationships whose direction is unresolved are excluded from directed security comparisons but remain eligible for relationship validation. No untrusted skill scripts are executed.
+## Results at a glance
 
-The selected families are matched by exact name against `artifact_groupings.name` in the prepared GitSkills DuckDB database. The sample is **purposively selected, not random**; results describe this cohort and should not be generalized to all GitSkills artifacts. The exact selected family names are also retained in `../samples/families.txt`; run provenance is recorded in `sample_manifest.json`.
-
-**Status:** The pipeline completed successfully, but the manifest still records the sample as `provisional` with no approval reference. The annotation files contain draft entries for 21 of 30 directed cases and all 15 relationship cases. Every row remains `pending`; the notes identify AI-assisted proposals awaiting human acceptance, and adjudication has not occurred. These preliminary records do not make the automated results validated findings of malicious behavior or completed accuracy estimates.
-
-## Artifact Coverage
-
-### Observed results
-
-| Metric | Count |
+| Measure | Count |
 |---|---:|
-| Artifact families | 30 |
-| Artifacts loaded | 1,151 |
-| Artifacts skipped | 0 |
-| Directed artifact comparisons analyzed | 3,997 |
-| Primary comparisons | 468 |
-| Additional comparisons | 3,529 |
-| Ambiguous edges excluded from directed analysis | 2,244 |
-| Comparisons with incomplete sibling evidence | 117 |
-| Comparisons with incomplete overall evidence coverage | 206 |
+| Families | 30 |
+| Artifacts loaded / skipped | 1,151 / 0 |
+| Directed comparisons | 3,997 |
+| Primary / additional comparisons | 468 / 3,529 |
+| Ambiguous relationships excluded from directed comparisons | 2,244 |
+| Flagged comparisons | 2,241 |
+| Comparisons with supported indicators | 588 |
+| Families with supported indicators | 19 |
+| Supported indicator findings | 5,551 |
 | Comparisons with evidence changes | 1,998 |
 | Comparisons with sibling evidence changes | 1,199 |
-| Flagged comparisons | 2,241 |
-| Comparisons with supported risk indicators | 588 |
-| Families containing supported indicators | 19 |
+| Comparisons with incomplete sibling evidence | 117 |
+| Comparisons with incomplete overall coverage | 206 |
 
-All **1,151 artifacts** were loaded, and all 30 selected families produced directed comparisons. No artifacts were skipped. The skipped-artifact audit contains only its header.
+Of the 3,997 directed comparisons, **3,791 (94.8%)** have complete reported evidence coverage. The 206 coverage-limited comparisons include 117 with incomplete sibling evidence; 104 of the 588 indicator-bearing comparisons have incomplete coverage. These limitations matter when interpreting absent or incomplete detections.
 
-### Understanding coverage
+Several comparisons may share artifacts or report the same underlying changes. Counts of pairs, findings, and indicators must **not** be interpreted as independent security incidents or proven copying events.
 
-The two incomplete-coverage measures refer to different limitations:
+### Supported risk indicators
 
-- **117 comparisons (2.9%)** had incomplete sibling evidence, including unavailable sibling-file content.
-- **206 comparisons (5.2%)** had incomplete overall evidence coverage, including the 117 sibling-incomplete comparisons and **89 additional comparisons** with incomplete evidence extraction but no missing sibling content.
+These counts are directed **pairs containing each indicator**, not individual matches. A pair can contribute to multiple rows. Uncertain indicators are tracked separately.
 
-Thus, **3,791 of 3,997 comparisons (94.8%)** have complete reported evidence coverage. Of the 588 indicator-bearing comparisons, **104** have incomplete evidence coverage. A supported indicator may still have observable supporting evidence in such a comparison, but the unexamined evidence limits conclusions about what else could be present.
+| Indicator | Description | Pairs |
+|---|---|---:|
+| RI-001 | Download-and-execute introduced | 96 |
+| RI-002 | Executed code source changed | 0 |
+| RI-003 | Network access expanded or redirected | 381 |
+| RI-004 | Network security weakened | 22 |
+| RI-005 | External code or dependency acquisition changed | 179 |
+| RI-006 | Destructive or privileged file operation | 41 |
+| RI-007 | Credential access or potential exposure | 231 |
+| RI-008 | System configuration or permissions changed | 53 |
+| RI-009 | Sensitive filesystem access or modification | 0 |
+| RI-010 | Local script execution introduced or changed | 413 |
+| RI-011 | External instruction dependency introduced or changed | 0 |
 
-The coverage-limited comparisons are concentrated in a small number of families: `devcontainer-setup` (65), `seo` (49), `exploiting-oauth-misconfiguration` (49), `deepread` (17), and `neurokit2` (14). These five account for 194 of the 206 coverage-limited comparisons.
+Full counts are in `results/review/indicator_frequency.csv` and `results/review/indicator_frequency_by_edge_type.csv`. A supported indicator marks observable security-sensitive evidence, **not** a confirmed vulnerability or malicious intent.
 
-The **2,244 ambiguous edges** were excluded because a reliable base-to-derived direction was not established. They are not failed scans and should not be counted as directed comparisons.
+### Family-level observations
 
-## Artifact Comparisons
-
-### Directed comparisons
-
-The pair-level output is in `review/directed_pairs.csv`. It records artifact IDs, family, cluster, edge type, direction basis, change type, rule flags, supported and uncertain indicators, evidence counts, and coverage status.
-
-| Measure | Primary | Additional | Total |
-|---|---:|---:|---:|
-| Directed comparisons | 468 | 3,529 | 3,997 |
-| Flagged comparisons | 272 | 1,969 | 2,241 |
-| Comparisons with supported indicators | 81 | 507 | 588 |
-| Comparisons with incomplete evidence coverage | 41 | 165 | 206 |
-| Reported supported finding instances | 591 | 4,960 | 5,551 |
-
-**Primary** edges represent the selected predecessor relationships; **additional** edges represent other direction-supported comparisons. Multiple comparisons can share artifacts and report overlapping or identical evidence. The 5,551 finding instances and 588 indicator-bearing comparisons are **not** counts of distinct security incidents.
-
-### Relationship validation sample
-
-The relationship sample is in `manual-review/relationship-pairs/relationship_validation_sample.csv`. It contains **15 comparisons**, selected using seed `580`:
-
-| Relationship stratum | Sampled |
-|---|---:|
-| Ambiguous direction | 5 |
-| Equivalent artifacts | 5 |
-| No related edge | 5 |
-
-These cases support checking relationship classification separately from the security scanner's directed-change findings. Direction-unknown examples are not assumed to have an earlier or derived side.
-
-### Directed-comparison validation sample
-
-The directed sample is in `manual-review/directed-pairs/validation_sample.csv`. It contains **30 comparisons**, five from each stratum:
-
-| Directed-comparison stratum | Sampled |
-|---|---:|
-| Supported indicator | 5 |
-| Uncertain indicator | 5 |
-| Sibling change | 5 |
-| Flagged without an indicator | 5 |
-| Unflagged directed comparison | 5 |
-| Coverage-limited comparison | 5 |
-
-The samples, draft annotation files, and templates are in the corresponding `manual-review/` subdirectories. The draft files currently contain 21 directed-pair entries and all 15 relationship-pair entries, but every row has review status **pending** and the notes record human acceptance as outstanding. They are not completed accuracy evaluations. Reviewers should inspect the source artifacts and sibling files, preserve independent judgments, and adjudicate disagreements without executing untrusted content. The notebook describes the optional step for incorporating completed adjudications.
-
-## Detected Security Signals
-
-The scanner evaluated **11 evidence-based risk indicators**. **Eight** have at least one supported observation in the current cohort; RI-002, RI-009, and RI-011 have none. An indicator signals an observable security-sensitive change, **not** a confirmed vulnerability or malicious intent.
-
-| Category | Indicator | Directed pairs | Share of 3,997 pairs |
-|---|---|---:|---:|
-| Download and execution | RI-001: Download-and-execute introduced | 96 | 2.40% |
-| Executed code source | RI-002: Executed code source changed | 0 | 0.00% |
-| Network access | RI-003: Network access expanded or redirected | 381 | 9.53% |
-| Network security | RI-004: Network security weakened | 22 | 0.55% |
-| External code/dependencies | RI-005: External code or dependency acquisition changed | 179 | 4.48% |
-| Destructive or privileged operations | RI-006: Destructive or privileged file operation | 41 | 1.03% |
-| Credentials | RI-007: Credential access or potential exposure | 231 | 5.78% |
-| System configuration | RI-008: System configuration or permissions changed | 53 | 1.33% |
-| Sensitive filesystem access | RI-009: Sensitive filesystem access or modification | 0 | 0.00% |
-| Local scripts | RI-010: Local script execution introduced or changed | 413 | 10.33% |
-| External instructions | RI-011: External instruction dependency introduced or changed | 0 | 0.00% |
-
-Counts represent **directed pairs containing each supported indicator**, not indicator occurrences or unique underlying changes. Categories overlap: one pair can contribute to more than one row. **Uncertain** indicators are represented separately in pair-level records and are not included in the supported-frequency counts.
-
-The full tables are `review/indicator_frequency.csv` and `review/indicator_frequency_by_edge_type.csv`.
-
-## Security-Sensitive Changes
-
-### Observed patterns
-
-The **588** indicator-bearing comparisons span several kinds of changes:
-
-- **Download-and-execute or changed script execution:** `defi-protocol-templates` and `neurokit2` provide examples involving remote or local scripts.
-- **Network and credential-bearing operations:** `seo` contains RI-003 and RI-007 evidence, including API-oriented network operations; such behavior may be legitimate.
-- **Network-security weakening:** `exploiting-oauth-misconfiguration` provides RI-004 observations; its evidence extraction is incomplete in all 49 directed comparisons, making it a manual-review priority.
-- **Changed sibling files:** `youtube-downloader` and `busybox-on-windows` illustrate why comparing only the main skill body would miss relevant changes.
-- **Benign-looking or potentially misinterpreted commands:** `PromptInjection` includes local notification requests, and `yaml-master` provides a candidate command-extraction false positive. These are useful scanner-accuracy checks, not evidence of compromise.
-
-These examples should be evaluated in their source context. Package installation, local network requests, credential-bearing API calls, file removal, and permission changes can all be legitimate. The scanner does not establish author intent, exploitability, or actual harm.
-
-**Source-context caveat:** The manifest includes artifacts from benchmark or security-test repositories such as `lxyeternal/MalSkillBench` and `ISAQQSAI/SkillAttack`. Such artifacts are useful positive or adversarial controls, but should be distinguished from ordinary observed reuse when interpreting results. Their presence is not evidence of a real-world supply-chain compromise.
-
-## Family-Level Comparison Summary
-
-The complete per-family table is in `review/families.csv`. Examples of notably different comparison patterns include:
-
-| Family | Directed pairs | With supported indicators | Why it is useful |
+| Family | Directed pairs | Pairs with supported indicators | Useful for |
 |---|---:|---:|---|
-| `seo` | 1,136 | 298 | Many comparisons; network and credential-related evidence |
-| `defi-protocol-templates` | 544 | 58 | Multiple security-sensitive behaviors, including benchmark-derived examples |
-| `python-performance-optimization` | 460 | 9 | High-volume and uncertain-indicator validation |
-| `caveman-help` | 363 | 0 | Large unflagged comparison set / negative control |
-| `neurokit2` | 285 | 55 | Download-and-execute and script-related evidence |
-| `azure-communication-sms-java` | 255 | 0 | Many flags without supported indicators |
-| `devcontainer-setup` | 249 | 52 | Diverse behaviors and substantial incomplete sibling coverage |
-| `busybox-on-windows` | 174 | 0 | Sibling-file differences and relationship-analysis examples |
+| `seo` | 1,136 | 298 | Network and credential evidence; cohort imbalance |
+| `defi-protocol-templates` | 544 | 58 | Script and dependency changes |
+| `python-performance-optimization` | 460 | 9 | High-volume comparison and uncertain indicators |
+| `caveman-help` | 363 | 0 | Unflagged comparisons |
+| `neurokit2` | 285 | 55 | Downloads and local-script changes |
+| `devcontainer-setup` | 249 | 52 | Incomplete sibling evidence |
+| `busybox-on-windows` | 174 | 0 | Sibling-file differences |
 
-`seo` alone contributes approximately **28%** of all directed comparisons and about **51%** of indicator-bearing comparisons. Results should not be interpreted as 3,997 independent observations or as a population prevalence estimate. A review sample should avoid overrepresenting near-duplicate comparisons from large families.
+The `seo` family contributes about **28%** of directed comparisons and **51%** of indicator-bearing comparisons, so large families heavily influence pooled rates. Some artifacts originate from security benchmarks or adversarial test repositories; interpret those separately from ordinary reuse.
 
-## Audit and Reproducibility
+## Validation samples
 
-The processing audit is available in `audit/processing_summary.csv` and `audit/skipped_artifacts.csv`. It confirms that all 30 families were processed, **1,151 artifacts loaded**, and **none skipped**.
+The notebook selected samples with seed `580`, up to five cases per category:
 
-The run configuration is recorded in `sample_manifest.json` and the notebook `end_to_end_pipeline.ipynb`, including:
+| Review type | Sampled cases | Categories |
+|---|---:|---|
+| Directed comparisons | 30 | Supported indicator; uncertain indicator; sibling change; flagged without indicator; unflagged directed; coverage-limited |
+| Relationships | 15 | Ambiguous direction; equivalent; no related edge |
 
-- Prepared GitSkills DuckDB input and per-family source fingerprints.
-- Exact selected family names, active detection rules, scanner scope, and code revision.
-- Similarity policy: shingle size `5`, minimum containment `0.8`, minimum Jaccard similarity `0.3`, minimum shared shingles `5`, and direction containment margin `0.1`.
-- Edge selection `all`, review sample seed `580`, and five samples per validation stratum.
-- Implementation and output fingerprints for reproducibility checks.
+Files are in `results/manual-review/directed-pairs/` and `results/manual-review/relationship-pairs/`. Each directory contains a sample CSV, an annotation template, and an `annotations.csv` with draft entries. The directed draft contains **21 pending entries**; the relationship draft contains **15 pending entries**. No completed adjudications or validated precision/recall estimates are recorded.
 
-The notebook calls `summarize_cohort()` and may reuse compatible family scan reports in `../../.scans/`; missing or stale reports are regenerated. The archive contains **30 individual family scan JSON files**, corresponding to the 30 selected families. It does not depend on saved SkillTrace reports.
+Follow the [pipeline README](../README.md) and the [Manual Annotation Protocol](../../../docs/instructions/manual_annotation_protocol.md) for independent review and adjudication. Review the original skill bodies and relevant siblings before accepting any finding; do not execute the stored commands or scripts.
 
-The manifest currently identifies this as a **provisional** cohort (`approval_reference: null`). Record the team's sample approval before presenting it as an approved Sprint 2 sample. If the sample, rules, or policy change after independent review begins, archive the earlier results and reviewer copies before regenerating samples.
+## Files and reproducibility
 
-## Figures
+| Location | Contents |
+|---|---|
+| `samples/families.txt` | Exact family names selected for analysis |
+| `results/sample_manifest.json` | Cohort selection, source details, policy, rules, and provenance checksums |
+| `results/execution_summary.json` | Execution and validation status |
+| `results/audit/` | Processing statistics and skipped artifacts |
+| `results/review/` | Cohort summary, family and edge tables, and directed-pair records |
+| `results/manual-review/` | Validation samples, templates, and review evidence |
+| `results/figures/` | `pair_outcomes.svg`, `indicators_by_family.svg`, `indicators_by_edge_type.svg`, `indicator_frequency.svg` |
+| `../.scans/` | Shared scan JSON cache used by Sprint 2 and Sprint 3 |
+| `../.scans/.metadata/scan-manifest.json` | Shared cache fingerprints and configuration metadata |
 
-Generated figures:
+To reproduce the analysis, use `SPRINT = 2` in the [notebook](../end_to_end_pipeline.ipynb), the prepared GitSkills DuckDB database, and the settings recorded in `results/sample_manifest.json`. The configured similarity policy uses shingle size `5`, minimum containment `0.8`, minimum Jaccard `0.3`, minimum shared shingles `5`, and direction containment margin `0.1`.
 
-- `figures/indicator_frequency.svg`
-- `figures/indicators_by_edge_type.svg`
-- `figures/indicators_by_family.svg`
-- `figures/pair_outcomes.svg`
-
-They summarize supported indicator frequency, edge-type and family distributions, and pair outcomes.
-
-## Limitations and Review Status
-
-1. **Independent validation is pending.** Automated flags and indicators have not been confirmed by independent reviewers or adjudication; scanner precision and recall are not established by these outputs alone.
-2. **Evidence coverage is incomplete for 206 comparisons**, including 117 with missing sibling content. Of the indicator-bearing comparisons, 104 have incomplete coverage.
-3. **2,244 ambiguous relationships** were excluded from directional analysis. Inferred direction is a reasoned classification, not proof of historical lineage or copying.
-4. **Indicators and comparisons overlap.** A single change can appear in multiple directed pairs and match multiple indicators; pair-level totals do not represent independent incidents.
-5. **Sample selection is purposive**, and large families contribute disproportionately many comparisons. No population-wide prevalence estimate should be inferred.
-6. **Benchmark and security-test artifacts** should be labeled separately from ordinary observed artifacts in analysis and interpretation.
-7. **Not all indicators were observed.** RI-002, RI-009, and RI-011 have no *supported* observations in this cohort; absence of a supported detection is not proof that the underlying behavior is absent. Uncertain observations require separate review.
-8. **Security-sensitive does not mean malicious.** Findings do not establish intent, compromise, exploitability, or harm.
-
-The consolidated research metrics are in `review/summary.json`, and the execution status is in `execution_summary.json`.
-
-## Result Inventory
-
-The result set includes:
-
-- `sample_manifest.json` — selected cohort, source artifacts, scanner configuration, and provenance fingerprints.
-- `execution_summary.json` — pipeline execution status and high-level counts.
-- `../../.scans/<family>.json` — shared family scan outputs, reusable across sprint cohorts.
-- `../../.scans/.metadata/scan-manifest.json` — shared scan-cache metadata.
-- `audit/processing_summary.csv` and `audit/skipped_artifacts.csv` — input and processing audit.
-- `review/summary.json` — consolidated metrics and validation-sample summary.
-- `review/families.csv`, `review/edge_types.csv`, and `review/direction_basis.csv` — family and relationship summaries.
-- `review/directed_pairs.csv` — pair-level changes, indicators, and coverage.
-- `review/indicator_frequency.csv` and `review/indicator_frequency_by_edge_type.csv` — supported-indicator frequencies.
-- `manual-review/directed-pairs/validation_sample.csv`, `annotations.csv`, and `annotations_template.csv` — 30 directed-comparison review cases, 21 pending draft annotation entries, and the annotation template.
-- `manual-review/relationship-pairs/relationship_validation_sample.csv`, `annotations.csv`, and `relationship_annotations_template.csv` — 15 relationship review cases, 15 pending draft annotation entries, and the annotation template.
-- Four generated SVG figures under `figures/`.
-
-This directory contains **preliminary, reproducible pipeline outputs**. Interpretations of scanner accuracy and security significance require manual validation.
+**Interpretation limits:** Source relationships and directions are inferred, not verified ancestry; missing sibling or extracted evidence limits coverage; static indicators cannot establish intent or harm; and the purposive cohort is not representative of the full dataset. Independent review is needed to assess scanner accuracy.

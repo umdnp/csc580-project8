@@ -1,37 +1,17 @@
 # Notebooks
 
-This directory contains the Jupyter notebooks used for project exploration, analysis, validation, and visualization.
+Jupyter notebooks for the GitSkills project:
 
-All project notebooks should be stored here so that notebook-based work remains organized in one location.
+- [`exploratory_analysis.ipynb`](exploratory_analysis.ipynb) — dataset exploration.
+- [`extraction_pipeline/`](extraction_pipeline/) — sample extraction and scanner exploration; see its [README](extraction_pipeline/README.md).
+- [`end_to_end_pipeline/`](end_to_end_pipeline/) — cohort analysis, security-indicator summaries, and manual-validation samples for Sprints 2 and 3; see its [README](end_to_end_pipeline/README.md).
 
-## Accessing the GitSkills Database
+## Database setup
 
-Project notebooks that use the GitSkills dataset should connect to the DuckDB version of the database.
+Notebooks requiring GitSkills data use the prepared DuckDB database. Set `GITSKILLS_DB` to its location in the environment running Jupyter:
 
-Notebooks that require database access should begin with setup code similar to the following:
-
-```python
-import os
-from pathlib import Path
-
-import duckdb
-
-DEFAULT_DB_PATH = Path(r"C:\data\duckdb\agent_skills_release.db")
-
-DB_PATH = Path(
-    os.environ.get("GITSKILLS_DB", DEFAULT_DB_PATH)
-)
-
-if not DB_PATH.exists():
-    raise FileNotFoundError(f"Database not found: {DB_PATH}")
-
-conn = duckdb.connect(database=str(DB_PATH), read_only=True)
+```bash
+export GITSKILLS_DB=/path/to/agent_skills_release.db
 ```
 
-The `GITSKILLS_DB` environment variable allows each developer to keep the DuckDB database in a different local directory without changing notebook code. If the variable is not defined, the notebook uses the default path:
-
-```text
-C:\data\duckdb\agent_skills_release.db
-```
-
-For instructions on downloading the GitSkills dataset, creating the DuckDB database, and configuring `GITSKILLS_DB`, see the [data directory README](../data/README.md).
+Some notebooks provide a local Windows fallback (`C:\data\duckdb\agent_skills_release.db`). See [data/README.md](../data/README.md) for dataset preparation and configuration.
