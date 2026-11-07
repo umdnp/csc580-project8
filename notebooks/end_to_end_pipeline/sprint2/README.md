@@ -11,7 +11,7 @@ This directory contains preliminary results from the Sprint 2 end-to-end GitSkil
 
 The notebook sets `EDGES = "all"`, so the results include **primary and additional directed edges**. Relationships whose direction is unresolved are excluded from directed security comparisons but remain eligible for relationship validation. No untrusted skill scripts are executed.
 
-The selected families are matched by exact name against `artifact_groupings.name` in the prepared GitSkills DuckDB database. The sample is **purposively selected, not random**; results describe this cohort and should not be generalized to all GitSkills artifacts. The complete family list and input provenance are recorded in `sample_manifest.json`.
+The selected families are matched by exact name against `artifact_groupings.name` in the prepared GitSkills DuckDB database. The sample is **purposively selected, not random**; results describe this cohort and should not be generalized to all GitSkills artifacts. The exact selected family names are also retained in `../samples/families.txt`; run provenance is recorded in `sample_manifest.json`.
 
 **Status:** The pipeline completed successfully, but the manifest still records the sample as `provisional` with no approval reference. The annotation files contain draft entries for 21 of 30 directed cases and all 15 relationship cases. Every row remains `pending`; the notes identify AI-assisted proposals awaiting human acceptance, and adjudication has not occurred. These preliminary records do not make the automated results validated findings of malicious behavior or completed accuracy estimates.
 

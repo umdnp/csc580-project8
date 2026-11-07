@@ -18,20 +18,40 @@ From the project root:
 
    Without this variable the notebook uses the Windows fallback `C:\data\duckdb\agent_skills_release.db`.
 4. Open `notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb` in Jupyter, starting Jupyter from the project root (for example, `uv run --with jupyterlab jupyter lab`).
-5. Edit the configuration cell: `candidate_families` (exact skill names), `POLICY`, `EDGES`, `PER_STRATUM`, `SEED`, and `APPROVAL_REFERENCE`. The provided family list is **provisional**, not an approved research sample. Set `APPROVAL_REFERENCE` only after recording the team's approval. `RUN_LABEL` determines the results subdirectory (`sprint2` by default); use a separate label such as `final` for a separately frozen run.
+5. In the configuration cell, set `SPRINT = 2` for the existing cohort or `SPRINT = 3` and `SAMPLE = 1`, `2`, or `3` for a Sprint 3 cohort. The notebook reads the corresponding `samples/families.txt` file (one family per line). Sprint 2's existing selection is included; generate each Sprint 3 selection with `family_picker` beforehand. Adjust `POLICY`, `EDGES`, `PER_STRATUM`, `SEED`, and `APPROVAL_REFERENCE` as appropriate. Set `APPROVAL_REFERENCE` only after recording the team's approval.
 6. Run the notebook cells in order through **Findings for manual review**. The final **Independent review and adjudication** cell is for *after* humans finish reviewing the samples.
 
 The notebook calls **`summarize_cohort()` directly**. You do *not* need to run `analyze_family`, `scan_family`, or `scan_diff` first. For each selected family, the summarizer computes similarity evidence as needed, reuses a compatible cached security scan (or regenerates it), and writes the cohort research outputs. A cohort can contain **one family or several**; a cluster is a group of related artifacts *within* a family.
 
 `PER_STRATUM = 5` means **up to five reviewed pairs in each validation category across the whole cohort**, not five per family. It does **not** reduce the artifacts or pairs used in the full research analysis. The notebook uses `EDGES = "all"`, covering both primary and additional direction-supported edges; ambiguous pairs are not security-scanned as directed changes.
 
-## 2. Find the outputs
+## 2. Find the inputs and outputs
 
-With `RUN_LABEL = "sprint2"`, files are under `notebooks/end_to_end_pipeline/results/sprint2/` (called `RESULT_DIR` below):
+The notebook pairs each family-selection folder with its matching results folder:
+
+```text
+notebooks/end_to_end_pipeline/
+├── end_to_end_pipeline.ipynb
+├── sprint2/
+│   ├── samples/
+│   │   └── families.txt               # Existing 30-family selection
+│   └── results/                        # Existing Sprint 2 pipeline outputs
+└── sprint3/
+    ├── samples1/                       # families.txt + optional family_picker sample.json
+    ├── results1/                       # Pipeline-generated artifacts for samples1
+    ├── samples2/
+    ├── results2/
+    ├── samples3/
+    └── results3/
+```
+
+The Sprint 3 `samplesX/` folders are empty until `family_picker` generates `families.txt` (and its selection metadata, `sample.json`). The notebook will stop with a clear error if the selected input file is missing. No pipeline-generated artifacts go into `samplesX/`.
+
+For **every** run, `RESULT_DIR` contains:
 
 ```text
 RESULT_DIR/
-├── .scans/                         # Reusable security-scan cache; not review evidence
+├── .scans/                         # Reusable security-scan cache
 │   ├── .metadata/
 │   │   └── scan-manifest.json      # Cache bookkeeping
 │   └── <family>.json               # Scan result for each family
@@ -51,19 +71,15 @@ RESULT_DIR/
 │   ├── indicator_frequency.csv
 │   ├── indicator_frequency_by_edge_type.csv
 │   └── direction_basis.csv
-├── figures/
-│   ├── indicator_frequency.svg
-│   ├── indicators_by_edge_type.svg
-│   ├── indicators_by_family.svg
-│   └── pair_outcomes.svg
-├── audit/
-│   ├── processing_summary.csv
-│   └── skipped_artifacts.csv
-├── sample_manifest.json           # Source identities, settings, sample checksums
+├── figures/                        # Generated SVG figures
+├── audit/                          # Processing and skipped-artifact CSVs
+├── sample_manifest.json           # Run provenance, inputs and validation checksums
 └── execution_summary.json         # Run status and coverage
 ```
 
-A successful automated run reports `status: "complete"` in `execution_summary.json`. **That does not mean human validation is complete.** The `.scans/` directory is an intermediate cache; the two `manual-review/` sample CSVs and the adjudicated decisions are the review evidence. You can ignore `.scans/` in Git, but retain the research outputs and adjudicated records according to your team's data-management plan.
+A successful automated run reports `status: "complete"` in `execution_summary.json`. **That does not mean human validation is complete.** The `.scans/` directory is an intermediate cache; the two `manual-review/` sample CSVs and the adjudicated decisions are review evidence. You can ignore `.scans/` in Git, but retain the research outputs and adjudicated records according to your team's data-management plan.
+
+The existing Sprint 2 outputs have been moved without regenerating or changing their results. If you rerun the Sprint 2 analysis, the notebook writes to the new `sprint2/results/` location.
 
 The run can legitimately contain **zero direction-supported pairs**. This does not establish that a skill is safe. Check `audit/skipped_artifacts.csv` and the coverage columns before drawing conclusions.
 
@@ -207,12 +223,15 @@ The end-to-end notebook generates the figures automatically as part of the analy
    ```
 
 2. Open `notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb`.
-3. Set the analysis configuration, including `RUN_LABEL`, in the configuration cell.
+3. Select `SPRINT` and (for Sprint 3) `SAMPLE` in the configuration cell.
 4. Run the notebook cells in order through **Findings for manual review**. The analysis cells create the figures from the full analyzed population; the risk-indicator cell displays the generated indicator-frequency figure.
 5. Find the generated files under:
 
    ```text
-   notebooks/end_to_end_pipeline/results/<RUN_LABEL>/figures/
+   notebooks/end_to_end_pipeline/sprint2/results/figures/    # Sprint 2
+   notebooks/end_to_end_pipeline/sprint3/results1/figures/  # Sprint 3, sample 1
+   notebooks/end_to_end_pipeline/sprint3/results2/figures/  # Sprint 3, sample 2
+   notebooks/end_to_end_pipeline/sprint3/results3/figures/  # Sprint 3, sample 3
    ```
 
 The notebook generates these SVG figures:
@@ -224,7 +243,7 @@ The notebook generates these SVG figures:
 | `indicators_by_family.svg` | Risk-indicator distribution across artifact families |
 | `pair_outcomes.svg` | Directed comparisons grouped as not flagged, flagged without a supported indicator, or containing a supported indicator |
 
-The figures summarize the full analyzed population, not only the stratified manual-review samples. Indicator counts refer to pairs containing an indicator, and one pair may contain multiple indicator types. Preserve reviewed results under a separate `RUN_LABEL` before rerunning an analysis so that generated figures and research outputs do not overwrite an already-reviewed run.
+The figures summarize the full analyzed population, not only the stratified manual-review samples. Indicator counts refer to pairs containing an indicator, and one pair may contain multiple indicator types. Preserve reviewed results separately before rerunning an existing sprint/sample combination, since regenerating figures and other research outputs can overwrite an already-reviewed run.
 
 ## 6. Automated checks and interpretation
 
