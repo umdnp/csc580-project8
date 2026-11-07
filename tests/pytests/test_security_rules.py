@@ -358,3 +358,19 @@ def test_workspace_scoped_dependency_install_is_manifest_based(command):
 def test_workspace_scoped_explicit_package_stays_ext002(command):
     assert len(RULES["EXT-002"].evaluate(command)) == 1
     assert RULES["EXT-004"].evaluate(command) == ()
+
+@pytest.mark.parametrize("identifier", (
+    "AUTH_KEY", "authKey", "auth_key", "auth-key",
+    "COMETCHAT_AUTH_KEY", "VITE_COMETCHAT_AUTH_KEY", "NEXT_PUBLIC_AUTH_KEY",
+))
+def test_credential_rule_recognizes_generic_auth_key_names(identifier):
+    matches = RULES["CRED-001"].evaluate(identifier)
+    assert len(matches) == 1
+    assert matches[0].matched_text == identifier
+
+
+@pytest.mark.parametrize("identifier", (
+    "authKeyboard", "AUTH_KEYBOARD", "AUTH_KEYS", "NOT_AN_AUTH_KEY_EXAMPLE",
+))
+def test_credential_rule_does_not_match_partial_auth_key_names(identifier):
+    assert RULES["CRED-001"].evaluate(identifier) == ()

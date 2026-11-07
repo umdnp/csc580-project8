@@ -738,3 +738,30 @@ def test_ri005_source_change_in_second_direct_package_target_is_detected():
     assert len(matches) == 1
     assert matches[0].reason == "Explicit package source or registry changed"
     assert matches[0].removed[0].raw_text == base
+
+@pytest.mark.parametrize("identifier", (
+    "AUTH_KEY", "authKey", "COMETCHAT_AUTH_KEY", "VITE_COMETCHAT_AUTH_KEY",
+))
+def test_auth_key_reference_alone_does_not_raise_ri007(identifier):
+    comparison, assessment = _check("", f"Configure {identifier} before initialization.")
+    assert "CRED-001" in comparison.derived.rule_counts()
+    assert "RI-007" not in {indicator.indicator_id for indicator in assessment.indicators}
+
+
+def test_cometchat_settings_guidance_requires_contextual_review_not_ri007():
+    base = "const settings = builder.setAuthKey(AUTH_KEY);"
+    derived = (
+        base + '\n```json\n{"credentials": {"authKey": "AUTH_KEY_HERE"}}\n```\n'
+        + 'Do NOT gitignore cometchat-settings.json.\n'
+    )
+    comparison, assessment = _check(base, derived)
+    assert comparison.derived.rule_counts()["CRED-001"] > comparison.base.rule_counts()["CRED-001"]
+    assert "RI-007" not in {indicator.indicator_id for indicator in assessment.indicators}
+
+
+@pytest.mark.parametrize("reference", ("AUTH_KEY", "authKey", "VITE_COMETCHAT_AUTH_KEY"))
+def test_credential_reference_in_new_outbound_request_supports_ri007(reference):
+    derived = f'fetch("https://example.test/api", {{ method: "POST", body: JSON.stringify({{ {reference} }}) }})'
+    comparison, assessment = _check("", derived)
+    assert "CRED-001" in comparison.derived.rule_counts()
+    assert "RI-007" in {indicator.indicator_id for indicator in assessment.supported}
