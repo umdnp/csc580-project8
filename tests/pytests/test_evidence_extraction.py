@@ -387,3 +387,13 @@ def test_urllib_urlopen_is_a_complete_api_call_in_python_sibling():
     assert call.context.kind == "source_code"
     assert call.filename == "scripts/1k-defi-init.py"
     assert call.source_id == "5962937"
+
+
+def test_bunx_invocation_has_complete_shell_evidence():
+    scanned = SkillAnalyzer().scan("```bash\nbunx cap sync\n```")
+    assert scanned.rule_counts() == {"CMD-001": 1, "CMD-002": 1}
+    command, = [e for e in scanned.evidence if e.kind == "shell_command"]
+    assert command.raw_text == "bunx cap sync"
+    assert ("command", "bunx") in command.values
+    assert ("arguments", "cap sync") in command.values
+    assert command.extraction_status == ExtractionStatus.COMPLETE

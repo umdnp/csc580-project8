@@ -268,3 +268,23 @@ def test_read_only_management_operations_keep_command_evidence(text):
 ))
 def test_urllib_urlopen_rule_requires_explicit_standard_library_call(text):
     assert RULES["NET-002"].evaluate(text) == ()
+
+
+@pytest.mark.parametrize("command", [
+    "bunx cap sync",
+    "bunx @vendor/tool --help",
+    "bunx --yes cap sync",
+])
+def test_bunx_is_detected_as_a_command_invocation(command):
+    matches = RULES["CMD-002"].evaluate(command)
+    assert len(matches) == 1
+    assert matches[0].matched_text == "bunx"
+
+
+@pytest.mark.parametrize("prose", [
+    "Read the bunx-helper documentation.",
+    "Use the bunx-runner documentation.",
+    "Use bunx-style commands.",
+])
+def test_bunx_prose_is_not_a_command(prose):
+    assert RULES["CMD-002"].evaluate(prose) == ()

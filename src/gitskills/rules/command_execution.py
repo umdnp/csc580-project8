@@ -37,8 +37,8 @@ class CommandInvocationRule(RegexRule):
         r"(?=(?:install|i|ci|run|exec|test|build|add|remove|uninstall|update|"
         r"list|show|audit|publish|start|stop|init|create|x|pip|sync|lock|tool|"
         r"venv|build|pull|push|compose|ps|logs|images|version|--[\w-]+)\b)",
-        # npx/uvx run arbitrary package CLIs, not only known npm verbs.
-        r"(?<![\w.-])(?:npx|uvx)[ \t]+(?=(?:--[\w-]+|[A-Za-z@./][\w@./:-]+))",
+        # npx/uvx/bunx run arbitrary package CLIs, not only known npm verbs.
+        r"(?<![\w.-])(?:npx|uvx|bunx)[ \t]+(?=(?:--[\w-]+|[A-Za-z@./][\w@./:-]+))",
         # The PowerShell prose and placeholder cases are represented as
         # command references/templates by ShellExtractor, not executable lines.
         r"(?<![\w.-])(?:powershell(?:\.exe)?|pwsh(?:\.exe)?)[ \t]+"

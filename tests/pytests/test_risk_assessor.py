@@ -458,3 +458,96 @@ def test_urllib_urlopen_with_variable_url_does_not_invent_destination():
         "", "urllib.request.urlopen(url, timeout=30)", filename="scripts/1k-defi-init.py"
     )
     assert "RI-003" not in {i.indicator_id for i in assessment.supported}
+
+
+def test_capacitor_bun_to_npm_package_manager_swap_does_not_introduce_ri005():
+    base = (
+        "## CRITICAL: Always Use Latest Capacitor\n"
+        "```bash\n"
+        "bun add @capacitor/core@latest @capacitor/cli@latest\n"
+        "bun add @capacitor/ios@latest @capacitor/android@latest\n"
+        "bunx cap sync\n"
+        "```\n"
+        "## Plugin Installation Pattern\n"
+        "```bash\n"
+        "bun add @capgo/capacitor-native-biometric\n"
+        "bunx cap sync\n"
+        "```\n"
+        "```bash\n"
+        "bun add @capgo/capacitor-native-biometric\n"
+        "```\n"
+    )
+    derived = base.replace("bun add ", "npm install ").replace("bunx cap sync", "npx cap sync")
+    comparison, assessment = _check(base, derived)
+    assert assessment.indicator_count == assessment.finding_count == 0
+    assert not assessment.uncertain
+    assert comparison.base.rule_counts()["EXT-002"] == 4
+    assert comparison.derived.rule_counts()["EXT-002"] == 4
+    assert comparison.base.rule_counts()["CMD-002"] == 6  # 4 bun add + 2 bunx
+    assert comparison.derived.rule_counts()["CMD-002"] == 6
+    assert len([e for e in comparison.evidence_added if "EXT-002" in e.rule_ids]) == 4
+    assert len([e for e in comparison.evidence_removed if "EXT-002" in e.rule_ids]) == 4
+
+
+@pytest.mark.parametrize(("base", "derived"), [
+    ("bun add foo", "npm install foo"),
+    ("npm install foo bar", "yarn add bar foo"),
+    ("yarn add foo", "pnpm add foo"),
+    ("pnpm add foo", "bun add foo"),
+    ("npm i foo", "bun add foo"),
+    ("bun add foo --registry=https://registry.example.test",
+     "npm install foo --registry https://registry.example.test"),
+])
+def test_equivalent_js_package_install_replacements_do_not_raise_ri005(base, derived):
+    _, assessment = _check(base, derived)
+    assert "RI-005" not in {i.indicator_id for i in assessment.supported}
+
+
+def test_cross_manager_registry_change_remains_ri005():
+    base = "bun add foo --registry=https://old.example.test"
+    derived = "npm install foo --registry https://new.example.test"
+    _, assessment = _check(base, derived)
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].reason == "Explicit package source or registry changed"
+    assert len(matches[0].removed) == 1
+    assert matches[0].removed[0].raw_text == base
+
+
+def test_cross_manager_added_package_operation_remains_ri005():
+    base = "bun add foo"
+    derived = "npm install foo\nnpm install bar"
+    _, assessment = _check(base, derived)
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].added[0].raw_text == "npm install bar"
+
+
+def test_unrelated_ambiguous_script_is_not_treated_as_equivalent_package_install():
+    _, assessment = _check("npm run install-deps", "pip install -e .")
+    assert "RI-005" in {i.indicator_id for i in assessment.supported}
+
+
+def test_js_package_install_replacements_do_not_cross_unrelated_headings():
+    base = "## Install A\n```bash\nbun add foo\n```"
+    derived = "## Install B\n```bash\nnpm install foo\n```"
+    _, assessment = _check(base, derived)
+    assert "RI-005" in {i.indicator_id for i in assessment.supported}
+
+
+def test_multiple_registries_are_not_reported_as_changed_when_reordered():
+    base = (
+        "bun add foo --registry=https://a.example.test\n"
+        "bun add foo --registry=https://b.example.test"
+    )
+    derived = (
+        "npm install foo --registry=https://b.example.test\n"
+        "npm install foo --registry=https://a.example.test"
+    )
+    _, assessment = _check(base, derived)
+    assert "RI-005" not in {i.indicator_id for i in assessment.supported}
+
+
+def test_unrecognized_install_flags_are_not_assumed_equivalent():
+    _, assessment = _check("bun add foo", "npm install foo --global")
+    assert "RI-005" in {i.indicator_id for i in assessment.supported}

@@ -25,7 +25,7 @@ _API = re.compile(r"(?:\b(?:requests|httpx|axios|fs(?:\.promises)?)\.[\w]+|"
 _COMMAND = re.compile(
     r"(?<![\w.-])(?:\./(?:[\w.-]+/)*[\w.-]+\.(?:sh|bash|py|js|mjs|ps1)|"
     r"sudo|su|exec|curl|wget|python(?:\d+(?:\.\d+)*)?|bash|sh|zsh|fish|"
-    r"node|bun|uvx?|npm|npx|pnpm|yarn|pip\d*|docker|pwsh|powershell|cmd\.exe|"
+    r"node|bunx|bun|uvx?|npm|npx|pnpm|yarn|pip\d*|docker|pwsh|powershell|cmd\.exe|"
     r"rm|mv|cp|mkdir|touch|cat|less|more|chmod|chown|setfacl|systemctl|"
     r"service|crontab|apt(?:-get)?|dnf|yum|brew|"
     r"Invoke-WebRequest|Invoke-RestMethod|Remove-Item|Move-Item|Copy-Item|"

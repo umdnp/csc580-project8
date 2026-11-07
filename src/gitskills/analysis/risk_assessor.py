@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 from collections import defaultdict
 from collections.abc import Mapping
 from urllib.parse import urlsplit
@@ -59,8 +60,10 @@ _INSTALL = re.compile(
     r"\b(?:pnpm|yarn|bun)\s+add\b", re.I,
 )
 _INSTALL_SOURCE = re.compile(
-    r"(?:--index-url|--extra-index-url|--registry|--find-links)\s*(?:=|\s)\s*([^\s]+)", re.I,
+    r"(?P<option>--index-url|--extra-index-url|--registry|--find-links)"
+    r"\s*(?:=|\s)\s*(?P<value>[^\s]+)", re.I,
 )
+_JS_PACKAGE = re.compile(r"(?:@[\w.-]+/)?[\w.-]+(?:@[\w.*^~+-]+)?")
 # Treat script extensions as complete suffixes, not prefixes of .json etc.
 # Keep acquisition scoped to one shell command/line, not neighboring prose.
 _ACQUIRE = re.compile(
@@ -133,6 +136,65 @@ def _pair_changes(changes) -> dict[Evidence, Evidence]:
     return pairs
 
 
+def _js_install_key(e: Evidence) -> tuple[str, str | None, tuple[str, ...]] | None:
+    """Identify explicit JavaScript package installs, independent of package manager."""
+    if e.kind != "shell_command" or "EXT-002" not in e.rule_ids:
+        return None
+    try:
+        parts = shlex.split(e.raw_text)
+    except ValueError:
+        return None
+    if len(parts) < 3:
+        return None
+    manager, action = parts[0].lower(), parts[1].lower()
+    if not ((manager == "npm" and action in {"install", "i"}) or
+            (manager in {"bun", "pnpm", "yarn"} and action == "add")):
+        return None
+
+    packages: list[str] = []
+    index = 2
+    while index < len(parts):
+        item = parts[index]
+        if item == "--registry":
+            if index + 1 >= len(parts) or not parts[index + 1].strip():
+                return None
+            index += 2
+            continue
+        if item.startswith("--registry=") and len(item) > len("--registry="):
+            index += 1
+            continue
+        # Other flags, variables, source URLs or compound syntax are not
+        # assumed equivalent across package managers.
+        if item.startswith("-") or not _JS_PACKAGE.fullmatch(item):
+            return None
+        name, delimiter, _version = item.rpartition("@")
+        packages.append(name if delimiter and name else item)
+        index += 1
+    if not packages:
+        return None
+    return (e.filename.replace("\\", "/"), e.context.heading, tuple(sorted(packages)))
+
+
+def _js_install_pairs(changes) -> dict[Evidence, Evidence]:
+    """Pair matching package targets across managers without guessing dependencies."""
+    previous: dict[tuple[str, str | None, tuple[str, ...]], list[Evidence]] = defaultdict(list)
+    for e in changes.removed:
+        if e.extraction_status == ExtractionStatus.COMPLETE and (key := _js_install_key(e)):
+            previous[key].append(e)
+    pairs: dict[Evidence, Evidence] = {}
+    for e in changes.added:
+        if e.extraction_status != ExtractionStatus.COMPLETE or not (key := _js_install_key(e)):
+            continue
+        candidates = previous.get(key)
+        if candidates:
+            source = _source_change(e)
+            counterpart = next((old for old in candidates if _source_change(old) == source),
+                               candidates[0])
+            pairs[e] = counterpart
+            candidates.remove(counterpart)
+    return pairs
+
+
 def _context_status(e: Evidence) -> IndicatorStatus | None:
     line = e.context.nearby_text or ""
     if _WARNING.search(line):
@@ -185,7 +247,7 @@ def _source_change(e: Evidence) -> str | None:
     if not _INSTALL.search(e.raw_text):
         return None
     match = _INSTALL_SOURCE.search(e.raw_text)
-    return match.group(0).strip().lower() if match else None
+    return (match.group("option").lower() + "=" + match.group("value").strip("\"'").lower()) if match else None
 
 
 def _sensitive_target(e: Evidence) -> str | None:
@@ -209,6 +271,7 @@ class RiskAssessor:
         previous = comparison.base.evidence
         changes = comparison.evidence_changes
         pairs = _pair_changes(changes)
+        js_install_pairs = _js_install_pairs(changes)
         base_hashes = {k.replace("\\", "/").removeprefix("./"): v
                        for k, v in (base_script_hashes or {}).items()}
         derived_hashes = {k.replace("\\", "/").removeprefix("./"): v
@@ -275,15 +338,17 @@ class RiskAssessor:
                                urlsplit(b).scheme == "https" for a in urls for b in _urls(old)):
                     add("RI-004", "Network operation changed from HTTPS to HTTP", e, old=old)
             if "EXT-002" in rules and _INSTALL.search(text):
-                was_install = old is not None and _INSTALL.search(old.raw_text)
+                install_old = js_install_pairs.get(e) or old
+                was_install = bool(install_old and _INSTALL.search(install_old.raw_text))
                 possible_replacement = any(
                     p.filename == e.filename and _group(p) == _group(e)
                     and _INSTALL.search(p.raw_text) for p in changes.removed
                 )
                 if not was_install and not possible_replacement:
                     add("RI-005", "External package installation introduced", e, old=old)
-                elif was_install and _source_change(e) != _source_change(old):
-                    add("RI-005", "Explicit package source or registry changed", e, old=old)
+                elif was_install and _source_change(e) != _source_change(install_old):
+                    add("RI-005", "Explicit package source or registry changed", e,
+                        old=install_old)
             if "EXT-003" in rules:
                 if old and "EXT-003" in old.rule_ids:
                     if urls != _urls(old):
