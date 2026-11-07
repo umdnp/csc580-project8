@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import tempfile
+from collections import Counter
 from pathlib import Path
 from typing import Callable, Sequence
 
@@ -99,6 +100,97 @@ def _cached_scan(path: Path, manifest_entry: dict | None, *, name: str,
     except ValueError:
         return None
     return scan if _scan_matches(scan, name, records, skipped, policy, edges, active_rules) else None
+
+
+
+
+def _scan_cache_fingerprint(name: str, records: list[dict], skipped: list[dict],
+                            stamp: dict, implementation: str,
+                            policy: SimilarityPolicy, edges: str,
+                            active_rules: list[dict]) -> str:
+    return fingerprint({
+        "name": name, "source": fingerprint(records),
+        "skipped": fingerprint(skipped), "database": stamp,
+        "implementation": implementation, "policy": policy.to_dict(),
+        "edges": edges, "active_rules": active_rules,
+    })
+
+
+def _primary_from_all(scan: dict) -> dict:
+    """Build a primary-only report from a validated all-edge scan."""
+    clusters = []
+    direction_bases: dict[str, dict[str, int]] = {}
+    indicator_frequency: Counter = Counter()
+    edge_counts: Counter = Counter()
+    for cluster in scan["clusters"]:
+        observations = [item for item in cluster["pair_observations"]
+                        if item["edge_type"] == "primary"]
+        if not observations:
+            continue
+        pair_keys = {(item["source_artifact_id"], item["destination_artifact_id"])
+                     for item in observations}
+        flagged = [item for item in cluster["flagged_pairs"]
+                   if (item["source_artifact_id"], item["destination_artifact_id"]) in pair_keys]
+        incomplete = [item for item in cluster["incomplete_pairs"]
+                      if (item["source_artifact_id"], item["destination_artifact_id"]) in pair_keys]
+        bases = Counter(item["direction_basis"] for item in observations)
+        indicators = Counter(indicator for item in observations
+                             for indicator in set(item["indicator_ids"]))
+        edge_counts.update(item["edge_type"] for item in observations)
+        indicator_frequency.update(indicators)
+        for basis, count in bases.items():
+            entry = direction_bases.setdefault(basis, {
+                "pairs_analyzed": 0, "flagged_pairs": 0, "pairs_with_indicators": 0,
+            })
+            entry["pairs_analyzed"] += count
+        for item in flagged:
+            entry = direction_bases[item["direction_basis"]]
+            entry["flagged_pairs"] += 1
+            entry["pairs_with_indicators"] += int(item["risk_indicators"]["indicator_count"] > 0)
+        clusters.append({
+            **cluster,
+            "pairs_analyzed": len(observations),
+            "edge_type_counts": {"primary": len(observations)},
+            "pairs_flagged": len(flagged),
+            "pairs_incomplete": len(incomplete),
+            "pairs_with_evidence_changes": sum(
+                any(item["evidence_comparison"][surface][change]
+                    for surface in ("skill", "siblings") for change in ("added", "removed"))
+                for item in flagged
+            ),
+            "pairs_with_indicators": sum(
+                item["risk_indicators"]["indicator_count"] > 0 for item in flagged
+            ),
+            "indicator_frequency": dict(sorted(indicators.items())),
+            "direction_basis_counts": dict(sorted(bases.items())),
+            "pair_observations": observations,
+            "flagged_pairs": flagged,
+            "incomplete_pairs": incomplete,
+        })
+
+    observations = [item for cluster in clusters for item in cluster["pair_observations"]]
+    flagged = [item for cluster in clusters for item in cluster["flagged_pairs"]]
+    summary = {
+        **scan["summary"],
+        "pairs_analyzed": len(observations),
+        "edge_type_counts": dict(sorted(edge_counts.items())),
+        "pairs_flagged": len(flagged),
+        "pairs_incomplete": sum(cluster["pairs_incomplete"] for cluster in clusters),
+        "pairs_evidence_coverage_incomplete": sum(
+            item["coverage"]["status"] != "complete" for item in observations
+        ),
+        "pairs_with_evidence_changes": sum(cluster["pairs_with_evidence_changes"] for cluster in clusters),
+        "pairs_with_indicators": sum(cluster["pairs_with_indicators"] for cluster in clusters),
+        "indicator_frequency": dict(sorted(indicator_frequency.items())),
+        "indicator_count": len(indicator_frequency),
+        "finding_count": sum(item["finding_count"] for item in observations),
+        "direction_basis": dict(sorted(direction_bases.items())),
+        "clusters_analyzed": len(clusters),
+    }
+    primary = {**scan, "edge_selection": "primary", "summary": summary, "clusters": clusters}
+    # Report statistics and pair-level evidence must remain consistent after filtering.
+    validated_pair_rows(primary)
+    return primary
 
 
 def _verify_lineage(analysis, scan: dict) -> None:
@@ -330,12 +422,9 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
         skipped = [item.to_dict() for item in loaded.skipped_artifacts]
         # Keep distinct cache variants so one run cannot replace another run's
         # scan when its inputs, database, rules, or similarity settings differ.
-        cache_fingerprint = fingerprint({
-            "name": name, "source": fingerprint(records),
-            "skipped": fingerprint(skipped), "database": stamp,
-            "implementation": implementation, "policy": policy.to_dict(),
-            "edges": edges, "active_rules": active_rules,
-        })
+        cache_fingerprint = _scan_cache_fingerprint(
+            name, records, skipped, stamp, implementation, policy, edges, active_rules,
+        )
         version_key = f"{name}::{cache_fingerprint[:20]}"
         name_hash = hashlib.sha256(name.encode()).hexdigest()[:8]
         version_file = f"{stems[name]}--{name_hash}-{cache_fingerprint[:16]}.json"
@@ -355,6 +444,36 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
             policy=policy, edges=edges, active_rules=active_rules,
             db_stamp=stamp, implementation=implementation,
         ))
+        derived_from_all = False
+        if cached is None and edges == "primary" and not rescan:
+            # A compatible all-edge scan already contains every primary observation.
+            all_fingerprint = _scan_cache_fingerprint(
+                name, records, skipped, stamp, implementation, policy, "all", active_rules,
+            )
+            all_key = f"{name}::{all_fingerprint[:20]}"
+            all_path = folder / f"{stems[name]}--{name_hash}-{all_fingerprint[:16]}.json"
+            all_scan = None
+            if name in entries:
+                all_scan = _cached_scan(
+                    legacy_path, entries[name], name=name, records=records,
+                    skipped=skipped, policy=policy, edges="all",
+                    active_rules=active_rules, db_stamp=stamp,
+                    implementation=implementation,
+                )
+            if all_scan is None and all_key in entries:
+                all_scan = _cached_scan(
+                    all_path, entries[all_key], name=name, records=records,
+                    skipped=skipped, policy=policy, edges="all",
+                    active_rules=active_rules, db_stamp=stamp,
+                    implementation=implementation,
+                )
+            if all_scan is not None:
+                try:
+                    cached = _primary_from_all(all_scan)
+                except (KeyError, TypeError, ValueError, ResearchInputError):
+                    cached = None
+                else:
+                    derived_from_all = True
         # Recalculate similarities only when needed for relationship validation
         # or for a missing/stale/forced security scan; never serialize verbose JSON.
         family_analysis = None
@@ -384,14 +503,23 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                                         policy, edges, active_rules)
             _atomic_json(cache_manifest, {"version": _CACHE_VERSION, "families": entries})
         else:
-            if progress is not None:
-                progress(f"[{index}/{len(selected)}] {name}: reusing compatible scan")
             scan = cached
-            if cache_key not in entries:
+            if derived_from_all:
+                if progress is not None:
+                    progress(f"[{index}/{len(selected)}] {name}: deriving primary scan from all-edge cache")
+                if family_analysis is not None:
+                    _verify_lineage(family_analysis, scan)
+                if _review_exists(results) and path.is_file() and read_json(path) != scan:
+                    raise ValueError(f"{name}: completed review exists and scans would change; "
+                                     "archive the previous results first")
+                _atomic_json(path, scan)
+            elif progress is not None:
+                progress(f"[{index}/{len(selected)}] {name}: reusing compatible scan")
+            if derived_from_all or cache_key not in entries:
                 entries[cache_key] = _entry(path, records, skipped, stamp, implementation,
                                             policy, edges, active_rules)
                 _atomic_json(cache_manifest, {"version": _CACHE_VERSION, "families": entries})
-        if cached is not None and family_analysis is not None:
+        if cached is not None and family_analysis is not None and not derived_from_all:
             _verify_lineage(family_analysis, scan)
         validated_pair_rows(scan)  # Reject internally inconsistent results before research outputs.
         scans.append(scan)
