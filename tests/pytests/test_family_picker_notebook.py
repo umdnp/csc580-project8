@@ -65,7 +65,7 @@ def test_sample_one_created_and_reused(tmp_path):
     assert calls[0]["sample_size"] == 100
     assert calls[0]["exclude_names"] == set()
     assert calls[0]["policy"].to_dict() == SimilarityPolicy().to_dict()
-    assert (result["SAMPLE_DIR"] / "sample.json").exists()
+    assert (result["SAMPLE_DIR"] / "sampling_report.json").exists()
     result = _run(tmp_path, sprint=3, trial=1,
                   picker=lambda **kwargs: pytest.fail("Existing sample should be reused"))
     assert result["candidate_families"] == ["trial-one"]
@@ -85,7 +85,7 @@ def test_later_trials_exclude_previous_lists(tmp_path):
     assert calls[0]["seed"] == 5802
     assert calls[0]["exclude_names"] == {"first", "other"}
     assert result["candidate_families"] == ["second"]
-    manifest = json.loads((result["SAMPLE_DIR"] / "sample.json").read_text())
+    manifest = json.loads((result["SAMPLE_DIR"] / "sampling_report.json").read_text())
     assert len(manifest["exclusion_files"]) == 1
     assert len(manifest["exclusion_files"][0]["sha256"]) == 64
     result = _run(tmp_path, sprint=3, trial=3,

@@ -163,7 +163,7 @@ def test_cli_writes_directly_and_never_overwrites(database, tmp_path, monkeypatc
     assert messages.out.splitlines() == ["eligible"]
     assert "Checking" in messages.err
     assert read_family_names(output / "families.txt") == ["eligible"]
-    manifest = json.loads((output / "sample.json").read_text(encoding="utf-8"))
+    manifest = json.loads((output / "sampling_report.json").read_text(encoding="utf-8"))
     assert manifest["seed"] == 5801
     assert manifest["groups"][0]["percentage"] == 100
     assert manifest["similarity_policy"] == SimilarityPolicy().to_dict()

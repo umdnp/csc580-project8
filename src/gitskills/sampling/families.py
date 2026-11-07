@@ -259,8 +259,8 @@ def save_sample(sample: FamilySample, *, output: Path | str, database: Path | st
     output = Path(output)
     database = Path(database)
     families_file = output / "families.txt"
-    manifest_file = output / "sample.json"
-    if families_file.exists() or manifest_file.exists():
+    report_file = output / "sampling_report.json"
+    if families_file.exists() or report_file.exists():
         raise FileExistsError(f"Sample files already exist in {output}; archive or remove "
                               "them before creating a new sample")
     stat = database.stat()
@@ -269,7 +269,7 @@ def save_sample(sample: FamilySample, *, output: Path | str, database: Path | st
         path = Path(filename)
         exclusions.append({"path": str(path.resolve()),
                            "sha256": sha256(path.read_bytes()).hexdigest()})
-    manifest = {
+    report = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "seed": sample.seed,
         "sample_size": sample.sample_size,
@@ -290,8 +290,8 @@ def save_sample(sample: FamilySample, *, output: Path | str, database: Path | st
     with families_file.open("x", encoding="utf-8") as stream:
         stream.write("".join(name + "\n" for name in sample.names))
     try:
-        with manifest_file.open("x", encoding="utf-8") as stream:
-            json.dump(manifest, stream, indent=2, ensure_ascii=False)
+        with report_file.open("x", encoding="utf-8") as stream:
+            json.dump(report, stream, indent=2, ensure_ascii=False)
             stream.write("\n")
     except BaseException:
         families_file.unlink()

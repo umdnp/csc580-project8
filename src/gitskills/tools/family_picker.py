@@ -23,7 +23,7 @@ def main(argv: list[str] | None = None) -> int:
                         default=[], metavar="FILE", dest="exclude_files",
                         help="Previously generated families.txt files; separate paths by spaces")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT,
-                        help="Directory for families.txt and sample.json (default: output/)")
+                        help="Directory for families.txt and sampling_report.json (default: output/)")
     parser.add_argument("--verbose", action="store_true", help="Report each candidate and validation result")
     args = parser.parse_args(argv)
     try:
@@ -33,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
         database = Path(database_path)
         if not database.is_file():
             raise ValueError(f"Prepared DuckDB database not found: {database}")
-        if (args.output / "families.txt").exists() or (args.output / "sample.json").exists():
+        if (args.output / "families.txt").exists() or (args.output / "sampling_report.json").exists():
             raise FileExistsError(f"Sample files already exist in {args.output}; move them before rerunning")
         exclude_names = set()
         for filename in args.exclude_files:
@@ -49,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     print(f"Seed: {sample.seed}", file=sys.stderr)
     print(f"Family list: {args.output / 'families.txt'}", file=sys.stderr)
-    print(f"Sample record: {args.output / 'sample.json'}", file=sys.stderr)
+    print(f"Sampling report: {args.output / 'sampling_report.json'}", file=sys.stderr)
     for name in sample.names:
         print(name)
     return 0
