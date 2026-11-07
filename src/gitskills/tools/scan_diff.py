@@ -86,7 +86,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     _log_rule_changes(comparison, verbose=args.verbose)
     _log_evidence_changes(comparison, base_text=base_text, derived_text=derived_text)
-    _log_risk_indicators(assessment)
+    _log_risk_indicators(assessment, base_text=base_text, derived_text=derived_text)
 
     payload = comparison.to_dict(verbose=args.verbose)
     payload["evidence_comparison"] = {
@@ -269,19 +269,33 @@ def _report_risk_indicators(
     }
 
 
-def _log_risk_indicators(assessment: RiskAssessment) -> None:
-    """Log observable indicator categories, with uncertainty kept separate."""
+def _log_risk_indicators(
+    assessment: RiskAssessment, *, base_text: str, derived_text: str,
+) -> None:
+    """Show source evidence for each indicator without changing assessment data."""
     category_count = assessment.indicator_count
     finding_count = assessment.finding_count
     LOGGER.info("RISK INDICATORS (%d %s; %d %s)",
                 category_count, "category" if category_count == 1 else "categories",
                 finding_count, "finding" if finding_count == 1 else "findings")
-    for indicator in assessment.supported:
-        LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
-    if assessment.uncertain:
-        LOGGER.info("UNCERTAIN OBSERVATIONS (%d)", len(assessment.uncertain))
-        for indicator in assessment.uncertain:
+    for label, indicators in ((None, assessment.supported),
+                              ("UNCERTAIN OBSERVATIONS", assessment.uncertain)):
+        if label and indicators:
+            LOGGER.info("%s (%d)", label, len(indicators))
+        for indicator in indicators:
             LOGGER.info("  [%s] %s", indicator.indicator_id, redact_text(indicator.reason))
+            for change, evidence_list, source_text in (
+                ("added", indicator.added, derived_text),
+                ("removed", indicator.removed, base_text),
+            ):
+                for evidence in evidence_list:
+                    source = _report_evidence(evidence, source_text)["source"]
+                    excerpt = ("[credential-related content redacted]"
+                               if evidence.kind in ("credential_reference", "credential_file")
+                               else safe_excerpt(evidence.raw_text, limit=120))
+                    LOGGER.info("    %s %s:%s [%s]: %s", change,
+                                source["filename"], source["start_line"] or "?",
+                                ", ".join(evidence.rule_ids), excerpt)
     if assessment.coverage != "complete":
         LOGGER.info("COVERAGE: %s", assessment.coverage)
 
