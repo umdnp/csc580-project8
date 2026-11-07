@@ -12,9 +12,9 @@ class SecretReferenceRule(RegexRule):
     category = RiskCategory.CREDENTIAL_ACCESS
     description = "Credential or secret reference detected"
     patterns = (
-        r"\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\b",
+        r"\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|auth[_-]?key|client[_-]?secret|password)\b",
         r"\b(?:AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|OPENAI_API_KEY)\b",
-        r"\b(?:[A-Z][A-Z0-9]*_)+ACCESS_TOKEN\b",
+        r"\b(?:[A-Z][A-Z0-9]*_)+(?:ACCESS_TOKEN|AUTH_KEY)\b",
     )
 
 

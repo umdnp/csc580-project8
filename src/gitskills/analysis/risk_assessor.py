@@ -30,8 +30,8 @@ _SENSITIVE = re.compile(
     r"\.kube/config)(?:$|[\s'\"/\\])", re.I,
 )
 _CREDENTIAL = re.compile(
-    r"\b(?:[A-Z][A-Z0-9_]*_(?:TOKEN|API_KEY|SECRET|PASSWORD)|"
-    r"api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\b|"
+    r"\b(?:[A-Z][A-Z0-9_]*_(?:TOKEN|API_KEY|AUTH_KEY|SECRET|PASSWORD)|"
+    r"api[_-]?key|access[_-]?token|auth[_-]?token|auth[_-]?key|client[_-]?secret|password)\b|"
     r"\bAuthorization\s*:\s*(?:Bearer|Basic)\b", re.I,
 )
 _WARNING = re.compile(
