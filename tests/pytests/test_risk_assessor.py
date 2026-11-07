@@ -623,3 +623,118 @@ def test_manifest_install_requirements_file_change_is_source_change():
     _, assessment = _check("pip install -r requirements.txt", "pip install -r other.txt")
     assert any(i.indicator_id == "RI-005" and "source" in i.reason.lower()
                for i in assessment.supported)
+
+
+@pytest.mark.parametrize(("base", "derived"), (
+    ("npm install --workspace apps/mobile", "pnpm install --filter apps/mobile"),
+    ("npm install -w apps/mobile", "bun install --filter=apps/mobile"),
+    ("pnpm install --filter apps/mobile", "bun install -F apps/mobile"),
+    ("npm install axios --workspace apps/mobile",
+     "pnpm add axios --filter apps/mobile"),
+))
+def test_ri005_equivalent_workspace_installations_do_not_look_introduced(base, derived):
+    comparison, assessment = _check(base, derived)
+    assert comparison.base.rule_counts().get("EXT-002", 0) + comparison.base.rule_counts().get("EXT-004", 0) == 1
+    assert comparison.derived.rule_counts().get("EXT-002", 0) + comparison.derived.rule_counts().get("EXT-004", 0) == 1
+    assert not [i for i in assessment.indicators if i.indicator_id == "RI-005"]
+
+
+@pytest.mark.parametrize(("base", "derived"), (
+    ("npm install --workspace apps/mobile", "pnpm install --filter apps/web"),
+    ("npm install --workspace apps/mobile", "npm install --workspace apps/web"),
+    ("npm install", "bun install --filter apps/mobile"),
+    ("npm install foo --workspace apps/mobile", "npm install foo --workspace apps/web"),
+))
+def test_ri005_workspace_scope_changes_are_not_assumed_equivalent(base, derived):
+    _, assessment = _check(base, derived)
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].reason == "Dependency installation workspace scope changed"
+    assert matches[0].removed and matches[0].removed[0].raw_text == base
+
+
+@pytest.mark.parametrize(("base", "derived"), (
+    ("pip install https://safe.example.test/package.whl",
+     "pip install https://other.example.test/package.whl"),
+    ("npm install https://safe.example.test/archive.tgz",
+     "npm install https://other.example.test/archive.tgz"),
+    ("bun add foo@https://safe.example.test/foo.tgz",
+     "bun add foo@https://other.example.test/foo.tgz"),
+    ("pip install git+https://github.com/team1/repo.git@main",
+     "pip install git+https://github.com/team2/repo.git@main"),
+    ("pip install git+https://github.com/team/repo.git@main",
+     "pip install git+https://github.com/team/repo.git@release"),
+    ("pip install -e git+https://github.com/team/repo.git@main#egg=repo",
+     "pip install -e git+https://github.com/team/repo.git@release#egg=repo"),
+))
+def test_ri005_detects_literal_direct_package_source_changes(base, derived):
+    comparison, assessment = _check(base, derived)
+    assert comparison.base.rule_counts()["EXT-002"] == 1
+    assert comparison.derived.rule_counts()["EXT-002"] == 1
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].reason == "Explicit package source or registry changed"
+    assert matches[0].removed and matches[0].removed[0].raw_text == base
+
+
+def test_ri005_direct_package_sources_pair_without_command_count_confusion():
+    base = (
+        "pip install https://old.example.test/first.whl\n"
+        "pip install https://stable.example.test/second.whl"
+    )
+    derived = (
+        "pip install https://stable.example.test/second.whl\n"
+        "pip install https://new.example.test/first.whl"
+    )
+    _, assessment = _check(base, derived)
+    changes = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(changes) == 1
+    assert changes[0].removed[0].raw_text == "pip install https://old.example.test/first.whl"
+    assert changes[0].added[0].raw_text == "pip install https://new.example.test/first.whl"
+
+
+def test_ri005_identical_direct_package_source_is_not_introduced():
+    _, assessment = _check(
+        "pip install https://same.example.test/package.whl",
+        "pip install https://same.example.test/package.whl",
+    )
+    assert not [i for i in assessment.indicators if i.indicator_id == "RI-005"]
+
+
+def test_ri005_registry_flag_does_not_masquerade_as_direct_package_url():
+    _, assessment = _check(
+        "bun add foo --registry=https://registry.example.test",
+        "npm install foo --registry https://registry.example.test",
+    )
+    assert not [i for i in assessment.indicators if i.indicator_id == "RI-005"]
+
+
+def test_ri005_explicit_package_workspace_swap_reports_scope_not_new_package():
+    _, assessment = _check(
+        "npm install foo --workspace apps/mobile", "bun add foo --filter apps/web"
+    )
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].reason == "Dependency installation workspace scope changed"
+    assert matches[0].removed[0].raw_text == "npm install foo --workspace apps/mobile"
+
+
+def test_ri005_multiple_extensionless_url_packages_use_artifact_identity():
+    base = "pip install https://a.example.test/pkg\npip install https://a.example.test/other"
+    derived = "pip install https://b.example.test/pkg\npip install https://c.example.test/other"
+    _, assessment = _check(base, derived)
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 2
+    assert {i.removed[0].raw_text for i in matches} == {
+        "pip install https://a.example.test/pkg", "pip install https://a.example.test/other"
+    }
+
+
+def test_ri005_source_change_in_second_direct_package_target_is_detected():
+    base = "pip install https://a.example.test/first.whl https://a.example.test/second.whl"
+    derived = "pip install https://a.example.test/first.whl https://b.example.test/second.whl"
+    _, assessment = _check(base, derived)
+    matches = [i for i in assessment.supported if i.indicator_id == "RI-005"]
+    assert len(matches) == 1
+    assert matches[0].reason == "Explicit package source or registry changed"
+    assert matches[0].removed[0].raw_text == base

@@ -57,7 +57,8 @@ _INSTALL_PREFIXES = (
     r"(?:apt(?:-get)?|dnf|yum|brew)[ \t]+install)\b",
 )
 _INSTALL_ARG_VALUES = {"--registry", "--index-url", "--extra-index-url", "--find-links",
-                       "--prefix", "--cache-dir", "--config", "--cwd"}
+                       "--prefix", "--cache-dir", "--config", "--cwd",
+                       "--workspace", "-w", "--filter", "-F"}
 _LOCAL_PATH = re.compile(r"(?:\.{1,2}(?:/.*)?|~/\S+|/\S+)$")
 
 
@@ -82,6 +83,13 @@ def _manifest_install(text: str, match: RuleMatch) -> bool:
             if index + 1 >= len(args):
                 return False
             index += 2
+            continue
+        if any(arg.startswith(option + "=") for option in _INSTALL_ARG_VALUES
+               if option.startswith("--")):
+            index += 1
+            continue
+        if re.match(r"^-[wF](?:=)?\S+", arg):
+            index += 1
             continue
         if command.startswith("pip") and arg in {"-e", "--editable", "-r", "--requirement"}:
             if index + 1 >= len(args):

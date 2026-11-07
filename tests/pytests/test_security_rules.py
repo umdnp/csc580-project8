@@ -331,3 +331,30 @@ def test_bun_project_script_does_not_match_prose_or_unrelated_code():
                  "Read bun mobile documentation.",
                  "```text\nbun mobile start\n```"):
         assert RULES["CMD-002"].evaluate(text) == ()
+
+
+@pytest.mark.parametrize("command", (
+    "npm install --workspace apps/mobile",
+    "npm install -w apps/mobile",
+    "npm install --workspace=apps/mobile",
+    "npm install -w=apps/mobile",
+    "pnpm install --filter apps/mobile",
+    "pnpm install --filter=apps/mobile",
+    "bun install --filter apps/mobile",
+    "bun install -F apps/mobile",
+    "yarn install --workspace apps/mobile",
+))
+def test_workspace_scoped_dependency_install_is_manifest_based(command):
+    assert len(RULES["EXT-004"].evaluate(command)) == 1
+    assert RULES["EXT-002"].evaluate(command) == ()
+
+
+@pytest.mark.parametrize("command", (
+    "npm install axios --workspace apps/mobile",
+    "npm install --workspace=apps/mobile axios",
+    "pnpm install --filter apps/mobile axios",
+    "bun add axios --filter=apps/mobile",
+))
+def test_workspace_scoped_explicit_package_stays_ext002(command):
+    assert len(RULES["EXT-002"].evaluate(command)) == 1
+    assert RULES["EXT-004"].evaluate(command) == ()
