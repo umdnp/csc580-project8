@@ -439,3 +439,22 @@ def test_ri005_recognizes_staged_executable_source_change_without_reintroducing(
 def test_ri005_staged_executable_detection_avoids_unrelated_downloads(base, derived):
     _, assessment = _check(base, derived)
     assert 'RI-005' not in {i.indicator_id for i in assessment.supported}
+
+
+def test_urllib_urlopen_with_literal_url_supports_ri003():
+    base = 'urllib.request.urlopen("https://old.example.test/api")'
+    derived = 'urllib.request.urlopen("https://new.example.test/api")'
+    comparison, assessment = _check(base, derived, filename="scripts/1k-defi-init.py")
+    assert comparison.derived.rule_counts() == {"NET-001": 1, "NET-002": 1}
+    supported = [i for i in assessment.supported if i.indicator_id == "RI-003"]
+    assert len(supported) == 1
+    assert supported[0].reason == "New network-operation hostname observed"
+    assert supported[0].added[0].kind == "api_call"
+    assert supported[0].added[0].raw_text == derived
+
+
+def test_urllib_urlopen_with_variable_url_does_not_invent_destination():
+    _, assessment = _check(
+        "", "urllib.request.urlopen(url, timeout=30)", filename="scripts/1k-defi-init.py"
+    )
+    assert "RI-003" not in {i.indicator_id for i in assessment.supported}

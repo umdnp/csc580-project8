@@ -446,7 +446,7 @@ class RiskAssessor:
             return False
         if e.kind == "api_call":
             call = _operation(e) or ""
-            return call == "fetch" or call == "axios" or call.startswith(
+            return call in {"fetch", "axios", "urllib.request.urlopen"} or call.startswith(
                 ("requests.", "httpx.", "axios.")
             )
         return bool(re.match(r"^\s*(?:curl|wget|Invoke-WebRequest|Invoke-RestMethod)\b", e.raw_text, re.I))

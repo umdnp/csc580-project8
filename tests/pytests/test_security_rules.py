@@ -226,6 +226,7 @@ def test_additional_package_managers_are_installs(text):
 @pytest.mark.parametrize("text", (
     'fetch("/api/data")', 'axios.get("/api/data")',
     'axios("/api/data")', 'httpx.get("https://example.test/api")',
+    'urllib.request.urlopen("https://example.test/api", timeout=30)',
 ))
 def test_extended_network_clients_are_detected(text):
     assert len(RULES["NET-002"].evaluate(text)) == 1
@@ -254,3 +255,16 @@ def test_explicit_file_write_apis_are_still_detected(text):
 def test_read_only_management_operations_keep_command_evidence(text):
     assert len(RULES["CMD-002"].evaluate(text)) == 1
     assert RULES["SYS-002"].evaluate(text) == ()
+
+
+@pytest.mark.parametrize("text", (
+    "import urllib.request",
+    "from urllib import request",
+    "See urllib.request.urlopen in the API documentation.",
+    "custom.urlopen('https://example.test/api')",
+    "urlopen('https://example.test/api')",
+    "myurllib.request.urlopen('https://example.test/api')",
+    "wrapper.urllib.request.urlopen('https://example.test/api')",
+))
+def test_urllib_urlopen_rule_requires_explicit_standard_library_call(text):
+    assert RULES["NET-002"].evaluate(text) == ()

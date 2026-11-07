@@ -341,7 +341,8 @@ class EvidenceExtractor:
             language = opener.group(1).lower() if opener else ""
             return SourceSpan("shell_code_block", start, end, values=(("language", language),))
         matched = text[start:end]
-        if (re.match(r"(?:requests\.|httpx\.|axios(?:\.|\s*\()|fetch\s*\(|"
+        if (re.match(r"(?:urllib\.request\.urlopen\s*\(|"
+                     r"requests\.|httpx\.|axios(?:\.|\s*\()|fetch\s*\(|"
                      r"fs(?:\.promises)?\.|subprocess\.|os\.system\s*\(|"
                      r"open\s*\(|\.[\w]+\s*\()", matched, re.I)
                 or match.rule_id == "FS-002"):
