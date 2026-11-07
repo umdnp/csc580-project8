@@ -32,6 +32,61 @@ _COMMAND = re.compile(
 )
 _MARKDOWN_LINK = re.compile(r"\[([^\]\n]*)\]\((https?://[^\s)]+)\)", re.IGNORECASE)
 
+# Explicit Markdown statements linking an action to this URL are stronger
+# evidence than an ordinary URL reference. Never infer command internals.
+_DESCRIBED_DOWNLOAD = re.compile(
+    r"\b(?:download(?:s|ed|ing)?|fetch(?:es|ed|ing)?|retrieve(?:s|d|ing)?)\b"
+    r"(?:\s+[^.!?;\n]{0,140}?)?\s+\b(?:from|at|via)\s*$", re.I,
+)
+_DESCRIBED_OUTBOUND = re.compile(
+    r"\b(?:upload(?:s|ed|ing)?|send(?:s|ing)?|post(?:s|ed|ing)?|transmit(?:s|ted|ting)?)\b"
+    r"(?:\s+[^.!?;\n]{0,140}?)?\s+\bto\s*$", re.I,
+)
+_TABLE_TRANSFER = re.compile(
+    r"^(?P<verb>downloads?|fetch(?:es)?|retrieves?|uploads?|sends?|posts?|transmits?)\s+"
+    r"(?!(?:url|link|page|docs?|documentation)\b)\S.{1,120}$", re.I,
+)
+_TRANSFER_WARNING = re.compile(
+    r"\b(?:never|(?:do|does|did|will|must|should)\s+not|don't|doesn't|"
+    r"won't|shouldn't|can't|cannot|avoid)\b", re.I,
+)
+_TRANSFER_REFERENCE = re.compile(
+    r"\b(?:download|downloads|upload|uploads|fetch)\s+"
+    r"(?:url|link|page|site|instructions?|docs?|documentation|endpoint)\b|"
+    r"\b(?:how\s+to|instructions\s+(?:for|to)|example\s+of)\s+"
+    r"(?:\w+\s+){0,3}(?:download|fetch|retrieve|upload|send)\b", re.I,
+)
+
+
+def described_network_operation(text: str, start: int) -> str | None:
+    """Recognize a transfer explicitly attached to a URL on the same line."""
+    left = text.rfind("\n", 0, start) + 1
+    prefix = text[left:start].rstrip(" `\t")
+    if _TRANSFER_WARNING.search(prefix) or _TRANSFER_REFERENCE.search(prefix):
+        return None
+
+    # Markdown tables often use an operation in one cell and its destination
+    # in the adjacent cell: | Downloads template ZIP | `https://...` |
+    if "|" in prefix:
+        # A trailing separator precedes the URL cell; look at the immediately
+        # preceding (operation) cell, never a different table column.
+        before_url = prefix[:-1] if prefix.endswith("|") else prefix
+        cell = before_url.rsplit("|", 1)[-1].strip()
+        match = _TABLE_TRANSFER.fullmatch(cell)
+        if match:
+            return "outbound" if match.group("verb").lower().startswith(
+                ("upload", "send", "post", "transmit")
+            ) else "download"
+        return None
+
+    # Require a clear verb and destination preposition, rather than merely
+    # "Download URL", "download link", or "see this download page".
+    if _DESCRIBED_DOWNLOAD.search(prefix):
+        return "download"
+    if _DESCRIBED_OUTBOUND.search(prefix):
+        return "outbound"
+    return None
+
 
 def _trim_span(text: str, start: int, end: int) -> tuple[int, int]:
     while start < end and text[start].isspace():

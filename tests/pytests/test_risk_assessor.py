@@ -227,3 +227,111 @@ def test_read_only_system_commands_do_not_raise_modification_indicator(operation
 def test_new_package_manager_installations_remain_supply_chain_evidence(command):
     _, assessment = _check('', f'```bash\n{command}\n```')
     assert any(i.indicator_id == 'RI-005' for i in assessment.supported)
+
+
+def test_cometchat_builder_zip_download_triggers_ri003_without_new_capability():
+    base = (
+        "## Docs MCP\n"
+        "For clients, see: https://www.cometchat.com/docs/mcp-server\n"
+        "```typescript\n"
+        'fetch("/api/cometchat-token")\n'
+        "```\n"
+        "## Packages\n"
+        "```bash\n"
+        "npm install @cometchat/chat-uikit-react\n"
+        "```\n"
+    )
+    derived = base + (
+        "## 11. Visual Builder integration\n"
+        "The CLI downloads a template ZIP and fetches builder settings.\n"
+        "### 11.1 Run `cometchat builder export`\n"
+        "```bash\n"
+        "cometchat builder export --platform react --json\n"
+        "```\n"
+        "| What | Where |\n"
+        "|---|---|\n"
+        "| Downloads static template ZIP | "
+        "`https://preview.cometchat.com/downloads/cometchat-builder-react.zip` |\n"
+    )
+    comparison, assessment = _check(base, derived)
+    assert not comparison.introduced.capabilities
+    assert comparison.rule_deltas[-1].rule_id == "NET-001"
+    assert comparison.derived.rule_counts()["NET-002"] == 1
+    indicators = [i for i in assessment.supported if i.indicator_id == "RI-003"]
+    assert len(indicators) == 1
+    (evidence,) = indicators[0].added
+    assert evidence.raw_text == "https://preview.cometchat.com/downloads/cometchat-builder-react.zip"
+    assert ("documented_operation", "download") in evidence.values
+    assert evidence.rule_ids == ("NET-001",)
+    assert evidence.context.kind == "inline_code"
+    assert evidence.context.heading == "11.1 Run `cometchat builder export`"
+
+
+@pytest.mark.parametrize("description", [
+    "Download the ZIP from https://new.example.test/template.zip",
+    "The CLI downloads a template ZIP from https://new.example.test/template.zip.",
+    "Fetch the configuration at https://new.example.test/settings.json",
+    "| Downloads template ZIP | `https://new.example.test/template.zip` |",
+    "| Fetches settings JSON | `https://new.example.test/settings.json` |",
+])
+def test_described_network_download_with_destination_triggers_ri003(description):
+    comparison, assessment = _check("", description)
+    supported = [i for i in assessment.supported if i.indicator_id == "RI-003"]
+    assert len(supported) == 1
+    assert ("documented_operation", "download") in supported[0].added[0].values
+    assert comparison.derived.rule_counts() == {"NET-001": 1}
+
+
+@pytest.mark.parametrize("description", [
+    "Upload diagnostics to https://existing.example.test/telemetry",
+    "The CLI sends logs to https://existing.example.test/telemetry",
+    "| Uploads user data | `https://existing.example.test/api` |",
+])
+def test_new_explicit_outbound_transfer_on_known_host_triggers_ri003(description):
+    base = "curl https://existing.example.test/status"
+    _, assessment = _check(base, base + "\n" + description)
+    signals = [i for i in assessment.supported if i.indicator_id == "RI-003"]
+    assert len(signals) == 1
+    assert signals[0].reason == "Explicit outbound payload transfer introduced"
+    assert ("documented_operation", "outbound") in signals[0].added[0].values
+
+
+@pytest.mark.parametrize("description", [
+    "See https://new.example.test/template.zip for more details",
+    "The download URL is https://new.example.test/template.zip",
+    "Visit the download page at https://new.example.test/",
+    "| Download URL | `https://new.example.test/template.zip` |",
+    "| Documentation link | `https://new.example.test/template.zip` |",
+    "Never download a ZIP from https://new.example.test/template.zip",
+    "The CLI does not download a ZIP from https://new.example.test/template.zip",
+    "The CLI cannot download a ZIP from https://new.example.test/template.zip",
+    "This guide explains how to download a ZIP from https://new.example.test/template.zip",
+    "```text\nThe CLI downloads a ZIP from https://new.example.test/template.zip\n```",
+])
+def test_references_warnings_and_code_examples_do_not_introduce_network_operations(description):
+    _, assessment = _check("", description)
+    assert "RI-003" not in {i.indicator_id for i in assessment.supported}
+
+
+def test_documented_operation_on_same_url_is_detected_as_changed_evidence():
+    url = "https://new.example.test/template.zip"
+    base = f"See {url} for information."
+    derived = f"Download the template from {url}"
+    comparison, assessment = _check(base, derived)
+    assert len(comparison.evidence_added) == len(comparison.evidence_removed) == 1
+    assert comparison.rule_deltas == ()
+    assert any(i.indicator_id == "RI-003" for i in assessment.supported)
+
+
+def test_documented_download_same_hostname_different_path_is_not_ri003():
+    base = "Download a ZIP from https://example.test/v1.zip"
+    derived = "Download a ZIP from https://example.test/v2.zip"
+    _, assessment = _check(base, derived)
+    assert "RI-003" not in {i.indicator_id for i in assessment.supported}
+
+
+def test_repeated_described_download_is_not_new_network_behavior():
+    line = "Download a ZIP from https://example.test/template.zip"
+    comparison, assessment = _check(line, line + "\n" + line)
+    assert len(comparison.evidence_added) == 1
+    assert "RI-003" not in {i.indicator_id for i in assessment.supported}

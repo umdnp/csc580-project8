@@ -255,7 +255,10 @@ class RiskAssessor:
                 if any(host not in original_network_hosts for url in urls
                        if (host := _host(url))):
                     add("RI-003", "New network-operation hostname observed", e, old=old)
-                if _TRANSFER.search(text) and not (old and _TRANSFER.search(old.raw_text)):
+                if (_TRANSFER.search(text) or "outbound" in _values(e, "documented_operation")) and not (
+                    old and (_TRANSFER.search(old.raw_text) or
+                             "outbound" in _values(old, "documented_operation"))
+                ):
                     add("RI-003", "Explicit outbound payload transfer introduced", e, old=old)
                 if _BYPASS.search(text) and not (old and _BYPASS.search(old.raw_text)):
                     add("RI-004", "Certificate verification bypass introduced", e, old=old)
@@ -414,6 +417,9 @@ class RiskAssessor:
 
     @staticmethod
     def _network(e: Evidence) -> bool:
+        if ("NET-001" in e.rule_ids and e.kind in {"url_reference", "markdown_link"}
+                and _values(e, "documented_operation")):
+            return True
         if "NET-002" not in e.rule_ids or e.kind not in {"shell_command", "api_call"}:
             return False
         if e.kind == "api_call":
