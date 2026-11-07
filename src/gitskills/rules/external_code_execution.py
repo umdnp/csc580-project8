@@ -6,6 +6,7 @@ import re
 import shlex
 
 from gitskills.analysis.evidence_extractors import staged_download_execution
+from gitskills.analysis.install_commands import INSTALL_ARGUMENT_VALUES
 from gitskills.analysis.models import RiskCategory, RuleMatch
 
 from .base import RegexRule, Rule
@@ -56,9 +57,6 @@ _INSTALL_PREFIXES = (
     r"(?:pnpm|yarn|bun)[ \t]+(?:add|install)|"
     r"(?:apt(?:-get)?|dnf|yum|brew)[ \t]+install)\b",
 )
-_INSTALL_ARG_VALUES = {"--registry", "--index-url", "--extra-index-url", "--find-links",
-                       "--prefix", "--cache-dir", "--config", "--cwd",
-                       "--workspace", "-w", "--filter", "-F"}
 _LOCAL_PATH = re.compile(r"(?:\.{1,2}(?:/.*)?|~/\S+|/\S+)$")
 
 
@@ -79,12 +77,12 @@ def _manifest_install(text: str, match: RuleMatch) -> bool:
     index = 0
     while index < len(args):
         arg = args[index]
-        if arg in _INSTALL_ARG_VALUES:
+        if arg in INSTALL_ARGUMENT_VALUES:
             if index + 1 >= len(args):
                 return False
             index += 2
             continue
-        if any(arg.startswith(option + "=") for option in _INSTALL_ARG_VALUES
+        if any(arg.startswith(option + "=") for option in INSTALL_ARGUMENT_VALUES
                if option.startswith("--")):
             index += 1
             continue

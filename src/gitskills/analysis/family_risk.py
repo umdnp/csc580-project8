@@ -11,7 +11,7 @@ from gitskills.rules.base import Rule
 from .analyzer import SkillAnalyzer
 from .comparator import compare_results
 from .family import FamilyAnalyzer
-from .family_models import Artifact, ChangeType, FamilyAnalysis, SimilarityPolicy, SkillVariant
+from .family_models import Artifact, ChangeType, FamilyAnalysis, SimilarityPolicy, SkillVariant, EvolutionEdge
 from .family_risk_models import (
     ActiveRule,
     ClusterRiskAnalysis,
@@ -27,6 +27,7 @@ from .family_risk_models import (
 )
 from .models import AnalysisResult, RiskProfile, RuleDelta, RuleMatch
 from .risk_assessor import RiskAssessor
+from .risk_models import RiskAssessment
 from .evidence_models import EvidenceChanges, ExtractionStatus
 
 
@@ -50,6 +51,16 @@ class _SiblingReview:
     summary: SiblingScanSummary
     source_changed: AnalysisResult
     destination_changed: AnalysisResult
+
+
+@dataclass(slots=True)
+class _ScanState:
+    variants: dict[str, SkillVariant]
+    artifacts_by_id: dict[int, Artifact]
+    siblings_by_artifact: dict[int, tuple[SiblingFile, ...]]
+    sibling_content_by_sha: dict[str, str]
+    skill_scan_cache: dict[str, AnalysisResult]
+    sibling_scan_cache: dict[tuple[str, str, str], AnalysisResult]
 
 
 class FamilyRiskAnalyzer:
@@ -117,8 +128,12 @@ class FamilyRiskAnalyzer:
             if sibling.entry_sha is not None and sibling.content is not None
         }
 
-        skill_scan_cache: dict[str, AnalysisResult] = {}
-        sibling_scan_cache: dict[tuple[str, str, str], AnalysisResult] = {}
+        state = _ScanState(
+            variants=variants, artifacts_by_id=artifacts_by_id,
+            siblings_by_artifact=siblings_by_artifact,
+            sibling_content_by_sha=sibling_content_by_sha,
+            skill_scan_cache={}, sibling_scan_cache={},
+        )
         clusters: list[ClusterRiskAnalysis] = []
 
         for cluster in family.family.clusters:
@@ -144,202 +159,14 @@ class FamilyRiskAnalyzer:
             pair_observations: list[PairObservation] = []
 
             for edge, edge_type in edges_to_scan:
-                source_result = self._scan_variant(
-                    edge.source.file_sha,
-                    variants,
-                    skill_scan_cache,
+                flagged, incomplete, observation = self._analyze_edge(
+                    cluster.number, edge, edge_type, state,
                 )
-                destination_result = self._scan_variant(
-                    edge.target.file_sha,
-                    variants,
-                    skill_scan_cache,
-                )
-                comparison = compare_results(source_result, destination_result)
-                skill_rules = self._positive_skill_rule_deltas(
-                    comparison.rule_deltas,
-                    destination_result,
-                    destination_artifact_id=edge.target_artifact_id,
-                )
-
-                sibling_rules: tuple[FlaggedRule, ...] = ()
-                sibling_summary: SiblingScanSummary | None = None
-                skill_evidence = comparison.evidence_changes
-                sibling_evidence = EvidenceChanges()
-                source_changed = _combine_results(())
-                destination_changed = _combine_results(())
-                if edge.change_type in _SIBLING_CHANGE_TYPES:
-                    source_files = siblings_by_artifact.get(edge.source_artifact_id, ())
-                    destination_files = siblings_by_artifact.get(edge.target_artifact_id, ())
-                    sibling_review = self._analyze_siblings(
-                        source_files=source_files,
-                        destination_files=destination_files,
-                        content_by_sha=sibling_content_by_sha,
-                        scan_cache=sibling_scan_cache,
-                    )
-                    sibling_rules = sibling_review.rules
-                    sibling_summary = sibling_review.summary
-                    source_changed = sibling_review.source_changed
-                    destination_changed = sibling_review.destination_changed
-                    # Missing sibling rows are not evidence of an empty bundle.
-                    source_artifact = artifacts_by_id[edge.source_artifact_id]
-                    destination_artifact = artifacts_by_id[edge.target_artifact_id]
-                    listing_incomplete = any(
-                        expected is None or len(available) < expected
-                        for expected, available in (
-                            (source_artifact.sibling_file_count, source_files),
-                            (destination_artifact.sibling_file_count, destination_files),
-                        )
-                    )
-                    if listing_incomplete:
-                        sibling_summary = replace(sibling_summary, listing_incomplete=True)
-                    if sibling_summary.incomplete:
-                        incomplete_pairs.append(
-                            IncompletePair(
-                                cluster_number=cluster.number,
-                                edge_type=edge_type,
-                                source_artifact_id=edge.source_artifact_id,
-                                destination_artifact_id=edge.target_artifact_id,
-                                change_type=edge.change_type,
-                                direction_basis=edge.basis,
-                                sibling_scan=sibling_summary,
-                            )
-                        )
-                    sibling_evidence = compare_results(
-                        source_changed, destination_changed
-                    ).evidence_changes
-
-                # One assessment per directed pair: no double counting between
-                # SKILL.md and changed sibling constructs.
-                combined = compare_results(
-                    _combine_results((source_result, source_changed)),
-                    _combine_results((destination_result, destination_changed)),
-                )
-                assessment = self._risk_assessor.assess(
-                    combined,
-                    base_script_hashes=_sibling_hashes(
-                        siblings_by_artifact.get(edge.source_artifact_id, ())
-                    ),
-                    derived_script_hashes=_sibling_hashes(
-                        siblings_by_artifact.get(edge.target_artifact_id, ())
-                    ),
-                )
-                if sibling_summary is not None:
-                    missing_content = (len(sibling_summary.unavailable_source_ids)
-                                       + len(sibling_summary.unavailable_destination_ids))
-                    unknown_hashes = (len(sibling_summary.unknown_sha_source_ids)
-                                      + len(sibling_summary.unknown_sha_destination_ids))
-                    assessment = replace(
-                        assessment,
-                        missing_sibling_content=missing_content,
-                        unknown_sibling_hashes=unknown_hashes,
-                        sibling_listing_incomplete=sibling_summary.listing_incomplete,
-                        coverage="incomplete" if sibling_summary.incomplete else assessment.coverage,
-                        coverage_notes=(assessment.coverage_notes
-                                        + ("Unavailable or unknown sibling data",))
-                        if sibling_summary.incomplete else assessment.coverage_notes,
-                    )
-
-                flagged_rules = tuple(
-                    sorted(
-                        (*skill_rules, *sibling_rules),
-                        key=lambda rule: (rule.rule_id, rule.surface.value),
-                    )
-                )
-                # Record why a pair was flagged; removed evidence and a rule
-                # count change alone are not proof of an introduced capability.
-                reasons = []
-                if assessment.supported:
-                    reasons.append("supported-risk-indicator")
-                if assessment.uncertain:
-                    reasons.append("uncertain-risk-indicator")
-                if skill_evidence.added or sibling_evidence.added:
-                    reasons.append("evidence-added")
-                if skill_evidence.removed or sibling_evidence.removed:
-                    reasons.append("evidence-removed")
-                if flagged_rules:
-                    reasons.append("rule-flag")
-                flag_reasons = tuple(reasons)
-                flagged = bool(flag_reasons)
-
-                # Include diagnostics on *all* directed pairs, including
-                # unflagged ones that still have incomplete evidence coverage.
-                coverage_issues = []
-                for side, results in (("base", (source_result, source_changed)),
-                                      ("derived", (destination_result, destination_changed))):
-                    for result in results:
-                        for evidence in result.evidence:
-                            if evidence.extraction_status == ExtractionStatus.COMPLETE:
-                                continue
-                            coverage_issues.append({
-                                "side": side,
-                                "status": evidence.extraction_status.value,
-                                "type": evidence.kind,
-                                "filename": evidence.filename,
-                                "source_id": evidence.source_id,
-                                "start_offset": evidence.start_offset,
-                                "rule_ids": list(evidence.rule_ids),
-                            })
-                if sibling_summary is not None:
-                    for side, ids in (("base", sibling_summary.unavailable_source_ids),
-                                      ("derived", sibling_summary.unavailable_destination_ids)):
-                        for sibling_id in ids:
-                            coverage_issues.append({"side": side, "status": "content-unavailable",
-                                                    "sibling_id": sibling_id})
-                    for side, ids in (("base", sibling_summary.unknown_sha_source_ids),
-                                      ("derived", sibling_summary.unknown_sha_destination_ids)):
-                        for sibling_id in ids:
-                            coverage_issues.append({"side": side, "status": "unknown-sibling-hash",
-                                                    "sibling_id": sibling_id})
-                    if sibling_summary.listing_incomplete:
-                        coverage_issues.append({"status": "sibling-listing-incomplete"})
-                pair_observations.append(PairObservation(
-                    edge_type=edge_type,
-                    source_artifact_id=edge.source_artifact_id,
-                    destination_artifact_id=edge.target_artifact_id,
-                    direction_basis=edge.basis,
-                    change_type=edge.change_type,
-                    flagged=flagged,
-                    rule_flagged=bool(flagged_rules),
-                    skill_evidence_added=len(skill_evidence.added),
-                    skill_evidence_removed=len(skill_evidence.removed),
-                    sibling_evidence_added=len(sibling_evidence.added),
-                    sibling_evidence_removed=len(sibling_evidence.removed),
-                    indicator_ids=tuple(sorted({i.indicator_id for i in assessment.supported})),
-                    uncertain_indicator_ids=tuple(sorted({i.indicator_id for i in assessment.uncertain})),
-                    finding_count=assessment.finding_count,
-                    coverage=assessment.coverage,
-                    evidence_complete=assessment.evidence_complete,
-                    evidence_partial=assessment.evidence_partial,
-                    evidence_unsupported=assessment.evidence_unsupported,
-                    missing_sibling_content=assessment.missing_sibling_content,
-                    unknown_sibling_hashes=assessment.unknown_sibling_hashes,
-                    sibling_listing_incomplete=assessment.sibling_listing_incomplete,
-                    flag_reasons=flag_reasons,
-                    coverage_issues=tuple(coverage_issues),
-                ))
-                if not flagged:
-                    continue
-
-                flagged_pairs.append(
-                    FlaggedPair(
-                        cluster_number=cluster.number,
-                        edge_type=edge_type,
-                        source_artifact_id=edge.source_artifact_id,
-                        destination_artifact_id=edge.target_artifact_id,
-                        direction_basis=edge.basis,
-                        direction_evidence=edge.evidence,
-                        change_type=edge.change_type,
-                        containment=edge.containment,
-                        jaccard=edge.jaccard,
-                        shared_shingles=edge.shared_shingles,
-                        flagged_rules=flagged_rules,
-                        sibling_scan=sibling_summary,
-                        skill_evidence=skill_evidence,
-                        sibling_evidence=sibling_evidence,
-                        risk_assessment=assessment,
-                        flag_reasons=flag_reasons,
-                    )
-                )
+                pair_observations.append(observation)
+                if incomplete is not None:
+                    incomplete_pairs.append(incomplete)
+                if flagged is not None:
+                    flagged_pairs.append(flagged)
 
             clusters.append(
                 ClusterRiskAnalysis(
@@ -362,6 +189,165 @@ class FamilyRiskAnalyzer:
             edge_selection=self._edges,
             ambiguous_edges_skipped=family.family.ambiguous_edge_count,
         )
+
+    def _analyze_edge(
+        self, cluster_number: int, edge: EvolutionEdge, edge_type: str,
+        state: _ScanState,
+    ) -> tuple[FlaggedPair | None, IncompletePair | None, PairObservation]:
+        incomplete_pair: IncompletePair | None = None
+        source_result = self._scan_variant(
+            edge.source.file_sha,
+            state.variants,
+            state.skill_scan_cache,
+        )
+        destination_result = self._scan_variant(
+            edge.target.file_sha,
+            state.variants,
+            state.skill_scan_cache,
+        )
+        comparison = compare_results(source_result, destination_result)
+        skill_rules = self._positive_skill_rule_deltas(
+            comparison.rule_deltas,
+            destination_result,
+            destination_artifact_id=edge.target_artifact_id,
+        )
+
+        sibling_rules: tuple[FlaggedRule, ...] = ()
+        sibling_summary: SiblingScanSummary | None = None
+        skill_evidence = comparison.evidence_changes
+        sibling_evidence = EvidenceChanges()
+        source_changed = _combine_results(())
+        destination_changed = _combine_results(())
+        if edge.change_type in _SIBLING_CHANGE_TYPES:
+            source_files = state.siblings_by_artifact.get(edge.source_artifact_id, ())
+            destination_files = state.siblings_by_artifact.get(edge.target_artifact_id, ())
+            sibling_review = self._analyze_siblings(
+                source_files=source_files,
+                destination_files=destination_files,
+                content_by_sha=state.sibling_content_by_sha,
+                scan_cache=state.sibling_scan_cache,
+            )
+            sibling_rules = sibling_review.rules
+            sibling_summary = sibling_review.summary
+            source_changed = sibling_review.source_changed
+            destination_changed = sibling_review.destination_changed
+            # Missing sibling rows are not evidence of an empty bundle.
+            source_artifact = state.artifacts_by_id[edge.source_artifact_id]
+            destination_artifact = state.artifacts_by_id[edge.target_artifact_id]
+            listing_incomplete = any(
+                expected is None or len(available) < expected
+                for expected, available in (
+                    (source_artifact.sibling_file_count, source_files),
+                    (destination_artifact.sibling_file_count, destination_files),
+                )
+            )
+            if listing_incomplete:
+                sibling_summary = replace(sibling_summary, listing_incomplete=True)
+            if sibling_summary.incomplete:
+                incomplete_pair = IncompletePair(
+                    cluster_number=cluster_number,
+                    edge_type=edge_type,
+                    source_artifact_id=edge.source_artifact_id,
+                    destination_artifact_id=edge.target_artifact_id,
+                    change_type=edge.change_type,
+                    direction_basis=edge.basis,
+                    sibling_scan=sibling_summary,
+                    )
+            sibling_evidence = compare_results(
+                source_changed, destination_changed
+            ).evidence_changes
+
+        # One assessment per directed pair: no double counting between
+        # SKILL.md and changed sibling constructs.
+        combined = compare_results(
+            _combine_results((source_result, source_changed)),
+            _combine_results((destination_result, destination_changed)),
+        )
+        assessment = self._risk_assessor.assess(
+            combined,
+            base_script_hashes=_sibling_hashes(
+                state.siblings_by_artifact.get(edge.source_artifact_id, ())
+            ),
+            derived_script_hashes=_sibling_hashes(
+                state.siblings_by_artifact.get(edge.target_artifact_id, ())
+            ),
+        )
+        if sibling_summary is not None:
+            missing_content = (len(sibling_summary.unavailable_source_ids)
+                               + len(sibling_summary.unavailable_destination_ids))
+            unknown_hashes = (len(sibling_summary.unknown_sha_source_ids)
+                              + len(sibling_summary.unknown_sha_destination_ids))
+            assessment = replace(
+                assessment,
+                missing_sibling_content=missing_content,
+                unknown_sibling_hashes=unknown_hashes,
+                sibling_listing_incomplete=sibling_summary.listing_incomplete,
+                coverage="incomplete" if sibling_summary.incomplete else assessment.coverage,
+                coverage_notes=(assessment.coverage_notes
+                                + ("Unavailable or unknown sibling data",))
+                if sibling_summary.incomplete else assessment.coverage_notes,
+            )
+
+        flagged_rules = tuple(
+            sorted(
+                (*skill_rules, *sibling_rules),
+                key=lambda rule: (rule.rule_id, rule.surface.value),
+            )
+        )
+        flag_reasons = _flag_reasons(assessment, skill_evidence, sibling_evidence, flagged_rules)
+        flagged = bool(flag_reasons)
+
+        coverage_issues = _coverage_issues(
+            (source_result, source_changed),
+            (destination_result, destination_changed), sibling_summary,
+        )
+        observation = PairObservation(
+            edge_type=edge_type,
+            source_artifact_id=edge.source_artifact_id,
+            destination_artifact_id=edge.target_artifact_id,
+            direction_basis=edge.basis,
+            change_type=edge.change_type,
+            flagged=flagged,
+            rule_flagged=bool(flagged_rules),
+            skill_evidence_added=len(skill_evidence.added),
+            skill_evidence_removed=len(skill_evidence.removed),
+            sibling_evidence_added=len(sibling_evidence.added),
+            sibling_evidence_removed=len(sibling_evidence.removed),
+            indicator_ids=tuple(sorted({i.indicator_id for i in assessment.supported})),
+            uncertain_indicator_ids=tuple(sorted({i.indicator_id for i in assessment.uncertain})),
+            finding_count=assessment.finding_count,
+            coverage=assessment.coverage,
+            evidence_complete=assessment.evidence_complete,
+            evidence_partial=assessment.evidence_partial,
+            evidence_unsupported=assessment.evidence_unsupported,
+            missing_sibling_content=assessment.missing_sibling_content,
+            unknown_sibling_hashes=assessment.unknown_sibling_hashes,
+            sibling_listing_incomplete=assessment.sibling_listing_incomplete,
+            flag_reasons=flag_reasons,
+            coverage_issues=coverage_issues,
+        )
+        if not flagged:
+            return None, incomplete_pair, observation
+
+        flagged_pair = FlaggedPair(
+            cluster_number=cluster_number,
+            edge_type=edge_type,
+            source_artifact_id=edge.source_artifact_id,
+            destination_artifact_id=edge.target_artifact_id,
+            direction_basis=edge.basis,
+            direction_evidence=edge.evidence,
+            change_type=edge.change_type,
+            containment=edge.containment,
+            jaccard=edge.jaccard,
+            shared_shingles=edge.shared_shingles,
+            flagged_rules=flagged_rules,
+            sibling_scan=sibling_summary,
+            skill_evidence=skill_evidence,
+            sibling_evidence=sibling_evidence,
+            risk_assessment=assessment,
+            flag_reasons=flag_reasons,
+            )
+        return flagged_pair, incomplete_pair, observation
 
     def _scan_variant(
         self,
@@ -604,6 +590,57 @@ class FamilyRiskAnalyzer:
             source_id=source_id,
             evidence=tuple(replace(item, source_id=source_id) for item in cached.evidence),
         )
+
+
+def _flag_reasons(assessment: RiskAssessment, skill_evidence: EvidenceChanges,
+                  sibling_evidence: EvidenceChanges, flagged_rules: tuple[FlaggedRule, ...]
+                  ) -> tuple[str, ...]:
+    reasons = []
+    if assessment.supported:
+        reasons.append("supported-risk-indicator")
+    if assessment.uncertain:
+        reasons.append("uncertain-risk-indicator")
+    if skill_evidence.added or sibling_evidence.added:
+        reasons.append("evidence-added")
+    if skill_evidence.removed or sibling_evidence.removed:
+        reasons.append("evidence-removed")
+    if flagged_rules:
+        reasons.append("rule-flag")
+    return tuple(reasons)
+
+
+def _coverage_issues(base: tuple[AnalysisResult, ...],
+                     derived: tuple[AnalysisResult, ...],
+                     sibling_summary: SiblingScanSummary | None) -> tuple[dict, ...]:
+    issues: list[dict] = []
+    for side, results in (("base", base), ("derived", derived)):
+        for result in results:
+            for evidence in result.evidence:
+                if evidence.extraction_status == ExtractionStatus.COMPLETE:
+                    continue
+                issues.append({
+                    "side": side,
+                    "status": evidence.extraction_status.value,
+                    "type": evidence.kind,
+                    "filename": evidence.filename,
+                    "source_id": evidence.source_id,
+                    "start_offset": evidence.start_offset,
+                    "rule_ids": list(evidence.rule_ids),
+                })
+    if sibling_summary is not None:
+        for side, ids in (("base", sibling_summary.unavailable_source_ids),
+                          ("derived", sibling_summary.unavailable_destination_ids)):
+            for sibling_id in ids:
+                issues.append({"side": side, "status": "content-unavailable",
+                               "sibling_id": sibling_id})
+        for side, ids in (("base", sibling_summary.unknown_sha_source_ids),
+                          ("derived", sibling_summary.unknown_sha_destination_ids)):
+            for sibling_id in ids:
+                issues.append({"side": side, "status": "unknown-sibling-hash",
+                               "sibling_id": sibling_id})
+        if sibling_summary.listing_incomplete:
+            issues.append({"status": "sibling-listing-incomplete"})
+    return tuple(issues)
 
 
 def _sibling_difference(

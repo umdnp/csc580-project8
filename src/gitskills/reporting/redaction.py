@@ -68,3 +68,9 @@ def safe_excerpt(text: str, *, limit: int = 200) -> str:
     if len(safe) > limit:
         return safe[: limit - 3] + "..."
     return safe
+
+
+def safe_rule_excerpt(rule_match, *, limit: int = 120) -> str:
+    if rule_match.category.value == "credential_access":
+        return "[credential-related content redacted]"
+    return safe_excerpt(rule_match.matched_text or "", limit=limit)

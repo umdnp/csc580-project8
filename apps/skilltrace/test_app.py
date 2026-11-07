@@ -356,6 +356,21 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(scan["derived"]["evidence"][0]["source"]["start_line"], 1)
         self.assertEqual(scan["derived"]["source_id"], "20")
 
+    def test_manifest_install_swap_keeps_skilltrace_risk_assessment_stable(self):
+        records = {
+            10: {"id": 10, "filename": "SKILL.md", "content": "## Setup\n`npm install`\n"},
+            20: {"id": 20, "filename": "SKILL.md", "content": "## Setup\n`bun install`\n"},
+        }
+        with patch.object(server, "fetch_artifact_records", return_value=records):
+            response = self.client.post("/api/reports/example.json/scan/10/20")
+        self.assertEqual(response.status_code, 200)
+        result = response.json()["scan_diff"]
+        self.assertEqual(result["base"]["rule_counts"].get("EXT-004"), 1)
+        self.assertEqual(result["derived"]["rule_counts"].get("EXT-004"), 1)
+        self.assertTrue(result["base"]["profile"]["external_code_execution"])
+        self.assertTrue(result["derived"]["profile"]["external_code_execution"])
+        self.assertEqual(result["risk_indicators"]["finding_count"], 0)
+
     def test_sibling_inspection_and_directed_scan(self):
         def siblings(artifact_id, *, entry_name=None, include_content=False, require_content=True):
             self.assertEqual(entry_name, "scripts/bootstrap.sh")

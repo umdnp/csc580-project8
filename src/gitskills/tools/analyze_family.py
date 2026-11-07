@@ -14,12 +14,12 @@ from gitskills.analysis.family_models import (
     ClusterAnalysis,
     FamilyAnalysis,
     ScopeAnalysis,
-    SimilarityPolicy,
 )
 from gitskills.data.families import DuckDBFamilyRepository
 from gitskills.analysis.family_reporting import analyze_family_report
 from . import _output
 from ._family_input import read_family_names
+from ._family_args import add_family_input, add_similarity_options, similarity_policy
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
@@ -34,57 +34,23 @@ def build_parser() -> argparse.ArgumentParser:
             "inferred evolution for one or more GitSkills candidate families."
         )
     )
-    family_input = parser.add_mutually_exclusive_group(required=True)
-    family_input.add_argument(
-        "name", nargs="?",
-        help="Exact candidate-family skill name, for example busybox-on-windows.",
-    )
-    family_input.add_argument(
-        "--input", type=Path, metavar="FILE",
-        help="UTF-8 file containing one candidate-family name per line (# comments allowed).",
-    )
-    parser.add_argument(
-        "--limit", type=int, metavar="N",
-        help="With --input, analyze only the first N names for a smoke test.",
+    add_family_input(
+        parser, name_help="Exact candidate-family skill name, for example busybox-on-windows.",
+        input_help="UTF-8 file containing one candidate-family name per line (# comments allowed).",
+        limit_help="With --input, analyze only the first N names for a smoke test.",
     )
     parser.add_argument(
         "--db",
         type=Path,
         help=f"DuckDB path. Defaults to ${DEFAULT_DB_ENV}.",
     )
-    parser.add_argument(
-        "--shingle-size",
-        type=int,
-        default=5,
-        help="Token shingle size (default: 5).",
-    )
-    parser.add_argument(
-        "--min-containment",
-        type=float,
-        default=0.80,
-        help="Exploratory minimum directional containment (default: 0.80).",
-    )
-    parser.add_argument(
-        "--min-jaccard",
-        type=float,
-        default=0.30,
-        help="Exploratory minimum Jaccard similarity (default: 0.30).",
-    )
-    parser.add_argument(
-        "--min-shared-shingles",
-        type=int,
-        default=5,
-        help="Exploratory minimum shared shingles (default: 5).",
-    )
-    parser.add_argument(
-        "--direction-margin",
-        type=float,
-        default=0.10,
-        help=(
-            "Minimum containment difference used to infer direction when "
-            "chronology is unavailable (default: 0.10)."
-        ),
-    )
+    add_similarity_options(parser, help_text={
+        '--shingle-size': 'Token shingle size (default: 5).',
+        '--min-containment': 'Exploratory minimum directional containment (default: 0.80).',
+        '--min-jaccard': 'Exploratory minimum Jaccard similarity (default: 0.30).',
+        '--min-shared-shingles': 'Exploratory minimum shared shingles (default: 5).',
+        '--direction-margin': 'Minimum containment difference used to infer direction when chronology is unavailable (default: 0.10).',
+    })
     parser.add_argument(
         "--verbose",
         action="store_true",
@@ -133,13 +99,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "Batch output already contains reports or benchmarks; "
                     "use a new output directory"
                 )
-        policy = SimilarityPolicy(
-            shingle_size=args.shingle_size,
-            min_containment=args.min_containment,
-            min_jaccard=args.min_jaccard,
-            min_shared_shingles=args.min_shared_shingles,
-            direction_containment_margin=args.direction_margin,
-        )
+        policy = similarity_policy(args)
     except (OSError, ValueError, _output.OutputError) as exc:
         print(f"Invalid analysis input: {exc}", file=sys.stderr)
         return 2
