@@ -91,6 +91,28 @@ def test_stratum_quotas_and_remainder_ties():
         sampling.allocate_groups(0)
 
 
+def test_large_allocations_use_exact_integer_remainders():
+    for size in (1, 3, 31, 101, 1001, 10**18 + 77):
+        quotas = sampling.allocate_groups(size)
+        assert sum(quotas) == size
+        assert all(quota >= 0 for quota in quotas)
+
+
+def test_shortages_fail_before_any_relationship_validation(tmp_path, monkeypatch):
+    db = tmp_path / "unused.duckdb"
+    db.touch()
+    monkeypatch.setattr(sampling, "STRATA", (("Low", 2, 2, 50), ("Medium", 3, 15, 50)))
+    monkeypatch.setattr(sampling, "load_candidates", lambda _: [
+        {"name": "only-low", "artifact_count": 2, "unique_variants": 2},
+    ])
+    monkeypatch.setattr(sampling, "validate_family", lambda *a, **kw:
+                        pytest.fail("No validation should run when quotas are impossible"))
+    monkeypatch.setattr(sampling.duckdb, "connect", lambda *a, **kw:
+                        pytest.fail("No connection needed after candidate discovery"))
+    with pytest.raises(ValueError, match="Medium: requested 1 families"):
+        sampling.pick_families(database=db, sample_size=2, seed=5801)
+
+
 def test_picker_replaces_failed_candidate_and_tracks_exclusions(tmp_path, monkeypatch):
     db = tmp_path / "unused.duckdb"
     db.touch()

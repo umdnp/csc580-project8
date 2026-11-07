@@ -52,10 +52,10 @@ def allocate_groups(size: int) -> list[int]:
     """Apply largest-remainder allocation with ties in stratum order."""
     if type(size) is not int or size < 1:
         raise ValueError("sample_size must be a positive integer")
-    quotas = [size * percent / 100 for _, _, _, percent in STRATA]
-    counts = [size * percent // 100 for _, _, _, percent in STRATA]
+    quotients = [divmod(size * percent, 100) for _, _, _, percent in STRATA]
+    counts = [whole for whole, _ in quotients]
     remaining = size - sum(counts)
-    order = sorted(range(len(STRATA)), key=lambda index: quotas[index] - counts[index], reverse=True)
+    order = sorted(range(len(STRATA)), key=lambda index: quotients[index][1], reverse=True)
     for index in order[:remaining]:
         counts[index] += 1
     return counts
@@ -115,6 +115,7 @@ def _hash_pair_counts(connection: duckdb.DuckDBPyConnection, name: str) -> dict:
     n = sum(count for _, _, count in rows)
     pairs = n * (n - 1) // 2
     sibling_pairs = 0
+    # Same-primary pairs qualify only when both sibling hashes are known and differ.
     for siblings in primary_groups.values():
         total = sum(count for _, count in siblings)
         known = sum(count for sibling, count in siblings if sibling is not None)
@@ -188,24 +189,30 @@ def pick_families(*, database: Path | str, sample_size: int = DEFAULT_SAMPLE_SIZ
     if progress:
         progress(f"Found {len(candidates):,} eligible-by-hash families; "
                  f"excluded {excluded_count:,} previously selected names.")
+    pools = [
+        [family for family in eligible
+         if low <= family["artifact_count"]
+         and (high is None or family["artifact_count"] <= high)]
+        for _, low, high, _ in STRATA
+    ]
+    for (name, _, _, _), quota, pool in zip(STRATA, quotas, pools):
+        if len(pool) < quota:
+            raise ValueError(f"{name}: requested {quota} families but only {len(pool)} "
+                             "hash-distinct candidates remain after exclusions")
+
     rng = random.Random(seed)
     selected: list[dict] = []
     groups: list[dict] = []
     attempted = 0
+    rejected_total = 0
     connection = duckdb.connect(str(database), read_only=True)
     try:
-        for (name, low, high, percentage), quota in zip(STRATA, quotas):
-            pool = [family for family in eligible
-                    if low <= family["artifact_count"]
-                    and (high is None or family["artifact_count"] <= high)]
-            if len(pool) < quota:
-                raise ValueError(f"{name}: requested {quota} families but only {len(pool)} "
-                                 "hash-distinct candidates remain after exclusions")
+        for (name, low, high, percentage), quota, pool in zip(STRATA, quotas, pools):
             if progress:
                 progress(f"{name}: selecting {quota} of {len(pool):,} candidates")
             chosen: list[dict] = []
             rejected: list[dict] = []
-            remaining = sorted(pool, key=lambda item: item["name"])
+            remaining = list(pool)  # DuckDB already orders candidates by name.
             while len(chosen) < quota and remaining:
                 index = rng.randrange(len(remaining))
                 candidate = remaining.pop(index)
@@ -216,11 +223,12 @@ def pick_families(*, database: Path | str, sample_size: int = DEFAULT_SAMPLE_SIZ
                              f"{len(selected) + len(chosen)}/{sample_size} selected)...")
                 checked = validate_family(database, candidate, policy=policy, connection=connection)
                 if checked["primary_directed_relationships"] < 1:
-                    rejected.append({"name": checked["name"], "reason": (
-                        "no_usable_pairs" if checked["usable_pair_count"] == 0
-                        else "no_usable_primary_edge")})
+                    reason = ("no_usable_pairs" if checked["usable_pair_count"] == 0
+                              else "no_usable_primary_edge")
+                    rejected.append({"name": checked["name"], "reason": reason})
+                    rejected_total += 1
                     if progress and verbose:
-                        progress(f"  Rejected: {rejected[-1]['reason']} "
+                        progress(f"  Rejected: {reason} "
                                  f"({checked['usable_pair_count']} usable pairs)")
                     continue
                 chosen.append({**checked, "group": name})
@@ -228,7 +236,7 @@ def pick_families(*, database: Path | str, sample_size: int = DEFAULT_SAMPLE_SIZ
                                  or len(chosen) == quota):
                     progress(f"[{len(selected) + len(chosen)}/{sample_size}] selected | "
                              f"{attempted} checked | "
-                             f"{sum(len(group['rejected_families']) for group in groups) + len(rejected)} rejected")
+                             f"{rejected_total} rejected")
                 if progress and verbose:
                     progress(f"  Accepted: {checked['primary_directed_relationships']} "
                              "usable primary directed relationship(s)")

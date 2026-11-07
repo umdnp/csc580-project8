@@ -27,9 +27,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--verbose", action="store_true", help="Report each candidate and validation result")
     args = parser.parse_args(argv)
     try:
-        database = args.db or (Path(os.environ["GITSKILLS_DB"]) if os.getenv("GITSKILLS_DB") else None)
-        if database is None or not database.is_file():
+        database_path = args.db or os.getenv("GITSKILLS_DB")
+        if not database_path:
             raise ValueError("Set GITSKILLS_DB or pass --db with an existing DuckDB file")
+        database = Path(database_path)
+        if not database.is_file():
+            raise ValueError(f"Prepared DuckDB database not found: {database}")
         if (args.output / "families.txt").exists() or (args.output / "sample.json").exists():
             raise FileExistsError(f"Sample files already exist in {args.output}; move them before rerunning")
         exclude_names = set()
