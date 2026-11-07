@@ -65,6 +65,8 @@ The main concerns are:
 
 The project uses the strongest available evidence to establish direction and leaves a relationship unresolved when the evidence is not strong enough. Unresolved relationships should not be used to claim that a behavior was introduced or removed.
 
+When chronology or provenance evidence is unavailable, directional containment may provide a plausible ordering based on content similarity. However, this does not establish the actual historical sequence. Conclusions based on containment-only relationships should therefore be interpreted cautiously and compared with relationships supported by stronger direction evidence.
+
 See [RDR-007](docs/decisions/RDR-007-effective-chronology-and-direction-evidence.md).
 
 ### Alternative Explanations
@@ -127,6 +129,8 @@ In particular:
 - Some directed comparisons may share artifacts or repeated content, so they are not necessarily independent observations.
 - Ambiguous relationships are intentionally left without directional conclusions.
 - Counts and percentages from the purposeful Sprint 1 sample should not be treated as population-wide risk estimates.
+
+Related artifacts may share substantial reused or generated content, causing the same security-sensitive change to appear in multiple comparisons. These observations are not necessarily independent and may inflate pair-level findings. Family-level analysis reduces this effect, but shared templates across families may still influence the results.
 
 These limitations will be revisited as validation and broader analysis continue.
 
