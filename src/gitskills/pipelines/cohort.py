@@ -160,6 +160,7 @@ def _sample_checksums(results: Path) -> dict:
 
 
 def _apply_saved_reviews(*, selected: list[str], database: Path, results: Path,
+                         scan_cache: Path,
                          policy: SimilarityPolicy, edges: str, per_stratum: int,
                          seed: int, directed_annotations: Path | None,
                          relationship_annotations: Path | None, active_rules: list[dict],
@@ -172,7 +173,7 @@ def _apply_saved_reviews(*, selected: list[str], database: Path, results: Path,
                          "without annotations if the inputs have changed")
 
     manifest_path = results / "sample_manifest.json"
-    scan_manifest_path = results / ".scans" / ".metadata" / "scan-manifest.json"
+    scan_manifest_path = scan_cache / ".metadata" / "scan-manifest.json"
     execution_path = results / "execution_summary.json"
     try:
         saved = read_json(manifest_path)
@@ -201,14 +202,14 @@ def _apply_saved_reviews(*, selected: list[str], database: Path, results: Path,
     if set(snapshots) != set(selected):
         invalid("cohort family source snapshots are incomplete")
     for name in selected:
-        entry = entries.get(name, {})
         source = snapshots[name]
+        entry = entries.get(source.get("scan_cache_key", name), {})
         filename = entry.get("filename")
         if not isinstance(filename, str) or Path(filename).name != filename:
             invalid(f"scan cache filename for {name} is invalid")
-        scan_file = results / ".scans" / filename
-        if (not isinstance(source.get("scan_report"), str) or
-                Path(source["scan_report"]).resolve() != scan_file.resolve() or
+        scan_file = scan_cache / filename
+        # Cohort manifests store filenames relative to the configured scan cache.
+        if (source.get("scan_report") != filename or
                 entry.get("database") != stamp or
                 entry.get("implementation_fingerprint") != implementation or
                 entry.get("policy") != policy.to_dict() or
@@ -248,6 +249,7 @@ def _apply_saved_reviews(*, selected: list[str], database: Path, results: Path,
 
 def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                      skilltrace_reports: Path | None = None,
+                     scan_cache: Path | None = None,
                      policy: SimilarityPolicy | None = None, edges: str = "all",
                      rescan: bool = False, per_stratum: int | None = 5, seed: int = 580,
                      directed_annotations: Path | None = None,
@@ -256,8 +258,10 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                      progress: Callable[[str], None] | None = None) -> dict:
     """Analyze selected families without requiring saved family or scan reports.
 
-    Reuse valid ``results/.scans/<family>.json`` files. Complete similarity
-    analyses remain in memory only for relationship validation. A normal scan
+    Reuse valid scan reports from ``scan_cache`` (default: ``results/.scans``).
+    Cohort manifests reference scan filenames relative to that directory.
+    Cache variants with different sources or settings are kept separately.
+    Complete similarity analyses remain in memory only for relationship validation. A normal scan
     can be produced independently by scan_family with the same configuration.
     """
     selected, stems = validate_names(names)
@@ -273,14 +277,15 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
     policy = policy or SimilarityPolicy()
     stamp, implementation = _database_stamp(database), implementation_fingerprint()
     active_rules = [rule.to_dict() for rule in FamilyRiskAnalyzer(policy=policy, edges=edges).active_rules]
-    folder = results / ".scans"
+    folder = Path(scan_cache) if scan_cache is not None else results / ".scans"
     cache_manifest = folder / ".metadata" / "scan-manifest.json"
     legacy_manifest = folder / ".scan_manifest.json"
     if (directed_annotations or relationship_annotations) and not rescan:
         if progress is not None:
             progress("Verifying saved cohort and updating adjudication metrics")
         return _apply_saved_reviews(
-            selected=selected, database=database, results=results, policy=policy,
+            selected=selected, database=database, results=results, scan_cache=folder,
+            policy=policy,
             edges=edges, per_stratum=per_stratum, seed=seed,
             directed_annotations=directed_annotations,
             relationship_annotations=relationship_annotations,
@@ -320,12 +325,33 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
             raise ValueError(f"Candidate family not found: {name}")
         records = source_records(loaded)
         skipped = [item.to_dict() for item in loaded.skipped_artifacts]
-        path = folder / f"{stems[name]}.json"
-        cached = None if rescan else _cached_scan(
-            path, entries.get(name), name=name, records=records, skipped=skipped,
+        # Keep distinct cache variants so one run cannot replace another run's
+        # scan when its inputs, database, rules, or similarity settings differ.
+        cache_fingerprint = fingerprint({
+            "name": name, "source": fingerprint(records),
+            "skipped": fingerprint(skipped), "database": stamp,
+            "implementation": implementation, "policy": policy.to_dict(),
+            "edges": edges, "active_rules": active_rules,
+        })
+        version_key = f"{name}::{cache_fingerprint[:20]}"
+        name_hash = hashlib.sha256(name.encode()).hexdigest()[:8]
+        version_file = f"{stems[name]}--{name_hash}-{cache_fingerprint[:16]}.json"
+        legacy_path = folder / f"{stems[name]}.json"
+        legacy = None
+        if not rescan and name in entries:
+            legacy = _cached_scan(
+                legacy_path, entries[name], name=name, records=records,
+                skipped=skipped, policy=policy, edges=edges,
+                active_rules=active_rules, db_stamp=stamp,
+                implementation=implementation,
+            )
+        cache_key = name if legacy is not None else version_key
+        path = legacy_path if legacy is not None else folder / version_file
+        cached = None if rescan else (legacy if legacy is not None else _cached_scan(
+            path, entries.get(cache_key), name=name, records=records, skipped=skipped,
             policy=policy, edges=edges, active_rules=active_rules,
             db_stamp=stamp, implementation=implementation,
-        )
+        ))
         # Recalculate similarities only when needed for relationship validation
         # or for a missing/stale/forced security scan; never serialize verbose JSON.
         family_analysis = None
@@ -351,23 +377,23 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
                     raise ValueError(f"{name}: completed review exists and scans would change; "
                                      "archive the previous results first")
             _atomic_json(path, scan)
-            entries[name] = _entry(path, records, skipped, stamp, implementation,
-                                   policy, edges, active_rules)
+            entries[cache_key] = _entry(path, records, skipped, stamp, implementation,
+                                        policy, edges, active_rules)
             _atomic_json(cache_manifest, {"version": _CACHE_VERSION, "families": entries})
         else:
             if progress is not None:
                 progress(f"[{index}/{len(selected)}] {name}: reusing compatible scan")
             scan = cached
-            if name not in entries:
-                entries[name] = _entry(path, records, skipped, stamp, implementation,
-                                       policy, edges, active_rules)
+            if cache_key not in entries:
+                entries[cache_key] = _entry(path, records, skipped, stamp, implementation,
+                                            policy, edges, active_rules)
                 _atomic_json(cache_manifest, {"version": _CACHE_VERSION, "families": entries})
         if cached is not None and family_analysis is not None:
             _verify_lineage(family_analysis, scan)
         _rows(scan)  # Reject internally inconsistent results before research outputs.
         scans.append(scan)
         snapshots.append({
-            "name": name, "scan_report": str(path),
+            "name": name, "scan_report": path.name, "scan_cache_key": cache_key,
             "source_fingerprint": fingerprint(records), "artifacts": records,
             "skipped_artifacts": skipped,
             "groups": sorted({item["group_id"] for item in records}),
