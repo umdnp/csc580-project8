@@ -284,6 +284,19 @@ class RiskAssessor:
                     add("RI-005", "External package installation introduced", e, old=old)
                 elif was_install and _source_change(e) != _source_change(old):
                     add("RI-005", "Explicit package source or registry changed", e, old=old)
+            if "EXT-003" in rules:
+                if old and "EXT-003" in old.rule_ids:
+                    if urls != _urls(old):
+                        add("RI-005", "External executable acquisition source changed", e, old=old)
+                else:
+                    ambiguous = any(
+                        p.filename == e.filename and "EXT-003" in p.rule_ids
+                        for p in changes.removed
+                    )
+                    add("RI-005", "External executable acquisition introduced" if not ambiguous
+                        else "External executable acquisition changed without clear correspondence",
+                        e, old=old,
+                        status=IndicatorStatus.UNCERTAIN if ambiguous else None)
             if is_network and "EXT-001" not in rules and _ACQUIRE.search(text) and not (old and _ACQUIRE.search(old.raw_text)):
                 add("RI-005", "External script acquisition introduced", e, old=old)
             if "FS-001" in rules and re.search(r"\b(?:rm|Remove-Item)\s+", text, re.I):
