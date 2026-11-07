@@ -18,58 +18,108 @@ Use `<tool> --help` for the complete command-line help. When running directly fr
 
 ### Purpose
 
-`family_picker` generates a stratified random sample without prompts or analysis.
-Edit `src/gitskills/tools/family_picker.toml` to set sample size, seed, group
-boundaries, percentages, and minimum usable-pair count. Group sizes use total
-artifact counts by exact family name. Usable pairs require loadable content and
-either different primary hashes or different, non-null derived sibling hashes.
-There is no repository restriction.
+`family_picker` selects exact **family names**, not name-and-description groups, for
+reproducible stratified research samples. It first queries DuckDB for at least
+two distinct `(file_sha, sibling_content_sha)` states and then validates random
+candidates within each stratum. Every selected family must contain **at least
+one usable primary directed relationship**, determined by the same
+`FamilyAnalyzer` and `SimilarityPolicy` as the research pipeline. A usable edge
+must have different primary hashes, or two known and different sibling hashes.
+Families that fail validation are replaced in the same stratum.
 
-### Usage
+This step performs **similarity and relationship analysis, not security scans**.
+It does not execute skills, run security rules, or populate a scan cache. For
+large families, relationship analysis can take time.
 
-```bash
-python -m gitskills.tools.family_picker
-```
-
-Optional arguments are `--config FILE`, `--db FILE` (otherwise `GITSKILLS_DB`),
-and `--output DIR` (default: `output/family_samples`). The default config is beside
-the tool. The output path is relative to the working directory.
-
-Percentages must total 100. Largest-remainder allocation fills the requested
-sample size; ties follow config group order. With example percentages
-20 / 60 / 14 / 5 / 1, a sample of 10 selects 2 / 6 / 1 / 1 / 0 families.
-Zero-percent groups are excluded. A shortage causes an error without silently
-changing group allocations. Sampling is without replacement within each group.
-
-An empty seed (`seed = ""`) generates a fresh seed saved with the sample. Set
-that integer in the config to replay the selection with the same database,
-configuration, and sampling implementation.
-
-The picker targets the fixed, previously inspected database snapshot. The
-`family_picker_exclusions.json` file beside the tool lists 617 families with no
-usable pair. These names are excluded before selection. All grouped artifacts
-in this snapshot were verified loadable, so sampling reads family counts and
-selected-family hashes without scanning stored content again. The saved sample
-record includes the exclusion list. Group totals describe candidates after
-exclusions; selected families have their pair counts checked against the config.
-
-### Output and Pipeline Handoff
-
-Names print one per line to standard output. The seed, group allocation counts,
-and saved paths print to standard error. Each run creates a new directory under
-the output parent, preserving previous samples:
-
-- `families.txt` contains the names in pipeline input format.
-- `sample.json` records the seed, config, database file metadata, candidate group
-  counts, and selected families with artifact and usable-pair counts.
-
-Run analysis separately using the saved family-list path:
+### Synopsis
 
 ```bash
-python -m gitskills.tools.analyze_family --input output/family_samples/<run>/families.txt --output apps/skilltrace/reports
+python -m gitskills.tools.family_picker [OPTIONS]
 ```
 
-The same list can be passed to `scan_family` or `summarize_cohort` with `--input`.
+### Options
+
+| Option | Default | Description |
+|---|---|---|
+| `--db PATH` | `$GITSKILLS_DB` | Prepared DuckDB database. |
+| `--sample-size N` | `100` | Number of distinct family names to select (positive integer). |
+| `--seed N` | Generated and recorded | Integer random seed; use the same database, policy, and exclusions to reproduce a sample. |
+| `--exclude-files FILE [FILE ...]` | None | Read previous `families.txt` lists and exclude the union of their names before drawing. `--exclusions` is an alias. |
+| `--output DIR` | `output/` | Write `families.txt` and `sample.json` **directly** into this directory. Refuses to overwrite either file. |
+| `--verbose` | Off | Show every candidate's validation outcome, including rejection reasons and usable primary-edge counts. |
+| `-h`, `--help` | — | Show command-line help. |
+
+### Sampling method
+
+The fixed size groups use **total artifact count** (not unique-variant count).
+The distribution is intentionally stratified, not proportional to the full
+dataset. Largest-remainder allocation fills a non-100 sample size; ties follow
+group order. Insufficient candidates cause a clear error; the picker does not
+silently reallocate to other groups.
+
+| Group | Artifact count | Weight | At 100 families |
+|---|---|---:|---:|
+| Low | 2 | 20% | 20 |
+| Medium | 3–15 | 55% | 55 |
+| Large | 16–100 | 20% | 20 |
+| X-Large | 101–500 | 4% | 4 |
+| Extreme | 501+ | 1% | 1 |
+
+A candidate with different hash states might still be rejected because its
+content is missing, its sibling state is unknown, or it lacks a usable primary
+directed edge under the selected similarity policy. The tool reports progress
+while validating candidates and shows more detail under `--verbose`. Names
+that cannot round-trip through the one-name-per-line file format are removed
+before drawing. Later trials are **non-overlapping**, not statistically
+independent, because they exclude previously selected names.
+
+### Output and pipeline handoff
+
+`families.txt` contains names, one per line, for `--input` and notebook use.
+`sample.json` records the seed, size allocation, candidate/selection/rejection
+counts, validation results, similarity policy, DuckDB file metadata, and the
+paths and SHA-256 hashes of prior exclusion files. It is selection metadata,
+not the `sample_manifest.json` generated by `summarize_cohort`.
+
+Names print to standard output; progress, errors, and saved paths print to
+standard error. An existing `families.txt` or `sample.json` causes an error
+rather than being overwritten. No TOML configuration or fixed exclusions JSON
+is used.
+
+For three 100-family Sprint 3 trials:
+
+```bash
+python -m gitskills.tools.family_picker --sample-size 100 --seed 5801 \
+  --output notebooks/end_to_end_pipeline/sprint3/samples1
+
+python -m gitskills.tools.family_picker --sample-size 100 --seed 5802 \
+  --exclude-files notebooks/end_to_end_pipeline/sprint3/samples1/families.txt \
+  --output notebooks/end_to_end_pipeline/sprint3/samples2
+
+python -m gitskills.tools.family_picker --sample-size 100 --seed 5803 \
+  --exclude-files notebooks/end_to_end_pipeline/sprint3/samples1/families.txt \
+                  notebooks/end_to_end_pipeline/sprint3/samples2/families.txt \
+  --output notebooks/end_to_end_pipeline/sprint3/samples3
+```
+
+You can also run `notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb`
+without first running these commands. It calls the shared
+`gitskills.sampling.families.pick_families()` API when the selected Sprint 3
+`families.txt` is absent, then saves both files using `save_sample()`.
+Existing samples are reused; samples 2 and 3 require earlier lists. The
+notebook derives family selection seeds `5801`, `5802`, and `5803`, separately
+from its manual-review sampling seed `580`.
+
+For Python code, the corresponding API is:
+
+```python
+from gitskills.sampling.families import pick_families, save_sample
+
+sample = pick_families(database=DB_PATH, sample_size=100, seed=5801,
+                       exclude_names=previous_names, policy=POLICY, progress=print)
+# sample.names can be passed straight to summarize_cohort(...).
+save_sample(sample, output=OUTPUT_DIR, database=DB_PATH)
+```
 
 ---
 

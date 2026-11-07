@@ -33,10 +33,14 @@ def notebook_workspace(tmp_path, monkeypatch):
     (project / "pyproject.toml").write_text('[project]\nname = "notebook-test"\n', encoding="utf-8")
     cells = ["".join(cell["source"]) for cell in json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
              if cell["cell_type"] == "code"]
-    # Use the actual default cohort rather than replacing the notebook's setup.
-    _, assignment = assignment_cell(cells, "candidate_families")
-    names = ast.literal_eval(assignment.value)
-    assert len(names) >= 3, "Fixture needs positive, negative, and direction-unknown families"
+    # Test the preserved Sprint 2 cohort behavior with its approved file.
+    # The production notebook defaults to Sprint 3, which generates missing samples.
+    names = ["positive", "negative", "direction-unknown"]
+    cells = [cell.replace("SPRINT = 3  # 2 for the original cohort; 3 for one of three new cohorts.",
+                          "SPRINT = 2  # Test existing Sprint 2 family list.") for cell in cells]
+    approved = notebook_directory / "sprint2" / "samples" / "families.txt"
+    approved.parent.mkdir(parents=True, exist_ok=True)
+    approved.write_text("\n".join(names) + "\n", encoding="utf-8")
     database = tmp_path / "source.duckdb"
     monkeypatch.setenv("GITSKILLS_DB", str(database))
     monkeypatch.chdir(notebook_directory)
@@ -122,14 +126,14 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
     for index in range(len(cells)):
         run_cell(cells, index, namespace)
     execution = namespace["execution"]
-    results = project / "notebooks/end_to_end_pipeline/results/sprint2"
+    results = project / "notebooks/end_to_end_pipeline/sprint2/results"
     from gitskills.reporting.files import report_stem
-    scans_dir = results / ".scans"
+    scans_dir = project / "notebooks/end_to_end_pipeline/.scans"
     assert namespace["PROJECT_ROOT"] == project
     assert namespace["RESULT_DIR"] == results
     assert "SKILLTRACE_REPORTS" not in namespace
     assert namespace["candidate_families"] == names
-    assert namespace["EDGES"] == "all"
+    assert namespace["EDGES"] == "primary"
     assert execution["status"] == "complete"
     assert execution["family_count"] == len(names)
     assert execution["artifacts_loaded"] == len(expected_ids)
@@ -185,4 +189,4 @@ def test_notebook_rejects_unprepared_database_before_writing_reports(notebook_wo
         for index in range(len(cells)):
             run_cell(cells, index, namespace)
     assert not (project / "apps/skilltrace/reports").exists()
-    assert not (project / "notebooks/end_to_end_pipeline/results").exists()
+    assert not (project / "notebooks/end_to_end_pipeline/sprint2/results").exists()
