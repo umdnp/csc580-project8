@@ -22,6 +22,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit", type=int, help="With --input, process at most N families")
     parser.add_argument("--db", type=Path, help="Prepared DuckDB (default: $GITSKILLS_DB)")
     parser.add_argument("--output", required=True, type=Path, help="Research results directory")
+    parser.add_argument("--scan-cache", type=Path,
+                        help="Scan cache directory (default: <output>/.scans)")
     parser.add_argument("--edges", choices=("primary", "all"), default="all",
                         help="Directed scan scope (default: all)")
     parser.add_argument("--rescan", action="store_true",
@@ -68,7 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(str(exc))
     try:
         outcome = summarize_cohort(
-            names, database=db, results=args.output, policy=policy, edges=args.edges,
+            names, database=db, results=args.output, scan_cache=args.scan_cache,
+            policy=policy, edges=args.edges,
             rescan=args.rescan, per_stratum=None if args.no_sampling else args.per_stratum,
             seed=args.seed, directed_annotations=args.annotations,
             relationship_annotations=args.relationship_annotations,

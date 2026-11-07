@@ -208,8 +208,8 @@ def _apply_saved_reviews(*, selected: list[str], database: Path, results: Path,
         if not isinstance(filename, str) or Path(filename).name != filename:
             invalid(f"scan cache filename for {name} is invalid")
         scan_file = scan_cache / filename
-        if (not isinstance(source.get("scan_report"), str) or
-                Path(source["scan_report"]).resolve() != scan_file.resolve() or
+        # Cohort manifests store filenames relative to the configured scan cache.
+        if (source.get("scan_report") != filename or
                 entry.get("database") != stamp or
                 entry.get("implementation_fingerprint") != implementation or
                 entry.get("policy") != policy.to_dict() or
@@ -259,6 +259,7 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
     """Analyze selected families without requiring saved family or scan reports.
 
     Reuse valid scan reports from ``scan_cache`` (default: ``results/.scans``).
+    Cohort manifests reference scan filenames relative to that directory.
     Cache variants with different sources or settings are kept separately.
     Complete similarity analyses remain in memory only for relationship validation. A normal scan
     can be produced independently by scan_family with the same configuration.
@@ -392,7 +393,7 @@ def summarize_cohort(names: Sequence[str], *, database: Path, results: Path,
         _rows(scan)  # Reject internally inconsistent results before research outputs.
         scans.append(scan)
         snapshots.append({
-            "name": name, "scan_report": str(path), "scan_cache_key": cache_key,
+            "name": name, "scan_report": path.name, "scan_cache_key": cache_key,
             "source_fingerprint": fingerprint(records), "artifacts": records,
             "skipped_artifacts": skipped,
             "groups": sorted({item["group_id"] for item in records}),
