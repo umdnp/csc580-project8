@@ -212,12 +212,15 @@ def test_old_compact_family_report_is_refreshed(repositories):
     assert again["family_report_updated"] is False
 
 
-def test_cohort_generates_missing_reports_and_refreshes_mismatched_scans(repositories):
+def test_run_family_rejects_missing_family(repositories):
     db, reports, results = repositories
-    assert summarize_cohort(["alpha"], database=db, results=results)["family_count"] == 1
     with pytest.raises(ValueError, match="not found"):
         run_family("missing", database=db, skilltrace_reports=reports, scans=results / "scans")
-    run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
+
+
+def test_cohort_generates_scan_and_refreshes_mismatched_cache(repositories):
+    db, _, results = repositories
+    assert summarize_cohort(["alpha"], database=db, results=results)["family_count"] == 1
     manifest = json.loads((results / "sample_manifest.json").read_text(encoding="utf-8"))
     family, = manifest["families"]
     path = results / ".scans" / family["scan_report"]
@@ -341,7 +344,7 @@ def test_legacy_scan_fingerprint_does_not_invalidate_completed_review(repositori
 def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch, tmp_path):
     """Regression: all must accept valid additional edges, not just primary."""
     from gitskills.data.families import FamilyLoad
-    from gitskills.pipelines import family as module, cohort as summarizer
+    from gitskills.pipelines import cohort as summarizer
 
     prefix = ("The agent skill performs safe and documented analysis of software artifacts "
               "and security patterns. " * 15) + "\n"
@@ -368,16 +371,12 @@ def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch
         def load(self, ids):
             return ()
 
-    monkeypatch.setattr(module, "DuckDBFamilyRepository", Families)
-    monkeypatch.setattr(module, "DuckDBSiblingRepository", Siblings)
     monkeypatch.setattr(summarizer, "DuckDBFamilyRepository", Families)
     monkeypatch.setattr(summarizer, "DuckDBSiblingRepository", Siblings)
     db = tmp_path / "prepared.duckdb"
     db.touch()
-    reports = tmp_path / "apps" / "skilltrace" / "reports"
     results = tmp_path / "results"
-    run_family("edges", database=db, skilltrace_reports=reports, scans=results / "scans")
-    result = summarize_cohort(["edges"], database=db, skilltrace_reports=reports, results=results)
+    result = summarize_cohort(["edges"], database=db, results=results)
     assert result["directed_pairs_analyzed"] == 6
     manifest = json.loads((results / "sample_manifest.json").read_text(encoding="utf-8"))
     family, = manifest["families"]
