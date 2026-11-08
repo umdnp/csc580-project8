@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 from pathlib import Path
 
 import pytest
@@ -59,17 +58,32 @@ def _json(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _scan_path(results: Path, family: str, *, edges: str = "all") -> Path:
+    """Resolve the scan filename from the cache manifest, not a legacy naming convention."""
+    folder = results / ".scans"
+    manifest = _json(folder / ".metadata" / "scan-manifest.json")
+    paths = [
+        folder / entry["filename"]
+        for key, entry in manifest["families"].items()
+        if (key == family or key.startswith(f"{family}::")) and entry["edges"] == edges
+    ]
+    assert len(paths) == 1
+    return paths[0]
+
+
 def test_independent_cohort_writes_cache_and_outputs(sources, tmp_path):
     results = tmp_path / "results"
     outcome = cohort.summarize_cohort(["alpha", "beta"], database=sources, results=results)
     assert outcome["family_count"] == 2
     assert outcome["artifacts_loaded"] == 6
-    assert (results / ".scans" / "alpha.json").is_file()
-    assert (results / ".scans" / "beta.json").is_file()
+    alpha_scan = _scan_path(results, "alpha")
+    beta_scan = _scan_path(results, "beta")
+    assert alpha_scan.is_file() and alpha_scan.name.startswith("alpha--")
+    assert beta_scan.is_file() and beta_scan.name.startswith("beta--")
     manifest = _json(results / ".scans" / ".metadata" / "scan-manifest.json")
-    assert set(manifest["families"]) == {"alpha", "beta"}
-    assert manifest["version"] == 1
-    assert "implementation_fingerprint" not in _json(results / ".scans" / "alpha.json")
+    assert {key.split("::", 1)[0] for key in manifest["families"]} == {"alpha", "beta"}
+    assert manifest["version"] == cohort._CACHE_VERSION
+    assert "implementation_fingerprint" not in _json(alpha_scan)
     assert (results / "review" / "directed_pairs.csv").is_file()
     assert (results / "manual-review" / "directed-pairs" / "annotations_template.csv").is_file()
     assert (results / "manual-review" / "relationship-pairs" / "relationship_validation_sample.csv").is_file()
@@ -89,20 +103,22 @@ def test_reuses_valid_scans_and_rescan_forces_recomputation(sources, tmp_path, m
 
     monkeypatch.setattr(cohort, "scan_family_report", count)
     cohort.summarize_cohort(["alpha"], database=sources, results=results)
-    first = (results / ".scans" / "alpha.json").read_bytes()
+    scan_path = _scan_path(results, "alpha")
+    first = scan_path.read_bytes()
     assert scans == ["alpha"]
     cohort.summarize_cohort(["alpha"], database=sources, results=results)
     assert scans == ["alpha"]
-    assert (results / ".scans" / "alpha.json").read_bytes() == first
+    assert scan_path.read_bytes() == first
     cohort.summarize_cohort(["alpha"], database=sources, results=results, rescan=True)
     assert scans == ["alpha", "alpha"]
-    assert (results / ".scans" / "alpha.json").read_bytes() == first
+    assert _scan_path(results, "alpha") == scan_path
+    assert scan_path.read_bytes() == first
 
 
-def test_stale_manifest_and_altered_file_regenerate(sources, tmp_path, monkeypatch):
+def test_corrupted_scan_regenerates_and_primary_uses_separate_cache(sources, tmp_path, monkeypatch):
     results = tmp_path / "results"
     cohort.summarize_cohort(["alpha"], database=sources, results=results)
-    scan_path = results / ".scans" / "alpha.json"
+    scan_path = _scan_path(results, "alpha")
     calls = []
     original = cohort.scan_family_report
 
@@ -114,13 +130,50 @@ def test_stale_manifest_and_altered_file_regenerate(sources, tmp_path, monkeypat
     scan_path.write_text("{}", encoding="utf-8")
     cohort.summarize_cohort(["alpha"], database=sources, results=results)
     assert calls == ["alpha"]
-    # A configuration change invalidates the cache, but no research algorithm changes.
+    # Primary edges can be projected from a compatible all-edge scan without rescanning.
     cohort.summarize_cohort(["alpha"], database=sources, results=results, edges="primary")
-    assert calls == ["alpha", "alpha"]
+    assert calls == ["alpha"]
+    primary_path = _scan_path(results, "alpha", edges="primary")
+    assert primary_path != scan_path
+    assert _json(primary_path)["edge_selection"] == "primary"
+    assert _json(scan_path)["edge_selection"] == "all"
 
 
-def test_adopts_independent_scan_family_output(sources, tmp_path, monkeypatch):
-    """Cache manifest is optional when a standalone scan meets current contracts."""
+def test_adopts_manifested_legacy_scan_family_output(sources, tmp_path, monkeypatch):
+    """A compatible legacy-named scan can be reused when its manifest verifies it."""
+    from gitskills.analysis.family_reporting import scan_family_report, source_records
+    from gitskills.analysis.family_models import SimilarityPolicy
+    from gitskills.analysis.family_risk import FamilyRiskAnalyzer
+    from gitskills.reporting.files import write_json
+
+    results = tmp_path / "results"
+    loaded = cohort.DuckDBFamilyRepository(sources).load_available("alpha")
+    policy = SimilarityPolicy()
+    _, report = scan_family_report("alpha", loaded, policy=policy, edges="all")
+    folder = results / ".scans"
+    folder.mkdir(parents=True)
+    legacy_path = write_json(folder, "alpha", report)
+    active_rules = [rule.to_dict() for rule in FamilyRiskAnalyzer(
+        policy=policy, edges="all",
+    ).active_rules]
+    entry = cohort._entry(
+        legacy_path, source_records(loaded), [], cohort._database_stamp(sources),
+        cohort.implementation_fingerprint(), policy, "all", active_rules,
+    )
+    cohort._atomic_json(folder / ".metadata" / "scan-manifest.json", {
+        "version": cohort._CACHE_VERSION, "families": {"alpha": entry},
+    })
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("compatible manifested scan must be reused")
+
+    monkeypatch.setattr(cohort, "scan_family_report", forbidden)
+    cohort.summarize_cohort(["alpha"], database=sources, results=results)
+    assert _scan_path(results, "alpha") == legacy_path
+
+
+def test_unmanifested_legacy_scan_is_not_trusted(sources, tmp_path, monkeypatch):
+    """Unmanifested standalone files cannot establish a compatible cached scan."""
     from gitskills.analysis.family_reporting import scan_family_report
     from gitskills.analysis.family_models import SimilarityPolicy
     from gitskills.reporting.files import write_json
@@ -130,12 +183,19 @@ def test_adopts_independent_scan_family_output(sources, tmp_path, monkeypatch):
     _, report = scan_family_report("alpha", loaded, policy=SimilarityPolicy(), edges="all")
     folder = results / ".scans"
     folder.mkdir(parents=True)
-    write_json(folder, "alpha", report)
-    def forbidden(*args, **kwargs):
-        raise AssertionError("compatible standalone scan must be reused")
-    monkeypatch.setattr(cohort, "scan_family_report", forbidden)
+    legacy_path = write_json(folder, "alpha", report)
+    calls = []
+    original = cohort.scan_family_report
+
+    def counted(*args, **kwargs):
+        calls.append(args[0])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(cohort, "scan_family_report", counted)
     cohort.summarize_cohort(["alpha"], database=sources, results=results)
-    assert "alpha" in _json(folder / ".metadata" / "scan-manifest.json")["families"]
+    assert calls == ["alpha"]
+    assert _scan_path(results, "alpha") != legacy_path
+    assert legacy_path.is_file()
 
 
 def test_review_snapshot_protected_against_changed_families(sources, tmp_path):
@@ -156,7 +216,7 @@ def test_command_line_can_run_one_or_multiple_families(sources, tmp_path, capsys
     families.write_text("# tests\nalpha\nbeta\n", encoding="utf-8")
     assert cli.main(["--input", str(families), "--db", str(sources),
                      "--output", str(results), "--rescan"]) == 0
-    assert (results / ".scans" / "beta.json").is_file()
+    assert _scan_path(results, "beta").is_file()
 
 
 def test_seeded_relationship_validation_stable_across_family_order(sources, tmp_path):
@@ -198,7 +258,8 @@ def test_review_metrics_use_saved_samples_without_loading_or_scanning(sources, t
             writer.writeheader()
             writer.writerows(rows)
 
-    original_scan = (results / ".scans" / "alpha.json").read_bytes()
+    scan_path = _scan_path(results, "alpha")
+    original_scan = scan_path.read_bytes()
     original_sample = (manual / "relationship-pairs" / "relationship_validation_sample.csv").read_bytes()
     original_manifest = (results / "sample_manifest.json").read_bytes()
 
@@ -216,7 +277,7 @@ def test_review_metrics_use_saved_samples_without_loading_or_scanning(sources, t
     summary = _json(results / "review" / "summary.json")
     assert summary["manual_validation"]["reviewed_pairs"] == 1
     assert summary["relationship_validation"]["reviewed_pairs"] == 1
-    assert (results / ".scans" / "alpha.json").read_bytes() == original_scan
+    assert scan_path.read_bytes() == original_scan
     assert (manual / "relationship-pairs" / "relationship_validation_sample.csv").read_bytes() == original_sample
     assert (results / "sample_manifest.json").read_bytes() == original_manifest
     assert "reviewed_pairs" in str(summary)
