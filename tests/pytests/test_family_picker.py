@@ -68,6 +68,87 @@ def test_fast_pair_validation_rejects_unknown_sibling_state(database):
         assert sampling._hash_pair_counts(connection, "identical")["usable_pair_count"] == 0
         assert sampling._hash_pair_counts(connection, "unknown")["usable_pair_count"] == 0
         assert sampling._hash_pair_counts(connection, "eligible")["usable_pair_count"] == 1
+        assert sampling._hash_pair_counts(connection, "ambiguous")["sibling_qualified_pair_count"] == 1
+        assert sampling._hash_pair_counts(connection, "missing") == {
+            "usable_artifact_count": 0,
+            "usable_pair_count": 0,
+            "sibling_qualified_pair_count": 0,
+        }
+
+
+def test_hash_pair_counts_preserves_duplicate_groups_and_content_filters(database):
+    with duckdb.connect(str(database)) as connection:
+        # An extra grouping row counts as another occurrence, as before.
+        connection.execute("""
+            INSERT INTO artifact_groupings
+            VALUES (20, 1, 1, 'eligible', 'desc', 0, 'base')
+        """)
+        connection.execute("""
+            INSERT INTO artifacts
+            VALUES (21, 'valid-sha', NULL, 'team/repo21', 'skills/skill.md', NULL),
+                   (22, 'valid-sha', '   ', 'team/repo22', 'skills/skill.md', NULL),
+                   (23, NULL, 'valid content', 'team/repo23', 'skills/skill.md', NULL)
+        """)
+        connection.execute("""
+            INSERT INTO artifact_groupings VALUES
+                (21, 21, 21, 'eligible', 'desc', 0, NULL),
+                (22, 22, 22, 'eligible', 'desc', 0, NULL),
+                (23, 23, 23, 'eligible', 'desc', 0, NULL)
+        """)
+        assert sampling._hash_pair_counts(connection, "eligible") == {
+            "usable_artifact_count": 3,
+            "usable_pair_count": 2,
+            "sibling_qualified_pair_count": 0,
+        }
+
+
+def test_hash_pair_counts_filters_artifact_ids_before_reading_content():
+    calls = []
+
+    class Cursor:
+        def __init__(self, rows):
+            self.rows = rows
+
+        def fetchall(self):
+            return self.rows
+
+    class Connection:
+        def execute(self, sql, params):
+            calls.append((sql, params))
+            return Cursor([(7,), (42,)]) if len(calls) == 1 else Cursor([
+                ("sha-a", "sibling-a", 1), ("sha-b", "sibling-b", 1)
+            ])
+
+    counts = sampling._hash_pair_counts(Connection(), "candidate")
+    assert counts["usable_artifact_count"] == 2
+    assert counts["usable_pair_count"] == 1
+    assert len(calls) == 2
+    assert "SELECT DISTINCT artifact_id" in calls[0][0]
+    assert calls[0][1] == ["candidate"]
+    assert "list_contains(CAST($ids AS BIGINT[]), a.id)" in calls[1][0]
+    assert calls[1][1] == {"name": "candidate", "ids": [7, 42]}
+
+
+def test_hash_pair_counts_does_not_query_content_for_missing_family():
+    class Cursor:
+        def fetchall(self):
+            return []
+
+    class Connection:
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, sql, params):
+            self.calls += 1
+            return Cursor()
+
+    connection = Connection()
+    assert sampling._hash_pair_counts(connection, "missing") == {
+        "usable_artifact_count": 0,
+        "usable_pair_count": 0,
+        "sibling_qualified_pair_count": 0,
+    }
+    assert connection.calls == 1
 
 
 def test_relationship_check_requires_a_usable_primary_directed_edge(database):

@@ -99,16 +99,26 @@ def load_candidates(database: Path | str) -> list[dict]:
 
 
 def _hash_pair_counts(connection: duckdb.DuckDBPyConnection, name: str) -> dict:
-    """Count all usable unordered pairs without building ID-based IN clauses."""
-    rows = connection.execute("""
-        SELECT a.file_sha, g.sibling_content_sha, COUNT(*)
-        FROM artifact_groupings g
-        JOIN artifacts a ON a.id = g.artifact_id
-        WHERE g.name = ?
-          AND a.file_sha IS NOT NULL AND TRIM(a.file_sha) <> ''
-          AND a.content IS NOT NULL AND TRIM(a.content) <> ''
-        GROUP BY a.file_sha, g.sibling_content_sha
+    """Count usable unordered pairs for one family."""
+    id_rows = connection.execute("""
+        SELECT DISTINCT artifact_id
+        FROM artifact_groupings
+        WHERE name = ? AND artifact_id IS NOT NULL
+        ORDER BY artifact_id
     """, [name]).fetchall()
+    rows = []
+    if id_rows:
+        ids = [int(artifact_id) for (artifact_id,) in id_rows]
+        rows = connection.execute("""
+            SELECT a.file_sha, g.sibling_content_sha, COUNT(*)
+            FROM artifact_groupings g
+            JOIN artifacts a ON a.id = g.artifact_id
+            WHERE g.name = $name
+              AND list_contains(CAST($ids AS BIGINT[]), a.id)
+              AND a.file_sha IS NOT NULL AND TRIM(a.file_sha) <> ''
+              AND a.content IS NOT NULL AND TRIM(a.content) <> ''
+            GROUP BY a.file_sha, g.sibling_content_sha
+        """, {"name": name, "ids": ids}).fetchall()
     primary_groups = defaultdict(list)
     for primary, sibling, count in rows:
         primary_groups[primary].append((sibling, count))
