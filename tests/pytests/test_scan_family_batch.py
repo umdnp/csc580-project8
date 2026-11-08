@@ -205,16 +205,37 @@ def test_edge_selection_option_in_single_and_batch_modes(mock_repos, tmp_path, c
         scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "ambiguous"])
 
 
-def test_all_edges_benchmark_preserves_report(mock_repos, tmp_path, capsys):
+@pytest.mark.parametrize("edge_mode", ["primary", "all"])
+def test_benchmark_preserves_report_for_each_edge_mode(mock_repos, tmp_path, capsys, edge_mode):
     baseline = tmp_path / "baseline"
-    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "all",
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", edge_mode,
                              "--json", "--output", str(baseline)]) == 0
     baseline_payload = json.loads(capsys.readouterr().out)
 
-    benchmarked = tmp_path / "benchmarked_all"
-    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "all",
+    benchmarked = tmp_path / "benchmarked"
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", edge_mode,
                              "--json", "--benchmark", "--output", str(benchmarked)]) == 0
     assert json.loads(capsys.readouterr().out) == baseline_payload
     row = _rows(benchmarked / "benchmarks.csv")[0]
     assert row["status"] == "ok"
     assert all(row[phase] != "" for phase in ("load_s", "analysis_s", "scan_s", "other_s"))
+
+
+def test_timed_phase_accumulates_and_ignores_failed_phases(monkeypatch):
+    times = iter([1.0, 2.0, 3.0, 5.0, 6.0])
+    monkeypatch.setattr(scan_family.time, "perf_counter", lambda: next(times))
+    timings = {}
+
+    with scan_family._timed_phase(timings, "load_s"):
+        pass
+    with scan_family._timed_phase(timings, "load_s"):
+        pass
+    assert timings == {"load_s": 3.0}
+
+    with pytest.raises(ValueError, match="failed"):
+        with scan_family._timed_phase(timings, "scan_s"):
+            raise ValueError("failed")
+    assert "scan_s" not in timings
+
+    with scan_family._timed_phase(None, "scan_s"):
+        pass

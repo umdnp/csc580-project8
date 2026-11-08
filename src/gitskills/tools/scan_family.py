@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from contextlib import contextmanager
 import csv
 import json
 import os
@@ -11,7 +12,7 @@ import sys
 import time
 import tracemalloc
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence
 
 from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import SimilarityPolicy
@@ -34,6 +35,17 @@ from gitskills.reporting.redaction import redact_text, safe_excerpt, safe_rule_e
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
+
+
+@contextmanager
+def _timed_phase(timings: dict[str, float] | None, phase: str) -> Iterator[None]:
+    if timings is None:
+        yield
+        return
+
+    started = time.perf_counter()
+    yield
+    timings[phase] = timings.get(phase, 0.0) + time.perf_counter() - started
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -191,22 +203,14 @@ def _scan_one(
     name: str, database: Path, policy: SimilarityPolicy, *,
     verbose: bool, edges: str = "primary", timings: dict[str, float] | None = None,
 ):
-    started = time.perf_counter() if timings is not None else None
-    loaded = DuckDBFamilyRepository(database).load_available(name)
-    if timings is not None:
-        family_load_s = time.perf_counter() - started
+    with _timed_phase(timings, "load_s"):
+        loaded = DuckDBFamilyRepository(database).load_available(name)
+        if not loaded.artifacts and not loaded.skipped_artifacts:
+            raise ValueError(f"Candidate family not found: {name}")
     artifacts = loaded.artifacts
-    if not artifacts and not loaded.skipped_artifacts:
-        raise ValueError(f"Candidate family not found: {name}")
 
-    family_analysis = None
-    if artifacts and (edges == "primary" or timings is not None):
-        started = time.perf_counter() if timings is not None else None
-        family_analysis = FamilyAnalyzer(policy).analyze(artifacts)
-        if timings is not None:
-            timings["analysis_s"] = time.perf_counter() - started
-    elif timings is not None:
-        timings["analysis_s"] = 0.0
+    with _timed_phase(timings, "analysis_s"):
+        family_analysis = FamilyAnalyzer(policy).analyze(artifacts) if artifacts else None
 
     if edges == "primary" and family_analysis is not None:
         sibling_artifact_ids = {
@@ -218,28 +222,15 @@ def _scan_one(
     else:
         sibling_artifact_ids = {artifact.artifact_id for artifact in artifacts}
 
-    started = time.perf_counter() if timings is not None else None
-    sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
-    if timings is not None:
-        timings["load_s"] = family_load_s + (time.perf_counter() - started)
+    with _timed_phase(timings, "load_s"):
+        sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
 
-    started = time.perf_counter() if timings is not None else None
-    result, payload = scan_family_report(
-        name, loaded, sibling_files, policy=policy, edges=edges,
-        verbose=verbose, family_analysis=family_analysis,
-    )
-    if timings is not None:
-        timings["scan_s"] = time.perf_counter() - started
+    with _timed_phase(timings, "scan_s"):
+        result, payload = scan_family_report(
+            name, loaded, sibling_files, policy=policy, edges=edges,
+            verbose=verbose, family_analysis=family_analysis,
+        )
     return result, payload, loaded, artifacts
-
-
-def _print_input_summary(loaded, artifacts) -> None:
-    print(f"Artifacts loaded:        {len(artifacts)}")
-    print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
-    for artifact in loaded.skipped_artifacts:
-        print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
-    if loaded.skipped_artifacts:
-        print("Input coverage incomplete; skipped artifacts have no scan result.")
 
 
 def _database_from_environment() -> Path | None:
