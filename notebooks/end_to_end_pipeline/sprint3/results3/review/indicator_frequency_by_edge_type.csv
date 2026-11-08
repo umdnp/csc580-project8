@@ -1,7 +1,7 @@
 edge_type,indicator_id,pairs,directed_pairs,percent_of_directed_pairs
 primary,RI-001,3,859,0.349
 primary,RI-002,0,859,0.0
-primary,RI-003,41,859,4.773
+primary,RI-003,37,859,4.307
 primary,RI-004,0,859,0.0
 primary,RI-005,115,859,13.388
 primary,RI-006,95,859,11.059

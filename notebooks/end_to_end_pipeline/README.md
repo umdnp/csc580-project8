@@ -26,6 +26,17 @@
 
 The notebook calls `summarize_cohort()` directly; separate `analyze_family`, `scan_family`, or `scan_diff` runs are unnecessary. By default, `EDGES = "primary"` scans selected predecessor relationships only. Pairs with ambiguous direction are considered for relationship validation, but not directed security comparisons. `PER_STRATUM = 5` selects up to five validation pairs **per category across the cohort**, without restricting the full analysis.
 
+### Windows file-access errors
+
+On Windows, synchronization or indexing software can temporarily lock a cache
+manifest during replacement. Atomic JSON writes retry Windows access-denied and
+sharing/lock errors up to seven attempts, with 6.3 seconds of total backoff.
+Persistent errors are still raised; the previous file is not deleted or
+overwritten in place. If access remains denied, check file permissions and
+pause synchronization or use a checkout outside OneDrive. Restart the notebook
+kernel after updating the code, then rerun cells in order with `rescan=False`
+to reuse compatible scans.
+
 ## Directory layout
 
 ```text

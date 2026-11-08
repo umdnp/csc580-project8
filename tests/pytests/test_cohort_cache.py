@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import csv
 import json
+import os
+import time
 from pathlib import Path
 
 import pytest
@@ -56,6 +58,82 @@ def sources(monkeypatch, tmp_path):
 
 def _json(path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("winerror", [5, 32, 33])
+def test_atomic_json_retries_windows_file_locks(tmp_path, monkeypatch, winerror):
+    path = tmp_path / "scan-manifest.json"
+    path.write_text('{"old": true}\n', encoding="utf-8")
+    replace = cohort.os.replace
+    calls = []
+    waits = []
+
+    def locked_replace(source, target):
+        calls.append(source)
+        if len(calls) <= 2:
+            assert _json(path) == {"old": True}
+            error = PermissionError("File temporarily locked")
+            error.winerror = winerror
+            raise error
+        replace(source, target)
+
+    monkeypatch.setattr(cohort.os, "replace", locked_replace)
+    monkeypatch.setattr(time, "sleep", waits.append)
+    cohort._atomic_json(path, {"new": True})
+
+    assert _json(path) == {"new": True}
+    assert len(calls) == 3
+    assert len(set(calls)) == 1
+    assert waits == [0.1, 0.2]
+    assert not list(tmp_path.glob(".pending-*.json"))
+
+
+@pytest.mark.parametrize("winerror, attempts", [(5, 7), (32, 7), (33, 7), (None, 1), (112, 1)])
+def test_atomic_json_preserves_original_on_failure(tmp_path, monkeypatch, winerror, attempts):
+    path = tmp_path / "scan-manifest.json"
+    original = '{"old": true}\n'
+    path.write_text(original, encoding="utf-8")
+    calls = []
+    waits = []
+    error = OSError("Cannot replace file")
+    if winerror is not None:
+        error.winerror = winerror
+
+    def failed_replace(source, target):
+        calls.append(source)
+        raise error
+
+    monkeypatch.setattr(cohort.os, "replace", failed_replace)
+    monkeypatch.setattr(time, "sleep", waits.append)
+    with pytest.raises(OSError) as raised:
+        cohort._atomic_json(path, {"new": True})
+
+    assert raised.value is error
+    assert len(calls) == attempts
+    assert len(waits) == attempts - 1
+    if attempts > 1:
+        assert sum(waits) == pytest.approx(6.3)
+    assert path.read_text(encoding="utf-8") == original
+    assert not list(tmp_path.glob(".pending-*.json"))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows replacement sharing semantics")
+def test_atomic_json_recovers_after_real_windows_lock(tmp_path, monkeypatch):
+    path = tmp_path / "scan-manifest.json"
+    path.write_text('{"old": true}\n', encoding="utf-8")
+    waits = []
+    with path.open("rb") as locked:
+        def release_lock(delay):
+            waits.append(delay)
+            assert _json(path) == {"old": True}
+            locked.close()
+
+        monkeypatch.setattr(time, "sleep", release_lock)
+        cohort._atomic_json(path, {"new": True})
+
+    assert waits == [0.1]
+    assert _json(path) == {"new": True}
+    assert not list(tmp_path.glob(".pending-*.json"))
 
 
 def _scan_path(results: Path, family: str, *, edges: str = "all") -> Path:

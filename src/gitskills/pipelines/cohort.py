@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import tempfile
+import time
 from collections import Counter
 from pathlib import Path
 from typing import Callable, Sequence
@@ -41,7 +42,15 @@ def _atomic_json(path: Path, payload: dict) -> None:
             temp_path = Path(handle.name)
             json.dump(payload, handle, indent=2)
             handle.write("\n")
-        os.replace(temp_path, path)
+        for attempt in range(7):
+            try:
+                os.replace(temp_path, path)
+                break
+            except OSError as exc:
+                # Windows sync/indexing processes can briefly prevent replacement.
+                if getattr(exc, "winerror", None) not in (5, 32, 33) or attempt == 6:
+                    raise
+                time.sleep(0.1 * 2 ** attempt)
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)

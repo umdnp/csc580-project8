@@ -25,11 +25,11 @@
       "pairs_with_indicators": 0
     },
     "primary": {
-      "finding_count": 1260,
+      "finding_count": 1279,
       "indicator_frequency_pairs": {
         "RI-001": 3,
         "RI-002": 0,
-        "RI-003": 41,
+        "RI-003": 37,
         "RI-004": 0,
         "RI-005": 115,
         "RI-006": 95,
@@ -42,7 +42,7 @@
       "pairs_analyzed": 859,
       "pairs_coverage_incomplete": 60,
       "pairs_flagged": 502,
-      "pairs_with_indicators": 191
+      "pairs_with_indicators": 190
     }
   },
   "families_with_supported_indicators": 20,
@@ -51,7 +51,7 @@
   "indicator_frequency_pairs": {
     "RI-001": 3,
     "RI-002": 0,
-    "RI-003": 41,
+    "RI-003": 37,
     "RI-004": 0,
     "RI-005": 115,
     "RI-006": 95,
@@ -65,7 +65,7 @@
   "pairs_with_incomplete_evidence_coverage": 60,
   "pairs_with_missing_sibling_content": 19,
   "pairs_with_sibling_evidence_changes": 351,
-  "pairs_with_supported_indicators": 191,
+  "pairs_with_supported_indicators": 190,
   "relationship_sampling": {
     "families_supplied": 100,
     "per_stratum": 5,
@@ -100,5 +100,5 @@
     "min_shared_shingles": 5,
     "shingle_size": 5
   },
-  "supported_findings": 1260
+  "supported_findings": 1279
 }
