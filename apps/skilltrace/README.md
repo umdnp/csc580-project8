@@ -44,14 +44,10 @@ If `GITSKILLS_DB` is set, passing a different `--db` value will not override it.
 
 SkillTrace does not calculate family relationships itself. It visualizes JSON reports produced by `analyze_family`.
 
-Generated reports are local outputs, excluded from version control. A fresh
-checkout does not include them; generate at least one report before using the
-viewer. Reports can be large, so do not force-add them to Git.
-
 Run `analyze_family` for the skill family you want to explore and write the report to `apps/skilltrace/reports/`:
 
 ```sh
-uv run --locked python -m gitskills.tools.analyze_family \
+python -m gitskills.tools.analyze_family \
   --db C:/data/duckdb/agent_skills_release.db \
   cometchat-core \
   --output apps/skilltrace/reports
@@ -60,18 +56,9 @@ uv run --locked python -m gitskills.tools.analyze_family \
 If `GITSKILLS_DB` is already set, `--db` can be omitted:
 
 ```sh
-uv run --locked python -m gitskills.tools.analyze_family \
+python -m gitskills.tools.analyze_family \
   cometchat-core \
   --output apps/skilltrace/reports
-```
-
-In PowerShell, from the repository root:
-
-```powershell
-$env:GITSKILLS_DB = "C:\data\duckdb\agent_skills_release.db"
-uv run --locked python -m gitskills.tools.analyze_family `
-  cometchat-core `
-  --output apps\skilltrace\reports
 ```
 
 SkillTrace loads valid current `analyze_family` JSON reports from that directory. Reports from `scan_family`, malformed JSON, and older unsupported report formats are ignored.
