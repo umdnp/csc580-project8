@@ -1,0 +1,16 @@
+family,cluster,artifact_a_id,artifact_b_id,relationship_status,direction_basis,change_type,similarity_jaccard,similarity_containment,similarity_shared_shingles,sampling_stratum
+mcp-builder,1,2500259,2591195,direction-unknown,similarity-only,skill+siblings,0.8751147842056933,0.9794450154162384,953,ambiguous
+mcp-builder,1,2435625,2435814,direction-unknown,similarity-only,siblings-only,1.0,1.0,971,ambiguous
+mcp-builder,1,2425345,2476279,direction-unknown,similarity-only,skill+siblings,0.9020568070519099,0.9485066941297632,921,ambiguous
+blocknative-automation,1,985357,1073532,direction-unknown,similarity-only,unknown,1.0,1.0,296,ambiguous
+marketing-psychology,1,3413903,3420781,direction-unknown,similarity-only,skill+siblings,0.9950686861570975,0.9982332155477032,2825,ambiguous
+mcp-builder,3,1246073,1338621,equivalent,equivalent-state,equivalent,1.0,1.0,309,equivalent
+marketing-psychology,1,3413135,3425037,equivalent,equivalent-state,equivalent,1.0,1.0,2830,equivalent
+planning-and-task-breakdown,1,1997221,3785718,equivalent,equivalent-state,equivalent,1.0,1.0,879,equivalent
+mcp-builder,2,3022345,3026710,equivalent,equivalent-state,equivalent,1.0,1.0,1525,equivalent
+performing-automated-malware-analysis-with-cape,1,1903198,1932263,equivalent,equivalent-state,equivalent,1.0,1.0,573,equivalent
+mcp-builder,,1630160,3026710,no-related-edge,not_applicable,not_applicable,0.00803616273229533,0.03319502074688797,16,no-related-edge
+checkpoint,,2225560,3639860,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+mcp-builder,,927136,2432174,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+mcp-builder,,834740,1311018,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+planning-and-task-breakdown,,1400359,2021889,no-related-edge,not_applicable,not_applicable,0.25209302325581395,0.5802997858672377,271,no-related-edge

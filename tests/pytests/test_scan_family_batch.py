@@ -201,7 +201,12 @@ def test_edge_selection_option_in_single_and_batch_modes(mock_repos, tmp_path, c
     default = tmp_path / "default"
     assert scan_family.main(["alpha", "--db", str(mock_repos), "--json",
                              "--output", str(default)]) == 0
-    assert json.loads((default / "alpha.json").read_text())["edge_selection"] == "primary"
+    assert json.loads((default / "alpha.json").read_text())["edge_selection"] == "all"
+
+    primary = tmp_path / "primary"
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "primary",
+                             "--json", "--output", str(primary)]) == 0
+    assert json.loads((primary / "alpha.json").read_text())["edge_selection"] == "primary"
 
     with pytest.raises(SystemExit, match="2"):
         scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "ambiguous"])

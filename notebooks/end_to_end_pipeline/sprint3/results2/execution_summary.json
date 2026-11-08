@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "input_coverage": "complete",
+  "family_count": 100,
+  "artifacts_loaded": 2067,
+  "artifacts_skipped": 0,
+  "directed_pairs_analyzed": 633,
+  "pairs_incomplete": 16,
+  "validation_status": "awaiting independent review/adjudication",
+  "result_directory": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\notebooks\\end_to_end_pipeline\\sprint3\\results2"
+}

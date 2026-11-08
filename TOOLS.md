@@ -367,7 +367,7 @@ analyze_family --input data/validation/families.txt --limit 5 --output output/fa
 
 ### Purpose
 
-`scan_family` runs family analysis and static security scanning for **one candidate family** or **multiple families from an input file**. By default, it scans only **primary** predecessor relationships selected for the inferred evolution graph. With `--edges all`, it also scans additional related artifact pairs with supported direction. Equivalent, direction-unknown, and unrelated relationships are not treated as base-to-derived comparisons.
+`scan_family` runs family analysis and static security scanning for **one candidate family** or **multiple families from an input file**. By default (`--edges all`), it scans primary predecessor relationships and additional related artifact pairs with supported direction. Use `--edges primary` to restrict scanning to selected predecessor relationships. Equivalent, direction-unknown, and unrelated relationships are not treated as base-to-derived comparisons.
 
 The scanner examines the `SKILL.md` body and relevant changed sibling content. It records changes in rule counts, **added or removed extracted evidence**, and supported or uncertain **risk indicators (RI-001–RI-011)**. Indicators are evidence-based review signals, not conclusions that a skill is malicious.
 
@@ -387,7 +387,7 @@ Supply **either** `NAME` **or** `--input FILE`, not both. The first form runs a 
 | `NAME` | — | Exact candidate-family skill name, such as `busybox-on-windows` (single-family mode). |
 | `--input FILE` | Off | Read UTF-8 candidate-family names from a file, one per line. Blank lines and lines beginning with `#` are ignored. Names must be unique. Requires `--output`. |
 | `--limit N` | Off | In `--input` mode, scan only the first `N` names (positive integer); useful for a pilot run. |
-| `--edges {primary,all}` | `primary` | `primary` scans edges designated as predecessor relationships in the inferred evolution graph; `all` also scans additional directionally supported related edges. Neither mode includes ambiguous or equivalent pairs as directed changes. |
+| `--edges {primary,all}` | `all` | `all` scans primary predecessor edges plus additional directionally supported related edges; `primary` scans only selected predecessor edges. Neither mode includes ambiguous or equivalent pairs as directed changes. |
 | `--db PATH` | `$GITSKILLS_DB` | GitSkills DuckDB database path. |
 | `--shingle-size N` | `5` | Tokens per similarity shingle. |
 | `--min-containment FLOAT` | `0.80` | Minimum directional containment. |
@@ -397,7 +397,7 @@ Supply **either** `NAME` **or** `--input FILE`, not both. The first form runs a 
 | `--json` | Off | In single-family mode, print structured JSON rather than the human-readable report. Batch mode writes JSON files automatically. |
 | `--verbose` | Off | Include more direction, similarity, sibling, evidence, and rule-match details. |
 | `--output [DIR]` | Off | Save one JSON report per family; special characters in family names are converted to safe, collision-resistant filenames. If `DIR` is omitted, use `./output`. Required in batch mode. |
-| `--benchmark` | Off | For single or batch scans, write `benchmarks.csv` with total and phase timings (`load_s`, `analysis_s`, `scan_s`, `other_s`) and success/failure status. |
+| `--benchmark` | Off | For single or batch scans, write `benchmarks.csv` with total time, family/sibling loading times, analysis/scanning times, other time, and success/failure status. |
 | `--tracemalloc` | Off | With `--benchmark`, also measure peak **Python-traced allocations** in MiB. Not process RSS or DuckDB native memory; adds measurement overhead. |
 | `-h`, `--help` | — | Display full CLI help. |
 
@@ -408,7 +408,7 @@ All family-analysis threshold flags apply equally in single-family and batch mod
 For each family, `scan_family`:
 
 1. Loads artifacts, similarity/direction information, and stored sibling records from DuckDB.
-2. Selects primary directed evolution edges (default) or primary plus additional directionally supported related edges (`--edges all`), scanning any repeated directed pair only once. Relationships without supported direction are counted separately and are **not** labeled as introduced changes.
+2. Selects primary plus additional directionally supported related edges (default), or only primary directed evolution edges (`--edges primary`), scanning any repeated directed pair only once. Relationships without supported direction are counted separately and are **not** labeled as introduced changes.
 3. Runs the rule-based scanner and evidence extractor against the base and derived `SKILL.md` bodies, plus relevant changed sibling files. Scanned content is **not executed**.
 4. Compares evidence constructs, including changes that do not alter rule-match counts, and evaluates the 11 evidence-based risk indicators.
 5. Preserves distinct coverage information for partial/unsupported extraction, unavailable sibling content, unknown hashes, and incomplete sibling listings.
@@ -428,10 +428,10 @@ A **flagged pair** can result from rule/evidence changes or supported/uncertain 
 With `--benchmark`, the scanner also writes `benchmarks.csv` with columns:
 
 ```text
-family,seconds,load_s,analysis_s,scan_s,other_s,peak_python_memory_mib,status
+family,seconds,load_s,family_load_s,sibling_load_s,analysis_s,scan_s,other_s,peak_python_memory_mib,status
 ```
 
-`load_s` combines family and sibling database loading; `analysis_s` covers similarity and relationship analysis; and `scan_s` covers security scanning and report construction. `other_s` is the nonnegative remainder of total time after these three phases (including output writing and CLI overhead). Unavailable phase timings are blank if a scan fails. The peak-memory field is empty unless `--tracemalloc` is enabled, which adds measurement overhead. In single-family mode, `--benchmark` without `--output` saves the benchmark and family JSON under `./output`.
+`load_s` combines `family_load_s` (family artifacts and repository metadata) and `sibling_load_s` (sibling files). `analysis_s` covers similarity and relationship analysis, and `scan_s` covers security scanning and report construction. `other_s` is the nonnegative remainder of total time after `load_s`, `analysis_s`, and `scan_s` (including output writing and CLI overhead); do not add the two loading subcolumns to the total again. Unavailable phase timings are blank if a scan fails. The peak-memory field is empty unless `--tracemalloc` is enabled, which adds measurement overhead. In single-family mode, `--benchmark` without `--output` saves the benchmark and family JSON under `./output`.
 
 ### Examples
 
@@ -460,16 +460,16 @@ busybox-on-windows
 uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/pilot --limit 2 --benchmark --tracemalloc
 ```
 
-**Complete input list using the default primary edges (no benchmarking):**
+**Complete input list using the default all-edge mode (no benchmarking):**
 
 ```powershell
 uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/scans
 ```
 
-**All directionally supported relationships for research:**
+**Primary predecessor relationships only:**
 
 ```powershell
-uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/all-edges --edges all
+uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/primary-edges --edges primary
 ```
 
 Use separate output directories for `primary` and `all` runs. They describe different populations and should not be combined in one research summary.
@@ -534,7 +534,7 @@ summarize_cohort --input FILE --db PATH --output results [OPTIONS]
 | `--direction-margin FLOAT` | `0.10` | Directional-containment margin. |
 | `-h`, `--help` | — | Print complete help. |
 
-Thresholds and security scanning are identical to those used by `analyze_family` and `scan_family` for the same configurations. `summarize_cohort` defaults to `--edges all`, whereas the standalone `scan_family` defaults to `primary`; set both explicitly when sharing scans.
+Thresholds and security scanning are identical to those used by `analyze_family` and `scan_family` for the same configurations. Both `summarize_cohort` and standalone `scan_family` default to `--edges all`. When the notebook passes `edges="primary"`, the cohort pipeline passes that selection directly to the shared scanner; use `--edges primary` in standalone scans to match it. Cache reuse requires matching edge selections (or a compatible all-edge scan that can be projected to primary).
 
 ### Reusable scan cache
 
