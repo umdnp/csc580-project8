@@ -218,7 +218,9 @@ def test_cohort_generates_missing_reports_and_refreshes_mismatched_scans(reposit
     with pytest.raises(ValueError, match="not found"):
         run_family("missing", database=db, skilltrace_reports=reports, scans=results / "scans")
     run_family("alpha", database=db, skilltrace_reports=reports, scans=results / "scans")
-    path = results / ".scans" / "alpha.json"
+    manifest = json.loads((results / "sample_manifest.json").read_text(encoding="utf-8"))
+    family, = manifest["families"]
+    path = results / ".scans" / family["scan_report"]
     report = json.loads(path.read_text())
     report["input_artifacts"][0]["file_sha"] = "unrelated"
     path.write_text(json.dumps(report))
@@ -377,7 +379,9 @@ def test_all_edges_are_traceable_to_primary_and_related_family_edges(monkeypatch
     run_family("edges", database=db, skilltrace_reports=reports, scans=results / "scans")
     result = summarize_cohort(["edges"], database=db, skilltrace_reports=reports, results=results)
     assert result["directed_pairs_analyzed"] == 6
-    scan_file = results / ".scans" / "edges.json"
+    manifest = json.loads((results / "sample_manifest.json").read_text(encoding="utf-8"))
+    family, = manifest["families"]
+    scan_file = results / ".scans" / family["scan_report"]
     scan = json.loads(scan_file.read_text())
     additional = [pair for cluster in scan["clusters"] for pair in cluster["pair_observations"]
                   if pair["edge_type"] == "additional"]

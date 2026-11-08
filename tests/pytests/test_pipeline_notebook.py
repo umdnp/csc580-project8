@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import duckdb
+import matplotlib
 import pytest
 
 
@@ -25,6 +26,8 @@ def assignment_cell(cells, name):
 
 @pytest.fixture
 def notebook_workspace(tmp_path, monkeypatch):
+    matplotlib.use("Agg")
+    monkeypatch.setattr("matplotlib.pyplot.show", lambda: None)
     # Notebook output paths are derived from PROJECT_ROOT. Run in a synthetic
     # project so not even a default output can touch the real research reports.
     project = tmp_path / "project"
@@ -127,7 +130,6 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
         run_cell(cells, index, namespace)
     execution = namespace["execution"]
     results = project / "notebooks/end_to_end_pipeline/sprint2/results"
-    from gitskills.reporting.files import report_stem
     scans_dir = project / "notebooks/end_to_end_pipeline/.scans"
     assert namespace["PROJECT_ROOT"] == project
     assert namespace["RESULT_DIR"] == results
@@ -151,7 +153,8 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
     assert (results / "audit/processing_summary.csv").is_file()
     assert (results / "review/summary.json").is_file()
 
-    positive = json.loads((scans_dir / f"{report_stem(names[0])}.json").read_text())
+    scan_files = {family["name"]: scans_dir / family["scan_report"] for family in manifest["families"]}
+    positive = json.loads(scan_files[names[0]].read_text(encoding="utf-8"))
     assert positive["summary"]["pairs_flagged"] == 1
     pair, = positive["clusters"][0]["flagged_pairs"]
     assert (pair["source_artifact_id"], pair["destination_artifact_id"]) == (101, 102)
@@ -159,10 +162,10 @@ def test_notebook_runs_preparation_to_reproducible_research_outputs(notebook_wor
         ("NET-001", "skill"), ("FS-001", "sibling"),
     }
     assert pair["sibling_scan"]["incomplete"] == missing_sibling_content
-    negative = json.loads((scans_dir / f"{report_stem(names[1])}.json").read_text())
+    negative = json.loads(scan_files[names[1]].read_text(encoding="utf-8"))
     assert negative["summary"]["pairs_analyzed"] == 1
     assert negative["summary"]["pairs_flagged"] == 0
-    unknown = json.loads((scans_dir / f"{report_stem(names[2])}.json").read_text())
+    unknown = json.loads(scan_files[names[2]].read_text(encoding="utf-8"))
     assert unknown["summary"]["pairs_analyzed"] == 0
     assert unknown["summary"]["ambiguous_edges_skipped"] == 1
 
