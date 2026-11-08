@@ -14,6 +14,7 @@ from .install_commands import (
 )
 from .external_instructions import InstructionRole, instruction_role
 from .models import AnalysisComparison
+from .python_source_context import PythonSourceContext
 from .risk_models import IndicatorStatus, RiskAssessment, RiskIndicator
 
 _URL = re.compile(r"https?://[^\s<>()\"']+", re.I)
@@ -135,7 +136,8 @@ def _context_status(e: Evidence) -> IndicatorStatus | None:
     if _WARNING.search(line):
         return None  # An explicit warning is not an instruction to do it.
     if e.extraction_status != ExtractionStatus.COMPLETE or e.context.kind in {
-        "source_comment", "code_comment", "blockquote", "markdown_heading",
+        "source_comment", "source_docstring", "source_literal",
+        "code_comment", "blockquote", "markdown_heading",
     }:
         return IndicatorStatus.UNCERTAIN
     if e.kind == "shell_command" and e.context.kind == "markdown_prose":
@@ -145,6 +147,19 @@ def _context_status(e: Evidence) -> IndicatorStatus | None:
             if not re.search(r"\b(?:run|execute|install|use|invoke)\s+(?:the\s+)?", line, re.I):
                 return IndicatorStatus.UNCERTAIN
     return IndicatorStatus.SUPPORTED
+
+
+def _python_install_status(e: Evidence) -> IndicatorStatus | None:
+    """Do not inherit an outer Python API call's context for nested strings."""
+    if e.kind != "api_call" or not e.filename.lower().endswith(".py"):
+        return None
+    contexts = PythonSourceContext(e.raw_text)
+    matches = tuple(INSTALL_PATTERN.finditer(e.raw_text))
+    if matches and all(contexts.kind_at(match.start()) in {
+        "source_comment", "source_docstring", "source_literal",
+    } for match in matches):
+        return IndicatorStatus.UNCERTAIN
+    return None
 
 
 def _new(e: Evidence, previous: tuple[Evidence, ...]) -> bool:
@@ -304,6 +319,7 @@ class RiskAssessor:
         urls = _urls(e)
         is_network = self._network(e)
         if rules & {"EXT-002", "EXT-004"} and INSTALL_PATTERN.search(text):
+            install_status = _python_install_status(e)
             install_old = install_pairs.get(e) or old
             was_install = bool(install_old and INSTALL_PATTERN.search(install_old.raw_text))
             possible_replacement = any(
@@ -311,14 +327,15 @@ class RiskAssessor:
                 and INSTALL_PATTERN.search(p.raw_text) for p in changes.removed
             )
             if not was_install and not possible_replacement:
-                add("RI-005", "External package installation introduced", e, old=old)
+                add("RI-005", "External package installation introduced", e, old=old,
+                    status=install_status)
             elif was_install and _source_change(e) != _source_change(install_old):
                 add("RI-005", "Explicit package source or registry changed", e,
-                    old=install_old)
+                    old=install_old, status=install_status)
             elif (was_install and
                   _workspace_scope(e) != _workspace_scope(install_old)):
                 add("RI-005", "Dependency installation workspace scope changed", e,
-                    old=install_old)
+                    old=install_old, status=install_status)
         if "EXT-003" in rules:
             if old and "EXT-003" in old.rule_ids:
                 if urls != _urls(old):

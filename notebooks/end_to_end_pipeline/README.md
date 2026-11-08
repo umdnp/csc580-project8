@@ -105,6 +105,8 @@ There are two independent review tasks:
    Use `review_phase=adjudicated`, `review_status=complete`, a reviewer ID, a date, and the required manual judgments for completed rows. The pipeline ignores pending rows in validation metrics.
 6. Run the notebook's final **Independent review and adjudication** cell. It verifies the saved inputs and updates `review/summary.json` and `execution_summary.json` without rescanning when the evidence is compatible. Both adjudicated files must exist for this notebook cell to run.
 
+**Supported does not mean harmful.** A correctly detected change, such as deleting temporary session files, may be benign in context. Keep its RI in `manual_supported_indicator_ids` and briefly explain its purpose and safeguards in `notes`, including the relevant source lines. Use `false_positive_notes` when the detection or claimed change is incorrect, not simply because the behavior is harmless.
+
 For directed-pair indicator metrics, pairs must have supported relatedness and direction, complete evidence coverage, and a manual assessment of all eleven indicator categories. Metrics computed from review samples describe **sample accuracy**, not prevalence in the full dataset.
 
 ## Outputs and interpretation

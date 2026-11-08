@@ -397,7 +397,7 @@ Supply **either** `NAME` **or** `--input FILE`, not both. The first form runs a 
 | `--json` | Off | In single-family mode, print structured JSON rather than the human-readable report. Batch mode writes JSON files automatically. |
 | `--verbose` | Off | Include more direction, similarity, sibling, evidence, and rule-match details. |
 | `--output [DIR]` | Off | Save one JSON report per family; special characters in family names are converted to safe, collision-resistant filenames. If `DIR` is omitted, use `./output`. Required in batch mode. |
-| `--benchmark` | Off | For either single or batch scans, generate `benchmarks.csv` with per-family elapsed time and success/failure status. |
+| `--benchmark` | Off | For single or batch scans, write `benchmarks.csv` with total and phase timings (`load_s`, `analysis_s`, `scan_s`, `other_s`) and success/failure status. |
 | `--tracemalloc` | Off | With `--benchmark`, also measure peak **Python-traced allocations** in MiB. Not process RSS or DuckDB native memory; adds measurement overhead. |
 | `-h`, `--help` | — | Display full CLI help. |
 
@@ -428,10 +428,10 @@ A **flagged pair** can result from rule/evidence changes or supported/uncertain 
 With `--benchmark`, the scanner also writes `benchmarks.csv` with columns:
 
 ```text
-family,seconds,peak_python_memory_mib,status
+family,seconds,load_s,analysis_s,scan_s,other_s,peak_python_memory_mib,status
 ```
 
-The peak-memory field is empty unless `--tracemalloc` is enabled. In single-family mode, `--benchmark` without `--output` saves the benchmark and family JSON under `./output`.
+`load_s` combines family and sibling database loading; `analysis_s` covers similarity and relationship analysis; and `scan_s` covers security scanning and report construction. `other_s` is the nonnegative remainder of total time after these three phases (including output writing and CLI overhead). Unavailable phase timings are blank if a scan fails. The peak-memory field is empty unless `--tracemalloc` is enabled, which adds measurement overhead. In single-family mode, `--benchmark` without `--output` saves the benchmark and family JSON under `./output`.
 
 ### Examples
 
@@ -441,10 +441,10 @@ The peak-memory field is empty unless `--tracemalloc` is enabled. In single-fami
 uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duckdb/agent_skills_release.db
 ```
 
-**Single family with JSON report and benchmarking:**
+**Single family with JSON report, benchmarking, and peak Python memory:**
 
 ```powershell
-uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duckdb/agent_skills_release.db --json --output output/single --benchmark
+uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duckdb/agent_skills_release.db --json --output output/single --benchmark --tracemalloc
 ```
 
 **Example `data/validation/families.txt`:**
@@ -454,10 +454,10 @@ uv run python -m gitskills.tools.scan_family busybox-on-windows --db C:/data/duc
 busybox-on-windows
 ```
 
-**Batch pilot with benchmarking:**
+**Batch pilot with benchmarking and peak Python memory:**
 
 ```powershell
-uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/pilot --limit 2 --benchmark
+uv run python -m gitskills.tools.scan_family --input data/validation/families.txt --db C:/data/duckdb/agent_skills_release.db --output output/pilot --limit 2 --benchmark --tracemalloc
 ```
 
 **Complete input list using the default primary edges (no benchmarking):**

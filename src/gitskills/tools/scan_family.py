@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from contextlib import contextmanager
 import csv
 import json
 import os
@@ -11,7 +12,7 @@ import sys
 import time
 import tracemalloc
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence
 
 from gitskills.analysis.family import FamilyAnalyzer
 from gitskills.analysis.family_models import SimilarityPolicy
@@ -34,6 +35,17 @@ from gitskills.reporting.redaction import redact_text, safe_excerpt, safe_rule_e
 
 
 DEFAULT_DB_ENV = "GITSKILLS_DB"
+
+
+@contextmanager
+def _timed_phase(timings: dict[str, float] | None, phase: str) -> Iterator[None]:
+    if timings is None:
+        yield
+        return
+
+    started = time.perf_counter()
+    yield
+    timings[phase] = timings.get(phase, 0.0) + time.perf_counter() - started
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -132,8 +144,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.benchmark and args.tracemalloc:
             tracemalloc.start()
         started = time.perf_counter()
+        timings: dict[str, float] | None = {} if args.benchmark else None
         try:
-            result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose, edges=args.edges)
+            result, payload, loaded, artifacts = _scan_one(
+                name, database, policy, verbose=args.verbose, edges=args.edges, timings=timings,
+            )
             if output_dir is not None:
                 _output.write_json(output_dir, output_stems[name], payload)
             if args.input is None:
@@ -152,8 +167,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.benchmark and args.tracemalloc:
             tracemalloc.stop()
         if args.benchmark:
+            assert timings is not None
+            phases = ("load_s", "analysis_s", "scan_s")
+            other_s = (max(0.0, seconds - sum(timings[phase] for phase in phases))
+                       if all(phase in timings for phase in phases) else None)
             rows.append({
                 "family": name, "seconds": f"{seconds:.3f}",
+                **{phase: f"{timings[phase]:.3f}" if phase in timings else "" for phase in phases},
+                "other_s": f"{other_s:.3f}" if other_s is not None else "",
                 "peak_python_memory_mib": f"{peak / 1024 / 1024:.2f}" if peak is not None else "",
                 "status": status,
             })
@@ -166,7 +187,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             with (output_dir / "benchmarks.csv").open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(
-                    handle, fieldnames=("family", "seconds", "peak_python_memory_mib", "status")
+                    handle, fieldnames=("family", "seconds", "load_s", "analysis_s",
+                                        "scan_s", "other_s", "peak_python_memory_mib", "status")
                 )
                 writer.writeheader()
                 writer.writerows(rows)
@@ -177,14 +199,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 1 if failed else 0
 
 
-def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool, edges: str = "primary"):
-    loaded = DuckDBFamilyRepository(database).load_available(name)
+def _scan_one(
+    name: str, database: Path, policy: SimilarityPolicy, *,
+    verbose: bool, edges: str = "primary", timings: dict[str, float] | None = None,
+):
+    with _timed_phase(timings, "load_s"):
+        loaded = DuckDBFamilyRepository(database).load_available(name)
+        if not loaded.artifacts and not loaded.skipped_artifacts:
+            raise ValueError(f"Candidate family not found: {name}")
     artifacts = loaded.artifacts
-    if not artifacts and not loaded.skipped_artifacts:
-        raise ValueError(f"Candidate family not found: {name}")
-    family_analysis = None
-    if edges == "primary" and artifacts:
-        family_analysis = FamilyAnalyzer(policy).analyze(artifacts)
+
+    with _timed_phase(timings, "analysis_s"):
+        family_analysis = FamilyAnalyzer(policy).analyze(artifacts) if artifacts else None
+
+    if edges == "primary" and family_analysis is not None:
         sibling_artifact_ids = {
             artifact_id
             for cluster in family_analysis.family.clusters
@@ -194,21 +222,15 @@ def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: b
     else:
         sibling_artifact_ids = {artifact.artifact_id for artifact in artifacts}
 
-    sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
-    result, payload = scan_family_report(
-        name, loaded, sibling_files, policy=policy, edges=edges,
-        verbose=verbose, family_analysis=family_analysis,
-    )
+    with _timed_phase(timings, "load_s"):
+        sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
+
+    with _timed_phase(timings, "scan_s"):
+        result, payload = scan_family_report(
+            name, loaded, sibling_files, policy=policy, edges=edges,
+            verbose=verbose, family_analysis=family_analysis,
+        )
     return result, payload, loaded, artifacts
-
-
-def _print_input_summary(loaded, artifacts) -> None:
-    print(f"Artifacts loaded:        {len(artifacts)}")
-    print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
-    for artifact in loaded.skipped_artifacts:
-        print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
-    if loaded.skipped_artifacts:
-        print("Input coverage incomplete; skipped artifacts have no scan result.")
 
 
 def _database_from_environment() -> Path | None:

@@ -16,6 +16,7 @@ from .evidence_extractors import (
 )
 from .evidence_models import Evidence, EvidenceContext, ExtractionStatus
 from .evidence_normalizer import EvidenceNormalizer
+from .python_source_context import PythonSourceContext
 from .models import RuleMatch
 
 
@@ -33,7 +34,10 @@ class _SourceContext:
     """Index Markdown structure only when at least one match needs context."""
 
     def __init__(self, text: str, filename: str) -> None:
-        self._markdown = filename.replace("\\", "/").lower().endswith(".md")
+        normalized_filename = filename.replace("\\", "/").lower()
+        self._markdown = normalized_filename.endswith(".md")
+        self._python = (PythonSourceContext(text) if normalized_filename.endswith(".py")
+                        else None)
         self._lines: list[_LineInfo] = []
         self._starts: list[int] = []
         heading: str | None = None
@@ -91,7 +95,9 @@ class _SourceContext:
             else:
                 kind = "markdown_prose"
         else:
-            if filename.lower().endswith((".sh", ".bash", ".zsh", ".py", ".rb", ".yaml", ".yml")):
+            if self._python is not None:
+                kind = self._python.kind_at(position) or "source_code"
+            elif filename.lower().endswith((".sh", ".bash", ".zsh", ".rb", ".yaml", ".yml")):
                 kind = "source_comment" if stripped.startswith("#") else "source_code"
             elif filename.lower().endswith((".js", ".ts")):
                 kind = "source_comment" if stripped.startswith("//") else "source_code"

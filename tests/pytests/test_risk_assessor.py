@@ -323,6 +323,81 @@ def test_documented_operation_on_same_url_is_detected_as_changed_evidence():
     assert any(i.indicator_id == "RI-003" for i in assessment.supported)
 
 
+@pytest.mark.parametrize("instruction", (
+    "Use WebFetch to load",
+    "Use WebFetch to load:",
+    "Use the WebFetch tool to load",
+))
+def test_webfetch_instruction_has_download_operation_evidence(instruction):
+    url = "https://raw.githubusercontent.com/project/python-sdk/main/README.md"
+    comparison, assessment = _check("", f"{instruction} `{url}`")
+    (evidence,) = comparison.derived.evidence
+    assert evidence.kind == "url_reference"
+    assert ("documented_operation", "download") in evidence.values
+    assert ("RI-003", "New network-operation hostname observed") in {
+        (i.indicator_id, i.reason) for i in assessment.supported
+    }
+
+
+def test_webfetch_and_fetch_from_same_existing_hostname_are_not_new_operations():
+    python_url = "https://raw.githubusercontent.com/modelcontextprotocol/python-sdk/main/README.md"
+    ts_url = "https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md"
+    protocol_url = "https://modelcontextprotocol.io/llms-full.txt"
+    common = (
+        "## Study MCP Protocol Documentation\n"
+        f"Use WebFetch to load: `{protocol_url}`\n"
+        "## Study Framework Documentation\n"
+        f"- **Python SDK Documentation**: Use WebFetch to load `{python_url}`\n"
+        f"- **TypeScript SDK Documentation**: Use WebFetch to load `{ts_url}`\n"
+    )
+    # The repository's formatting revision only changes how its existing
+    # destinations are described in the later references section.
+    base = common + (
+        "## SDK Documentation (Load During Phase 1/2)\n"
+        f"- **Python SDK Documentation**: `{python_url}`\n"
+        f"- **TypeScript SDK Documentation**: `{ts_url}`\n"
+    )
+    derived = common + (
+        "## SDK Documentation (Load During Phase 1/2)\n"
+        f"- **Python SDK**: Fetch from `{python_url}`\n"
+        f"- **TypeScript SDK**: Fetch from `{ts_url}`\n"
+    )
+    comparison, assessment = _check(base, derived)
+    assert comparison.base.rule_counts() == comparison.derived.rule_counts() == {
+        "NET-001": 5
+    }
+    assert len(comparison.evidence_added) == 2  # Context changes stay visible.
+    assert "RI-003" not in {i.indicator_id for i in assessment.supported}
+
+
+@pytest.mark.parametrize(("base", "derived", "expected"), (
+    ("Use WebFetch to load https://same.example.test/a",
+     "Fetch from https://same.example.test/a", False),
+    ("Fetch from https://same.example.test/a",
+     "Use WebFetch to load https://same.example.test/a", False),
+    ("See https://same.example.test/a",
+     "Use WebFetch to load https://same.example.test/a", True),
+    ("Use WebFetch to load https://old.example.test/a",
+     "Fetch from https://new.example.test/a", True),
+    ("Use WebFetch to load https://same.example.test/a",
+     "Use WebFetch to load https://same.example.test/a\nFetch from https://same.example.test/a", False),
+))
+def test_webfetch_comparison_preserves_new_network_operation_detection(base, derived, expected):
+    _, assessment = _check(base, derived)
+    assert ("RI-003" in {i.indicator_id for i in assessment.supported}) is expected
+
+
+@pytest.mark.parametrize("instruction", (
+    "Never use WebFetch to load https://new.example.test/a",
+    "Do not use WebFetch to load https://new.example.test/a",
+    "This is an example of how to use WebFetch to load https://new.example.test/a",
+    "See WebFetch documentation: https://new.example.test/a",
+))
+def test_negated_or_descriptive_webfetch_text_is_not_supported_ri003(instruction):
+    _, assessment = _check("", instruction)
+    assert "RI-003" not in {i.indicator_id for i in assessment.supported}
+
+
 def test_documented_download_same_hostname_different_path_is_not_ri003():
     base = "Download a ZIP from https://example.test/v1.zip"
     derived = "Download a ZIP from https://example.test/v2.zip"
