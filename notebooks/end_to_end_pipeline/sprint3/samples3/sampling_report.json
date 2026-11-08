@@ -1,0 +1,2072 @@
+{
+  "created_at": "2026-11-08T01:01:04.802003+00:00",
+  "seed": 5803,
+  "sample_size": 100,
+  "database": {
+    "path": "C:\\data\\duckdb\\agent_skills_release.db",
+    "size_bytes": 40123510784,
+    "modified_time_ns": 1790300911083626600
+  },
+  "eligibility": "At least two distinct primary/sibling hash states and one usable primary directed edge",
+  "pair_definition": "Different primary file hashes, or two known and different sibling hashes",
+  "similarity_policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "allocation_method": "largest_remainder",
+  "candidate_families": 162461,
+  "excluded_families": 200,
+  "exclusion_files": [
+    {
+      "path": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\notebooks\\end_to_end_pipeline\\sprint3\\samples1\\families.txt",
+      "sha256": "add879778e1f3e52c64014b3b4f2714be5dea2f90f9a1eaecf95e89a62ae046d"
+    },
+    {
+      "path": "\\\\boxy\\home\\school\\umich\\csc580\\git\\csc580-project8\\notebooks\\end_to_end_pipeline\\sprint3\\samples2\\families.txt",
+      "sha256": "736d37ca5e2d403961e50f2989cf8050be1e6caed6a3068a3534d6e137deb19f"
+    }
+  ],
+  "groups": [
+    {
+      "name": "Low",
+      "min_artifacts": 2,
+      "max_artifacts": 2,
+      "percentage": 20,
+      "candidate_families": 83868,
+      "selected_families": 20,
+      "rejected_families": [
+        {
+          "name": "focusa",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "example-web-search",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "peak-intensity-distribution-analysis",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "bottyfans",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "claude-mcp-expert",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "botrights",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "chonk",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "macos-codesign-workflow",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "pbi-modelo-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "http-mocking",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "swiftdata-expert",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sd003-loop-test",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "agentic-dev-pipeline",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ywc-infra-optimize",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "focus-keeper",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "legal-compliance-regulatory-monitor",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "image-enhancement-suite",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Web Profiler Bundle",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "pp-tella",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "per-aspera-project-setup",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "vibecoding",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "maui-project-generator",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "instagram-saver",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "project-validator",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "business-account-opening",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "eic-data-extraction-from-xcms",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "backtesting-validation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "briefing-writer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "spreadsheet-ops",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "etkm-web-production",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "UXR Report Analyzer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "journal-adapt",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "cheat",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "form-wizard",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "index-project",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "handover-process",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "deploy-pipelines",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "book-chiropractor",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "nccuoj",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "business-presentation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "spae-execute",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "research-idea-and-battle",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sovereign-roast-coach",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "rodeo",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "mariadb-best-practices",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "flutter-scaffold",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "insane-research-query",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "flexport-reference-architecture",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "hops-environments",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "make-ticket",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "venture",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "oc-resume",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "blueprint-assembly",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "analyzing-demographic-trends",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "youtube-scripts",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "bonsai-syntax-spatial",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "extract-slide-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "alloydb-omni-optimize",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "architecture-export",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "writing-pr-faqs",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sample-size",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "coderabbit-autofix",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "salesclaw",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "loop-generator",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "subtitle-maker",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "optimizing-fast-lookup",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "gitlab-tools",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "stark-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "mlops-dag-builder",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "meridian-docs",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ipo-material-precheck-assistant",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "conducting-capacity-evaluations",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "jest-frontend-testing",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "cognitive-psychology-ux",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "mcs-eval",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "abp-audit-logging",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "game-sound-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "tax-optimizer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "state-model-beads",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "investment-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "managing-drain-output",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Regression Benchmarks",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "imaging-mass-cytometry-data-preprocessing",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "business-model-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "nextcloud-aio-oc (NextCloud AIO OpenClaw)",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ai-navigation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "structuring-gp-led-continuation-vehicles",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Open Router",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "molecular-class-annotation-for-networks",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ort-test",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "refine-skill-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "blurb-writer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "env-setup-assistant",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "paranoid-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ghealth",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "build-analyzer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "build-quiz",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "review-markdown-integrity-data-loss-prevention",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "wa-characterize",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "animal-messenger",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "plan-before-change",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "advanced-components-library",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "mass-spectral-metadata-standardization",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sap-btp-cias",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "feishu-sync-doc",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "product-launch-marketing",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "paperclip-api",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "widerspruechliche-bewertungen",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "roi-tensor-formatting-for-deep-learning",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "thermo-raw-file-format-parsing",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "pp-tenderned",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "agentprivacy-nullifier-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "basic-workflow",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "appflowy-api",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "reviewing-frontend-security",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "full-skill",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sprang-onboard",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "nativeui-architect",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "research-arxiv",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "eng-lead",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "tech-doc-reviewer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "screenshot-intake",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "forge-tunnel",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "managing-fund-formation-documents",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "firewall-configurator",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "cleanup-restore",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ml-ai",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "never-nester",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "nextjs-routing-rules",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Reduce session-start context load via rules path-scoping and disable-model-invocation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "design-view",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ctf",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ct-documentor",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "run-kfs",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "rtl-fix",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "hud-setup",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "ccxt-go",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "isobaric-ion-misclassification-documentation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sdd-domain-validation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "openapi-format",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "lgf-new-logic-skill",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "polymarket-live-bet",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "dt-obs-frontends",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "syncfusion-react-3d-circular-chart",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "one-calendar",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "work-update",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "traceroot-instrument-repo",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "client-health",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "architect-calculator",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "create-subissues",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "猜数字游戏",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "cems-remember",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "check-error-handling",
+          "reason": "no_usable_primary_edge"
+        }
+      ]
+    },
+    {
+      "name": "Medium",
+      "min_artifacts": 3,
+      "max_artifacts": 15,
+      "percentage": 55,
+      "candidate_families": 70385,
+      "selected_families": 55,
+      "rejected_families": [
+        {
+          "name": "attorney-representation-agreement",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "visa-itinerary-gen",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "symfony:doctrine-transactions",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "parser",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "run-fuzz",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "fliz-ai-video-generator",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "budgeting",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "documenting",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "project-verify",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "sophia",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "tone-of-voice",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "model-advisor",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "flow-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "skill-issue",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "harness-docs",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "firewall-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "marginalia",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Typst & LaTeX Compiler",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "git_helper",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "workflow-code-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "fundamental-stock-analysis",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "jimeng-api",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "incident-summary",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "worktree-triage",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "benchmark-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "stock-portfolio",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "versioning-apis",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "nextjs-pro",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "propose-automation",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "git-branch-workflow",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "renovate-triage",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "content-security-policy",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "skill-advisor",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "market-sentiment-pulse",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "cloud-sync",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "nastech-agent",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "bio-single-cell-splicing",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "umbraco-tiptap-statusbar-extension",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Organize",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "run-e2e",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "git-conventional",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "chemical-structure-smiles-assignment",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "social-media-analytics",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "deposition-transcript-analyzer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "review-test-code",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "cascade-maintain",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "pacer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Persona Channel Builder",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "book-computer-repair",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "decision-doubt-loop",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "tldr-stats",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "dependabot-sweep",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "servicenow-table-api",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "bill-ackman",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "create-new-post",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "obsidian-workflow",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "hugeicons",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "code-standards-analyzer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "game-analytics",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "obsidian-index",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "video-lens",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "veil",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "review-readme",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Security Code Review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "phpunit-testing",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "database-indexing-strategy",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "git-commit-pr",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "devils-advocate-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "case-viability-report",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "run-local-review",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "obsidian-daily",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "plea-agreement-summary",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "type-driven-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "reitz-api-design",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "context-pruning",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "closing-deals",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "Word / DOCX",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "doc-nav",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "prm-acquisition-event-identification",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "hygiene",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "demand-gen",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "verify-e2e",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "experiment-report-writer",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "link-building-outreach",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "project-create",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "principal-architect",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "api-proposal",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "worktree-agent",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "fix-bugs",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "md-table-image",
+          "reason": "no_usable_primary_edge"
+        }
+      ]
+    },
+    {
+      "name": "Large",
+      "min_artifacts": 16,
+      "max_artifacts": 100,
+      "percentage": 20,
+      "candidate_families": 7289,
+      "selected_families": 20,
+      "rejected_families": [
+        {
+          "name": "new-blog-post",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "manage",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "homeassistant",
+          "reason": "no_usable_primary_edge"
+        },
+        {
+          "name": "solve",
+          "reason": "no_usable_primary_edge"
+        }
+      ]
+    },
+    {
+      "name": "X-Large",
+      "min_artifacts": 101,
+      "max_artifacts": 500,
+      "percentage": 4,
+      "candidate_families": 651,
+      "selected_families": 4,
+      "rejected_families": []
+    },
+    {
+      "name": "Extreme",
+      "min_artifacts": 501,
+      "max_artifacts": null,
+      "percentage": 1,
+      "candidate_families": 68,
+      "selected_families": 1,
+      "rejected_families": []
+    }
+  ],
+  "families": [
+    {
+      "name": "forcecage",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "heady-cloud-orchestrator",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "firmware-binary-service-inventory",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "orchardcore-email",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "focus-outline-visible",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "worker-development",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "godot-adapt-3d-to-2d",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "chai-studio-skill",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "oc-flux",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "dharma-ai",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "manufacturing-knowledge",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "oc-control-ikea-lightbulb",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "choose-zoom-approach",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "linkedin-announcement-generator",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "ops-query",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "payment-lookup",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "gtm-account-research",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "vsphere",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "tts-generation",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "nsfc-code",
+      "unique_variants": 2,
+      "artifact_count": 2,
+      "usable_artifact_count": 2,
+      "usable_pair_count": 1,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Low"
+    },
+    {
+      "name": "git-issue",
+      "unique_variants": 8,
+      "artifact_count": 8,
+      "usable_artifact_count": 8,
+      "usable_pair_count": 28,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "mcp-server-dev",
+      "unique_variants": 6,
+      "artifact_count": 6,
+      "usable_artifact_count": 6,
+      "usable_pair_count": 15,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "compose-outreach",
+      "unique_variants": 8,
+      "artifact_count": 8,
+      "usable_artifact_count": 8,
+      "usable_pair_count": 28,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 3,
+      "group": "Medium"
+    },
+    {
+      "name": "ebfe_validate_models",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "research-deep-dive",
+      "unique_variants": 7,
+      "artifact_count": 7,
+      "usable_artifact_count": 7,
+      "usable_pair_count": 21,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "blocknative-automation",
+      "unique_variants": 7,
+      "artifact_count": 7,
+      "usable_artifact_count": 7,
+      "usable_pair_count": 21,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "avileo",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "marketing-podcast-strategist",
+      "unique_variants": 6,
+      "artifact_count": 6,
+      "usable_artifact_count": 6,
+      "usable_pair_count": 15,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "gopher",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "flow-next-work",
+      "unique_variants": 10,
+      "artifact_count": 10,
+      "usable_artifact_count": 10,
+      "usable_pair_count": 45,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "code-review-guideline",
+      "unique_variants": 7,
+      "artifact_count": 7,
+      "usable_artifact_count": 7,
+      "usable_pair_count": 21,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 5,
+      "group": "Medium"
+    },
+    {
+      "name": "firebase-vertex-ai",
+      "unique_variants": 6,
+      "artifact_count": 6,
+      "usable_artifact_count": 6,
+      "usable_pair_count": 15,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 3,
+      "group": "Medium"
+    },
+    {
+      "name": "feature-summary",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "xlsx-cn",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "scv-scan",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "plan-implementer",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "seedream-img-gen",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 4,
+      "group": "Medium"
+    },
+    {
+      "name": "pdf-ssh-client-config",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "explore-plan",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "agent-ops-state",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 3,
+      "group": "Medium"
+    },
+    {
+      "name": "ce-polish",
+      "unique_variants": 7,
+      "artifact_count": 7,
+      "usable_artifact_count": 7,
+      "usable_pair_count": 21,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 4,
+      "group": "Medium"
+    },
+    {
+      "name": "huashu-book-pdf",
+      "unique_variants": 6,
+      "artifact_count": 6,
+      "usable_artifact_count": 6,
+      "usable_pair_count": 15,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 5,
+      "group": "Medium"
+    },
+    {
+      "name": "mietsenkungsverlangen",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 3,
+      "group": "Medium"
+    },
+    {
+      "name": "agent-challenges",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "aws-integration-service-mcp-configuration",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "multi-currency",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "troubleshooting-dbt-job-errors",
+      "unique_variants": 7,
+      "artifact_count": 7,
+      "usable_artifact_count": 7,
+      "usable_pair_count": 21,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "agentkit-seo",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "cdd-discuss",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "scheduled-events",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "proj-review",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "flutter-go-router-navigation",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "translation-reframing-audience-shift",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "jgi-lakehouse",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "react-hook-form-zod",
+      "unique_variants": 13,
+      "artifact_count": 13,
+      "usable_artifact_count": 13,
+      "usable_pair_count": 78,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 4,
+      "group": "Medium"
+    },
+    {
+      "name": "video-sdk/windows",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "pc-assistant",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "responsive-breakpoint-analyzer",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "pdf-toolkit-project-documentation",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "good-question",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "implement-plan-preflight",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "epistemic-arbitrage",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "pdf-path-config",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "capture-api-response-test-fixture",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "implement-sonnet",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "firebase-storage",
+      "unique_variants": 4,
+      "artifact_count": 4,
+      "usable_artifact_count": 4,
+      "usable_pair_count": 6,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "jisu-express",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "discord-channel-auditor",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "tdd-migration-pipeline",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "ai-friendly-architecture",
+      "unique_variants": 4,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 9,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "codex-subagent-orchestrator",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "axiom-networking-diag",
+      "unique_variants": 5,
+      "artifact_count": 5,
+      "usable_artifact_count": 5,
+      "usable_pair_count": 10,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Medium"
+    },
+    {
+      "name": "ck:brainstorm",
+      "unique_variants": 11,
+      "artifact_count": 11,
+      "usable_artifact_count": 11,
+      "usable_pair_count": 55,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 9,
+      "group": "Medium"
+    },
+    {
+      "name": "qlik-naming-conventions",
+      "unique_variants": 3,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 3,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "llvm-security",
+      "unique_variants": 2,
+      "artifact_count": 3,
+      "usable_artifact_count": 3,
+      "usable_pair_count": 2,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Medium"
+    },
+    {
+      "name": "cloud-architect",
+      "unique_variants": 85,
+      "artifact_count": 85,
+      "usable_artifact_count": 85,
+      "usable_pair_count": 3570,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 48,
+      "group": "Large"
+    },
+    {
+      "name": "execute-task",
+      "unique_variants": 39,
+      "artifact_count": 39,
+      "usable_artifact_count": 39,
+      "usable_pair_count": 741,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 4,
+      "group": "Large"
+    },
+    {
+      "name": "propose",
+      "unique_variants": 38,
+      "artifact_count": 38,
+      "usable_artifact_count": 38,
+      "usable_pair_count": 703,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Large"
+    },
+    {
+      "name": "youtube-summarizer",
+      "unique_variants": 60,
+      "artifact_count": 60,
+      "usable_artifact_count": 60,
+      "usable_pair_count": 1770,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 26,
+      "group": "Large"
+    },
+    {
+      "name": "azure-hosted-copilot-sdk",
+      "unique_variants": 16,
+      "artifact_count": 16,
+      "usable_artifact_count": 16,
+      "usable_pair_count": 120,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 13,
+      "group": "Large"
+    },
+    {
+      "name": "expo-deployment",
+      "unique_variants": 45,
+      "artifact_count": 45,
+      "usable_artifact_count": 45,
+      "usable_pair_count": 990,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 35,
+      "group": "Large"
+    },
+    {
+      "name": "automating-ioc-enrichment",
+      "unique_variants": 16,
+      "artifact_count": 16,
+      "usable_artifact_count": 16,
+      "usable_pair_count": 120,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Large"
+    },
+    {
+      "name": "azure-resource-manager-playwright-dotnet",
+      "unique_variants": 31,
+      "artifact_count": 31,
+      "usable_artifact_count": 31,
+      "usable_pair_count": 465,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 27,
+      "group": "Large"
+    },
+    {
+      "name": "merge-queue",
+      "unique_variants": 17,
+      "artifact_count": 17,
+      "usable_artifact_count": 17,
+      "usable_pair_count": 136,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 6,
+      "group": "Large"
+    },
+    {
+      "name": "gws-sheets-read",
+      "unique_variants": 19,
+      "artifact_count": 19,
+      "usable_artifact_count": 19,
+      "usable_pair_count": 171,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 15,
+      "group": "Large"
+    },
+    {
+      "name": "python-executor",
+      "unique_variants": 26,
+      "artifact_count": 26,
+      "usable_artifact_count": 26,
+      "usable_pair_count": 325,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 15,
+      "group": "Large"
+    },
+    {
+      "name": "analyzing-cyber-kill-chain",
+      "unique_variants": 17,
+      "artifact_count": 17,
+      "usable_artifact_count": 17,
+      "usable_pair_count": 136,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 10,
+      "group": "Large"
+    },
+    {
+      "name": "python-backend",
+      "unique_variants": 28,
+      "artifact_count": 28,
+      "usable_artifact_count": 28,
+      "usable_pair_count": 378,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 3,
+      "group": "Large"
+    },
+    {
+      "name": "angular-expert",
+      "unique_variants": 20,
+      "artifact_count": 20,
+      "usable_artifact_count": 20,
+      "usable_pair_count": 190,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Large"
+    },
+    {
+      "name": "performing-automated-malware-analysis-with-cape",
+      "unique_variants": 17,
+      "artifact_count": 17,
+      "usable_artifact_count": 17,
+      "usable_pair_count": 136,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Large"
+    },
+    {
+      "name": "financial-analysis",
+      "unique_variants": 48,
+      "artifact_count": 48,
+      "usable_artifact_count": 48,
+      "usable_pair_count": 1128,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 3,
+      "group": "Large"
+    },
+    {
+      "name": "implementing-zero-trust-for-saas-applications",
+      "unique_variants": 16,
+      "artifact_count": 16,
+      "usable_artifact_count": 16,
+      "usable_pair_count": 120,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 2,
+      "group": "Large"
+    },
+    {
+      "name": "close",
+      "unique_variants": 50,
+      "artifact_count": 50,
+      "usable_artifact_count": 50,
+      "usable_pair_count": 1225,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 1,
+      "group": "Large"
+    },
+    {
+      "name": "nextjs-expert",
+      "unique_variants": 40,
+      "artifact_count": 40,
+      "usable_artifact_count": 40,
+      "usable_pair_count": 780,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 7,
+      "group": "Large"
+    },
+    {
+      "name": "seo-cannibalization-detector",
+      "unique_variants": 27,
+      "artifact_count": 27,
+      "usable_artifact_count": 27,
+      "usable_pair_count": 351,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 24,
+      "group": "Large"
+    },
+    {
+      "name": "marketing-psychology",
+      "unique_variants": 168,
+      "artifact_count": 169,
+      "usable_artifact_count": 169,
+      "usable_pair_count": 14195,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 111,
+      "group": "X-Large"
+    },
+    {
+      "name": "checkpoint",
+      "unique_variants": 263,
+      "artifact_count": 263,
+      "usable_artifact_count": 263,
+      "usable_pair_count": 34453,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 30,
+      "group": "X-Large"
+    },
+    {
+      "name": "discover",
+      "unique_variants": 165,
+      "artifact_count": 165,
+      "usable_artifact_count": 165,
+      "usable_pair_count": 13530,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 6,
+      "group": "X-Large"
+    },
+    {
+      "name": "planning-and-task-breakdown",
+      "unique_variants": 132,
+      "artifact_count": 133,
+      "usable_artifact_count": 133,
+      "usable_pair_count": 8777,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 45,
+      "group": "X-Large"
+    },
+    {
+      "name": "mcp-builder",
+      "unique_variants": 543,
+      "artifact_count": 543,
+      "usable_artifact_count": 543,
+      "usable_pair_count": 147153,
+      "sibling_qualified_pair_count": 0,
+      "primary_directed_relationships": 299,
+      "group": "Extreme"
+    }
+  ]
+}

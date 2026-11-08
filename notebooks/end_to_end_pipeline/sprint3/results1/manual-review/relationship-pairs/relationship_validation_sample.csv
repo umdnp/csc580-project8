@@ -1,0 +1,16 @@
+family,cluster,artifact_a_id,artifact_b_id,relationship_status,direction_basis,change_type,similarity_jaccard,similarity_containment,similarity_shared_shingles,sampling_stratum
+cso,1,3605071,3607908,direction-unknown,similarity-only,skill-only,0.939087461211355,0.9982895540623091,8171,ambiguous
+gsd-explore,2,129015,129933,direction-unknown,similarity-only,skill-only,0.8076923076923077,0.8936170212765957,42,ambiguous
+openclaw-parallels-smoke,1,3505214,3505335,direction-unknown,similarity-only,skill-only,0.9646900269541779,0.9829717110683878,3579,ambiguous
+clawdbot-release-check,1,788404,857213,direction-unknown,similarity-only,unknown,1.0,1.0,245,ambiguous
+executive-mentor,1,2023843,2050390,direction-unknown,similarity-only,unknown,0.8775956284153006,0.9491725768321513,803,ambiguous
+extract,1,1316133,1317352,equivalent,equivalent-state,equivalent,1.0,1.0,444,equivalent
+hosted-agents,1,2859543,2861293,equivalent,equivalent-state,equivalent,1.0,1.0,1539,equivalent
+extract,1,1317854,1332965,equivalent,equivalent-state,equivalent,1.0,1.0,444,equivalent
+gws-keep,1,507338,607372,equivalent,equivalent-state,equivalent,1.0,1.0,225,equivalent
+searxng-search,1,2041544,2041735,equivalent,equivalent-state,equivalent,1.0,1.0,810,equivalent
+implement,,207781,2104435,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+extract,,3644760,3668355,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+implement,,296217,1747684,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+implement,,251274,3757072,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge
+implement,,1221131,2111678,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge

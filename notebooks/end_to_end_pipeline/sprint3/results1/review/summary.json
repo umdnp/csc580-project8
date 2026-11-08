@@ -1,0 +1,104 @@
+{
+  "ambiguous_edges_skipped": 3467,
+  "denominator_note": "Percentages use directed_pairs_analyzed (or the corresponding edge-type denominator); categories overlap. Ambiguous edges are excluded. Comparisons can share artifacts and are not independent historical events.",
+  "directed_pairs_analyzed": 665,
+  "edge_selection": "primary",
+  "edge_type_breakdown": {
+    "additional": {
+      "finding_count": 0,
+      "indicator_frequency_pairs": {
+        "RI-001": 0,
+        "RI-002": 0,
+        "RI-003": 0,
+        "RI-004": 0,
+        "RI-005": 0,
+        "RI-006": 0,
+        "RI-007": 0,
+        "RI-008": 0,
+        "RI-009": 0,
+        "RI-010": 0,
+        "RI-011": 0
+      },
+      "pairs_analyzed": 0,
+      "pairs_coverage_incomplete": 0,
+      "pairs_flagged": 0,
+      "pairs_with_indicators": 0
+    },
+    "primary": {
+      "finding_count": 382,
+      "indicator_frequency_pairs": {
+        "RI-001": 0,
+        "RI-002": 0,
+        "RI-003": 8,
+        "RI-004": 0,
+        "RI-005": 25,
+        "RI-006": 57,
+        "RI-007": 3,
+        "RI-008": 8,
+        "RI-009": 0,
+        "RI-010": 33,
+        "RI-011": 0
+      },
+      "pairs_analyzed": 665,
+      "pairs_coverage_incomplete": 123,
+      "pairs_flagged": 346,
+      "pairs_with_indicators": 113
+    }
+  },
+  "families_with_supported_indicators": 25,
+  "family_count": 100,
+  "flagged_pairs": 346,
+  "indicator_frequency_pairs": {
+    "RI-001": 0,
+    "RI-002": 0,
+    "RI-003": 8,
+    "RI-004": 0,
+    "RI-005": 25,
+    "RI-006": 57,
+    "RI-007": 3,
+    "RI-008": 8,
+    "RI-009": 0,
+    "RI-010": 33,
+    "RI-011": 0
+  },
+  "pairs_with_evidence_changes": 333,
+  "pairs_with_incomplete_evidence_coverage": 123,
+  "pairs_with_missing_sibling_content": 85,
+  "pairs_with_sibling_evidence_changes": 180,
+  "pairs_with_supported_indicators": 113,
+  "relationship_sampling": {
+    "families_supplied": 100,
+    "per_stratum": 5,
+    "sampled_pairs": 15,
+    "seed": 580,
+    "strata_counts": {
+      "ambiguous": 5,
+      "equivalent": 5,
+      "no-related-edge": 5
+    }
+  },
+  "report_type": "gitskills-research-summary",
+  "sampling": {
+    "per_stratum": 5,
+    "sampled_pairs": 30,
+    "seed": 580,
+    "strata_counts": {
+      "coverage-limited": 5,
+      "flagged-no-indicator": 5,
+      "sibling-change": 5,
+      "supported-indicator": 5,
+      "uncertain-indicator": 5,
+      "unflagged-directed": 5
+    }
+  },
+  "scanner_scope": "skill-body-and-changed-siblings",
+  "sibling_incomplete_pairs": 85,
+  "similarity_policy": {
+    "direction_containment_margin": 0.1,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "shingle_size": 5
+  },
+  "supported_findings": 382
+}
