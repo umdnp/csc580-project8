@@ -169,11 +169,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.benchmark:
             assert timings is not None
             phases = ("load_s", "analysis_s", "scan_s")
+            timing_columns = ("load_s", "family_load_s", "sibling_load_s", "analysis_s", "scan_s")
             other_s = (max(0.0, seconds - sum(timings[phase] for phase in phases))
                        if all(phase in timings for phase in phases) else None)
             rows.append({
                 "family": name, "seconds": f"{seconds:.3f}",
-                **{phase: f"{timings[phase]:.3f}" if phase in timings else "" for phase in phases},
+                **{phase: f"{timings[phase]:.3f}" if phase in timings else "" for phase in timing_columns},
                 "other_s": f"{other_s:.3f}" if other_s is not None else "",
                 "peak_python_memory_mib": f"{peak / 1024 / 1024:.2f}" if peak is not None else "",
                 "status": status,
@@ -187,8 +188,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             with (output_dir / "benchmarks.csv").open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(
-                    handle, fieldnames=("family", "seconds", "load_s", "analysis_s",
-                                        "scan_s", "other_s", "peak_python_memory_mib", "status")
+                    handle, fieldnames=("family", "seconds", "load_s", "family_load_s",
+                                        "sibling_load_s", "analysis_s", "scan_s", "other_s",
+                                        "peak_python_memory_mib", "status")
                 )
                 writer.writeheader()
                 writer.writerows(rows)
@@ -203,7 +205,7 @@ def _scan_one(
     name: str, database: Path, policy: SimilarityPolicy, *,
     verbose: bool, edges: str = "primary", timings: dict[str, float] | None = None,
 ):
-    with _timed_phase(timings, "load_s"):
+    with _timed_phase(timings, "load_s"), _timed_phase(timings, "family_load_s"):
         loaded = DuckDBFamilyRepository(database).load_available(name)
         if not loaded.artifacts and not loaded.skipped_artifacts:
             raise ValueError(f"Candidate family not found: {name}")
@@ -222,7 +224,7 @@ def _scan_one(
     else:
         sibling_artifact_ids = {artifact.artifact_id for artifact in artifacts}
 
-    with _timed_phase(timings, "load_s"):
+    with _timed_phase(timings, "load_s"), _timed_phase(timings, "sibling_load_s"):
         sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
 
     with _timed_phase(timings, "scan_s"):
