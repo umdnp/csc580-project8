@@ -240,3 +240,6 @@ Thumbs.db
 
 # Generated family samples and their seed records
 output/family_samples/
+
+# Generated SkillTrace family reports (regenerate locally with analyze_family)
+/apps/skilltrace/reports/
