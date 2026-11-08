@@ -235,6 +235,15 @@ def _scan_one(
     return result, payload, loaded, artifacts
 
 
+def _print_input_summary(loaded, artifacts) -> None:
+    print(f"Artifacts loaded:        {len(artifacts)}")
+    print(f"Artifacts skipped:       {len(loaded.skipped_artifacts)}")
+    for artifact in loaded.skipped_artifacts:
+        print(f"  Skipped artifact {artifact.artifact_id}: {artifact.reason}")
+    if loaded.skipped_artifacts:
+        print("Input coverage incomplete; skipped artifacts have no scan result.")
+
+
 def _database_from_environment() -> Path | None:
     value = os.getenv(DEFAULT_DB_ENV)
     return Path(value) if value else None
