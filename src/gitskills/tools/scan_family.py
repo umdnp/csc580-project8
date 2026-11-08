@@ -132,8 +132,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.benchmark and args.tracemalloc:
             tracemalloc.start()
         started = time.perf_counter()
+        timings: dict[str, float] | None = {} if args.benchmark else None
         try:
-            result, payload, loaded, artifacts = _scan_one(name, database, policy, verbose=args.verbose, edges=args.edges)
+            result, payload, loaded, artifacts = _scan_one(
+                name, database, policy, verbose=args.verbose, edges=args.edges, timings=timings,
+            )
             if output_dir is not None:
                 _output.write_json(output_dir, output_stems[name], payload)
             if args.input is None:
@@ -152,8 +155,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.benchmark and args.tracemalloc:
             tracemalloc.stop()
         if args.benchmark:
+            assert timings is not None
+            phases = ("load_s", "analysis_s", "scan_s")
+            other_s = (max(0.0, seconds - sum(timings[phase] for phase in phases))
+                       if all(phase in timings for phase in phases) else None)
             rows.append({
                 "family": name, "seconds": f"{seconds:.3f}",
+                **{phase: f"{timings[phase]:.3f}" if phase in timings else "" for phase in phases},
+                "other_s": f"{other_s:.3f}" if other_s is not None else "",
                 "peak_python_memory_mib": f"{peak / 1024 / 1024:.2f}" if peak is not None else "",
                 "status": status,
             })
@@ -166,7 +175,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             with (output_dir / "benchmarks.csv").open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(
-                    handle, fieldnames=("family", "seconds", "peak_python_memory_mib", "status")
+                    handle, fieldnames=("family", "seconds", "load_s", "analysis_s",
+                                        "scan_s", "other_s", "peak_python_memory_mib", "status")
                 )
                 writer.writeheader()
                 writer.writerows(rows)
@@ -177,14 +187,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 1 if failed else 0
 
 
-def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: bool, edges: str = "primary"):
+def _scan_one(
+    name: str, database: Path, policy: SimilarityPolicy, *,
+    verbose: bool, edges: str = "primary", timings: dict[str, float] | None = None,
+):
+    started = time.perf_counter() if timings is not None else None
     loaded = DuckDBFamilyRepository(database).load_available(name)
+    if timings is not None:
+        family_load_s = time.perf_counter() - started
     artifacts = loaded.artifacts
     if not artifacts and not loaded.skipped_artifacts:
         raise ValueError(f"Candidate family not found: {name}")
+
     family_analysis = None
-    if edges == "primary" and artifacts:
+    if artifacts and (edges == "primary" or timings is not None):
+        started = time.perf_counter() if timings is not None else None
         family_analysis = FamilyAnalyzer(policy).analyze(artifacts)
+        if timings is not None:
+            timings["analysis_s"] = time.perf_counter() - started
+    elif timings is not None:
+        timings["analysis_s"] = 0.0
+
+    if edges == "primary" and family_analysis is not None:
         sibling_artifact_ids = {
             artifact_id
             for cluster in family_analysis.family.clusters
@@ -194,11 +218,18 @@ def _scan_one(name: str, database: Path, policy: SimilarityPolicy, *, verbose: b
     else:
         sibling_artifact_ids = {artifact.artifact_id for artifact in artifacts}
 
+    started = time.perf_counter() if timings is not None else None
     sibling_files = DuckDBSiblingRepository(database).load(sibling_artifact_ids)
+    if timings is not None:
+        timings["load_s"] = family_load_s + (time.perf_counter() - started)
+
+    started = time.perf_counter() if timings is not None else None
     result, payload = scan_family_report(
         name, loaded, sibling_files, policy=policy, edges=edges,
         verbose=verbose, family_analysis=family_analysis,
     )
+    if timings is not None:
+        timings["scan_s"] = time.perf_counter() - started
     return result, payload, loaded, artifacts
 
 

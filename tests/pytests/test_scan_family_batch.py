@@ -70,7 +70,18 @@ def test_single_scan_benchmark_is_opt_in(mock_repos, tmp_path, capsys):
     assert scan_family.main(["alpha", "--db", str(mock_repos), "--json", "--benchmark",
                              "--output", str(benchmarked)]) == 0
     assert json.loads(capsys.readouterr().out)["candidate_family"] == "alpha"
-    assert _rows(benchmarked / "benchmarks.csv")[0]["status"] == "ok"
+    rows = _rows(benchmarked / "benchmarks.csv")
+    assert rows[0]["status"] == "ok"
+    assert list(rows[0]) == [
+        "family", "seconds", "load_s", "analysis_s", "scan_s", "other_s",
+        "peak_python_memory_mib", "status",
+    ]
+    assert rows[0]["peak_python_memory_mib"] == ""
+    assert all(float(rows[0][phase]) >= 0 for phase in
+               ("load_s", "analysis_s", "scan_s", "other_s"))
+    assert abs(sum(float(rows[0][phase]) for phase in
+                   ("load_s", "analysis_s", "scan_s", "other_s"))
+               - float(rows[0]["seconds"])) <= 0.002
 
 
 def test_batch_writes_individual_reports_and_uses_custom_policy(mock_repos, tmp_path, capsys):
@@ -93,7 +104,12 @@ def test_batch_failure_is_recorded_and_remaining_scans_continue(mock_repos, tmp_
     output = tmp_path / "results"
     assert scan_family.main(["--input", str(inputs), "--db", str(mock_repos),
                              "--output", str(output), "--benchmark"]) == 1
-    assert [r["status"] for r in _rows(output / "benchmarks.csv")] == ["failed", "ok"]
+    rows = _rows(output / "benchmarks.csv")
+    assert [r["status"] for r in rows] == ["failed", "ok"]
+    assert all(rows[0][phase] == "" for phase in
+               ("load_s", "analysis_s", "scan_s", "other_s"))
+    assert all(rows[1][phase] != "" for phase in
+               ("load_s", "analysis_s", "scan_s", "other_s"))
     assert not (output / "missing.json").exists()
     assert (output / "alpha.json").is_file()
     assert "not found" in capsys.readouterr().err
@@ -187,3 +203,18 @@ def test_edge_selection_option_in_single_and_batch_modes(mock_repos, tmp_path, c
 
     with pytest.raises(SystemExit, match="2"):
         scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "ambiguous"])
+
+
+def test_all_edges_benchmark_preserves_report(mock_repos, tmp_path, capsys):
+    baseline = tmp_path / "baseline"
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "all",
+                             "--json", "--output", str(baseline)]) == 0
+    baseline_payload = json.loads(capsys.readouterr().out)
+
+    benchmarked = tmp_path / "benchmarked_all"
+    assert scan_family.main(["alpha", "--db", str(mock_repos), "--edges", "all",
+                             "--json", "--benchmark", "--output", str(benchmarked)]) == 0
+    assert json.loads(capsys.readouterr().out) == baseline_payload
+    row = _rows(benchmarked / "benchmarks.csv")[0]
+    assert row["status"] == "ok"
+    assert all(row[phase] != "" for phase in ("load_s", "analysis_s", "scan_s", "other_s"))
