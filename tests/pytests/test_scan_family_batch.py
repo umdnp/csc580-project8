@@ -73,12 +73,14 @@ def test_single_scan_benchmark_is_opt_in(mock_repos, tmp_path, capsys):
     rows = _rows(benchmarked / "benchmarks.csv")
     assert rows[0]["status"] == "ok"
     assert list(rows[0]) == [
-        "family", "seconds", "load_s", "analysis_s", "scan_s", "other_s",
-        "peak_python_memory_mib", "status",
+        "family", "seconds", "load_s", "family_load_s", "sibling_load_s",
+        "analysis_s", "scan_s", "other_s", "peak_python_memory_mib", "status",
     ]
     assert rows[0]["peak_python_memory_mib"] == ""
     assert all(float(rows[0][phase]) >= 0 for phase in
-               ("load_s", "analysis_s", "scan_s", "other_s"))
+               ("load_s", "family_load_s", "sibling_load_s", "analysis_s", "scan_s", "other_s"))
+    assert abs(float(rows[0]["family_load_s"]) + float(rows[0]["sibling_load_s"])
+               - float(rows[0]["load_s"])) <= 0.002
     assert abs(sum(float(rows[0][phase]) for phase in
                    ("load_s", "analysis_s", "scan_s", "other_s"))
                - float(rows[0]["seconds"])) <= 0.002
@@ -107,9 +109,9 @@ def test_batch_failure_is_recorded_and_remaining_scans_continue(mock_repos, tmp_
     rows = _rows(output / "benchmarks.csv")
     assert [r["status"] for r in rows] == ["failed", "ok"]
     assert all(rows[0][phase] == "" for phase in
-               ("load_s", "analysis_s", "scan_s", "other_s"))
+               ("load_s", "family_load_s", "sibling_load_s", "analysis_s", "scan_s", "other_s"))
     assert all(rows[1][phase] != "" for phase in
-               ("load_s", "analysis_s", "scan_s", "other_s"))
+               ("load_s", "family_load_s", "sibling_load_s", "analysis_s", "scan_s", "other_s"))
     assert not (output / "missing.json").exists()
     assert (output / "alpha.json").is_file()
     assert "not found" in capsys.readouterr().err

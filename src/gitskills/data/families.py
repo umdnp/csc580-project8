@@ -2,33 +2,40 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 from gitskills.analysis.family_models import Artifact
 from gitskills.analysis.provenance import extract_declared_provenance
 
+_ARTIFACT_IDS_SQL = """
+    SELECT DISTINCT artifact_id
+    FROM artifact_groupings
+    WHERE name = ? AND artifact_id IS NOT NULL
+    ORDER BY artifact_id
+"""
+
 _FAMILY_SQL = """
-              SELECT g.id         AS group_id,
-                     g.artifact_id,
-                     g.repo_id,
-                     g.name,
-                     g.normalized_description,
-                     g.sibling_file_count,
-                     g.sibling_content_sha,
-                     a.file_sha,
-                     a.content,
-                     a.repo_full_name,
-                     a.path,
-                     a.first_commit_at,
-                     r.created_at AS repo_created_at
-              FROM artifact_groupings AS g
-                       JOIN artifacts AS a ON a.id = g.artifact_id
-                       LEFT JOIN repos AS r ON r.id = g.repo_id
-              WHERE g.name = ?
-              ORDER BY g.id,
-                       g.artifact_id \
-              """
+    SELECT g.id AS group_id,
+           g.artifact_id,
+           g.repo_id,
+           g.name,
+           g.normalized_description,
+           g.sibling_file_count,
+           g.sibling_content_sha,
+           a.file_sha,
+           a.content,
+           a.repo_full_name,
+           a.path,
+           a.first_commit_at,
+           r.created_at AS repo_created_at
+    FROM artifact_groupings AS g
+    JOIN artifacts AS a ON a.id = g.artifact_id
+    LEFT JOIN repos AS r ON r.id = g.repo_id
+    WHERE g.name = $name
+      AND list_contains(CAST($ids AS BIGINT[]), a.id)
+    ORDER BY g.id, g.artifact_id
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,11 +125,16 @@ class DuckDBFamilyRepository:
             ) from exc
 
         try:
-            rows = connection.execute(_FAMILY_SQL, [name]).fetchall()
+            # Filter artifact IDs before scanning the large content column.
+            id_rows = connection.execute(_ARTIFACT_IDS_SQL, [name]).fetchall()
+            if not id_rows:
+                return []
+            ids = [int(row[0]) for row in id_rows]
+            return connection.execute(
+                _FAMILY_SQL, {"name": name, "ids": ids}
+            ).fetchall()
         finally:
             connection.close()
-
-        return rows
 
     @staticmethod
     def _row_to_artifact(row: tuple[object, ...]) -> Artifact:
