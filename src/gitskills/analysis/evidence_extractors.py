@@ -40,6 +40,11 @@ _DESCRIBED_DOWNLOAD = re.compile(
     r"\b(?:download(?:s|ed|ing)?|fetch(?:es|ed|ing)?|retrieve(?:s|d|ing)?)\b"
     r"(?:\s+[^.!?;\n]{0,140}?)?\s+\b(?:from|at|via)\s*$", re.I,
 )
+# WebFetch instructions express the same retrieval operation as "Fetch from".
+# Require an explicit imperative; a passive mention of the tool is not enough.
+_WEBFETCH_LOAD = re.compile(
+    r"\buse\s+(?:the\s+)?webfetch(?:\s+tool)?\s+to\s+load\s*:?\s*$", re.I,
+)
 _DESCRIBED_OUTBOUND = re.compile(
     r"\b(?:upload(?:s|ed|ing)?|send(?:s|ing)?|post(?:s|ed|ing)?|transmit(?:s|ted|ting)?)\b"
     r"(?:\s+[^.!?;\n]{0,140}?)?\s+\bto\s*$", re.I,
@@ -56,7 +61,8 @@ _TRANSFER_REFERENCE = re.compile(
     r"\b(?:download|downloads|upload|uploads|fetch)\s+"
     r"(?:url|link|page|site|instructions?|docs?|documentation|endpoint)\b|"
     r"\b(?:how\s+to|instructions\s+(?:for|to)|example\s+of)\s+"
-    r"(?:\w+\s+){0,3}(?:download|fetch|retrieve|upload|send)\b", re.I,
+    r"(?:\w+\s+){0,3}(?:download|fetch|retrieve|upload|send)\b|"
+    r"\b(?:how\s+to\s+use|examples?\s*:\s*use)\s+(?:the\s+)?webfetch\b", re.I,
 )
 
 
@@ -83,7 +89,7 @@ def described_network_operation(text: str, start: int) -> str | None:
 
     # Require a clear verb and destination preposition, rather than merely
     # "Download URL", "download link", or "see this download page".
-    if _DESCRIBED_DOWNLOAD.search(prefix):
+    if _DESCRIBED_DOWNLOAD.search(prefix) or _WEBFETCH_LOAD.search(prefix):
         return "download"
     if _DESCRIBED_OUTBOUND.search(prefix):
         return "outbound"
