@@ -1,6 +1,6 @@
 # Threats to Validity
 
-This document records the main threats to validity identified during Sprint 1. It will be updated as the implementation and validation continue.
+This document describes the main threats to validity in our analysis. We update it as the project progresses.
 
 ## Construct Validity
 
@@ -75,12 +75,9 @@ A newly introduced security-sensitive behavior does not automatically mean that 
 
 For example, a later skill may add a network request, package installation, or file operation because its intended functionality changed.
 
-The analysis therefore needs to separate:
+Changes may also shift risk rather than simply increase or decrease it. For example, bundling documentation instead of fetching it online removes a network dependency, but the bundled copy could be outdated or altered. The scanner cannot determine which approach is safer from this change alone.
 
-- **what changed**, which can be observed from the artifacts; from
-- **what the change means**, which requires interpretation.
-
-A security-sensitive change should not be treated as evidence of malicious intent or increased risk without supporting evidence.
+The analysis separates **what changed** (observable in the artifacts) from **what the change means** (which requires interpretation). A security-sensitive change alone does not establish malicious intent or increased risk.
 
 ### Missing and Incomplete Data
 
@@ -121,14 +118,14 @@ The dataset should not be assumed to represent every agent skill, repository, pl
 
 ## Conclusion Validity
 
-Sprint 1 results are exploratory and should be interpreted cautiously.
+Automated results are exploratory and should be interpreted cautiously until they are validated.
 
 In particular:
 
 - Only selected comparisons have been manually inspected; automated output is not independent ground truth.
 - Some directed comparisons may share artifacts or repeated content, so they are not necessarily independent observations.
 - Ambiguous relationships are intentionally left without directional conclusions.
-- Counts and percentages from the purposeful Sprint 1 sample should not be treated as population-wide risk estimates.
+- Counts and percentages from the selected samples should not be treated as population-wide risk estimates.
 
 Related artifacts may share substantial reused or generated content, causing the same security-sensitive change to appear in multiple comparisons. These observations are not necessarily independent and may inflate pair-level findings. Family-level analysis reduces this effect, but shared templates across families may still influence the results.
 
@@ -136,6 +133,6 @@ These limitations will be revisited as validation and broader analysis continue.
 
 ## Reproducibility
 
-The analysis depends on the selected GitSkills release dataset, the project's derived analysis tables, the fixed Sprint 1 sample, and the versions of the analysis code and rules used to generate the results.
+The analysis depends on the selected GitSkills release dataset, the project's derived analysis tables, the selected samples, and the versions of the analysis code and rules used to generate the results.
 
-The repository documents how to acquire the data, build the analysis tables, reconstruct the sample, and run the notebooks. Results should identify the dataset release, sample, and analysis configuration used to generate them so that later changes to the data or rules can be distinguished from the original Sprint 1 results.
+The repository documents how to acquire the data, build the analysis tables, reconstruct the samples, and run the notebooks. Results should identify the dataset release, sample, and analysis configuration used to generate them so that later changes to the data or rules can be distinguished from earlier results.

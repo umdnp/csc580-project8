@@ -16,7 +16,7 @@ Candidate relationships are inferred from content similarity and available prove
 
 ## Threat Categories and Detection Coverage
 
-The scanner uses **13 rules across six categories**, primarily based on textual patterns. The rules detect selected signals, not all possible expressions of each behavior.
+The scanner uses **15 rules across six categories**, primarily based on textual patterns. The rules detect selected signals, not all possible expressions of each behavior.
 
 | Category | Rules | Signals of interest | Main coverage limitation |
 | --- | --- | --- | --- |
@@ -24,7 +24,7 @@ The scanner uses **13 rules across six categories**, primarily based on textual 
 | **Network access** | `NET-001`, `NET-002` | URLs, network clients, requests, and downloads | A URL may be only a reference; dynamically constructed destinations and some protocols may be missed. |
 | **File-system access** | `FS-001`, `FS-002`, `FS-003` | File reads, writes, copies, moves, deletions, and directory changes | Language-specific APIs and indirect or dynamic operations are not exhaustively recognized. |
 | **Credentials and secrets** | `CRED-001`, `CRED-002` | Secret-related identifiers, tokens, environment-variable references, and credential-file paths | Not every credential name or path is recognized; a reference does not prove exposure. |
-| **External code execution** | `EXT-001`, `EXT-002` | Download-and-execute patterns and package installation | Multi-step execution chains, alternate installers, and some platform-specific forms may be missed. |
+| **External code execution** | `EXT-001`, `EXT-002`, `EXT-003`, `EXT-004` | Direct or staged download-and-execute patterns and package installation | Multi-step execution chains, alternate installers, and some platform-specific forms may be missed. |
 | **System modification** | `SYS-001`, `SYS-002` | Privilege elevation, permission changes, services, and system commands | Alternate APIs and platform-specific mechanisms may be missed. |
 
 Bundled and invoked scripts are assessed through these categories rather than a separate script category. One construct may match multiple rules or categories. For example, downloading a script and piping it to a shell can involve network access, command execution, and external code execution.
@@ -42,6 +42,8 @@ The following scenarios illustrate changes that could warrant security review. T
 | **Destructive file operations** | A skill adds deletion commands or expands the scope or privileges of file modifications. |
 | **Supply-chain redirection** | A skill changes where executable code, dependencies, or external instructions are obtained. |
 | **System modification** | A skill adds privileged operations or changes permissions, services, or system configuration. |
+
+Replacing an external download with a bundled copy can reduce reliance on the remote source, but the copy's origin and integrity still matter.
 
 These behaviors can also be part of legitimate workflows. The analysis evaluates observable changes and context, not an author's intent.
 
