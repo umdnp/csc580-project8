@@ -4,16 +4,7 @@
 
 ## Run the notebook
 
-For the report's historical 30-family **all-edge** results, follow the
-[reproduction guide](../../docs/instructions/reproducibility.md). Current notebook
-defaults select Sprint 3 and primary edges, and later scanner fixes can change
-indicator counts. A current-code Sprint 2 run is not an exact historical rerun.
-For a fresh run without replacing the committed results, set
-`RESULT_DIR = PROJECT_ROOT / "output" / "baseline-current"` and
-`SCAN_CACHE_DIR = RESULT_DIR / ".scans"` after **Set Variables**; choose
-`SPRINT = 2` and `EDGES = "all"` for the baseline cohort.
-
-1. From the repository root, install the project environment with `uv sync --locked`. Open Jupyter with `uv run --locked --with jupyterlab jupyter lab` and select the project environment as the kernel.
+1. From the repository root, install the project environment with `uv sync`. Open Jupyter with `uv run --with jupyterlab jupyter lab` and select the project environment as the kernel.
 2. Prepare the DuckDB database using [data/README.md](../../data/README.md). It must contain `artifacts`, `artifact_groupings`, `artifact_siblings`, and `repos`.
 3. Set `GITSKILLS_DB` to the database file, for example:
 

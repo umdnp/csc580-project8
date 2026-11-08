@@ -6,7 +6,7 @@ This records the equivalent isolated check for [story #213](https://github.com/u
 
 | Acceptance check | Evidence |
 |---|---|
-| Setup and execution instructions | The [root README](../../README.md) gives locked installation, a versioned dataset download/checksum, native PowerShell SQL preparation, baseline configuration, output locations, and report commands. |
+| Setup and execution instructions | This document gives locked installation, a versioned dataset download/checksum, native PowerShell SQL preparation, baseline configuration, output locations, and report commands. |
 | Isolated installation and pipeline | Detached committed-source worktrees outside OneDrive, fresh virtual environments, and an initially empty `uv` download cache; no active/global Python packages or scan caches were used. Both revisions installed successfully with `uv sync --locked`. |
 | Historical primary results | The historical scanner reproduced the committed summary, all six research CSV tables, and both review samples exactly as parsed values. All four SVG figures were regenerated with matching numerical labels. |
 | Report sources | HTML, Word, LaTeX source, and the official 28-page PDF built from committed report sources. The PDF has 13 main-content pages (physical pages 2-14), references on page 15, and Appendices A-F on pages 16-28. |
@@ -27,6 +27,13 @@ This verifies the **provisional Sprint 2 baseline**, not completion of human val
 The dataset URL returned HTTP 200 with the published byte length. The existing SQLite file's computed MD5 matched the public record. No credentials were required. MD5 is used only to check agreement with the release record.
 
 ## Equivalent isolated installation
+
+Install Git, [uv](https://docs.astral.sh/uv/getting-started/installation/), and the [DuckDB CLI](https://duckdb.org/docs/installation/) before running the PowerShell commands below. Python 3.12 must be available or downloadable by `uv`. Clone the project if needed:
+
+```powershell
+git clone https://github.com/umdnp/csc580-project8.git
+Set-Location csc580-project8
+```
 
 The check used `git worktree add --detach` for each revision, separate environments outside the synced repository, `UV_LINK_MODE=copy`, and a new `UV_CACHE_DIR`. The current checkout downloaded and installed all locked dependencies and built the project from its committed `pyproject.toml`. The historical install used its own lockfile; verified downloads from the first check were reused, but installed packages and the environment were separate.
 
@@ -55,6 +62,41 @@ uv run --locked python -m pytest `
 ```
 
 Result: **53 passed**. This includes real loaders/scanning on temporary databases and execution of the production notebook on constructed inputs, with and without missing sibling content. It is not a claim that the entire repository test suite was run.
+
+## Obtain and prepare the external database
+
+Allow space for the 44.4 GB SQLite download, approximately 40 GB of prepared DuckDB data, and additional import temporary files and outputs. Internet access is required for dependencies, the dataset, and DuckDB's SQLite extension. No dataset credentials are required. These files are local inputs, not PR deliverables.
+
+From the pinned current-code checkout in PowerShell, download GitSkills 1.0.0 and verify its published checksum:
+
+```powershell
+New-Item -ItemType Directory -Force C:\data\sqlite, C:\data\duckdb
+if (Test-Path C:\data\sqlite\agent_skills_release.db) { throw "Choose a new download path or verify the existing SQLite file instead" }
+curl.exe --fail --location --output C:\data\sqlite\agent_skills_release.db "https://zenodo.org/records/21875637/files/agent_skills_release.db?download=1"
+if ($LASTEXITCODE -ne 0) { throw "Dataset download failed" }
+$checksum = (Get-FileHash C:\data\sqlite\agent_skills_release.db -Algorithm MD5).Hash
+if ($checksum -ne "B058631FB1926EFAC6E82A4706646742") { throw "Dataset checksum mismatch" }
+```
+
+The downloaded file is SQLite, not DuckDB. Use a new output path and execute all three committed SQL scripts in order:
+
+```powershell
+if (Test-Path C:\data\duckdb\agent_skills_release.db) { throw "Choose a new DuckDB output path before importing" }
+$env:GITSKILLS_SQLITE_DB = "C:\data\sqlite\agent_skills_release.db"
+duckdb -no-init -bail C:\data\duckdb\agent_skills_release.db -f sql\create_gitskills_duckdb.sql
+if ($LASTEXITCODE -ne 0) { throw "SQLite import failed; do not continue with incomplete output" }
+duckdb -no-init -bail C:\data\duckdb\agent_skills_release.db -f sql\create_analysis_tables.sql
+if ($LASTEXITCODE -ne 0) { throw "Analysis table creation failed" }
+duckdb -no-init -bail C:\data\duckdb\agent_skills_release.db -f sql\update_artifact_groupings.sql
+if ($LASTEXITCODE -ne 0) { throw "Artifact grouping update failed" }
+$env:GITSKILLS_DB = "C:\data\duckdb\agent_skills_release.db"
+uv run --locked python -c "import os, duckdb; c = duckdb.connect(os.environ['GITSKILLS_DB'], read_only=True); print(c.execute('SHOW TABLES').fetchall()); c.close()"
+if ($LASTEXITCODE -ne 0) { throw "Prepared database access check failed" }
+```
+
+Require matching imported/source counts, zero unresolved IDs, and the tables `artifacts`, `artifact_groupings`, `artifact_siblings`, and `repos`. The grouping scripts retain valid frontmatter, bodies longer than 50 characters, non-NULL content/name/description, and exact names occurring at least twice; they also compute available sibling fingerprints. The Sprint 1 sample-view script is not required for this baseline.
+
+Set `GITSKILLS_DB` in every new terminal before running analysis. Close database-writing sessions first. Keep virtual environments outside OneDrive and reapply `UV_PROJECT_ENVIRONMENT` and `UV_LINK_MODE` in each terminal. The native PowerShell commands above do not depend on Git Bash's `/c/...` path conventions.
 
 ## Reproduce the historical numerical baseline
 
@@ -87,6 +129,19 @@ if ($previousEnvironment) {
 
 Use a new output directory and do not pass annotation files: independent review remains pending. The historical implementation fingerprint matched the saved value exactly:
 `99a121b091b8b9446291af17db8fd2b56e577a7dd5fde0ebcb904a4a37fd308e`.
+
+To run the same configuration under the pinned current code, return to the `0baeb0f` checkout and its environment:
+
+```powershell
+uv run --locked python -m gitskills.tools.summarize_cohort `
+  --input notebooks\end_to_end_pipeline\sprint2\samples\families.txt `
+  --output output\baseline-0baeb0f `
+  --edges all --rescan --per-stratum 5 --seed 580 `
+  --shingle-size 5 --min-containment 0.8 --min-jaccard 0.3 `
+  --min-shared-shingles 5 --direction-margin 0.1
+```
+
+Each output directory contains `sample_manifest.json`, `review\summary.json`, `review\tables\` (six CSV tables), `figures\`, and `manual-review\` (directed and relationship samples). Inspect regenerated outputs there rather than replacing committed results. Random sampling and benchmarks are optional experiments, not prerequisites for this fixed-family baseline.
 
 ### Numerical comparison
 
@@ -172,4 +227,4 @@ The rebuilt PDF had **28 nonempty Letter-size pages**, a bibliography, three dia
 - **Optional work:** random Sprint 3 samples, primary-only comparisons, and timing benchmarks are separate experiments, not covered by this reproduction check. Their locally generated outputs were neither adopted nor overwritten.
 - **Human validation:** draft annotation proposals remain pending independent review/adjudication. Reproducing automated counts does not establish scanner precision/recall, malicious intent, or historical ancestry.
 
-No baseline results, annotation drafts, or user-modified notebooks were overwritten. Regenerated analysis outputs were kept separately; the report PDF was regenerated from committed sources.
+No baseline results, annotation drafts, or user-modified notebooks were overwritten during the check. Regenerated analysis outputs and the rebuilt report PDF are local verification outputs, not included in this documentation-only change.
