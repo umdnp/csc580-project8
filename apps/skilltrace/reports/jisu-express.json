@@ -1,0 +1,168 @@
+{
+  "name": "jisu-express",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 2,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1347038,
+          1388381,
+          1420792
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1347038,
+            1388381
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1347038,
+              "target_artifact_id": 1420792,
+              "basis": "repo-created-boundary",
+              "containment": 0.958139534883721,
+              "jaccard": 0.8273092369477911,
+              "shared_shingles": 206,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                259472
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1388381,
+              "right_artifact_id": 1347038,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9767441860465116,
+              "containment_right_to_left": 0.9767441860465116,
+              "jaccard": 0.9545454545454546,
+              "shared_shingles": 210,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                259472
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1388381,
+              "right_artifact_id": 1420792,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9348837209302325,
+              "containment_right_to_left": 0.8375,
+              "jaccard": 0.7913385826771654,
+              "shared_shingles": 201,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                259472
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1347038,
+      "group_id": 259472,
+      "repo_id": 180,
+      "repo_full_name": "LJT-520/openClaw-backup",
+      "path": "skills/jisuapi/express/SKILL.md",
+      "file_sha": "c211cf23dd81f69c025e6f80a54e1428aa5983b1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-13T04:04:45Z",
+      "repo_created_at": "2026-03-12T03:20:36Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1388381,
+      "group_id": 259472,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/express/SKILL.md",
+      "file_sha": "39030e407bf2e74f5398cb75a2c06eb058149194",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1420792,
+      "group_id": 259472,
+      "repo_id": 267,
+      "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+      "path": "plugins/jisuapi--express/skills/jisu-express/SKILL.md",
+      "file_sha": "bdcda6b2436bfbc09b33d4f4f24b89c5c67e2a26",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T09:06:30Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

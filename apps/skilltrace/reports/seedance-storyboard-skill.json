@@ -1,0 +1,232 @@
+{
+  "name": "seedance-storyboard-skill",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 2,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 3,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 2,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1820567,
+          1988525,
+          2038021
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1820567
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1820567,
+              "target_artifact_id": 1988525,
+              "basis": "repo-created-boundary",
+              "containment": 0.9411764705882353,
+              "jaccard": 0.7781155015197568,
+              "shared_shingles": 256,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                314618
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1820567,
+              "target_artifact_id": 2038021,
+              "basis": "repo-created-boundary",
+              "containment": 0.9411764705882353,
+              "jaccard": 0.7781155015197568,
+              "shared_shingles": 256,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                314618
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2038021,
+              "right_artifact_id": 1988525,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 313,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                314618
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2524035
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2524035
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          3345318
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3345318
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1820567,
+      "group_id": 314618,
+      "repo_id": 65604,
+      "repo_full_name": "ccnuzw/Seedance-anti",
+      "path": ".claude/skills/seedance-storyboard-skill/SKILL.md",
+      "file_sha": "52b5e970a8a1cd4d80458e0e6611dc17c32738f1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-17T16:21:38Z",
+      "repo_created_at": "2026-03-17T16:21:47Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "38d9ba4d718d3bc550ee7a3cea7a359ac810b6ad97eea1279ec8b8414324ad7b"
+    },
+    {
+      "artifact_id": 1988525,
+      "group_id": 314618,
+      "repo_id": 65604,
+      "repo_full_name": "ccnuzw/Seedance-anti",
+      "path": "feicai-studio/resources/builtin-skills/seedance-storyboard-skill/SKILL.md",
+      "file_sha": "68a5740662f86955ebf2e3a45d9e5b54cce6d8d1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-17T16:21:47Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "335593287f9ad375bb0be964685ffd6f9df1e2526b7515355daa6b537f868790"
+    },
+    {
+      "artifact_id": 2038021,
+      "group_id": 314618,
+      "repo_id": 65604,
+      "repo_full_name": "ccnuzw/Seedance-anti",
+      "path": ".agent/skills/seedance-storyboard-skill/SKILL.md",
+      "file_sha": "03fffe9e96a6e5041830387dbd026ca01a666660",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-17T16:21:47Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "db1777a64872ca1d1c94dafb936a4e94c7fb5946b9bb9ad6277fd0bcf3e4e352"
+    },
+    {
+      "artifact_id": 2524035,
+      "group_id": 314618,
+      "repo_id": 8953,
+      "repo_full_name": "xiasong0501/seedance_prompt",
+      "path": "skills/production/seedance-storyboard-skill/SKILL.md",
+      "file_sha": "c145c2ff0bbab51089acc0395cbff8dd0153810b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-03T09:52:32Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "e90bfb032dffb08f40cdcc374d6b7545fe78b1030f92fd0dbc091e65a8a16b02"
+    },
+    {
+      "artifact_id": 3345318,
+      "group_id": 357751,
+      "repo_id": 12929,
+      "repo_full_name": "Supreme-Ultimate/novel-to-script-team",
+      "path": "skills/seedance-storyboard-skill/SKILL.md",
+      "file_sha": "12f735409df4dddf1eb676bb23e02d858ddbe7e2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-07T08:15:16Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "c95a90ea4194b3fe5821b1fa433467ded22db35b1e660b6bd31807ecdc38d494"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

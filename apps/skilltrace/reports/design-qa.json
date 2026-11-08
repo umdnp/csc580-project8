@@ -1,0 +1,816 @@
+{
+  "name": "design-qa",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 24,
+    "artifact_group_count": 21,
+    "skill_variant_count": 24,
+    "bundle_variant_count": 24,
+    "cluster_count": 23,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2354417,
+          2588630
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2354417
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2354417,
+              "target_artifact_id": 2588630,
+              "basis": "containment",
+              "containment": 0.9715555555555555,
+              "jaccard": 0.8168908819133034,
+              "shared_shingles": 1093,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                128977
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2769150
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2769150
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          3669479
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3669479
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          484637
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            484637
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 5,
+        "artifact_ids": [
+          2986412
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2986412
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 6,
+        "artifact_ids": [
+          514516
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            514516
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 7,
+        "artifact_ids": [
+          1636391
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1636391
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 8,
+        "artifact_ids": [
+          583372
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            583372
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 9,
+        "artifact_ids": [
+          440513
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            440513
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 10,
+        "artifact_ids": [
+          1542314
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1542314
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 11,
+        "artifact_ids": [
+          1668761
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1668761
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 12,
+        "artifact_ids": [
+          1816401
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1816401
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 13,
+        "artifact_ids": [
+          1918768
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1918768
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 14,
+        "artifact_ids": [
+          2485217
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2485217
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 15,
+        "artifact_ids": [
+          2614771
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2614771
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 16,
+        "artifact_ids": [
+          3254667
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3254667
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 17,
+        "artifact_ids": [
+          3265613
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3265613
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 18,
+        "artifact_ids": [
+          3303351
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3303351
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 19,
+        "artifact_ids": [
+          3328010
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3328010
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 20,
+        "artifact_ids": [
+          3375665
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3375665
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 21,
+        "artifact_ids": [
+          3439234
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3439234
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 22,
+        "artifact_ids": [
+          3626412
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3626412
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 23,
+        "artifact_ids": [
+          3705070
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3705070
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 440513,
+      "group_id": 182436,
+      "repo_id": 54691,
+      "repo_full_name": "coo1white/cool-workflow",
+      "path": "plugins/cool-workflow/skills/design-qa/SKILL.md",
+      "file_sha": "062ebafff5afec3dd2f6798997980949c298d014",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-06T18:22:01Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "ff475918068f2ed1ad9d4f672d9c6858e5641f1d94e817c684063725e341c862"
+    },
+    {
+      "artifact_id": 484637,
+      "group_id": 344781,
+      "repo_id": 26968,
+      "repo_full_name": "newmindsgroup/ai-agent-skills-library",
+      "path": "sources/sickn33-antigravity-awesome-skills/skills/design-qa/SKILL.md",
+      "file_sha": "67d84b645a332e739ce3a3bdfc2fe88ad308663f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-10T00:50:11Z",
+      "repo_created_at": "2026-04-21T21:09:27Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "a640e1ffd7e3e2f13405f1f4106539d58a59854c6bc6a474adfbcc2481554a51"
+    },
+    {
+      "artifact_id": 514516,
+      "group_id": 546864,
+      "repo_id": 52618,
+      "repo_full_name": "VGXPAPhoenix/AdDesign-Agent",
+      "path": "skills/design-qa/SKILL.md",
+      "file_sha": "c7e4eb792089651909da877487b580c738a70887",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-25T20:06:51Z",
+      "repo_created_at": "2026-05-25T20:08:14Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "1dfa60840e1d21c4a784374b3161e19a0cbe6c7d5a71a802c2f7a400534b1e4b"
+    },
+    {
+      "artifact_id": 583372,
+      "group_id": 256916,
+      "repo_id": 60371,
+      "repo_full_name": "FranklinIV94/prospyr-dashboard",
+      "path": ".claude/skills/design-qa/SKILL.md",
+      "file_sha": "a3521635cca8692a495b5034d24ac766cb845430",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-01T14:56:09Z",
+      "repo_created_at": "2026-03-21T02:32:48Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1542314,
+      "group_id": 393650,
+      "repo_id": 34989,
+      "repo_full_name": "solejay/forge",
+      "path": "packages/forge-design-studio/skills/design-qa/SKILL.md",
+      "file_sha": "18d108ee43e92b84248f1c250a25dfb409509394",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-28T02:24:09Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1636391,
+      "group_id": 42062,
+      "repo_id": 38216,
+      "repo_full_name": "rp4ri/pi-studios",
+      "path": "design-studio/skills/design-qa/SKILL.md",
+      "file_sha": "bfeee2560a9e2ecf08c547c83b0f0d323a1e7c3c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-02T19:00:29Z",
+      "repo_created_at": "2026-06-02T19:02:25Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1668761,
+      "group_id": 591538,
+      "repo_id": 174340,
+      "repo_full_name": "TykoDev/SupremeTeam",
+      "path": "skills/review/design-qa/SKILL.md",
+      "file_sha": "ab4fe7eafd0ea1b75492cb4f68a71e3ec16f94a8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-12T23:07:10Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "59c974728fbc4122cd9b0e44547f4de5105f16c2cf917630b61d4760166b3aeb"
+    },
+    {
+      "artifact_id": 1816401,
+      "group_id": 462406,
+      "repo_id": 178715,
+      "repo_full_name": "bidwat/Agentic-Product-Engineering-Team",
+      "path": "codex/.agents/skills/design-qa/SKILL.md",
+      "file_sha": "556a5a16de0807d9989994556fa18a503e558113",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-02T20:40:20Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1918768,
+      "group_id": 388083,
+      "repo_id": 91873,
+      "repo_full_name": "imamirezaei/Product-Team-Claude-Skills",
+      "path": "policy/product-designer/skills/design-qa/SKILL.md",
+      "file_sha": "a1861958bc79eabf21a10990611c8e11f6726abe",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-04T17:36:49Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2354417,
+      "group_id": 128977,
+      "repo_id": 1149,
+      "repo_full_name": "ConcertoNotes/codex-plugins",
+      "path": "plugins/official/product-design/skills/design-qa/SKILL.md",
+      "file_sha": "a2a0a8acd6783ddbed136ce0036fc6d1a314e06d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-26T01:29:32Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "a54eb3e5d382e396acd3a05bc9d06af445559a0301e174ccedae0f3574a59b5f"
+    },
+    {
+      "artifact_id": 2485217,
+      "group_id": 129485,
+      "repo_id": 73696,
+      "repo_full_name": "Wondermove-Inc/awsome-figima-skills",
+      "path": "qa-automation/plugin/skills/design-qa/SKILL.md",
+      "file_sha": "f83b830d4f4ac024f7f4d99178917acb5f8c175a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-24T01:05:14Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "7ee4878a56df86f40b93af1432d82adc021cde94e2a1c0ba19d1912e7fc80634"
+    },
+    {
+      "artifact_id": 2588630,
+      "group_id": 128977,
+      "repo_id": 202529,
+      "repo_full_name": "kommissarfx/codex-api-key-marketplace",
+      "path": "plugins/product-design/skills/design-qa/SKILL.md",
+      "file_sha": "d21728c76e676d66757758d1f278caa5516a488f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-15T01:09:44Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "a54eb3e5d382e396acd3a05bc9d06af445559a0301e174ccedae0f3574a59b5f"
+    },
+    {
+      "artifact_id": 2614771,
+      "group_id": 67333,
+      "repo_id": 127904,
+      "repo_full_name": "williamw/agent-skills",
+      "path": "skills/design-qa/SKILL.md",
+      "file_sha": "cb13c59d94c4bd91f64bf5ef2d4fc908bc6be78b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-13T13:55:39Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "a8123894dd70d512304669c632b8a49c9a29e5b22fd013cf9831180e5d20f6a2"
+    },
+    {
+      "artifact_id": 2769150,
+      "group_id": 239604,
+      "repo_id": 145509,
+      "repo_full_name": "nroze22/TalosixSkills",
+      "path": ".claude/skills/design-qa/SKILL.md",
+      "file_sha": "1e3a9e43e4fafc6fb3b55d3943211ca190600d2b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-24T23:01:38Z",
+      "repo_created_at": "2026-02-24T22:57:40Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2986412,
+      "group_id": 193670,
+      "repo_id": 5603,
+      "repo_full_name": "tstapler/dotfiles",
+      "path": ".claude/skills/design-qa/SKILL.md",
+      "file_sha": "de635f6100eab64ec193acec68d8d7b6ada7eacd",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-18T17:05:19Z",
+      "repo_created_at": "2015-07-13T19:05:07Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3254667,
+      "group_id": 216369,
+      "repo_id": 140831,
+      "repo_full_name": "ALT-F4-LLC/dotfiles.vorpal",
+      "path": "src/user/codex/skills/design-qa/SKILL.md",
+      "file_sha": "acce0bf111b49b1c22d8dc2642cef3d76ab1ae1f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-05-28T03:26:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3265613,
+      "group_id": 387000,
+      "repo_id": 230240,
+      "repo_full_name": "Nikhil-Chopra-7/claude-frontend-skills",
+      "path": "design-qa/skill.md",
+      "file_sha": "c1af8317a7d824f3d5dea228ae588034431c562d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-25T13:32:38Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3303351,
+      "group_id": 216369,
+      "repo_id": 140831,
+      "repo_full_name": "ALT-F4-LLC/dotfiles.vorpal",
+      "path": "src/user/opencode/skills/design-qa/SKILL.md",
+      "file_sha": "c1310a4a1ff5dbfa9e1c2ca9668ce81c7ce84002",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-05-28T03:26:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3328010,
+      "group_id": 216369,
+      "repo_id": 140831,
+      "repo_full_name": "ALT-F4-LLC/dotfiles.vorpal",
+      "path": "src/user/claude-code/skills/design-qa/SKILL.md",
+      "file_sha": "2d87f892c65d1803d680eee39f4f06422fb1b6db",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-05-28T03:26:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3375665,
+      "group_id": 474,
+      "repo_id": 49413,
+      "repo_full_name": "Automattic/data-liberation-agent",
+      "path": "skills/design-qa/SKILL.md",
+      "file_sha": "c8942540960a9e202a4bd6b280129a378c95a5ce",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-31T06:00:47Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "41abf8d81e51c071bc56c7e0c57fc939a3a19b2f9e006295f600b761a83d968e"
+    },
+    {
+      "artifact_id": 3439234,
+      "group_id": 99123,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "data/design-qa/SKILL.md",
+      "file_sha": "c900bdb186195a19925ddce526c5471b615a9c8c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3626412,
+      "group_id": 425760,
+      "repo_id": 274365,
+      "repo_full_name": "emperorhan/design-qa",
+      "path": "templates/SKILL.md",
+      "file_sha": "e7e19f0f51e18f512cf2d69b11640fa7b07b2d29",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-13T00:50:45Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3669479,
+      "group_id": 231561,
+      "repo_id": 45781,
+      "repo_full_name": "bool-pt/bool-pt.github.io",
+      "path": ".claude/skills/design-qa/SKILL.md",
+      "file_sha": "a1597ab282d90170275613d84ad42521cbe5f091",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-05T23:31:05Z",
+      "repo_created_at": "2016-11-18T15:37:45Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3705070,
+      "group_id": 581439,
+      "repo_id": 96926,
+      "repo_full_name": "heymoezy/porter",
+      "path": "skills/design-qa/SKILL.md",
+      "file_sha": "6d9ee443ca08ca0143d891df3cc7e22f068eaf5e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-05T22:08:16Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "ce9748c6a752b1034a95499123010f5839938661b9c2d2c4943a0f7293aa9939"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 24,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

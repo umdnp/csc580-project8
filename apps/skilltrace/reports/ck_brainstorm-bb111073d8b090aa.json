@@ -1,0 +1,807 @@
+{
+  "name": "ck:brainstorm",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 11,
+    "artifact_group_count": 3,
+    "skill_variant_count": 11,
+    "bundle_variant_count": 11,
+    "cluster_count": 2,
+    "related_skill_pair_count": 31,
+    "within_group_related_pair_count": 20,
+    "across_group_related_pair_count": 11,
+    "directed_edge_count": 9,
+    "within_group_directed_edge_count": 7,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 8,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1955791,
+          1956573,
+          2151117,
+          2210685,
+          2234332,
+          2907990,
+          2950083,
+          3266935,
+          3702253,
+          3707378
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3702253
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2151117,
+              "target_artifact_id": 3707378,
+              "basis": "chronology",
+              "containment": 0.6183127572016461,
+              "jaccard": 0.5789980732177264,
+              "shared_shingles": 601,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2234332,
+              "target_artifact_id": 2907990,
+              "basis": "chronology",
+              "containment": 0.9031936127744511,
+              "jaccard": 0.5402985074626866,
+              "shared_shingles": 905,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2907990,
+              "target_artifact_id": 2950083,
+              "basis": "repo-created-boundary",
+              "containment": 0.9309252217997465,
+              "jaccard": 0.8452243958573072,
+              "shared_shingles": 1469,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2907990,
+              "target_artifact_id": 3266935,
+              "basis": "chronology",
+              "containment": 0.944233206590621,
+              "jaccard": 0.6558098591549296,
+              "shared_shingles": 1490,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 1955791,
+              "basis": "repo-created-boundary",
+              "containment": 0.9385307346326837,
+              "jaccard": 0.727061556329849,
+              "shared_shingles": 626,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 1956573,
+              "basis": "repo-created-boundary",
+              "containment": 0.9460269865067467,
+              "jaccard": 0.7371495327102804,
+              "shared_shingles": 631,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 2151117,
+              "basis": "chronology",
+              "containment": 0.9385307346326837,
+              "jaccard": 0.6179664363277394,
+              "shared_shingles": 626,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 2210685,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9385307346326837,
+              "jaccard": 0.6179664363277394,
+              "shared_shingles": 626,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-04-02T13:40:43Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2151117
+                }
+              }
+            },
+            {
+              "source_artifact_id": 3707378,
+              "target_artifact_id": 2234332,
+              "basis": "chronology",
+              "containment": 0.9010494752623688,
+              "jaccard": 0.5627340823970037,
+              "shared_shingles": 601,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1956573,
+              "right_artifact_id": 1955791,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9939024390243902,
+              "containment_right_to_left": 0.9939024390243902,
+              "jaccard": 0.9878787878787879,
+              "shared_shingles": 815,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2210685,
+              "right_artifact_id": 2151117,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 972,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2151117,
+              "target_artifact_id": 2234332,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 0.9700598802395209,
+              "shared_shingles": 972,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2151117,
+              "target_artifact_id": 2907990,
+              "basis": "chronology",
+              "containment": 0.9002057613168725,
+              "jaccard": 0.5223880597014925,
+              "shared_shingles": 875,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2151117,
+              "target_artifact_id": 2950083,
+              "basis": "repo-created-boundary",
+              "containment": 0.8055555555555556,
+              "jaccard": 0.4306930693069307,
+              "shared_shingles": 783,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2151117,
+              "target_artifact_id": 3266935,
+              "basis": "chronology",
+              "containment": 0.8179012345679012,
+              "jaccard": 0.33672172808132145,
+              "shared_shingles": 795,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2210685,
+              "target_artifact_id": 2234332,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 0.9700598802395209,
+              "shared_shingles": 972,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-02T13:40:43Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2151117
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2210685,
+              "target_artifact_id": 2907990,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9002057613168725,
+              "jaccard": 0.5223880597014925,
+              "shared_shingles": 875,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-02T13:40:43Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2151117
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2210685,
+              "target_artifact_id": 2950083,
+              "basis": "repo-created-boundary",
+              "containment": 0.8055555555555556,
+              "jaccard": 0.4306930693069307,
+              "shared_shingles": 783,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-02T13:40:43Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2151117
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2210685,
+              "target_artifact_id": 3266935,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.8179012345679012,
+              "jaccard": 0.33672172808132145,
+              "shared_shingles": 795,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-02T13:40:43Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2151117
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2210685,
+              "target_artifact_id": 3707378,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.6183127572016461,
+              "jaccard": 0.5789980732177264,
+              "shared_shingles": 601,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-02T13:40:43Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2151117
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2234332,
+              "target_artifact_id": 2950083,
+              "basis": "repo-created-boundary",
+              "containment": 0.811377245508982,
+              "jaccard": 0.4471947194719472,
+              "shared_shingles": 813,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2234332,
+              "target_artifact_id": 3266935,
+              "basis": "chronology",
+              "containment": 0.8233532934131736,
+              "jaccard": 0.34942820838627703,
+              "shared_shingles": 825,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2950083,
+              "target_artifact_id": 3266935,
+              "basis": "containment",
+              "containment": 0.8502148557397177,
+              "jaccard": 0.5704283360790774,
+              "shared_shingles": 1385,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 2234332,
+              "basis": "chronology",
+              "containment": 0.9385307346326837,
+              "jaccard": 0.6001917545541706,
+              "shared_shingles": 626,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 2907990,
+              "basis": "chronology",
+              "containment": 0.8380809595202399,
+              "jaccard": 0.33155397390272834,
+              "shared_shingles": 559,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 2950083,
+              "basis": "repo-created-boundary",
+              "containment": 0.8095952023988006,
+              "jaccard": 0.30751708428246016,
+              "shared_shingles": 540,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3702253,
+              "target_artifact_id": 3707378,
+              "basis": "chronology",
+              "containment": 0.9625187406296851,
+              "jaccard": 0.9277456647398844,
+              "shared_shingles": 642,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3707378,
+              "target_artifact_id": 1955791,
+              "basis": "containment",
+              "containment": 0.9085457271364318,
+              "jaccard": 0.6878547105561862,
+              "shared_shingles": 606,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3707378,
+              "target_artifact_id": 1956573,
+              "basis": "containment",
+              "containment": 0.9085457271364318,
+              "jaccard": 0.6878547105561862,
+              "shared_shingles": 606,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3707378,
+              "target_artifact_id": 2907990,
+              "basis": "chronology",
+              "containment": 0.815592203898051,
+              "jaccard": 0.31981187536743094,
+              "shared_shingles": 544,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                20983
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3707378,
+              "target_artifact_id": 2950083,
+              "basis": "repo-created-boundary",
+              "containment": 0.8020989505247377,
+              "jaccard": 0.3038046564452016,
+              "shared_shingles": 535,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          410813
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            410813
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 410813,
+      "group_id": 20983,
+      "repo_id": 54132,
+      "repo_full_name": "Pacificwide-Real-Estate-Mortgage-CRM/pacificwide-claude",
+      "path": "config/skills/brainstorm/SKILL.md",
+      "file_sha": "19567d7a37a2a6ddd8b1458ee2ba5d8ac4f88fa0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-02T03:54:23Z",
+      "repo_created_at": "2026-02-28T04:17:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1955791,
+      "group_id": 20983,
+      "repo_id": 3019,
+      "repo_full_name": "toanil315/vn-itinerary-be",
+      "path": ".github/skills/brainstorm/SKILL.md",
+      "file_sha": "ef38e7f3427b299cca42f755d96b87bd74a42696",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-03T16:35:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1956573,
+      "group_id": 20983,
+      "repo_id": 3018,
+      "repo_full_name": "toanil315/bike-leads",
+      "path": ".github/skills/brainstorm/SKILL.md",
+      "file_sha": "b41dcf3aeb68f576cdb1edf389aad832943ef8f0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-25T15:45:48Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2151117,
+      "group_id": 20983,
+      "repo_id": 10711,
+      "repo_full_name": "EdgeHunt/EdgeHunt",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "52500d9a69476d490395fb5fd0b1672e88c6a9b7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-02T13:40:43Z",
+      "repo_created_at": "2026-04-02T13:41:55Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2210685,
+      "group_id": 20983,
+      "repo_id": 17429,
+      "repo_full_name": "Meknos/HOCTIENGHAN",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "1a5996d63466af914f8ff0a3a33cf2425d6cd9d8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-12T07:09:22Z",
+      "repo_created_at": "2026-06-12T07:02:32Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2234332,
+      "group_id": 20983,
+      "repo_id": 6897,
+      "repo_full_name": "auxi-wardrobe/auxi-all-in",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "ed886fc9efafe2938bd165c96c750fad4160b5a5",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-10T08:54:58Z",
+      "repo_created_at": "2026-05-04T17:00:44Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2907990,
+      "group_id": 20983,
+      "repo_id": 24822,
+      "repo_full_name": "ntluong95/continium-edc",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "4c98f26d7f9e6e0294b76df324f6af4d4ab0d8a3",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-19T10:13:05Z",
+      "repo_created_at": "2026-05-18T17:59:27Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2950083,
+      "group_id": 595895,
+      "repo_id": 55954,
+      "repo_full_name": "duy-tung/claude-code-setup",
+      "path": "claude/skills/brainstorm/SKILL.md",
+      "file_sha": "aab6f3c3781c53d4113d4f5f9bb8b7f7453dd0f7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-14T08:41:40Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3266935,
+      "group_id": 602685,
+      "repo_id": 4270,
+      "repo_full_name": "hotriluan/alkana_kpi",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "934e5c15baa4888219789041adbe11d26130804d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-13T05:49:21Z",
+      "repo_created_at": "2025-06-17T01:18:11Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "6c4a6570f7799ca024732a9f71377e2c751d735d45957a28754978c081ee14f1"
+    },
+    {
+      "artifact_id": 3702253,
+      "group_id": 20983,
+      "repo_id": 2952,
+      "repo_full_name": "dangminh61119-hub/space_kid",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "814478fe9872baafa61568e569c0372d1034ce08",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-02T08:56:10Z",
+      "repo_created_at": "2026-02-27T05:00:17Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3707378,
+      "group_id": 20983,
+      "repo_id": 9866,
+      "repo_full_name": "devmotminh/playscored",
+      "path": ".claude/skills/brainstorm/SKILL.md",
+      "file_sha": "a7beff3b12b0f5e6d91a7c4fa2ddb51047b56635",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-04T04:54:18Z",
+      "repo_created_at": "2026-04-04T03:17:47Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 11,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

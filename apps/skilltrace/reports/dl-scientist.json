@@ -1,0 +1,146 @@
+{
+  "name": "dl-scientist",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 2,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          631899,
+          661299
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            661299
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 661299,
+              "target_artifact_id": 631899,
+              "basis": "chronology",
+              "containment": 0.9038461538461539,
+              "jaccard": 0.8453237410071942,
+              "shared_shingles": 235,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                421972
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          1313568
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1313568
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 631899,
+      "group_id": 421972,
+      "repo_id": 6452,
+      "repo_full_name": "MarioPasc/MenGrowth",
+      "path": ".claude/skills/dl-scientist/SKILL.md",
+      "file_sha": "5d1253b8e9c148321bc714516a27bff8d81884f5",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-15T08:28:49Z",
+      "repo_created_at": "2025-11-15T17:20:13Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 661299,
+      "group_id": 421972,
+      "repo_id": 16612,
+      "repo_full_name": "MarioPasc/MenGrowth-Model",
+      "path": ".claude/skills/dl-scientist/SKILL.md",
+      "file_sha": "55d458788b260104421b0af0c1d901cec8501eba",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-09T16:35:11Z",
+      "repo_created_at": "2025-12-21T08:26:37Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1313568,
+      "group_id": 421972,
+      "repo_id": 84445,
+      "repo_full_name": "MarioPasc/neuromf",
+      "path": ".claude/skills/dl-scientist/SKILL.md",
+      "file_sha": "03b40f865367c9b62e8bba9ccf35f982130383f9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-12T14:16:35Z",
+      "repo_created_at": "2026-02-12T12:48:40Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

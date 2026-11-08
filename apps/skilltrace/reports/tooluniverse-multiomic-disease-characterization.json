@@ -1,0 +1,285 @@
+{
+  "name": "tooluniverse-multiomic-disease-characterization",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 6,
+    "artifact_group_count": 2,
+    "skill_variant_count": 6,
+    "bundle_variant_count": 6,
+    "cluster_count": 2,
+    "related_skill_pair_count": 7,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 4,
+    "directed_edge_count": 4,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 2,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 4,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2294316,
+          2395458,
+          2399298,
+          2437536
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2294316
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2294316,
+              "target_artifact_id": 2395458,
+              "basis": "containment",
+              "containment": 0.9950433705080545,
+              "jaccard": 0.8775956284153006,
+              "shared_shingles": 803,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2294316,
+              "target_artifact_id": 2399298,
+              "basis": "containment",
+              "containment": 0.9950433705080545,
+              "jaccard": 0.8775956284153006,
+              "shared_shingles": 803,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2294316,
+              "target_artifact_id": 2437536,
+              "basis": "containment",
+              "containment": 0.9950433705080545,
+              "jaccard": 0.8775956284153006,
+              "shared_shingles": 803,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                239237
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2395458,
+              "right_artifact_id": 2399298,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 911,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                73511
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2437536,
+              "right_artifact_id": 2395458,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 911,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 2437536,
+              "right_artifact_id": 2399298,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 911,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          3505752,
+          3575831
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3505752
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3505752,
+              "target_artifact_id": 3575831,
+              "basis": "containment",
+              "containment": 0.9907295445384925,
+              "jaccard": 0.6313896737734395,
+              "shared_shingles": 2458,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                239237
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2294316,
+      "group_id": 239237,
+      "repo_id": 23452,
+      "repo_full_name": "GanQiao1990/skills_2026",
+      "path": "openclaw-imports/tooluniverse-multiomic-disease-characterization/SKILL.md",
+      "file_sha": "d1e9e76fdb46e02da36c3ef37145f0f37b1eda04",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-03T06:46:02Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "331ef5b72adadca4c660b481fa4095a36e3620624137bf67e5f0a08ed3c7faf8"
+    },
+    {
+      "artifact_id": 2395458,
+      "group_id": 73511,
+      "repo_id": 121918,
+      "repo_full_name": "mims-harvard/ToolUniverse",
+      "path": "plugins/tooluniverse/skills/tooluniverse-multiomic-disease-characterization/SKILL.md",
+      "file_sha": "825cae44e574b7c04e963e8ad6af4108e01558c8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-03-03T21:09:47Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "cedd8360bf6c19100556ce290c4cb341dcd99fc8991e9d6041cc6d68775a5184"
+    },
+    {
+      "artifact_id": 2399298,
+      "group_id": 73511,
+      "repo_id": 121918,
+      "repo_full_name": "mims-harvard/ToolUniverse",
+      "path": "plugin/skills/tooluniverse-multiomic-disease-characterization/SKILL.md",
+      "file_sha": "98c534b5e389478fb0425a16bb9f70807fd53e5e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-03-03T21:09:47Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "cedd8360bf6c19100556ce290c4cb341dcd99fc8991e9d6041cc6d68775a5184"
+    },
+    {
+      "artifact_id": 2437536,
+      "group_id": 239237,
+      "repo_id": 23452,
+      "repo_full_name": "GanQiao1990/skills_2026",
+      "path": "tooluniverse-multiomic-disease-characterization/SKILL.md",
+      "file_sha": "5bf4d0fffb114b1a84dcc27d6c929cb5cfecbc6d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-03T06:46:02Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "91564e1aa4ec6b55a2cbfbc4002338e85cb08be4df5b5e3e1e94a6bc77ba4532"
+    },
+    {
+      "artifact_id": 3505752,
+      "group_id": 239237,
+      "repo_id": 33231,
+      "repo_full_name": "Zaoqu-Liu/ScienceClaw",
+      "path": "skills/tooluniverse-multiomic-disease-characterization/SKILL.md",
+      "file_sha": "62015d6df7b4662e2d1ed7e1677baf575a07c66f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-05T07:28:27Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "4be4b50cd2aa69602588006f73979167491ae3f31bd5987bfc229cd9ba36f142"
+    },
+    {
+      "artifact_id": 3575831,
+      "group_id": 239237,
+      "repo_id": 27371,
+      "repo_full_name": "FreedomIntelligence/OpenClaw-Medical-Skills",
+      "path": "skills/tooluniverse-multiomic-disease-characterization/SKILL.md",
+      "file_sha": "352b18f2d458abfcf8a7e8dd8e1168082cd750bb",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-08T09:43:52Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "7044ed1329a32001af3cdd02b4b34459771edeb5c7980ac7b1379645f5802f37"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 6,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

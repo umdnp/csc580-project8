@@ -1,0 +1,194 @@
+{
+  "name": "run-parallel-agents-feature-build",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 3,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 2,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3331515,
+          3347203,
+          3410227
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3347203
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3347203,
+              "target_artifact_id": 3410227,
+              "basis": "chronology",
+              "containment": 0.9200189304306673,
+              "jaccard": 0.7388825541619156,
+              "shared_shingles": 1944,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3410227,
+              "target_artifact_id": 3331515,
+              "basis": "chronology",
+              "containment": 0.8009748172217709,
+              "jaccard": 0.7691107644305772,
+              "shared_shingles": 1972,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": [
+            {
+              "source_artifact_id": 3347203,
+              "target_artifact_id": 3331515,
+              "basis": "chronology",
+              "containment": 0.9682915286322764,
+              "jaccard": 0.9556282111163008,
+              "shared_shingles": 2046,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                245646
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2476419
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2476419
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2476419,
+      "group_id": 262730,
+      "repo_id": 143657,
+      "repo_full_name": "ulpi-io/skills",
+      "path": "run-parallel-agents-feature-build/SKILL.md",
+      "file_sha": "6b65ebf0548b05f03b8347b01dd01be27c5614f9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T06:46:20Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "87d3b4a3f09456a6b7a6e5f911e5b340dfb6a54ef6cbb39f44badde4ded723be"
+    },
+    {
+      "artifact_id": 3331515,
+      "group_id": 245646,
+      "repo_id": 144060,
+      "repo_full_name": "namanchopra/branchwater",
+      "path": ".claude/skills/run-parallel-agents-feature-build/SKILL.md",
+      "file_sha": "368a78791382ca45076fa3f9769202fb6d19c127",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-22T12:05:57Z",
+      "repo_created_at": "2026-06-22T12:20:44Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "aebe08e74436ec1ebb3c59ed09675e055a6fad1ff13ee4d55a7663e6022e2c29"
+    },
+    {
+      "artifact_id": 3347203,
+      "group_id": 245646,
+      "repo_id": 87056,
+      "repo_full_name": "ulpi-io/browse",
+      "path": ".claude/skills/run-parallel-agents-feature-build/SKILL.md",
+      "file_sha": "a1411d90b9a4efe89779ec7aa6c14e6184ea11c9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-15T02:54:30Z",
+      "repo_created_at": "2026-03-15T02:35:01Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "d745939d4536c00acd4fb2ea0baf7d2422749cdded371f0eb360a614588fb632"
+    },
+    {
+      "artifact_id": 3410227,
+      "group_id": 98545,
+      "repo_id": 87056,
+      "repo_full_name": "ulpi-io/browse",
+      "path": ".agents/skills/run-parallel-agents-feature-build/SKILL.md",
+      "file_sha": "41d3d670df817faad56add411d9dd2d6ab24789a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-28T08:16:53Z",
+      "repo_created_at": "2026-03-15T02:35:01Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "aebe08e74436ec1ebb3c59ed09675e055a6fad1ff13ee4d55a7663e6022e2c29"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,114 @@
+{
+  "name": "clean-code-v2",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 2,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 1,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 1,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3004100,
+          3061923
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3004100
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3004100,
+              "target_artifact_id": 3061923,
+              "basis": "declared-source",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1655,
+              "change_type": "siblings-only",
+              "evidence": [
+                "derived_from",
+                "upstream_skill",
+                "source_repo"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 3004100,
+      "group_id": 325481,
+      "repo_id": 83020,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills/clean-code-v2/SKILL.md",
+      "file_sha": "a39c4a569d1c626f5d50ff006920b0d0903bd57f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T03:02:55Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "fc8605aca27c95fd0d7e4a255ca0b42f447c97f30c383db53de75cf46a5eea96"
+    },
+    {
+      "artifact_id": 3061923,
+      "group_id": 172872,
+      "repo_id": 83020,
+      "repo_full_name": "diegosouzapw/awesome-omni-skills",
+      "path": "skills_omni/clean-code-v2/SKILL.md",
+      "file_sha": "ccb3560c9bb7a7732d813b1870c031b0c855fe73",
+      "provenance": {
+        "derived_from": "skills/clean-code-v2",
+        "upstream_skill": "skills/clean-code-v2",
+        "source_repo": "diegosouzapw/awesome-omni-skills",
+        "upstream_source": "community"
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T03:02:55Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "a717a290e0dece8f002d9e4b2313b0dfdf18dc60bceb4e2d04c977b29b3874b8"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

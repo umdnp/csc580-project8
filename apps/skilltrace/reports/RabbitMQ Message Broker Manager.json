@@ -1,0 +1,195 @@
+{
+  "name": "RabbitMQ Message Broker Manager",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 2,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 2,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 0,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 3,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 2,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2072274,
+          2090932,
+          2109553
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2072274,
+            2090932,
+            2109553
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2072274,
+              "right_artifact_id": 2109553,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.979757085020243,
+              "containment_right_to_left": 0.9184060721062619,
+              "jaccard": 0.9013035381750466,
+              "shared_shingles": 484,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                336974
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2090932,
+              "right_artifact_id": 2072274,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9877551020408163,
+              "containment_right_to_left": 0.979757085020243,
+              "jaccard": 0.968,
+              "shared_shingles": 484,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 2090932,
+              "right_artifact_id": 2109553,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9877551020408163,
+              "containment_right_to_left": 0.9184060721062619,
+              "jaccard": 0.9080675422138836,
+              "shared_shingles": 484,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          182868
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            182868
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 182868,
+      "group_id": 336974,
+      "repo_id": 5320,
+      "repo_full_name": "qyb156/PoisonedSkills",
+      "path": "Baselines/generated_skills/B6_poise_mapped/V1077/SKILL.md",
+      "file_sha": "2ea39ecdf388932f53c31cd4c43fe1068939bd4a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T13:24:25Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "0c1a1cdb41c5706adb665d7ebd06ed1ee4d36667741f948b30ba86cc7cd808cb"
+    },
+    {
+      "artifact_id": 2072274,
+      "group_id": 336974,
+      "repo_id": 5320,
+      "repo_full_name": "qyb156/PoisonedSkills",
+      "path": "poisoned_skills/V1077/SKILL.md",
+      "file_sha": "943169f4c368b23d98bc56a31c436d388f2d88af",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T13:24:25Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2090932,
+      "group_id": 263095,
+      "repo_id": 5320,
+      "repo_full_name": "qyb156/PoisonedSkills",
+      "path": "Baselines/generated_skills/B4_tooltweak_ddipe/V1077/SKILL.md",
+      "file_sha": "909c6cd5d781a6a5752187e8da6463703438d4b9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T13:24:25Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2109553,
+      "group_id": 336974,
+      "repo_id": 5320,
+      "repo_full_name": "qyb156/PoisonedSkills",
+      "path": "Baselines/generated_skills/B1_combined/V1077/SKILL.md",
+      "file_sha": "fec15f8b0889368308adca74a0bd3e4d08b084ed",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T13:24:25Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

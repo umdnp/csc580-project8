@@ -1,0 +1,228 @@
+{
+  "name": "respond-to-referee",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 4,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 3,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 2,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1582221,
+          1592297,
+          3664963
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3664963
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1582221,
+              "target_artifact_id": 1592297,
+              "basis": "repo-created-boundary",
+              "containment": 0.9731800766283525,
+              "jaccard": 0.9372693726937269,
+              "shared_shingles": 508,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                314454
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3664963,
+              "target_artifact_id": 1582221,
+              "basis": "chronology",
+              "containment": 0.8904593639575972,
+              "jaccard": 0.863013698630137,
+              "shared_shingles": 504,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": [
+            {
+              "source_artifact_id": 3664963,
+              "target_artifact_id": 1592297,
+              "basis": "repo-created-boundary",
+              "containment": 0.9169611307420494,
+              "jaccard": 0.9026086956521739,
+              "shared_shingles": 519,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          1966603
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1966603
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          1554694
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1554694
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1554694,
+      "group_id": 312576,
+      "repo_id": 14556,
+      "repo_full_name": "brycewang-stanford/Auto-Empirical-Research-Skills",
+      "path": "skills/41-sticerd-eee-sewage-econometrics-check/skills/respond-to-referee/SKILL.md",
+      "file_sha": "49007f9d26649e57bbabd995f019d53a72d98337",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-03T06:31:20Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1582221,
+      "group_id": 314454,
+      "repo_id": 14179,
+      "repo_full_name": "hchulkim/replication-template-nix",
+      "path": ".claude/skills/respond-to-referee/SKILL.md",
+      "file_sha": "e93ada15cf3fc3bcac5232bad64588df969f3f45",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-01T17:40:42Z",
+      "repo_created_at": "2025-11-12T04:27:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1592297,
+      "group_id": 314454,
+      "repo_id": 47817,
+      "repo_full_name": "hugosantanna/clo-author-dev",
+      "path": ".claude/skills/archive/respond-to-referee/SKILL.md",
+      "file_sha": "ba257799549dc131ce79c0e481a0af08729785a4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-05T21:25:30Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1966603,
+      "group_id": 399397,
+      "repo_id": 46526,
+      "repo_full_name": "Alexander-M-Dickerson/ai-asset-pricing",
+      "path": ".claude/skills/respond-to-referee/SKILL.md",
+      "file_sha": "cac9d483867762b68a13c9f8067f5a1822788e4a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-11T03:23:32Z",
+      "repo_created_at": "2026-04-02T02:38:41Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3664963,
+      "group_id": 320827,
+      "repo_id": 47815,
+      "repo_full_name": "LindseyRRay/clo-author",
+      "path": ".claude/skills/respond-to-referee/SKILL.md",
+      "file_sha": "d1460f4a3476df5bf24753a95d3e061bea94b0c2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-25T06:08:19Z",
+      "repo_created_at": "2026-03-04T01:30:48Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

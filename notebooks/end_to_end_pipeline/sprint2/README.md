@@ -89,6 +89,15 @@ Follow the [pipeline README](../README.md) and the [Manual Annotation Protocol](
 | `../.scans/` | Shared scan JSON cache used by Sprint 2 and Sprint 3 |
 | `../.scans/.metadata/scan-manifest.json` | Shared cache fingerprints and configuration metadata |
 
-To reproduce the analysis, use `SPRINT = 2` in the [notebook](../end_to_end_pipeline.ipynb), the prepared GitSkills DuckDB database, and the settings recorded in `results/sample_manifest.json`. The configured similarity policy uses shingle size `5`, minimum containment `0.8`, minimum Jaccard `0.3`, minimum shared shingles `5`, and direction containment margin `0.1`.
+To reproduce the historical analysis, use the code revision and settings recorded in
+[`results/sample_manifest.json`](results/sample_manifest.json), not just the
+current notebook's `SPRINT = 2` setting. Set `EDGES = "all"` explicitly; the current
+notebook defaults to primary edges and later scanner fixes change indicator
+counts. The configured similarity policy uses shingle size `5`, minimum containment
+`0.8`, minimum Jaccard `0.3`, minimum shared shingles `5`, and direction containment
+margin `0.1`. See the [reproduction check](../../../docs/instructions/reproducibility.md)
+for isolated installation, historical execution, numerical differences, and
+external-input limitations. Keep regenerated outputs separate from these saved
+results and pending annotations.
 
 **Interpretation limits:** Source relationships and directions are inferred, not verified ancestry; missing sibling or extracted evidence limits coverage; static indicators cannot establish intent or harm; and the purposive cohort is not representative of the full dataset. Independent review is needed to assess scanner accuracy.

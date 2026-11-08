@@ -1,0 +1,147 @@
+{
+  "name": "pc-assistant",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 2,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1673362,
+          1714840
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1714840
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1714840,
+              "target_artifact_id": 1673362,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 507,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                493800
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2016130
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2016130
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1673362,
+      "group_id": 493800,
+      "repo_id": 42616,
+      "repo_full_name": "Shy2593666979/openmarvis",
+      "path": "openmarvis/skills/pc-assistant/SKILL.md",
+      "file_sha": "6a3536f91516e814f2ff003c3626e189e9527943",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-29T09:16:57Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "b579207af54fd6df31ca8c68cec6ac083bacc22982d32b5309c9efbe05f30c32"
+    },
+    {
+      "artifact_id": 1714840,
+      "group_id": 493800,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/pc-assistant/SKILL.md",
+      "file_sha": "61df02f24bd367ad3e702b0f6d95ff1fb10ffacf",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-06T18:33:57Z",
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2016130,
+      "group_id": 124757,
+      "repo_id": 183198,
+      "repo_full_name": "lindakun/omy-skills",
+      "path": "skills/pc-assistant/SKILL.md",
+      "file_sha": "6c44cb35ae3ef8263fdd536953543546ead3be2c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-12T08:43:19Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "5e1596de257c6e7ffca12f8584a146b0a83ae427f1cb543e769c4de72b16c5e3"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

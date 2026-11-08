@@ -1,0 +1,164 @@
+{
+  "name": "tdd-migration-pipeline",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1705009,
+          1745313,
+          2440120
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1705009,
+            1745313
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1705009,
+              "target_artifact_id": 2440120,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8782722513089005,
+              "shared_shingles": 671,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                129047
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1705009,
+              "right_artifact_id": 1745313,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 671,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                129047
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 1745313,
+              "target_artifact_id": 2440120,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8782722513089005,
+              "shared_shingles": 671,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                129047
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1705009,
+      "group_id": 129047,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/parcadei@Continuous-Claude-v3/.claude/skills/tdd-migration-pipeline/SKILL.md",
+      "file_sha": "2fcefb3ac723284f50eef9f7abee47f1f239839c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-01T18:17:44Z",
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1745313,
+      "group_id": 129047,
+      "repo_id": 21181,
+      "repo_full_name": "vibeeval/vibecosystem",
+      "path": "skills/tdd-migration-pipeline/SKILL.md",
+      "file_sha": "e23b8bc41d137e5dee1e0a52541c8df6c85acda9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-14T11:57:55Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2440120,
+      "group_id": 129047,
+      "repo_id": 261,
+      "repo_full_name": "lxyeternal/MalSkillBench",
+      "path": "Dataset/Skills/malware/tdd-migration-pipeline/SKILL.md",
+      "file_sha": "a2dffdc619a1f11e65518d02c7e8ebf915ff05e4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-21T06:17:51Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

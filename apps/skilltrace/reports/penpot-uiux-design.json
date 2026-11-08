@@ -1,0 +1,1128 @@
+{
+  "name": "penpot-uiux-design",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 11,
+    "artifact_group_count": 2,
+    "skill_variant_count": 11,
+    "bundle_variant_count": 11,
+    "cluster_count": 2,
+    "related_skill_pair_count": 45,
+    "within_group_related_pair_count": 45,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 4,
+    "within_group_directed_edge_count": 4,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 23,
+    "within_group_ambiguous_edge_count": 23,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 2,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2964728,
+          2965276,
+          2965334,
+          2967683,
+          2973167,
+          2979390,
+          2987511,
+          2988773,
+          3000478,
+          3072269
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2965276,
+            2965334,
+            2967683,
+            2973167,
+            2987511,
+            2988773
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2965334,
+              "target_artifact_id": 2964728,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2965334,
+              "target_artifact_id": 2979390,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2965334,
+              "target_artifact_id": 3000478,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2965334,
+              "target_artifact_id": 3072269,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2964728,
+              "right_artifact_id": 2965276,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2964728,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2965276,
+              "right_artifact_id": 2965334,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2965276,
+              "right_artifact_id": 2967683,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2965276,
+              "right_artifact_id": 2987511,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2965276,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2965334,
+              "right_artifact_id": 2987511,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2965334,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2967683,
+              "right_artifact_id": 2965334,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2967683,
+              "right_artifact_id": 2987511,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2967683,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2973167,
+              "right_artifact_id": 2965276,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2973167,
+              "right_artifact_id": 2965334,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2973167,
+              "right_artifact_id": 2967683,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2973167,
+              "right_artifact_id": 2987511,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2973167,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2979390,
+              "right_artifact_id": 2964728,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9912140575079872,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2979390,
+              "right_artifact_id": 2965276,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9912140575079872,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2979390,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9912140575079872,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9818037974683544,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2988773,
+              "right_artifact_id": 2987511,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9904229848363927,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3000478,
+              "right_artifact_id": 2964728,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3000478,
+              "right_artifact_id": 2965276,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3000478,
+              "right_artifact_id": 2979390,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9912140575079872,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3000478,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3072269,
+              "right_artifact_id": 2964728,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3072269,
+              "right_artifact_id": 2965276,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3072269,
+              "right_artifact_id": 2979390,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9912140575079872,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3072269,
+              "right_artifact_id": 2988773,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9904229848363927,
+              "jaccard": 0.9904229848363927,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3072269,
+              "right_artifact_id": 3000478,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2967683,
+              "target_artifact_id": 2964728,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2967683,
+              "target_artifact_id": 2979390,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2967683,
+              "target_artifact_id": 3000478,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2967683,
+              "target_artifact_id": 3072269,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2973167,
+              "target_artifact_id": 2964728,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2973167,
+              "target_artifact_id": 2979390,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2973167,
+              "target_artifact_id": 3000478,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2973167,
+              "target_artifact_id": 3072269,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2987511,
+              "target_artifact_id": 2964728,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2987511,
+              "target_artifact_id": 2979390,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 0.9912140575079872,
+              "shared_shingles": 1241,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2987511,
+              "target_artifact_id": 3000478,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2987511,
+              "target_artifact_id": 3072269,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1241,
+              "change_type": "siblings-only",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                61046
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-03-15T12:36:23Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2965334
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          450881
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            450881
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 2967683,
+      "effective_chronology": "2026-03-15T12:36:23Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 2965334
+    },
+    {
+      "artifact_id": 2973167,
+      "effective_chronology": "2026-03-15T12:36:23Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 2965334
+    },
+    {
+      "artifact_id": 2987511,
+      "effective_chronology": "2026-03-15T12:36:23Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 2965334
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 450881,
+      "group_id": 565060,
+      "repo_id": 10793,
+      "repo_full_name": "AlvaGonz/Proyecto-Estimacion-Soft",
+      "path": ".agents/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "e7ac559a33aea607b22f5d922dfc77dbdb61be10",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-19T22:04:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2964728,
+      "group_id": 61046,
+      "repo_id": 611,
+      "repo_full_name": "ComeOnOliver/skillshub",
+      "path": "skills/github/awesome-copilot/penpot-uiux-design/SKILL.md",
+      "file_sha": "6022e7eed1a6c046bfedc34bb237062e462ec9b1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-16T21:03:34Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2965276,
+      "group_id": 61046,
+      "repo_id": 41205,
+      "repo_full_name": "Pinedax14/fundacion",
+      "path": ".github/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "8034ad9a5d8124d6ee035bc79b0d4a4f42ba2e72",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-16T17:37:41Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "d92baa4aca96771fd1bed63383f67e4e7eefc121ddab7ab2631674c943a9f5be"
+    },
+    {
+      "artifact_id": 2965334,
+      "group_id": 61046,
+      "repo_id": 8559,
+      "repo_full_name": "Balkonsen/HA_AI_Gen_Workflow",
+      "path": ".claude/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "b8f589e44af0169c002ea4fa56805354ca767ca2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-15T12:36:23Z",
+      "repo_created_at": "2026-01-14T15:15:21Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "71cade05b76acb876c257d566c940aa99b79018637d340cb16e89b7814bf3bf7"
+    },
+    {
+      "artifact_id": 2967683,
+      "group_id": 61046,
+      "repo_id": 4687,
+      "repo_full_name": "anubhavg-icpl/vibe",
+      "path": "skills/ghcopilot-penpot-uiux-design/SKILL.md",
+      "file_sha": "81213dc3bbe90144cfc0ab6761f1fa7734af7baa",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-11-05T10:32:18Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "71cade05b76acb876c257d566c940aa99b79018637d340cb16e89b7814bf3bf7"
+    },
+    {
+      "artifact_id": 2973167,
+      "group_id": 61046,
+      "repo_id": 33766,
+      "repo_full_name": "iliasjennane/LearningAgent",
+      "path": ".agents/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "3065f5fe7ae9ed6b864378ea314ce5730a4b79ac",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-22T13:33:45Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "71cade05b76acb876c257d566c940aa99b79018637d340cb16e89b7814bf3bf7"
+    },
+    {
+      "artifact_id": 2979390,
+      "group_id": 61046,
+      "repo_id": 2595,
+      "repo_full_name": "TorchiaHub/Skills",
+      "path": "10-Skills/Web-Product/Design-UX/Penpot/penpot-uiux-design/SKILL.md",
+      "file_sha": "3444ad64bd38e6e99d5d1ac2b3a28678f48b2386",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-28T07:47:31Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "f474326aceb8c5878b534c47d8158191ca17991d13d8af55edf482946dc108f2"
+    },
+    {
+      "artifact_id": 2987511,
+      "group_id": 61046,
+      "repo_id": 139263,
+      "repo_full_name": "cloudbyday90/Harmoniarr",
+      "path": ".agents/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "fb195e5d6b3921ccc2c1783cf96c3725b5935333",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-26T20:17:02Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "71cade05b76acb876c257d566c940aa99b79018637d340cb16e89b7814bf3bf7"
+    },
+    {
+      "artifact_id": 2988773,
+      "group_id": 61046,
+      "repo_id": 129,
+      "repo_full_name": "ibragimov-oasis/name-navigator",
+      "path": ".github/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "c62a21e368fc626a21158995cf99a050884d7274",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-10T18:12:59Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "ce13dfedf80ae899b455f894dffd244a579fee30798b06272609af122c693852"
+    },
+    {
+      "artifact_id": 3000478,
+      "group_id": 61046,
+      "repo_id": 3268,
+      "repo_full_name": "maximoseo/webs-html-improvements-files",
+      "path": ".agents/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "2d7d68cc4518d087801e529f1267ee69df980fc7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T07:38:49Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "1681167020222202b78ebe518334edf56f2e145878a3c53f11b73b08476c7842"
+    },
+    {
+      "artifact_id": 3072269,
+      "group_id": 61046,
+      "repo_id": 8546,
+      "repo_full_name": "ArryoRuma/TKs-Coffee-Ranker",
+      "path": ".github/skills/penpot-uiux-design/SKILL.md",
+      "file_sha": "17d115f7f7b94f4091e3e514bc14320547819dfa",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-16T17:58:59Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "bab350eef5d9b33b50ebdb0caa403e1c2038138ca072a4b7787ab9171b7a3aba"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 11,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

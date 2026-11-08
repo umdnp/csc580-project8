@@ -1,0 +1,173 @@
+{
+  "name": "ebfe_validate_models",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2359118,
+          2476557,
+          2492813
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2476557,
+            2492813
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2476557,
+              "target_artifact_id": 2359118,
+              "basis": "repo-created-boundary",
+              "containment": 0.8824969400244798,
+              "jaccard": 0.8325635103926097,
+              "shared_shingles": 721,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-01-30T16:23:27Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2492813
+                }
+              }
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2476557,
+              "right_artifact_id": 2492813,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 817,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                580699
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2492813,
+              "target_artifact_id": 2359118,
+              "basis": "repo-created-boundary",
+              "containment": 0.8824969400244798,
+              "jaccard": 0.8325635103926097,
+              "shared_shingles": 721,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2359118,
+      "group_id": 99515,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "data/ebfe-validate-models-gpt-cmdr-ras-commander/SKILL.md",
+      "file_sha": "be57fd8e60289081f16fb525a2332f5a430e56ac",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2476557,
+      "group_id": 580699,
+      "repo_id": 200805,
+      "repo_full_name": "SanjeevBashyal/pyHydraulics",
+      "path": "TURFM/ras-commander/.claude/skills/ebfe_validate_models/SKILL.md",
+      "file_sha": "265400a8736930b345fc148ddb4ec7e1d5948ba6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-05T14:39:40Z",
+      "repo_created_at": "2025-06-26T01:34:44Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2492813,
+      "group_id": 580699,
+      "repo_id": 65433,
+      "repo_full_name": "gpt-cmdr/ras-commander",
+      "path": ".claude/skills/ebfe_validate_models/SKILL.md",
+      "file_sha": "aa3bd2727be5d6ecb1e75f9edb905c685b84d45b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-30T16:23:27Z",
+      "repo_created_at": "2024-09-05T20:36:07Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,405 @@
+{
+  "name": "huashu-book-pdf",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 6,
+    "artifact_group_count": 1,
+    "skill_variant_count": 6,
+    "bundle_variant_count": 6,
+    "cluster_count": 1,
+    "related_skill_pair_count": 15,
+    "within_group_related_pair_count": 15,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 5,
+    "within_group_directed_edge_count": 5,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 10,
+    "within_group_ambiguous_edge_count": 10,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 5,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1759827,
+          1910993,
+          1911797,
+          1913671,
+          1941992,
+          3774945
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1759827
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1759827,
+              "target_artifact_id": 1910993,
+              "basis": "containment",
+              "containment": 0.8535211267605634,
+              "jaccard": 0.6460554371002132,
+              "shared_shingles": 303,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1759827,
+              "target_artifact_id": 1911797,
+              "basis": "containment",
+              "containment": 0.8535211267605634,
+              "jaccard": 0.6530172413793104,
+              "shared_shingles": 303,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1759827,
+              "target_artifact_id": 1913671,
+              "basis": "containment",
+              "containment": 0.8535211267605634,
+              "jaccard": 0.6558441558441559,
+              "shared_shingles": 303,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1759827,
+              "target_artifact_id": 1941992,
+              "basis": "containment",
+              "containment": 0.8535211267605634,
+              "jaccard": 0.6365546218487395,
+              "shared_shingles": 303,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1759827,
+              "target_artifact_id": 3774945,
+              "basis": "containment",
+              "containment": 0.8535211267605634,
+              "jaccard": 0.6146044624746451,
+              "shared_shingles": 303,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1910993,
+              "right_artifact_id": 1911797,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8872901678657075,
+              "containment_right_to_left": 0.8980582524271845,
+              "jaccard": 0.8061002178649237,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1910993,
+              "right_artifact_id": 1941992,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8872901678657075,
+              "containment_right_to_left": 0.8726415094339622,
+              "jaccard": 0.7855626326963907,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1910993,
+              "right_artifact_id": 3774945,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8872901678657075,
+              "containment_right_to_left": 0.8390022675736961,
+              "jaccard": 0.7581967213114754,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1911797,
+              "right_artifact_id": 1941992,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8980582524271845,
+              "containment_right_to_left": 0.8726415094339622,
+              "jaccard": 0.7939914163090128,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1911797,
+              "right_artifact_id": 3774945,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8980582524271845,
+              "containment_right_to_left": 0.8390022675736961,
+              "jaccard": 0.7660455486542443,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1913671,
+              "right_artifact_id": 1910993,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9024390243902439,
+              "containment_right_to_left": 0.8872901678657075,
+              "jaccard": 0.8096280087527352,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1913671,
+              "right_artifact_id": 1911797,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9024390243902439,
+              "containment_right_to_left": 0.8980582524271845,
+              "jaccard": 0.8185840707964602,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1913671,
+              "right_artifact_id": 1941992,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9146341463414634,
+              "containment_right_to_left": 0.8844339622641509,
+              "jaccard": 0.8169934640522876,
+              "shared_shingles": 375,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1913671,
+              "right_artifact_id": 3774945,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9024390243902439,
+              "containment_right_to_left": 0.8390022675736961,
+              "jaccard": 0.7692307692307693,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3774945,
+              "right_artifact_id": 1941992,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8390022675736961,
+              "containment_right_to_left": 0.8726415094339622,
+              "jaccard": 0.7474747474747475,
+              "shared_shingles": 370,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                603089
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1759827,
+      "group_id": 603089,
+      "repo_id": 1567,
+      "repo_full_name": "Lord1Egypt/awesome-skill-forge",
+      "path": "community/clawhub/h/huashu-book-pdf/SKILL.md",
+      "file_sha": "bcda7732f28d1907b4938dbd0ed61333f7c8e2e5",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-09T19:38:43Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1910993,
+      "group_id": 603089,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_01569/SKILL.md",
+      "file_sha": "9d846685f103998232c51b283823c9e6d9d72ca3",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "065d8a0cff24be9031597d33924aa8d506795b6e44d4273e19191391c0b49847"
+    },
+    {
+      "artifact_id": 1911797,
+      "group_id": 603089,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_01492/SKILL.md",
+      "file_sha": "af086a63f817f8525fcc57c9fb4ec5044ac0740b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 11,
+      "sibling_content_sha": "6ab5069075b7cc8685b496cfacf88ed438a444056cc274e5ff3f53fd3785eb1e"
+    },
+    {
+      "artifact_id": 1913671,
+      "group_id": 603089,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_03971/SKILL.md",
+      "file_sha": "3c35f8717de3238e0ac0ee172dbeac423505e860",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "2ba5f85afc98b4d87b8caeef13aee25891fc94c400324421d4a3e90c8dc895a0"
+    },
+    {
+      "artifact_id": 1941992,
+      "group_id": 603089,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_00552/SKILL.md",
+      "file_sha": "d4f0e605cbf63887895c41315ca4a3c2e97e414a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-06T07:03:15Z",
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 10,
+      "sibling_content_sha": "f20f3b3953915a444a828beabe6cd870c3c54b096554937c82d028eaf79ae370"
+    },
+    {
+      "artifact_id": 3774945,
+      "group_id": 603089,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_03106/SKILL.md",
+      "file_sha": "b75a36a5acdc3ba4bbc9e6e8f57d3e5ed4aee830",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 11,
+      "sibling_content_sha": "60529725ca8e6aac0333d68c0d33f97603e354b80a4f04c5649085e151937b28"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 6,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

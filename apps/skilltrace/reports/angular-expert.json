@@ -1,0 +1,736 @@
+{
+  "name": "angular-expert",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 20,
+    "artifact_group_count": 17,
+    "skill_variant_count": 20,
+    "bundle_variant_count": 20,
+    "cluster_count": 16,
+    "related_skill_pair_count": 5,
+    "within_group_related_pair_count": 4,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1270615,
+          1787045,
+          3756244
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1787045,
+            3756244
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1787045,
+              "target_artifact_id": 1270615,
+              "basis": "repo-created-boundary",
+              "containment": 0.6265822784810127,
+              "jaccard": 0.6226415094339622,
+              "shared_shingles": 396,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                37102
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3756244,
+              "right_artifact_id": 1787045,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 632,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                37102
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 3756244,
+              "target_artifact_id": 1270615,
+              "basis": "repo-created-boundary",
+              "containment": 0.6265822784810127,
+              "jaccard": 0.6226415094339622,
+              "shared_shingles": 396,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                37102
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-01-27T02:48:44Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 1787045
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          666017,
+          690123
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            666017,
+            690123
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 690123,
+              "right_artifact_id": 666017,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 0.9916666666666667,
+              "jaccard": 0.9916666666666667,
+              "shared_shingles": 238,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          2887860,
+          2908790
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2887860,
+            2908790
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2908790,
+              "right_artifact_id": 2887860,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9951076320939335,
+              "containment_right_to_left": 0.9951076320939335,
+              "jaccard": 0.9902629016553067,
+              "shared_shingles": 1017,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                370952
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          1377638
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1377638
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 5,
+        "artifact_ids": [
+          1395389
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1395389
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 6,
+        "artifact_ids": [
+          1975420
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1975420
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 7,
+        "artifact_ids": [
+          775787
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            775787
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 8,
+        "artifact_ids": [
+          3688894
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3688894
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 9,
+        "artifact_ids": [
+          101261
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            101261
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 10,
+        "artifact_ids": [
+          480315
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            480315
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 11,
+        "artifact_ids": [
+          711861
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            711861
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 12,
+        "artifact_ids": [
+          1309462
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1309462
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 13,
+        "artifact_ids": [
+          2558152
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2558152
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 14,
+        "artifact_ids": [
+          3269949
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3269949
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 15,
+        "artifact_ids": [
+          3684171
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3684171
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 16,
+        "artifact_ids": [
+          3720514
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3720514
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 3756244,
+      "effective_chronology": "2026-01-27T02:48:44Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 1787045
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 101261,
+      "group_id": 124606,
+      "repo_id": 15110,
+      "repo_full_name": "BenjaminDobler/adorable",
+      "path": "apps/server/src/assets/skills/angular-expert/SKILL.md",
+      "file_sha": "07edfb81b7946c0b01396f040fd14752ef8c6199",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-06T08:39:48Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 480315,
+      "group_id": 104127,
+      "repo_id": 169,
+      "repo_full_name": "davidcoachdev/dcfiles",
+      "path": "config/.config/opencode/skills/angular-expert/SKILL.md",
+      "file_sha": "0b419da8cee77b8003e97f4d35dab9428c10d242",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-04T01:05:27Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "8f8c684a44c0ca9002fe062cccba099862bd7433aaf827e601cea26839000eaa"
+    },
+    {
+      "artifact_id": 666017,
+      "group_id": 495154,
+      "repo_id": 6205,
+      "repo_full_name": "0xharryriddle/codex-field-kit",
+      "path": "skills-hermes/codex-agents/angular-expert/SKILL.md",
+      "file_sha": "ec76470ff8d840668eb05f63e8fb808b01286cba",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-11T03:48:44Z",
+      "repo_created_at": "2026-03-22T06:52:26Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 690123,
+      "group_id": 470794,
+      "repo_id": 66918,
+      "repo_full_name": "majiayu000/claude-skill-registry",
+      "path": "skills/development/angular-expert/SKILL.md",
+      "file_sha": "c2c7372004cda79ad8e4f384f9fc0fae8c57dd66",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-24T08:59:57Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 711861,
+      "group_id": 300585,
+      "repo_id": 68837,
+      "repo_full_name": "mtsatryan/openclaw-ai-agents",
+      "path": "angular-expert/SKILL.md",
+      "file_sha": "029672ddae3cea6e77ce32a0c6c56398491c1ed6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-23T10:26:28Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "1432b284c60676c00cd2b3590f38f84785d29342611d6ab9094f14ef2e9bc5c1"
+    },
+    {
+      "artifact_id": 775787,
+      "group_id": 194538,
+      "repo_id": 62724,
+      "repo_full_name": "naKarthikSurya/Talos",
+      "path": ".talos/skills/angular-expert/SKILL.md",
+      "file_sha": "7fa56bd85a385c197391352ca8e59ad103a2b1fa",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-03T15:49:47Z",
+      "repo_created_at": "2026-04-20T09:18:06Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1270615,
+      "group_id": 37102,
+      "repo_id": 3936,
+      "repo_full_name": "MikeCheng1208/BattleTree",
+      "path": ".agents/skills/angular-expert/SKILL.md",
+      "file_sha": "ea6b9503ecf498dbfd12474daabc822ea43db65e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-03T06:59:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1309462,
+      "group_id": 431359,
+      "repo_id": 137064,
+      "repo_full_name": "pato909/mock-api-angular-21",
+      "path": ".codex-skill-staging/angular-expert/SKILL.md",
+      "file_sha": "dce955a218284ece4960cd73b092241409f92c03",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-30T12:00:50Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "374b333f51a8a771c6ec0c608d84e1087544aebc7e7d3ca84c7fb1edc8aef87d"
+    },
+    {
+      "artifact_id": 1377638,
+      "group_id": 333373,
+      "repo_id": 133222,
+      "repo_full_name": "kevinaud/adk-sim-plugin",
+      "path": ".claude/skills/angular-expert/SKILL.md",
+      "file_sha": "7ec501e9aefba1fc862741008a485931dec779cb",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-11T16:33:46Z",
+      "repo_created_at": "2026-01-02T22:08:54Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "35f7fd845dbe7b81eee74fbb8473fdcc414b84b6ac666eb52439b5a6604ccdf4"
+    },
+    {
+      "artifact_id": 1395389,
+      "group_id": 568620,
+      "repo_id": 138394,
+      "repo_full_name": "Shiva0616/portafolio",
+      "path": ".claude/skills/angular-expert/SKILL.md",
+      "file_sha": "ad1948d37dceac29f80a1d62bdf620d42c3b6aa9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-11T04:42:29Z",
+      "repo_created_at": "2025-09-18T04:11:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1787045,
+      "group_id": 37102,
+      "repo_id": 23326,
+      "repo_full_name": "oimiragieo/agent-studio",
+      "path": ".claude/skills/angular-expert/SKILL.md",
+      "file_sha": "baf8b8b17dc5c14517c8bc772bca1693979c00a4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-27T02:48:44Z",
+      "repo_created_at": "2025-11-02T18:06:33Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "947a3c370bb11d4ed504459484c007757175e43c9ace978cd8ea7dda4c006538"
+    },
+    {
+      "artifact_id": 1975420,
+      "group_id": 409299,
+      "repo_id": 181864,
+      "repo_full_name": "MauricioLopezAsencio/bitacora-back-end",
+      "path": ".claude/skills/angular-expert/SKILL.md",
+      "file_sha": "1f03f4d852420b92e54688ecce63cb3c64b25cc8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-27T20:17:47Z",
+      "repo_created_at": "2024-10-13T03:16:49Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "084332fd372429925bfa3f1e107007768c24aee776c970fdb18a079fa5ed8fe0"
+    },
+    {
+      "artifact_id": 2558152,
+      "group_id": 363871,
+      "repo_id": 114928,
+      "repo_full_name": "kapoc3/vinbot-trading",
+      "path": ".agents/skills/angular-expert/SKILL.md",
+      "file_sha": "2c92522b1610b8e45a414ee2ce1509bff00a2ce8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-17T02:19:49Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2887860,
+      "group_id": 370952,
+      "repo_id": 6848,
+      "repo_full_name": "fanto237/agents",
+      "path": "skills/angular-expert/SKILL.md",
+      "file_sha": "78928dea813658edccb412e1dba274bf911fe862",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T15:13:55Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2908790,
+      "group_id": 370952,
+      "repo_id": 7676,
+      "repo_full_name": "jacksonemmerich/farmapub",
+      "path": ".agents/skills/angular-expert/SKILL.md",
+      "file_sha": "4a70144f9231fedef80e8fc01d4a06a3564390b9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-04T17:45:50Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3269949,
+      "group_id": 357520,
+      "repo_id": 257494,
+      "repo_full_name": "AsllyZuniga/Sistema-Integral-de-Gesti-n-Comercial-Dulces-y-Dulces-SIGC-DD-",
+      "path": ".opencode/skills/angular-expert/SKILL.md",
+      "file_sha": "e181e4e517484dac8d0d5109bcc14feb605f7551",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-12T13:29:08Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3684171,
+      "group_id": 231571,
+      "repo_id": 277114,
+      "repo_full_name": "sudeep31/angularTodo",
+      "path": ".github/skills/angular-expert/SKILL.md",
+      "file_sha": "49378529b8d6d8a6348f197bf6b44130aecd617e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-09T13:55:26Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "3ff06be9dd7364070818b2f0b3ffd80bf92e719ae5c96809f720280b4bbbf184"
+    },
+    {
+      "artifact_id": 3688894,
+      "group_id": 446962,
+      "repo_id": 239385,
+      "repo_full_name": "vaReliy/penny",
+      "path": ".claude/skills/angular-expert/SKILL.md",
+      "file_sha": "e8fdcbef54be0f9251dc7ca946bcdb7e4893702e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-24T13:05:03Z",
+      "repo_created_at": "2019-09-19T22:05:07Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3720514,
+      "group_id": 281081,
+      "repo_id": 100369,
+      "repo_full_name": "kcinay055679/windsurf-config",
+      "path": "skills/angular-expert/SKILL.md",
+      "file_sha": "80be776cf8163bcf21c04c435029e29986ad0d5f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-29T10:03:38Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3756244,
+      "group_id": 37102,
+      "repo_id": 5531,
+      "repo_full_name": "julio211916/TlantiCAD-Studio-V0.1-alpha",
+      "path": "skills/ju/skills/angular-expert/SKILL.md",
+      "file_sha": "71896ac11e49c56bce0f20bd208bc3fd2db6a9a0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-17T11:54:12Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "947a3c370bb11d4ed504459484c007757175e43c9ace978cd8ea7dda4c006538"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 20,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

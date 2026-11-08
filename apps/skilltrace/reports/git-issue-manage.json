@@ -1,0 +1,110 @@
+{
+  "name": "git-issue-manage",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 2,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 1,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2099980,
+          2307553
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2099980
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2099980,
+              "target_artifact_id": 2307553,
+              "basis": "containment",
+              "containment": 0.9740566037735849,
+              "jaccard": 0.8121927236971485,
+              "shared_shingles": 826,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2099980,
+      "group_id": 613203,
+      "repo_id": 38587,
+      "repo_full_name": "meaganewaller/marketplace",
+      "path": "plugins/git/skills/git-issue-manage/SKILL.md",
+      "file_sha": "4bed4747fad2736a502765f96acd78159e3efb8b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-10T16:47:51Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "369dd3edc39f96b7ab551be619516c24e1d1c782e4785c970de1fe33cf792f7b"
+    },
+    {
+      "artifact_id": 2307553,
+      "group_id": 376971,
+      "repo_id": 48665,
+      "repo_full_name": "laurigates/claude-plugins",
+      "path": "git-plugin/skills/git-issue-manage/SKILL.md",
+      "file_sha": "8ec16e13337d7c0b1f25e574066718902f0bd810",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-16T11:24:04Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "d6f71e1168c01ac7a3307db40c2b1a96b19f4632e02afe0333188095c0ab33c1"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,865 @@
+{
+  "name": "bmad-bmb-setup",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 9,
+    "artifact_group_count": 2,
+    "skill_variant_count": 9,
+    "bundle_variant_count": 9,
+    "cluster_count": 1,
+    "related_skill_pair_count": 36,
+    "within_group_related_pair_count": 28,
+    "across_group_related_pair_count": 8,
+    "directed_edge_count": 6,
+    "within_group_directed_edge_count": 5,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 11,
+    "within_group_ambiguous_edge_count": 10,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 2,
+      "skill+siblings": 4,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2107108,
+          2113816,
+          2113994,
+          2114574,
+          2132570,
+          2148385,
+          2315356,
+          2315399,
+          2334066
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2107108,
+            2113816,
+            2132570
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2114574,
+              "target_artifact_id": 2315356,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9706806282722513,
+              "jaccard": 0.8411978221415608,
+              "shared_shingles": 927,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-06-21T18:50:55Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2315399
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2114574,
+              "target_artifact_id": 2315399,
+              "basis": "chronology",
+              "containment": 0.9706806282722513,
+              "jaccard": 0.8411978221415608,
+              "shared_shingles": 927,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2114574,
+              "target_artifact_id": 2334066,
+              "basis": "repo-created-boundary",
+              "containment": 0.9549738219895288,
+              "jaccard": 0.8172043010752689,
+              "shared_shingles": 912,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2132570,
+              "target_artifact_id": 2114574,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 955,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2132570,
+              "target_artifact_id": 2148385,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 955,
+              "change_type": "siblings-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-04-25T04:27:02Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2114574
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2315399,
+              "target_artifact_id": 2113994,
+              "basis": "chronology",
+              "containment": 0.8445065176908753,
+              "jaccard": 0.8083778966131907,
+              "shared_shingles": 907,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2107108,
+              "right_artifact_id": 2113816,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9769150052465897,
+              "containment_right_to_left": 0.974869109947644,
+              "jaccard": 0.9529170931422722,
+              "shared_shingles": 931,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2113994,
+              "right_artifact_id": 2107108,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9696335078534032,
+              "containment_right_to_left": 0.9716684155299056,
+              "jaccard": 0.9429735234215886,
+              "shared_shingles": 926,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2113994,
+              "right_artifact_id": 2113816,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9633507853403142,
+              "containment_right_to_left": 0.9633507853403142,
+              "jaccard": 0.9292929292929293,
+              "shared_shingles": 920,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2114574,
+              "right_artifact_id": 2107108,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9905759162303664,
+              "containment_right_to_left": 0.9926547743966422,
+              "jaccard": 0.9833679833679834,
+              "shared_shingles": 946,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2114574,
+              "right_artifact_id": 2113816,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9842931937172775,
+              "containment_right_to_left": 0.9842931937172775,
+              "jaccard": 0.9690721649484536,
+              "shared_shingles": 940,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2132570,
+              "right_artifact_id": 2107108,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9905759162303664,
+              "containment_right_to_left": 0.9926547743966422,
+              "jaccard": 0.9833679833679834,
+              "shared_shingles": 946,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2132570,
+              "right_artifact_id": 2113816,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9842931937172775,
+              "containment_right_to_left": 0.9842931937172775,
+              "jaccard": 0.9690721649484536,
+              "shared_shingles": 940,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2148385,
+              "right_artifact_id": 2107108,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9905759162303664,
+              "containment_right_to_left": 0.9926547743966422,
+              "jaccard": 0.9833679833679834,
+              "shared_shingles": 946,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2148385,
+              "right_artifact_id": 2113816,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9842931937172775,
+              "containment_right_to_left": 0.9842931937172775,
+              "jaccard": 0.9690721649484536,
+              "shared_shingles": 940,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2148385,
+              "right_artifact_id": 2114574,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 955,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2315399,
+              "right_artifact_id": 2315356,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1074,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 2334066,
+              "right_artifact_id": 2315356,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8275862068965517,
+              "containment_right_to_left": 0.8268156424581006,
+              "jaccard": 0.7053216838760922,
+              "shared_shingles": 888,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 2334066,
+              "right_artifact_id": 2315399,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8275862068965517,
+              "containment_right_to_left": 0.8268156424581006,
+              "jaccard": 0.7053216838760922,
+              "shared_shingles": 888,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2107108,
+              "target_artifact_id": 2315356,
+              "basis": "containment",
+              "containment": 0.9632738719832109,
+              "jaccard": 0.8277727682596934,
+              "shared_shingles": 918,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2107108,
+              "target_artifact_id": 2315399,
+              "basis": "containment",
+              "containment": 0.9632738719832109,
+              "jaccard": 0.8277727682596934,
+              "shared_shingles": 918,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2107108,
+              "target_artifact_id": 2334066,
+              "basis": "containment",
+              "containment": 0.9475341028331584,
+              "jaccard": 0.8040961709706145,
+              "shared_shingles": 903,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2113816,
+              "target_artifact_id": 2315356,
+              "basis": "containment",
+              "containment": 0.9612565445026178,
+              "jaccard": 0.8262826282628263,
+              "shared_shingles": 918,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2113816,
+              "target_artifact_id": 2315399,
+              "basis": "containment",
+              "containment": 0.9612565445026178,
+              "jaccard": 0.8262826282628263,
+              "shared_shingles": 918,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2113816,
+              "target_artifact_id": 2334066,
+              "basis": "containment",
+              "containment": 0.9424083769633508,
+              "jaccard": 0.7978723404255319,
+              "shared_shingles": 900,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2113994,
+              "target_artifact_id": 2334066,
+              "basis": "containment",
+              "containment": 0.949738219895288,
+              "jaccard": 0.8090990187332738,
+              "shared_shingles": 907,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2114574,
+              "target_artifact_id": 2113994,
+              "basis": "chronology",
+              "containment": 0.9790575916230366,
+              "jaccard": 0.958974358974359,
+              "shared_shingles": 935,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2132570,
+              "target_artifact_id": 2113994,
+              "basis": "chronology",
+              "containment": 0.9790575916230366,
+              "jaccard": 0.958974358974359,
+              "shared_shingles": 935,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2132570,
+              "target_artifact_id": 2315356,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9706806282722513,
+              "jaccard": 0.8411978221415608,
+              "shared_shingles": 927,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-06-21T18:50:55Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2315399
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2132570,
+              "target_artifact_id": 2315399,
+              "basis": "chronology",
+              "containment": 0.9706806282722513,
+              "jaccard": 0.8411978221415608,
+              "shared_shingles": 927,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2132570,
+              "target_artifact_id": 2334066,
+              "basis": "repo-created-boundary",
+              "containment": 0.9549738219895288,
+              "jaccard": 0.8172043010752689,
+              "shared_shingles": 912,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2148385,
+              "target_artifact_id": 2113994,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9790575916230366,
+              "jaccard": 0.958974358974359,
+              "shared_shingles": 935,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-25T04:27:02Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2114574
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2148385,
+              "target_artifact_id": 2315356,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9706806282722513,
+              "jaccard": 0.8411978221415608,
+              "shared_shingles": 927,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-25T04:27:02Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2114574
+                },
+                "target": {
+                  "effective_chronology": "2026-06-21T18:50:55Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2315399
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2148385,
+              "target_artifact_id": 2315399,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.9706806282722513,
+              "jaccard": 0.8411978221415608,
+              "shared_shingles": 927,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-25T04:27:02Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2114574
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2148385,
+              "target_artifact_id": 2334066,
+              "basis": "repo-created-boundary",
+              "containment": 0.9549738219895288,
+              "jaccard": 0.8172043010752689,
+              "shared_shingles": 912,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                435107
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-04-25T04:27:02Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2114574
+                }
+              }
+            },
+            {
+              "source_artifact_id": 2315356,
+              "target_artifact_id": 2113994,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.8445065176908753,
+              "jaccard": 0.8083778966131907,
+              "shared_shingles": 907,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-06-21T18:50:55Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2315399
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 2148385,
+      "effective_chronology": "2026-04-25T04:27:02Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 2114574
+    },
+    {
+      "artifact_id": 2315356,
+      "effective_chronology": "2026-06-21T18:50:55Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 2315399
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 2107108,
+      "group_id": 435107,
+      "repo_id": 3254,
+      "repo_full_name": "PabloLION/bmad-plugin",
+      "path": "plugins/bmad/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "9771ac235954c02b253581caca502761f83faf19",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-29T03:35:29Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "bc21eb565ce0bf1ffd27c11d0d219fac6db604adaa8efaa3ddedcf1f914d8145"
+    },
+    {
+      "artifact_id": 2113816,
+      "group_id": 435107,
+      "repo_id": 3138,
+      "repo_full_name": "AlexMobiCraft/PROCONTENT",
+      "path": ".devin/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "e8e87cacf71f1a46a53e94925f7dc8e7d44d6831",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-07T19:27:04Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "bc21eb565ce0bf1ffd27c11d0d219fac6db604adaa8efaa3ddedcf1f914d8145"
+    },
+    {
+      "artifact_id": 2113994,
+      "group_id": 435107,
+      "repo_id": 4462,
+      "repo_full_name": "2lovecode/tbox",
+      "path": ".agents/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "53c138fca6cc9e84aa4a4c2d230e4fcd50a3f4b4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-02T10:18:06Z",
+      "repo_created_at": "2023-02-26T11:33:24Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "bc21eb565ce0bf1ffd27c11d0d219fac6db604adaa8efaa3ddedcf1f914d8145"
+    },
+    {
+      "artifact_id": 2114574,
+      "group_id": 435107,
+      "repo_id": 101444,
+      "repo_full_name": "Hexalith/Hexalith.GitStorage",
+      "path": ".claude/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "80f6cdf3713ed3bf343b3fd2186e21e2e9caf5a7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-25T04:27:02Z",
+      "repo_created_at": "2025-11-30T18:07:43Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "bc21eb565ce0bf1ffd27c11d0d219fac6db604adaa8efaa3ddedcf1f914d8145"
+    },
+    {
+      "artifact_id": 2132570,
+      "group_id": 435107,
+      "repo_id": 3503,
+      "repo_full_name": "rhuanbarros/bagual-skills",
+      "path": ".claude/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "0336f05ae3707c53096f690cbff6a441248034f2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-11T22:30:30Z",
+      "repo_created_at": "2026-04-11T22:25:47Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "33379f106042d74467fd9229c3ca1a1fcfae1d7299f91765bf2da0b59eeef0f1"
+    },
+    {
+      "artifact_id": 2148385,
+      "group_id": 435107,
+      "repo_id": 5264,
+      "repo_full_name": "vanja-emichi/bmad_method",
+      "path": "skills/bmad-bmb/workflows/bmb-setup/SKILL.md",
+      "file_sha": "444dbc1988092e8e129b1ecef72a6ada96421b7f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-08T04:50:08Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "bc21eb565ce0bf1ffd27c11d0d219fac6db604adaa8efaa3ddedcf1f914d8145"
+    },
+    {
+      "artifact_id": 2315356,
+      "group_id": 337486,
+      "repo_id": 106701,
+      "repo_full_name": "jamespakele/bmad-builder.plugin",
+      "path": "skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "6200ee9b5db5676b12a1673cbe9abf2fd3a6ec02",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-02T13:45:14Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "b0a48adfc71b21bda4e8d713cf47d368745cff078437b3dfeecdaa542fe40083"
+    },
+    {
+      "artifact_id": 2315399,
+      "group_id": 435107,
+      "repo_id": 112007,
+      "repo_full_name": "YoLaub/openspaice",
+      "path": ".claude/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "50fb6bfadd53fc2b15a824c9e6fe9286ba5e63c6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-21T18:50:55Z",
+      "repo_created_at": "2026-06-21T18:49:05Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "b0a48adfc71b21bda4e8d713cf47d368745cff078437b3dfeecdaa542fe40083"
+    },
+    {
+      "artifact_id": 2334066,
+      "group_id": 435107,
+      "repo_id": 115468,
+      "repo_full_name": "slawdawg/Kendall-vnxt",
+      "path": ".agents/skills/bmad-bmb-setup/SKILL.md",
+      "file_sha": "2727c8f3f1a12232b70eb1d591ea2ed20156703b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-06T14:05:33Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "03c4f011320387f7172d422005adaa644ac0a1274b829660b952d6fecc72d7f6"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 9,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

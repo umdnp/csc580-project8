@@ -1,0 +1,168 @@
+{
+  "name": "video-sdk/windows",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 2,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3575940,
+          3576026,
+          3578168
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3578168
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3578168,
+              "target_artifact_id": 3575940,
+              "basis": "repo-created-boundary",
+              "containment": 0.9582113388341762,
+              "jaccard": 0.9561752988047809,
+              "shared_shingles": 3600,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                483449
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3578168,
+              "target_artifact_id": 3576026,
+              "basis": "repo-created-boundary",
+              "containment": 0.9520894330582912,
+              "jaccard": 0.949058105598302,
+              "shared_shingles": 3577,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                483449
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3575940,
+              "right_artifact_id": 3576026,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9936252771618626,
+              "containment_right_to_left": 0.9988854834215659,
+              "jaccard": 0.9925249169435216,
+              "shared_shingles": 3585,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                483449
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 3575940,
+      "group_id": 483449,
+      "repo_id": 152457,
+      "repo_full_name": "2Rds/AgentCorp-Integrations-Skills",
+      "path": "Zoom/skills/video-sdk/windows/SKILL.md",
+      "file_sha": "1c711dd8afd3c6da2339de8c4452351a801ce2e8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-11T00:04:57Z",
+      "sibling_file_count": 22,
+      "sibling_content_sha": "a0670fc6051b9a3ea2aa81f09fbf1cbca56f15ddf220db769c70f118664b268f"
+    },
+    {
+      "artifact_id": 3576026,
+      "group_id": 483449,
+      "repo_id": 40287,
+      "repo_full_name": "zoom/zoom-plugin",
+      "path": "skills/video-sdk/windows/SKILL.md",
+      "file_sha": "d48226e4929af697a4ae899b8775614ba853d9b1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-02T07:22:11Z",
+      "sibling_file_count": 22,
+      "sibling_content_sha": "a0670fc6051b9a3ea2aa81f09fbf1cbca56f15ddf220db769c70f118664b268f"
+    },
+    {
+      "artifact_id": 3578168,
+      "group_id": 483449,
+      "repo_id": 52914,
+      "repo_full_name": "zoom/skills",
+      "path": "skills/video-sdk/windows/SKILL.md",
+      "file_sha": "61e32571ff1923f1bbbf38238ef12efcb04a349f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-11T04:00:46Z",
+      "repo_created_at": "2026-01-29T14:50:52Z",
+      "sibling_file_count": 22,
+      "sibling_content_sha": "adac004f5f795a270bddbabe2cb0a6ffe9bc48428a954ab2d9ba8f26b6b4974e"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

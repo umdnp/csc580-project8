@@ -1,0 +1,144 @@
+{
+  "name": "codex-subagent-orchestrator",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 2,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2444159,
+          3061276
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2444159
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2444159,
+              "target_artifact_id": 3061276,
+              "basis": "containment",
+              "containment": 0.8279279279279279,
+              "jaccard": 0.46531645569620256,
+              "shared_shingles": 919,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                222277
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          1935343
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1935343
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1935343,
+      "group_id": 64100,
+      "repo_id": 193881,
+      "repo_full_name": "goosewin/codex-subagent-orchestrator",
+      "path": "SKILL.md",
+      "file_sha": "7a642bbac56d1ce967b82f7c245dab0cb248e424",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-15T07:47:46Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "857185ea303c05e038b5c85ba8a7fb30d1c839224cb2a874105ac5ee616f4388"
+    },
+    {
+      "artifact_id": 2444159,
+      "group_id": 222277,
+      "repo_id": 34524,
+      "repo_full_name": "gitUserKHS/illustrator_ai",
+      "path": ".agents/skills/codex-subagent-orchestrator/SKILL.md",
+      "file_sha": "8259e36d8f71af75bca60fceee13db757b7faf77",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-10T05:52:51Z",
+      "sibling_file_count": 13,
+      "sibling_content_sha": "f5721da2dceca588cfd44e50df5542b69b85a56e194efe632ca4ea5675e6832c"
+    },
+    {
+      "artifact_id": 3061276,
+      "group_id": 222277,
+      "repo_id": 123254,
+      "repo_full_name": "lemos999/Codex-Subagent-Orchestrator",
+      "path": "skills/codex-subagent-orchestrator/SKILL.md",
+      "file_sha": "3909c6c546bf034f66a108820632c7612665c160",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-07T10:38:54Z",
+      "sibling_file_count": 13,
+      "sibling_content_sha": "ff842eabef6267bfa7438e08f7cc286d829230cd4e1105230e854ca9607daf99"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

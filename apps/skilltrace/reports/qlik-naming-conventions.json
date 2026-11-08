@@ -1,0 +1,142 @@
+{
+  "name": "qlik-naming-conventions",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 3,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 2,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3143309,
+          3276780
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3143309
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3143309,
+              "target_artifact_id": 3276780,
+              "basis": "containment",
+              "containment": 0.9472789115646258,
+              "jaccard": 0.7882075471698113,
+              "shared_shingles": 1671,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          137461
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            137461
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 137461,
+      "group_id": 299127,
+      "repo_id": 13234,
+      "repo_full_name": "Pupfish-LLC/qlik-claude-framework",
+      "path": ".claude/skills/qlik-naming-conventions/SKILL.md",
+      "file_sha": "d342fa5a1e1cf9f728b94ef33acaf19bcb68f509",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-01T05:38:52Z",
+      "repo_created_at": "2026-03-01T05:34:50Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "a29cbbdd1d09502ce1f9349366346224aa11761b1d8b12bde18c5d4ca24407c6"
+    },
+    {
+      "artifact_id": 3143309,
+      "group_id": 617582,
+      "repo_id": 193179,
+      "repo_full_name": "Pupfish-LLC/qlik-agents",
+      "path": "skills/qlik-naming-conventions/SKILL.md",
+      "file_sha": "cce4f8b32e8872b31d2fa35c5f427a4312b49a13",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-13T03:59:48Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "8e4d22b4f690ff20ba57b1582cce7d84b6311ed3ce4a9a99f7e02f8c2201cd64"
+    },
+    {
+      "artifact_id": 3276780,
+      "group_id": 558785,
+      "repo_id": 154401,
+      "repo_full_name": "Pupfish-LLC/qlik-toolkit",
+      "path": "skills/qlik-naming-conventions/SKILL.md",
+      "file_sha": "e3f7113f30e5a8bfd26c2ed64c6b0bbb5947215c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T17:12:30Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "70fa290a59931d4aa7357ad14e0df594d0d589a2775d9d46cae9710868dff9a6"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

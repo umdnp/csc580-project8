@@ -1,0 +1,112 @@
+{
+  "name": "hydrate-discover",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 2,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 1,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          484684,
+          488713
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            484684
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 484684,
+              "target_artifact_id": 488713,
+              "basis": "chronology",
+              "containment": 0.953757225433526,
+              "jaccard": 0.9065934065934066,
+              "shared_shingles": 165,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 484684,
+      "group_id": 69972,
+      "repo_id": 62135,
+      "repo_full_name": "kendrick/working-memory-kit",
+      "path": ".claude/skills/hydrate-discover/SKILL.md",
+      "file_sha": "80df47f2a4d33c3348bbbaf8b5a653d63774a98a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-14T18:07:56Z",
+      "repo_created_at": "2026-04-29T23:30:17Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 488713,
+      "group_id": 408321,
+      "repo_id": 62150,
+      "repo_full_name": "kendrick/dotfiles",
+      "path": ".claude/skills/hydrate-discover/SKILL.md",
+      "file_sha": "097fd7cd1cea0a5838cf5ef177bef31047e078b7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-07T20:48:57Z",
+      "repo_created_at": "2016-12-14T18:18:06Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

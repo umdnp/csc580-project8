@@ -1,0 +1,146 @@
+{
+  "name": "avileo",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 2,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1609242,
+          3651766
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3651766
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3651766,
+              "target_artifact_id": 1609242,
+              "basis": "chronology",
+              "containment": 0.9547325102880658,
+              "jaccard": 0.9488752556237219,
+              "shared_shingles": 464,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                190144
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          3770871
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3770871
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1609242,
+      "group_id": 190144,
+      "repo_id": 72663,
+      "repo_full_name": "leobar37/leobit2",
+      "path": ".factory/skills/avileo/SKILL.md",
+      "file_sha": "5f9b87a70a9822d8406d874fb34187e4c1ba1fad",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-10T03:03:59Z",
+      "repo_created_at": "2026-02-12T21:36:00Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "63f3d83c515d388c49cf92626b5ad9c1682d7e43ee1542eb7b300e150b375f8f"
+    },
+    {
+      "artifact_id": 3651766,
+      "group_id": 190144,
+      "repo_id": 72663,
+      "repo_full_name": "leobar37/leobit2",
+      "path": ".claude/skills/avileo/SKILL.md",
+      "file_sha": "b5f28acb249ea78bd3ff4f1d4c6f45551fadca4b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-12T16:20:36Z",
+      "repo_created_at": "2026-02-12T21:36:00Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "24367bc1594ca79b5988bb547ac213effbf8e0e2c683d223e85c7b4fe97f7564"
+    },
+    {
+      "artifact_id": 3770871,
+      "group_id": 114006,
+      "repo_id": 72663,
+      "repo_full_name": "leobar37/leobit2",
+      "path": ".agents/skills/avileo/SKILL.md",
+      "file_sha": "bd641da029f9cdf3515134b0eb1718befbdbcdbc",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-12T21:36:00Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "f0a4249e73bb82262167315518a1fb4c4f011de9f9f99a5034c2acfcc3daa884"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

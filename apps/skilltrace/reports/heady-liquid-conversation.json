@@ -1,0 +1,169 @@
+{
+  "name": "heady-liquid-conversation",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 2,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          742755,
+          841136,
+          914873
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            742755
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 742755,
+              "target_artifact_id": 841136,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.7871485943775101,
+              "shared_shingles": 196,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                59670
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 742755,
+              "target_artifact_id": 914873,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.7871485943775101,
+              "shared_shingles": 196,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                59670
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 914873,
+              "right_artifact_id": 841136,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 249,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59670
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 914873,
+      "effective_chronology": "2026-06-16T08:41:19Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 841136
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 742755,
+      "group_id": 59670,
+      "repo_id": 33448,
+      "repo_full_name": "HeadyAI/Heady-Staging",
+      "path": ".agents/skills/heady-liquid-conversation/SKILL.md",
+      "file_sha": "7feb7b1950a98e012728dec58e9fd4ac9e90f154",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T09:15:34Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 841136,
+      "group_id": 59670,
+      "repo_id": 55374,
+      "repo_full_name": "HeadySystems/Heady-AI",
+      "path": ".claude/skills/heady-liquid-conversation/SKILL.md",
+      "file_sha": "8b478a4ba8ac11e1936e4477f7ecb9f6af7d0847",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-16T08:41:19Z",
+      "repo_created_at": "2026-03-12T01:57:20Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 914873,
+      "group_id": 59670,
+      "repo_id": 55374,
+      "repo_full_name": "HeadySystems/Heady-AI",
+      "path": ".agents/skills/heady-liquid-conversation/SKILL.md",
+      "file_sha": "16623f4463267d2ee74002ae76ab3a7b4b372976",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-12T01:57:20Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

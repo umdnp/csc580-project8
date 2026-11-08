@@ -1,0 +1,206 @@
+{
+  "name": "backlog-groomer",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 5,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 4,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2594829,
+          3205763
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2594829
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2594829,
+              "target_artifact_id": 3205763,
+              "basis": "containment",
+              "containment": 0.8887096774193548,
+              "jaccard": 0.5518277416124187,
+              "shared_shingles": 1102,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          246984
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            246984
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          590148
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            590148
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          1556151
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1556151
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 246984,
+      "group_id": 218388,
+      "repo_id": 5394,
+      "repo_full_name": "Winbda/claude-skills-collection",
+      "path": "skills/backlog-groomer/SKILL.md",
+      "file_sha": "36f55145127300d2f65e3d9648afbebf7ea2e55d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-05T19:16:56Z",
+      "repo_created_at": "2026-04-05T19:16:56Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 590148,
+      "group_id": 256928,
+      "repo_id": 6785,
+      "repo_full_name": "Way-Of/wayofmono",
+      "path": ".wocode/skills/backlog-groomer/SKILL.md",
+      "file_sha": "15f0f3d54350707fe80888243cb4ebf37c5c4356",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-09T17:11:56Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1556151,
+      "group_id": 18218,
+      "repo_id": 127526,
+      "repo_full_name": "mittuled/skill-os",
+      "path": "agents/product/product-manager/backlog-groomer/SKILL.md",
+      "file_sha": "11b3d52200b4e0a1e569ac1b38670b8f058ca3cd",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T00:56:06Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "dc12eb31eef18fddcf63ae406edd6d676ee84c1f5a703ab2579294fab54b4139"
+    },
+    {
+      "artifact_id": 2594829,
+      "group_id": 427632,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "product/backlog-groomer/SKILL.md",
+      "file_sha": "23591b8f8e54fe8a64158258d602663e39c0af4a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3205763,
+      "group_id": 314847,
+      "repo_id": 219342,
+      "repo_full_name": "voxpelli/claude-beads",
+      "path": "skills/backlog-groomer/SKILL.md",
+      "file_sha": "9e19bf2acbf7f3b8ef182c959173fb5b4ea1c922",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-09T22:19:23Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "e3b685c9e685d29007edb2fbad2b36ac01af3bc0f006d8f5afcb8d4e8af36f2b"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

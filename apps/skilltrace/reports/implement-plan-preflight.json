@@ -1,0 +1,158 @@
+{
+  "name": "implement-plan-preflight",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 3,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 3,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1445792,
+          1485865,
+          1765379
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1445792,
+            1485865
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1445792,
+              "target_artifact_id": 1765379,
+              "basis": "containment",
+              "containment": 0.990521327014218,
+              "jaccard": 0.6818923327895595,
+              "shared_shingles": 418,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1445792,
+              "right_artifact_id": 1485865,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 422,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 1485865,
+              "target_artifact_id": 1765379,
+              "basis": "containment",
+              "containment": 0.990521327014218,
+              "jaccard": 0.6818923327895595,
+              "shared_shingles": 418,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1445792,
+      "group_id": 489949,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "data/implement-plan-preflight/SKILL.md",
+      "file_sha": "054847298d517f89983909daecb09bece4bb1062",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1485865,
+      "group_id": 589679,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "development/implement-plan-preflight-terrylica-cc-skills/SKILL.md",
+      "file_sha": "80caa2c206448797c3d3f343708984136b59f612",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1765379,
+      "group_id": 46497,
+      "repo_id": 38458,
+      "repo_full_name": "terrylica/cc-skills",
+      "path": "plugins/itp/skills/implement-plan-preflight/SKILL.md",
+      "file_sha": "032593546c8d7a1807de68fbbfd61c5516a09839",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-04T16:26:10Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "ceddc3e0c5c1a2fa7f0fe3d7f39362cad02968eb5f1a5c7859eecb36706b15bc"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

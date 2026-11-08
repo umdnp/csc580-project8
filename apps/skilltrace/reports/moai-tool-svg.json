@@ -1,0 +1,172 @@
+{
+  "name": "moai-tool-svg",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2589000,
+          2604195,
+          2854219
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2589000,
+            2604195
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2589000,
+              "target_artifact_id": 2854219,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 0.8285917496443812,
+              "shared_shingles": 1165,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2589000,
+              "right_artifact_id": 2604195,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1165,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2604195,
+              "target_artifact_id": 2854219,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 0.8285917496443812,
+              "shared_shingles": 1165,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                519902
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-01-28T10:56:34Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 2589000
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2589000,
+      "group_id": 9066,
+      "repo_id": 175671,
+      "repo_full_name": "taewook486/vibe-shop",
+      "path": ".claude/skills/moai-tool-svg/SKILL.md",
+      "file_sha": "102ce2a02fe877b919905269adcb90e7a7dcb8c0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-28T10:56:34Z",
+      "repo_created_at": "2026-01-28T10:51:48Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "d7954d59003adf14cea6ad64d32953f5acd1a2d5ef52faa49b24309ede1702bf"
+    },
+    {
+      "artifact_id": 2604195,
+      "group_id": 519902,
+      "repo_id": 176429,
+      "repo_full_name": "Jongsix/remote-claudecode",
+      "path": ".claude/skills/moai-tool-svg/SKILL.md",
+      "file_sha": "4e37415a7ec5dada04b98d1882c0ed042233385e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-24T07:46:40Z",
+      "repo_created_at": "2026-02-24T07:32:23Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "d7954d59003adf14cea6ad64d32953f5acd1a2d5ef52faa49b24309ede1702bf"
+    },
+    {
+      "artifact_id": 2854219,
+      "group_id": 519902,
+      "repo_id": 141773,
+      "repo_full_name": "bbbang105/bbbang105.github.io",
+      "path": ".claude/skills/moai-tool-svg/SKILL.md",
+      "file_sha": "d75ef22b25db9e9ad202a79f820ed247bc5aad70",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-15T11:11:56Z",
+      "repo_created_at": "2026-01-23T06:53:48Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "d7954d59003adf14cea6ad64d32953f5acd1a2d5ef52faa49b24309ede1702bf"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

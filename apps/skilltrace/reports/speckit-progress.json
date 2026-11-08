@@ -1,0 +1,242 @@
+{
+  "name": "speckit-progress",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 1,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 1,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 6,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 3,
+    "within_group_ambiguous_edge_count": 3,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 2,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1767619,
+          1888857,
+          1891925,
+          1902793
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1767619,
+            1891925
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1891925,
+              "target_artifact_id": 1888857,
+              "basis": "chronology",
+              "containment": 0.996,
+              "jaccard": 0.996,
+              "shared_shingles": 747,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                196176
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1891925,
+              "target_artifact_id": 1902793,
+              "basis": "equivalent-peer-chronology",
+              "containment": 0.996,
+              "jaccard": 0.996,
+              "shared_shingles": 747,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                196176
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-06-23T16:04:59Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 1888857
+                }
+              }
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1767619,
+              "right_artifact_id": 1888857,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9955686853766618,
+              "containment_right_to_left": 0.9022757697456493,
+              "jaccard": 0.8986666666666666,
+              "shared_shingles": 674,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                196176
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1767619,
+              "right_artifact_id": 1891925,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9955686853766618,
+              "containment_right_to_left": 0.8986666666666666,
+              "jaccard": 0.8950863213811421,
+              "shared_shingles": 674,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                196176
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1767619,
+              "right_artifact_id": 1902793,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9955686853766618,
+              "containment_right_to_left": 0.9022757697456493,
+              "jaccard": 0.8986666666666666,
+              "shared_shingles": 674,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                196176
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1902793,
+              "right_artifact_id": 1888857,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 747,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                196176
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1767619,
+      "group_id": 196176,
+      "repo_id": 22375,
+      "repo_full_name": "a2mus/smart-da3m",
+      "path": ".agent/skills/speckit-progress/SKILL.md",
+      "file_sha": "05b4793e9f586425c7fc3889ee0f822299aa27c2",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-07T14:49:22Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1888857,
+      "group_id": 196176,
+      "repo_id": 20791,
+      "repo_full_name": "a2mus/poultry-broiler-management",
+      "path": ".agents/skills/speckit-progress/SKILL.md",
+      "file_sha": "f34a5fde9001749c4a94b78456eabcfce9432343",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-23T16:04:59Z",
+      "repo_created_at": "2026-04-20T10:42:59Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1891925,
+      "group_id": 196176,
+      "repo_id": 22375,
+      "repo_full_name": "a2mus/smart-da3m",
+      "path": ".agents/skills/speckit-progress/SKILL.md",
+      "file_sha": "e58a8bca60410275f8316be3f2ce8a99e4bca75d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-09T13:17:50Z",
+      "repo_created_at": "2026-04-07T14:49:22Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1902793,
+      "group_id": 196176,
+      "repo_id": 20791,
+      "repo_full_name": "a2mus/poultry-broiler-management",
+      "path": ".claude/skills/speckit-progress/SKILL.md",
+      "file_sha": "c2a11916aba80487e57dc12b0350b2512580a881",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-27T17:04:44Z",
+      "repo_created_at": "2026-04-20T10:42:59Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

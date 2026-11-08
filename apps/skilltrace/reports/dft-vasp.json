@@ -1,0 +1,112 @@
+{
+  "name": "dft-vasp",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 1,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 1,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          760140,
+          1307964
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            760140
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 760140,
+              "target_artifact_id": 1307964,
+              "basis": "containment",
+              "containment": 0.9644444444444444,
+              "jaccard": 0.5154394299287411,
+              "shared_shingles": 217,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                591208
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 760140,
+      "group_id": 591208,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/jinzhezenggroup@computational-chemistry-agent-skills/quantum-chemistry/dft-vasp/SKILL.md",
+      "file_sha": "63785d9594cbea0795a1e34dc80edbbbbcddad35",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1307964,
+      "group_id": 591208,
+      "repo_id": 44044,
+      "repo_full_name": "GodJh1n/GPUMD-skill",
+      "path": "quantum-chemistry/dft-vasp/SKILL.md",
+      "file_sha": "f96be6210ed2f5ce6017104c5bda09971c0f2557",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-09T09:15:00Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "9093d11ba51a334df9a64935e4aa0a9ad43e25438c78a0d6d94c536704452dc2"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

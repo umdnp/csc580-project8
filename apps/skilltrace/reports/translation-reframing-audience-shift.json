@@ -1,0 +1,158 @@
+{
+  "name": "translation-reframing-audience-shift",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          3003779,
+          3258288,
+          3259892
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3003779
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3003779,
+              "target_artifact_id": 3258288,
+              "basis": "containment",
+              "containment": 0.9925317401045557,
+              "jaccard": 0.7849970466627288,
+              "shared_shingles": 1329,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3003779,
+              "target_artifact_id": 3259892,
+              "basis": "containment",
+              "containment": 0.9925317401045557,
+              "jaccard": 0.7849970466627288,
+              "shared_shingles": 1329,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3259892,
+              "right_artifact_id": 3258288,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1683,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                246190
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 3003779,
+      "group_id": 70263,
+      "repo_id": 62915,
+      "repo_full_name": "lyndonkl/claude",
+      "path": "skills/translation-reframing-audience-shift/SKILL.md",
+      "file_sha": "398a4dd099e2bd5f3f1a00a0142e38339125bbb8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-10-22T20:18:58Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "0171e2ff04bbbaddfa2f074d9f1aec4233453db9d53c001c67ffa274480610c9"
+    },
+    {
+      "artifact_id": 3258288,
+      "group_id": 246190,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "data/translation-reframing-audience-shift/SKILL.md",
+      "file_sha": "ecd7ac3e7a7cc97746ec33579ab702d54e7fb402",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3259892,
+      "group_id": 246190,
+      "repo_id": 2448,
+      "repo_full_name": "onfire7777/universal-ai-skills-library",
+      "path": "skills/translation-reframing-audience-shift/SKILL.md",
+      "file_sha": "09bfc63a3431de9aaa25812ff89eec25f368b76f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-25T00:16:34Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "0171e2ff04bbbaddfa2f074d9f1aec4233453db9d53c001c67ffa274480610c9"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

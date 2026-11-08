@@ -1,0 +1,196 @@
+{
+  "name": "Python Standards",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 3,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 2,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 2
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2184119,
+          2214394,
+          2217366
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2184119
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2184119,
+              "target_artifact_id": 2214394,
+              "basis": "repo-created-boundary",
+              "containment": 0.9511059371362048,
+              "jaccard": 0.8958333333333334,
+              "shared_shingles": 817,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                100477
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2184119,
+              "target_artifact_id": 2217366,
+              "basis": "chronology",
+              "containment": 0.9860302677532014,
+              "jaccard": 0.9516853932584269,
+              "shared_shingles": 847,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": [
+            {
+              "source_artifact_id": 2217366,
+              "target_artifact_id": 2214394,
+              "basis": "repo-created-boundary",
+              "containment": 0.9168564920273349,
+              "jaccard": 0.8536585365853658,
+              "shared_shingles": 805,
+              "change_type": "skill-only",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2300534
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2300534
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2184119,
+      "group_id": 100477,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "development/python-standards-maxritter-claude-codepro/SKILL.md",
+      "file_sha": "ec4647858191abdd4be397f81e704ff124f19c4f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-04T13:00:42Z",
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2214394,
+      "group_id": 100477,
+      "repo_id": 30562,
+      "repo_full_name": "phenobarbital/antigravity-config",
+      "path": "backend/.agent/skills/python-standards/SKILL.md",
+      "file_sha": "963aea8d73274a712751f917e56818f628685fea",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-21T01:08:57Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2217366,
+      "group_id": 361769,
+      "repo_id": 170121,
+      "repo_full_name": "BusinessPlus-Community/BPC.DBRefresh",
+      "path": ".claude/skills/standards-python/SKILL.md",
+      "file_sha": "5ab5a3424252a01bb06929499b35efce72e742d4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-14T07:02:52Z",
+      "repo_created_at": "2023-06-27T21:41:03Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2300534,
+      "group_id": 396285,
+      "repo_id": 166161,
+      "repo_full_name": "AmnadTaowsoam/CerebraSkills",
+      "path": "01-foundations/python-standards/SKILL.md",
+      "file_sha": "48661f29ef2f175b1eedf5afcf824350acadf786",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-14T06:50:54Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

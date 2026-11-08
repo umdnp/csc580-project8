@@ -1,0 +1,313 @@
+{
+  "name": "influencer-brief",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 7,
+    "artifact_group_count": 4,
+    "skill_variant_count": 7,
+    "bundle_variant_count": 7,
+    "cluster_count": 3,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 4,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 4,
+    "within_group_ambiguous_edge_count": 3,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1082420,
+          1110400,
+          1565637
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1082420,
+            1110400
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1110400,
+              "target_artifact_id": 1565637,
+              "basis": "containment",
+              "containment": 0.9754601226993865,
+              "jaccard": 0.5628318584070796,
+              "shared_shingles": 318,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                157461
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1110400,
+              "right_artifact_id": 1082420,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9815950920245399,
+              "containment_right_to_left": 0.9815950920245399,
+              "jaccard": 0.963855421686747,
+              "shared_shingles": 320,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 1082420,
+              "target_artifact_id": 1565637,
+              "basis": "containment",
+              "containment": 0.9570552147239264,
+              "jaccard": 0.5464098073555166,
+              "shared_shingles": 312,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2712452,
+          2784058,
+          2803394
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2712452,
+            2784058,
+            2803394
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2784058,
+              "right_artifact_id": 2712452,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9439383321653819,
+              "containment_right_to_left": 0.997039230199852,
+              "jaccard": 0.9412997903563941,
+              "shared_shingles": 1347,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                344875
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2803394,
+              "right_artifact_id": 2712452,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9439383321653819,
+              "containment_right_to_left": 0.997039230199852,
+              "jaccard": 0.9412997903563941,
+              "shared_shingles": 1347,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                344875
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2803394,
+              "right_artifact_id": 2784058,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1427,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                344875
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          3585086
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3585086
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1082420,
+      "group_id": 22552,
+      "repo_id": 7582,
+      "repo_full_name": "aibot88/sec_skill_store",
+      "path": "skills/claudskills/influencer-brief/SKILL.md",
+      "file_sha": "fae5b1e6027bfdac24a9be6075fb93239384bfe6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-27T03:48:36Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "851b35fe46d36f663b9b9b5356f402b84b3268a8fe82a79e58ce64c6d97942b7"
+    },
+    {
+      "artifact_id": 1110400,
+      "group_id": 157461,
+      "repo_id": 113753,
+      "repo_full_name": "ajayatwal1105-emerson/digital-marketing-pro",
+      "path": "skills/influencer-brief/SKILL.md",
+      "file_sha": "db47b0606c53d3f22d9b7bcf1ab18904458a2623",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T11:18:20Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1565637,
+      "group_id": 157461,
+      "repo_id": 1144,
+      "repo_full_name": "hashgraph-online/awesome-codex-plugins",
+      "path": "plugins/indranilbanerjee/digital-marketing-pro/skills/influencer-brief/SKILL.md",
+      "file_sha": "d47e88e77ca7930e8502e4fdab738aeead209d66",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-28T02:38:44Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2712452,
+      "group_id": 344875,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "marketing/influencer-brief/SKILL.md",
+      "file_sha": "a84a7709ac2ca9c034ec636373c7bc7a90389dfd",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2784058,
+      "group_id": 344875,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/mohitagw15856@pm-claude-skills/plugins/pm-social/skills/influencer-brief/SKILL.md",
+      "file_sha": "71f789d9feb90523f80dfb10b9548eca22ab0745",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2803394,
+      "group_id": 344875,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/mohitagw15856@pm-claude-skills/exports/openclaw/influencer-brief/SKILL.md",
+      "file_sha": "3f4dad1fde6458cd89d294889efd4007655b0105",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3585086,
+      "group_id": 164190,
+      "repo_id": 75003,
+      "repo_full_name": "FerroxLabs/wayland",
+      "path": "src/process/resources/skills-library/bodies/skills/marketing-sales/influencer-brief/SKILL.md",
+      "file_sha": "8d03ab877e22f2b28cf6c1d3db599cd453b8065c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-07T16:09:17Z",
+      "repo_created_at": "2026-06-05T17:38:22Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 7,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

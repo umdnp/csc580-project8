@@ -1,0 +1,115 @@
+{
+  "name": "israeli-tax-withholding",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 1,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 1,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2677286,
+          2808412
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2677286
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2677286,
+              "target_artifact_id": 2808412,
+              "basis": "repo-created-boundary",
+              "containment": 0.845872899926954,
+              "jaccard": 0.6795774647887324,
+              "shared_shingles": 1158,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                72051
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2677286,
+      "group_id": 72051,
+      "repo_id": 7650,
+      "repo_full_name": "amitpo23/cfo",
+      "path": ".claude/skills/israeli-tax-withholding/SKILL.md",
+      "file_sha": "21f32581c0317a9dc5b5a566d08315a478ec638d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-11T13:50:42Z",
+      "repo_created_at": "2026-01-09T14:20:00Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "d4bd4391e9f0f1f4ad1b415687a75a92129031ebe0be14c835b7010ccc0df211"
+    },
+    {
+      "artifact_id": 2808412,
+      "group_id": 72051,
+      "repo_id": 42244,
+      "repo_full_name": "squadcodercom/squadcoder",
+      "path": ".squadcoder/skills/israeli-tax-withholding/SKILL.md",
+      "file_sha": "0ef6c539415bc10ff849a72c971ff99dcb74bb5f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-21T07:00:35Z",
+      "sibling_file_count": 6,
+      "sibling_content_sha": "aea99b56ee9f4097ef2a5af43078dea19868ea1c2d25bc4f62b63e6387900579"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

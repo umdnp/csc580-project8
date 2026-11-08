@@ -1,0 +1,146 @@
+{
+  "name": "subwayskill",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 2,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          645410,
+          673427
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            673427
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 673427,
+              "target_artifact_id": 645410,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 205,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                245265
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          29932
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            29932
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 29932,
+      "group_id": 5397,
+      "repo_id": 375,
+      "repo_full_name": "Demerzels-lab/elsamultiskillagent",
+      "path": "public/skills/nyluke/subwayskill/SKILL.md",
+      "file_sha": "08481dc4741f25d89d189978de862f911c1de122",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-05T16:16:27Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "133b0f6cc6be92dee95d151b92feda996b888d33b339259b79bd081f798ab9d0"
+    },
+    {
+      "artifact_id": 645410,
+      "group_id": 245265,
+      "repo_id": 1238,
+      "repo_full_name": "meghal86/stacksignal",
+      "path": ".agents/skills/subwayskill/SKILL.md",
+      "file_sha": "ef000397f3c67179396de26205ca4b7d6137bcce",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-10T21:24:49Z",
+      "repo_created_at": "2026-05-10T21:23:40Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 673427,
+      "group_id": 245265,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/subwayskill/SKILL.md",
+      "file_sha": "1de1e2b8ded12991c6c9130182a5d002c0fdde46",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-06T18:33:57Z",
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,164 @@
+{
+  "name": "discord-channel-auditor",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 2,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          756385,
+          756635,
+          782142
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            756385,
+            782142
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 756385,
+              "target_artifact_id": 756635,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 282,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 782142,
+              "right_artifact_id": 756385,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 282,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                288181
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 782142,
+              "right_artifact_id": 756635,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 282,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 756385,
+      "group_id": 288181,
+      "repo_id": 180,
+      "repo_full_name": "LJT-520/openClaw-backup",
+      "path": "skills/npfaerber/discord-channel-auditor/SKILL.md",
+      "file_sha": "b05cbdd98cc8917fad4dec1f6358dc4636f06d9f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-13T04:04:45Z",
+      "repo_created_at": "2026-03-12T03:20:36Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 756635,
+      "group_id": 401053,
+      "repo_id": 267,
+      "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+      "path": "plugins/npfaerber--discord-channel-auditor/skills/discord-channel-auditor/SKILL.md",
+      "file_sha": "93b8cc6a12a1d622cb5c257fef5d82e8ae20fc09",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T09:06:30Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 782142,
+      "group_id": 288181,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/discord-channel-auditor/SKILL.md",
+      "file_sha": "726a8ad58f81e66c33d5f86d3a3cab318e523200",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

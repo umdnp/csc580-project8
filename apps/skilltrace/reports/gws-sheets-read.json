@@ -1,0 +1,2495 @@
+{
+  "name": "gws-sheets-read",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 19,
+    "artifact_group_count": 5,
+    "skill_variant_count": 19,
+    "bundle_variant_count": 19,
+    "cluster_count": 4,
+    "related_skill_pair_count": 120,
+    "within_group_related_pair_count": 91,
+    "across_group_related_pair_count": 29,
+    "directed_edge_count": 15,
+    "within_group_directed_edge_count": 13,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 14,
+    "within_group_ambiguous_edge_count": 12,
+    "across_group_ambiguous_edge_count": 2,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 15
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          216143,
+          262358,
+          263027,
+          263068,
+          263168,
+          264767,
+          265657,
+          266284,
+          266502,
+          266596,
+          272298,
+          278560,
+          298755,
+          305477,
+          363936,
+          408359
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            216143
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 262358,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 263027,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 263068,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 263168,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 264767,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 265657,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 266284,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 266502,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 266596,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 272298,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 278560,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 298755,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 305477,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 363936,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            },
+            {
+              "source_artifact_id": 216143,
+              "target_artifact_id": 408359,
+              "basis": "equivalent-peer-chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "target": {
+                  "effective_chronology": "2026-03-19T15:31:29Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 263027
+                }
+              }
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 263027,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263027,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263027,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263027,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263027,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263027,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 263168,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 265657,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 278560,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263068,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 262358,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 263027,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 264767,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 266502,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 266596,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 278560,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 298755,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 263168,
+              "right_artifact_id": 363936,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 264767,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 264767,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 264767,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 263168,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 278560,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 265657,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 263068,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 263168,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 265657,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 278560,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266284,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 266502,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266502,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266502,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266502,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266502,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 266596,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266596,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266596,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 266596,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 263068,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 263168,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 265657,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 266284,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 278560,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 305477,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 272298,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 278560,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 298755,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 298755,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 263068,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 263168,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 265657,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 266284,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 278560,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 305477,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 363936,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 262358,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 263027,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 263068,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 263168,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 264767,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 265657,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 266284,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 266502,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 266596,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 272298,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 278560,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 298755,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 305477,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                12391
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408359,
+              "right_artifact_id": 363936,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 86,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          154692
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            154692
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          209248
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            209248
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          816210
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            816210
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 262358,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 263068,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 265657,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 266284,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 266502,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 272298,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 278560,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 298755,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 305477,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 363936,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    },
+    {
+      "artifact_id": 408359,
+      "effective_chronology": "2026-03-19T15:31:29Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 263027
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 154692,
+      "group_id": 238766,
+      "repo_id": 24102,
+      "repo_full_name": "msageha/dotfiles",
+      "path": "home/dot_claude/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "f313f9258eb3b9091b4a855a6eecd9853380447c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-01T13:27:26Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 209248,
+      "group_id": 591917,
+      "repo_id": 32829,
+      "repo_full_name": "juandaniel190/personal-projects",
+      "path": ".claude/skills/Google/gws-sheets-read/SKILL.md",
+      "file_sha": "e704d4c5ebb6f0deed369cee9b88e26ccb073c5e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-17T19:19:41Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 216143,
+      "group_id": 12391,
+      "repo_id": 267,
+      "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+      "path": "plugins/googleworkspace-bot--gws-sheets-read/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "b558cbccc4130b2246b05fd6d75d6c6551b66594",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-15T09:13:15Z",
+      "repo_created_at": "2026-03-15T09:06:30Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 262358,
+      "group_id": 12391,
+      "repo_id": 39277,
+      "repo_full_name": "boazcstrike/opencode",
+      "path": "skills/gws-sheets-read/SKILL.md",
+      "file_sha": "f8c8d4f502e465b4040110ded3660049401726f5",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-23T19:46:21Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 263027,
+      "group_id": 12391,
+      "repo_id": 328,
+      "repo_full_name": "wallacedobbs428/thecalltaker",
+      "path": ".claude/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "6faa75bfe8ba9869a4d7a0c5eecfed78b24e2675",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-19T15:31:29Z",
+      "repo_created_at": "2026-02-15T04:17:38Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 263068,
+      "group_id": 12391,
+      "repo_id": 40048,
+      "repo_full_name": "Abacode7/Briefly",
+      "path": ".agents/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "4b23bed2db8ce7fe41f7e4d745cd64488dbb840d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-06T23:03:11Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 263168,
+      "group_id": 12391,
+      "repo_id": 611,
+      "repo_full_name": "ComeOnOliver/skillshub",
+      "path": "skills/googleworkspace/cli/gws-sheets-read/SKILL.md",
+      "file_sha": "59ea414e65a191ef56be59b7a853f3526b7ef08e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-16T21:03:34Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 264767,
+      "group_id": 12391,
+      "repo_id": 11833,
+      "repo_full_name": "nota-america/forgecat-agent-profiles",
+      "path": "profiles/googleworkspace/cli/googleworkspace_cli-skills/for-claude/.claude/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "cef24593349221cea34a58277476349fe8d9472e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-15T23:22:11Z",
+      "repo_created_at": "2026-03-18T04:39:13Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 265657,
+      "group_id": 12391,
+      "repo_id": 22138,
+      "repo_full_name": "wuyyyyyou/cli",
+      "path": "skills/gws-sheets-read/SKILL.md",
+      "file_sha": "5002287243616dc33d6894c030076dca39bf2d20",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-13T07:43:19Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 266284,
+      "group_id": 12391,
+      "repo_id": 22229,
+      "repo_full_name": "anyelrs-oss/UPTMDigital-API",
+      "path": ".agents/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "3ad7efe281a845e5f1aec6fd582e31c9775bb1d7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-06T20:48:18Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 266502,
+      "group_id": 12391,
+      "repo_id": 22306,
+      "repo_full_name": "iTzFaisal/google-cli",
+      "path": ".agents/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "965f0503818a94f877ea1306e92f9d67c118b72e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-17T17:53:58Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 266596,
+      "group_id": 12391,
+      "repo_id": 22206,
+      "repo_full_name": "Mulla759/GWSforDummies",
+      "path": ".claude/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "a1711dc3220fd19a768e7301c09aeea563ff945e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-30T05:43:13Z",
+      "repo_created_at": "2026-06-30T05:51:27Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 272298,
+      "group_id": 12391,
+      "repo_id": 40698,
+      "repo_full_name": "u007/ocode",
+      "path": "skills/gws-sheets-read/SKILL.md",
+      "file_sha": "271286c465681895531444066ebca4f5c4af8fe4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-13T02:47:36Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 278560,
+      "group_id": 218450,
+      "repo_id": 22061,
+      "repo_full_name": "cdrguru/portable-agent-kit",
+      "path": ".agent/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "6331657f0deba6afdfda0123e3776b51a8c582f9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-21T05:27:02Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 298755,
+      "group_id": 12391,
+      "repo_id": 22596,
+      "repo_full_name": "jsoyer/dotfiles",
+      "path": "dot_aictx/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "cf2347b44878f375478a01a2c481e68ea5645b95",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-17T08:45:03Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 305477,
+      "group_id": 12391,
+      "repo_id": 46338,
+      "repo_full_name": "aniruddha-chaudhari/adival",
+      "path": ".agents/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "329aa11fb31cf1d69c8dec83b2dc884b959ea6e1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-26T19:31:58Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 363936,
+      "group_id": 104645,
+      "repo_id": 30132,
+      "repo_full_name": "RadOrigin-LLC/RAD-Claude-Skills",
+      "path": "archive/plugins/rad-google-workspace/skills/gws-sheets-read/SKILL.md",
+      "file_sha": "f7ec60d714de3e44a70a7677db60a697a02288fc",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-22T01:27:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 408359,
+      "group_id": 12391,
+      "repo_id": 59205,
+      "repo_full_name": "floaty-bone/maxent",
+      "path": "src/maxent/skills/builtins/gws-sheets-read/SKILL.md",
+      "file_sha": "10626c90a1a1446c6bb1fa8cde79742b2d5d3898",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T20:35:48Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 816210,
+      "group_id": 12391,
+      "repo_id": 49624,
+      "repo_full_name": "agentsfusion/WorkMagicSkills",
+      "path": "skills/google-workspace-cli/gws-sheets-read/SKILL.md",
+      "file_sha": "f854cf075f17224b2e6099f78afce6143941a6ef",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-19T10:22:06Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 19,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

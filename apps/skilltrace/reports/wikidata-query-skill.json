@@ -1,0 +1,168 @@
+{
+  "name": "wikidata-query-skill",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 3,
+    "artifact_group_count": 1,
+    "skill_variant_count": 3,
+    "bundle_variant_count": 3,
+    "cluster_count": 1,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 2
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2607871,
+          2660670,
+          3356604
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3356604
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3356604,
+              "target_artifact_id": 2607871,
+              "basis": "repo-created-boundary",
+              "containment": 0.4614027348919277,
+              "jaccard": 0.45027981058975464,
+              "shared_shingles": 1046,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                88774
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3356604,
+              "target_artifact_id": 2660670,
+              "basis": "repo-created-boundary",
+              "containment": 0.4614027348919277,
+              "jaccard": 0.45027981058975464,
+              "shared_shingles": 1046,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                88774
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2607871,
+              "right_artifact_id": 2660670,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1102,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                88774
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2607871,
+      "group_id": 88774,
+      "repo_id": 1238,
+      "repo_full_name": "meghal86/stacksignal",
+      "path": ".agents/skills/wikidata-query-skill/SKILL.md",
+      "file_sha": "165dfd53f4517f5d226974e30fca575fd734d249",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-10T21:23:40Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2660670,
+      "group_id": 88774,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/query-wikidata/SKILL.md",
+      "file_sha": "6dfda60be40c361d44c36b03bee6af1d73c10eb6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3356604,
+      "group_id": 88774,
+      "repo_id": 72666,
+      "repo_full_name": "OpenLinkSoftware/ai-agent-skills",
+      "path": "wikidata-query-skill/SKILL.md",
+      "file_sha": "94a51a409da7e305a31804d1873e4b8755480731",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-14T16:05:23Z",
+      "repo_created_at": "2025-12-19T16:55:01Z",
+      "sibling_file_count": 5,
+      "sibling_content_sha": "868e58a34946ef83908dc3703166e1ae71c2119cc6fb0e000c06d081660167db"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 3,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,1042 @@
+{
+  "name": "apple-calendar",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 27,
+    "artifact_group_count": 22,
+    "skill_variant_count": 27,
+    "bundle_variant_count": 27,
+    "cluster_count": 21,
+    "related_skill_pair_count": 13,
+    "within_group_related_pair_count": 7,
+    "across_group_related_pair_count": 6,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 5,
+    "within_group_ambiguous_edge_count": 2,
+    "across_group_ambiguous_edge_count": 3,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          407126,
+          408054,
+          408412,
+          427454,
+          452260
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            407126,
+            408054,
+            408412,
+            427454
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 407126,
+              "target_artifact_id": 452260,
+              "basis": "containment",
+              "containment": 0.968,
+              "jaccard": 0.8287671232876712,
+              "shared_shingles": 121,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 407126,
+              "right_artifact_id": 408412,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 125,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 407126,
+              "right_artifact_id": 427454,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 125,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 408054,
+              "right_artifact_id": 407126,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 125,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 408054,
+              "right_artifact_id": 408412,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 125,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                211961
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 408054,
+              "right_artifact_id": 427454,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 125,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                211961
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 427454,
+              "right_artifact_id": 408412,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 125,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                211961
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 408054,
+              "target_artifact_id": 452260,
+              "basis": "containment",
+              "containment": 0.968,
+              "jaccard": 0.8287671232876712,
+              "shared_shingles": 121,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                211961
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 408412,
+              "target_artifact_id": 452260,
+              "basis": "containment",
+              "containment": 0.968,
+              "jaccard": 0.8287671232876712,
+              "shared_shingles": 121,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                211961
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 427454,
+              "target_artifact_id": 452260,
+              "basis": "containment",
+              "containment": 0.968,
+              "jaccard": 0.8287671232876712,
+              "shared_shingles": 121,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                211961
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          330494,
+          340355,
+          397557
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            330494,
+            340355,
+            397557
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 330494,
+              "right_artifact_id": 397557,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 124,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 340355,
+              "right_artifact_id": 330494,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 124,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                389315
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 340355,
+              "right_artifact_id": 397557,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 124,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          1043912
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1043912
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          790707
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            790707
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 5,
+        "artifact_ids": [
+          352893
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            352893
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 6,
+        "artifact_ids": [
+          828670
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            828670
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 7,
+        "artifact_ids": [
+          1655410
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1655410
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 8,
+        "artifact_ids": [
+          162358
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            162358
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 9,
+        "artifact_ids": [
+          169262
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            169262
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 10,
+        "artifact_ids": [
+          565243
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            565243
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 11,
+        "artifact_ids": [
+          991310
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            991310
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 12,
+        "artifact_ids": [
+          1278044
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1278044
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 13,
+        "artifact_ids": [
+          1281516
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1281516
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 14,
+        "artifact_ids": [
+          1568909
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1568909
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 15,
+        "artifact_ids": [
+          1692765
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1692765
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 16,
+        "artifact_ids": [
+          1697742
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1697742
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 17,
+        "artifact_ids": [
+          1786548
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1786548
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 18,
+        "artifact_ids": [
+          2000713
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2000713
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 19,
+        "artifact_ids": [
+          2245873
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2245873
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 20,
+        "artifact_ids": [
+          2261158
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2261158
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 21,
+        "artifact_ids": [
+          2863323
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2863323
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 340355,
+      "effective_chronology": "2026-02-11T14:02:23Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 330494
+    },
+    {
+      "artifact_id": 397557,
+      "effective_chronology": "2026-02-11T14:02:23Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 330494
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 162358,
+      "group_id": 532776,
+      "repo_id": 8024,
+      "repo_full_name": "johnmatthewtennant/jtennant-agent-config",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "fed64c29bb5ea8ef0ba8f0cd04819ef68c99524b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-09T05:54:20Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 169262,
+      "group_id": 532783,
+      "repo_id": 23502,
+      "repo_full_name": "estebanrfp/gos",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "288959e159349ecf3ec27b73b7a04b6807b7b534",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-12T16:35:26Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 330494,
+      "group_id": 389315,
+      "repo_id": 21750,
+      "repo_full_name": "jl-grey-man/JensClaw",
+      "path": "soul/data/skills/apple-calendar/SKILL.md",
+      "file_sha": "4fff24e565866a67b18ef6834adabadbd7803970",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-11T14:02:23Z",
+      "repo_created_at": "2026-02-10T12:23:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 340355,
+      "group_id": 389315,
+      "repo_id": 22993,
+      "repo_full_name": "rayclaw/rayclaw",
+      "path": "rayclaw.data/skills/apple-calendar/SKILL.md",
+      "file_sha": "1185391b24c95f04eeff4e94ecf30c19758c436e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-27T05:37:18Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 352893,
+      "group_id": 291266,
+      "repo_id": 10820,
+      "repo_full_name": "intentframe/intentframe",
+      "path": "jarvis_pa/jarvis/skills/apple-calendar/SKILL.md",
+      "file_sha": "c4478f7402e55a7a35f0d364a6ac35d8b88155c7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-04-05T07:04:11Z",
+      "repo_created_at": "2026-04-04T07:51:40Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 397557,
+      "group_id": 442751,
+      "repo_id": 29944,
+      "repo_full_name": "microclaw/microclaw",
+      "path": "skills/built-in/apple-calendar/SKILL.md",
+      "file_sha": "e2eb16790f98ff1634c6f498633d92e8a4b581f6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-07T08:28:51Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 407126,
+      "group_id": 378944,
+      "repo_id": 41470,
+      "repo_full_name": "rustykuntz/rocie-tools",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "b4e229508bb121fd6fef18b5d595a370f9b2d398",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-15T04:57:06Z",
+      "sibling_file_count": 8,
+      "sibling_content_sha": "c5b87f80467cde86113f3acca967c92065d0265a7f4545c4d578bcd240007c3a"
+    },
+    {
+      "artifact_id": 408054,
+      "group_id": 211961,
+      "repo_id": 59149,
+      "repo_full_name": "Gyanranjan-Priyam/saas-ui",
+      "path": ".claude/skills/apple-calendar/SKILL.md",
+      "file_sha": "72febed021ac593d2e8b22dfca3c556bdbd5a501",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-30T15:07:17Z",
+      "repo_created_at": "2026-03-29T18:27:27Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "9a3fa00bf4b958f3b543404cb9085a4533a78d14e59157c54de3487d0721be39"
+    },
+    {
+      "artifact_id": 408412,
+      "group_id": 211961,
+      "repo_id": 51976,
+      "repo_full_name": "wende/clawskills",
+      "path": "apple-calendar/SKILL.md",
+      "file_sha": "fdef724c9a1891789adcc0f1a69332369726417b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-23T12:19:37Z",
+      "repo_created_at": "2026-02-23T14:47:08Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "9a3fa00bf4b958f3b543404cb9085a4533a78d14e59157c54de3487d0721be39"
+    },
+    {
+      "artifact_id": 427454,
+      "group_id": 211961,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/apple-calendar/SKILL.md",
+      "file_sha": "f0e374b0863731186076bd84570848c1927c1837",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 452260,
+      "group_id": 211961,
+      "repo_id": 20720,
+      "repo_full_name": "gabrielkoerich/skills",
+      "path": "apple-calendar/SKILL.md",
+      "file_sha": "172e575c2c5df83d29bc4b0125e55573e6aac23d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T17:55:33Z",
+      "sibling_file_count": 9,
+      "sibling_content_sha": "7644cd0be71059492856e5753cfe11c775c6e5c1388ae7e26679a9d45a03337c"
+    },
+    {
+      "artifact_id": 565243,
+      "group_id": 419525,
+      "repo_id": 69328,
+      "repo_full_name": "Milvoid/Skills",
+      "path": "apple-calendar/SKILL.md",
+      "file_sha": "7d2dcff7e8722552af37312c07d4cf51a0dece82",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-22T01:58:24Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 790707,
+      "group_id": 597249,
+      "repo_id": 53571,
+      "repo_full_name": "tdmtrader/jetbridge",
+      "path": ".claude/skills/apple-calendar/SKILL.md",
+      "file_sha": "a09b28acf097d1011454c1aa2e2bca8869ca3a0b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-22T12:04:09Z",
+      "repo_created_at": "2026-02-08T14:54:15Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "eff451c394109dfcf692c60850072f34cdb09383d0f83ec60f137abad9c5c1ca"
+    },
+    {
+      "artifact_id": 828670,
+      "group_id": 471491,
+      "repo_id": 105727,
+      "repo_full_name": "YuxuanZhang271/agent-assistant",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "b4b97cab60204a51402af4be0bee5ab9e7565db7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-24T18:58:22Z",
+      "repo_created_at": "2026-05-06T15:59:32Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "5b3122c7e19a874c866b7d1bb5994b1d2f370ba51ef948d1094e8913a4242e38"
+    },
+    {
+      "artifact_id": 991310,
+      "group_id": 278475,
+      "repo_id": 27129,
+      "repo_full_name": "HybridAIOne/hybridclaw",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "e92bc215d242a0e86c88500559726d1d22335228",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-24T22:48:52Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1043912,
+      "group_id": 434547,
+      "repo_id": 125179,
+      "repo_full_name": "jamiewilson1977/claude",
+      "path": "plugins/apple-calendar/skills/calendar/SKILL.md",
+      "file_sha": "bd9513c450661040c2b7821bf247a7d82dc65a88",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-28T15:42:07Z",
+      "repo_created_at": "2025-12-19T01:37:22Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1278044,
+      "group_id": 211961,
+      "repo_id": 138933,
+      "repo_full_name": "alexanderchan/skill-apple-calendar",
+      "path": "SKILL.md",
+      "file_sha": "c5925974a5ff49d69ed52d5df98bf60218859d7e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-09T17:23:32Z",
+      "sibling_file_count": 13,
+      "sibling_content_sha": "5cc60da6b3595ab669e3b88841da0e6a765877eb684b17d23c31041a3670e26d"
+    },
+    {
+      "artifact_id": 1281516,
+      "group_id": 175969,
+      "repo_id": 21362,
+      "repo_full_name": "malue-ai/dazee-small",
+      "path": "instances/xiaodazi/skills/apple-calendar/SKILL.md",
+      "file_sha": "57eeee3cdf2098e1d02f9cf5bf1f399133f75d18",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-09T09:54:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1568909,
+      "group_id": 118112,
+      "repo_id": 1149,
+      "repo_full_name": "ConcertoNotes/codex-plugins",
+      "path": "plugins/community/apple-calendar/skills/apple-calendar/SKILL.md",
+      "file_sha": "bd51cc1d1956797f63a40818008a8ad729998eff",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-26T01:29:32Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1655410,
+      "group_id": 32463,
+      "repo_id": 17355,
+      "repo_full_name": "AtomicBot-ai/atomic-agent",
+      "path": "starter-skills/apple-calendar/SKILL.md",
+      "file_sha": "f8f2155d03dec641311562d5afebc70a6c2341fc",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-29T13:07:49Z",
+      "repo_created_at": "2026-04-21T21:34:51Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1692765,
+      "group_id": 267893,
+      "repo_id": 176241,
+      "repo_full_name": "hunterbrewer04/apple-calendar-mcp",
+      "path": "skill/SKILL.md",
+      "file_sha": "0cdfd2d3fd23758ec2a06a9b33956bb59b75657b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-03T20:51:40Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1697742,
+      "group_id": 376741,
+      "repo_id": 55054,
+      "repo_full_name": "JinanWu/testagent2",
+      "path": "assets/hermes_skills/.archive/apple-calendar/SKILL.md",
+      "file_sha": "31a76d874362f3224f87318d2eb34e28a5317563",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-23T12:17:14Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "435e876e29e474e8cd7a4833900e4b693daf20873437ddd7630a392020e152d2"
+    },
+    {
+      "artifact_id": 1786548,
+      "group_id": 342236,
+      "repo_id": 165803,
+      "repo_full_name": "hunterbrewer04/claude-toolkit",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "c80c520d566f46c1e0f2646e366ab2c3f54c84e1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-16T18:30:37Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2000713,
+      "group_id": 37255,
+      "repo_id": 197996,
+      "repo_full_name": "mzp/system-mcp",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "d52dc1c942633063c20122aef93cf998b37e35b4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-10T04:02:47Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2245873,
+      "group_id": 244092,
+      "repo_id": 53936,
+      "repo_full_name": "Ntizar/NtizarBrainMasterMind",
+      "path": "hermes-home/skills/productivity/apple-calendar/SKILL.md",
+      "file_sha": "4c72f0038aa064676321d978e34b3b47e2396873",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-26T22:49:36Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "22c04e5ceb188c6db07fae692c03286eccfaf7bbefa4effd02f3839bf796f5da"
+    },
+    {
+      "artifact_id": 2261158,
+      "group_id": 273492,
+      "repo_id": 212810,
+      "repo_full_name": "GAMZAMANDU/Claude-Apple-Calendar-Skills",
+      "path": "SKILL.md",
+      "file_sha": "5406baeb3ed8e95dab1faf6c270719ef2f190380",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-24T23:25:18Z",
+      "sibling_file_count": 16,
+      "sibling_content_sha": "bc8d86fa4af3031e6d7dcd0b7086c1d3c46b2d8a2156197807b0ee918acfa380"
+    },
+    {
+      "artifact_id": 2863323,
+      "group_id": 454757,
+      "repo_id": 241630,
+      "repo_full_name": "Enragedsaturday/calctl",
+      "path": "skills/apple-calendar/SKILL.md",
+      "file_sha": "9c956de0b3155ff25dd99d4f632c50de4e7e553d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-08T05:47:34Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 27,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,268 @@
+{
+  "name": "clawdbot-release-check",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 2,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 2,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 6,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 4,
+    "within_group_ambiguous_edge_count": 4,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 2
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          788404,
+          815598,
+          815673,
+          857213
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            815598,
+            815673
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 815598,
+              "target_artifact_id": 788404,
+              "basis": "repo-created-boundary",
+              "containment": 0.9591836734693877,
+              "jaccard": 0.9215686274509803,
+              "shared_shingles": 235,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                147454
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 815598,
+              "target_artifact_id": 857213,
+              "basis": "repo-created-boundary",
+              "containment": 0.9591836734693877,
+              "jaccard": 0.9215686274509803,
+              "shared_shingles": 235,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                147454
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 788404,
+              "right_artifact_id": 815673,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 245,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                147454
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 815598,
+              "right_artifact_id": 815673,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9591836734693877,
+              "containment_right_to_left": 0.9591836734693877,
+              "jaccard": 0.9215686274509803,
+              "shared_shingles": 235,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                147454
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 857213,
+              "right_artifact_id": 788404,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 245,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                147454
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 857213,
+              "right_artifact_id": 815673,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 245,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                147454
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          324370
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            324370
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 324370,
+      "group_id": 496659,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/jdrhyne@agent-skills/clawdbot/clawdbot-release-check/SKILL.md",
+      "file_sha": "25aba0e351373c1b71cb545c76673144627d0d13",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 788404,
+      "group_id": 147454,
+      "repo_id": 267,
+      "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+      "path": "plugins/pors--clawdbot-release-check/skills/clawdbot-release-check/SKILL.md",
+      "file_sha": "3f7ea3b60e41a75dbfdcb475923a49f431154c06",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T09:06:30Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 815598,
+      "group_id": 147454,
+      "repo_id": 4648,
+      "repo_full_name": "tools-only/X-Skills",
+      "path": "development/testing/1178-name-skill_d6460635/skill.md",
+      "file_sha": "c9db37fdaa613bafd11695112498fe24e65caef1",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-09T00:04:35Z",
+      "repo_created_at": "2026-01-31T18:04:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 815673,
+      "group_id": 147454,
+      "repo_id": 25995,
+      "repo_full_name": "TheSethRose/clawdbot-backup",
+      "path": "skills/clawdbot-release-check/SKILL.md",
+      "file_sha": "edb3d24c614b79303fbb9c9a33d282a817459036",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-25T13:02:20Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "b2449a2069aaf70bb2819257fe454eb7ff1444f95bd0ec80ebc00a96338eca9a"
+    },
+    {
+      "artifact_id": 857213,
+      "group_id": 147454,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/clawdbot-release-check/SKILL.md",
+      "file_sha": "32c711e4c6b0ac4cae5e6f3c4fa0c2f8374b7c98",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

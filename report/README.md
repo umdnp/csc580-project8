@@ -36,6 +36,14 @@ prevalence. When results are refreshed, verify the manifest, code/policy
 identity, sample checksums, and annotation status before revising report claims.
 Changing this report does not rerun the pipeline or adjudicate review labels.
 
+The [November 2026 reproduction check](../docs/instructions/reproducibility.md)
+rebuilt HTML, Word, LaTeX, and the 28-page PDF from committed sources, including
+the bibliography and Appendices A-F. It reproduced the historical all-edge
+cohort numerically at the manifest's code revision; current scanner results
+differ. Keep those two checks distinct. The previous committed PDF lagged the
+sources' pending draft-annotation status, so it was regenerated; PDF bytes and
+font-dependent wrapping are not expected to be identical across TeX environments.
+
 ## Build the project report
 
 The report is assembled from `sections/*.md` and `appendices/*.md` using `pandoc.yaml`. Pandoc includes

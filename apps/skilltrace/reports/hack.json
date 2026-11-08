@@ -1,0 +1,435 @@
+{
+  "name": "hack",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 10,
+    "artifact_group_count": 5,
+    "skill_variant_count": 9,
+    "bundle_variant_count": 10,
+    "cluster_count": 5,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 4,
+    "across_group_related_pair_count": 2,
+    "directed_edge_count": 3,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 2,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 3
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2007853,
+          2410989,
+          2425009,
+          3393619,
+          3791037
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2007853,
+            3791037
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2007853,
+              "target_artifact_id": 2410989,
+              "basis": "containment",
+              "containment": 0.9425287356321839,
+              "jaccard": 0.7583815028901734,
+              "shared_shingles": 656,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                103023
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2007853,
+              "target_artifact_id": 2425009,
+              "basis": "containment",
+              "containment": 0.9425287356321839,
+              "jaccard": 0.7505720823798627,
+              "shared_shingles": 656,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                103023
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2410989,
+              "target_artifact_id": 3393619,
+              "basis": "containment",
+              "containment": 0.8896969696969697,
+              "jaccard": 0.31802426343154244,
+              "shared_shingles": 734,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2007853,
+              "right_artifact_id": 3791037,
+              "relationship_status": "direction-unknown",
+              "basis": "same-content-direction-unknown",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": null,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                103023
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 2425009,
+              "right_artifact_id": 2410989,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9892086330935251,
+              "containment_right_to_left": 1.0,
+              "jaccard": 0.9892086330935251,
+              "shared_shingles": 825,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                103023
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2425009,
+              "target_artifact_id": 3393619,
+              "basis": "containment",
+              "containment": 0.8896882494004796,
+              "jaccard": 0.321351234300563,
+              "shared_shingles": 742,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3791037,
+              "target_artifact_id": 2410989,
+              "basis": "containment",
+              "containment": 0.9425287356321839,
+              "jaccard": 0.7583815028901734,
+              "shared_shingles": 656,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                103023
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3791037,
+              "target_artifact_id": 2425009,
+              "basis": "containment",
+              "containment": 0.9425287356321839,
+              "jaccard": 0.7505720823798627,
+              "shared_shingles": 656,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                103023
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          2262542,
+          2297347
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2262542,
+            2297347
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2262542,
+              "right_artifact_id": 2297347,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 914,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                415885
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          1499007
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1499007
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          2167976
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2167976
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 5,
+        "artifact_ids": [
+          3676321
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3676321
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1499007,
+      "group_id": 616644,
+      "repo_id": 61177,
+      "repo_full_name": "produtoreativo/payments-api",
+      "path": "prodops/skills/hack/SKILL.md",
+      "file_sha": "6b8ee7fce85762e63d3593bd5e59e80c583ac1a8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-31T11:36:11Z",
+      "sibling_file_count": 10,
+      "sibling_content_sha": "92e14d2d4b7aa7f11c38dd949d84442595d522e2b9fb8ea1ae691c56903d5fe7"
+    },
+    {
+      "artifact_id": 2007853,
+      "group_id": 103023,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "data/hack/SKILL.md",
+      "file_sha": "1d307be902fc50dca3337c0669ce5be10d5969a4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2167976,
+      "group_id": 415885,
+      "repo_id": 40859,
+      "repo_full_name": "Yliken/ai4",
+      "path": "skills/hack/SKILL.md",
+      "file_sha": "46b51d3ec820bc58b2c2d46ad1b68cceef249827",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-20T02:13:24Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2262542,
+      "group_id": 415885,
+      "repo_id": 46042,
+      "repo_full_name": "DorianGallo/hack-skills-local",
+      "path": "skills/hack/SKILL.md",
+      "file_sha": "b66b0f40fe50b9812ace2d2b4fc31d7740d703b7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-16T11:13:48Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2297347,
+      "group_id": 415885,
+      "repo_id": 47925,
+      "repo_full_name": "Prohao42/aimy-skill",
+      "path": "ai-mian/hack-skills/skills/hack/SKILL.md",
+      "file_sha": "d71ea6b4f70cb3b1e96a167bdea377632e4b9e03",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-02T13:46:57Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2410989,
+      "group_id": 103023,
+      "repo_id": 651,
+      "repo_full_name": "majiayu000/claude-skill-registry-data",
+      "path": "security/hack/SKILL.md",
+      "file_sha": "dd9730d566a224e66279fd26c94af6b5f4d5b43d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-04T16:19:08Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2425009,
+      "group_id": 103023,
+      "repo_id": 1744,
+      "repo_full_name": "grahama1970/agent-skills",
+      "path": "skills.pre-symlink-1776435493/hack/SKILL.md",
+      "file_sha": "b9676b10da71e2572236964864fb2ec06a6903a0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-11T17:14:20Z",
+      "sibling_file_count": 31,
+      "sibling_content_sha": "39bdcbb7ebeef31302ac86438c47d765834e42df3c49dee228abd0bbd8cbd2ad"
+    },
+    {
+      "artifact_id": 3393619,
+      "group_id": 519641,
+      "repo_id": 1744,
+      "repo_full_name": "grahama1970/agent-skills",
+      "path": "skills/hack/SKILL.md",
+      "file_sha": "e46486cb52d1a7f3ebe49832ac7a7da56e1bd8b0",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-11T17:14:20Z",
+      "sibling_file_count": 49,
+      "sibling_content_sha": "3e1eb147674d83acf1c5975c64c703c93cd19550e289bc85c25a3c3f17b626bc"
+    },
+    {
+      "artifact_id": 3676321,
+      "group_id": 513770,
+      "repo_id": 82994,
+      "repo_full_name": "bashfulrobot/nixerator",
+      "path": "modules/apps/cli/worktree-flow/skills/hack/SKILL.md",
+      "file_sha": "c20bf51b4e5750d7218a0b3affa4801dec69be07",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-11-18T00:16:13Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3791037,
+      "group_id": 103023,
+      "repo_id": 7582,
+      "repo_full_name": "aibot88/sec_skill_store",
+      "path": "skills/claudskills/hack/SKILL.md",
+      "file_sha": "1d307be902fc50dca3337c0669ce5be10d5969a4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-27T03:48:36Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "e4f1c55e0ab6b2adaa1cb03a94da43eb025a0760d2b912783533551a0056814b"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 10,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

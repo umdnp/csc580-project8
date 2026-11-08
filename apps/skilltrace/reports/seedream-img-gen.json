@@ -1,0 +1,308 @@
+{
+  "name": "seedream-img-gen",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 1,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 1,
+    "related_skill_pair_count": 10,
+    "within_group_related_pair_count": 10,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 4,
+    "within_group_directed_edge_count": 4,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 6,
+    "within_group_ambiguous_edge_count": 6,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 4
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1331116,
+          1410268,
+          1417603,
+          1420515,
+          1424945
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1331116
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1331116,
+              "target_artifact_id": 1410268,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8566176470588235,
+              "shared_shingles": 233,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1331116,
+              "target_artifact_id": 1417603,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8472727272727273,
+              "shared_shingles": 233,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1331116,
+              "target_artifact_id": 1420515,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8472727272727273,
+              "shared_shingles": 233,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1331116,
+              "target_artifact_id": 1424945,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8411552346570397,
+              "shared_shingles": 233,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1410268,
+              "right_artifact_id": 1420515,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8566176470588235,
+              "containment_right_to_left": 0.8472727272727273,
+              "jaccard": 0.7420382165605095,
+              "shared_shingles": 233,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1417603,
+              "right_artifact_id": 1410268,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8472727272727273,
+              "containment_right_to_left": 0.8566176470588235,
+              "jaccard": 0.7420382165605095,
+              "shared_shingles": 233,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1417603,
+              "right_artifact_id": 1420515,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8472727272727273,
+              "containment_right_to_left": 0.8472727272727273,
+              "jaccard": 0.7350157728706624,
+              "shared_shingles": 233,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1417603,
+              "right_artifact_id": 1424945,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8654545454545455,
+              "containment_right_to_left": 0.8592057761732852,
+              "jaccard": 0.7579617834394905,
+              "shared_shingles": 238,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1424945,
+              "right_artifact_id": 1410268,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8411552346570397,
+              "containment_right_to_left": 0.8566176470588235,
+              "jaccard": 0.7373417721518988,
+              "shared_shingles": 233,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1424945,
+              "right_artifact_id": 1420515,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8411552346570397,
+              "containment_right_to_left": 0.8472727272727273,
+              "jaccard": 0.7304075235109718,
+              "shared_shingles": 233,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                475016
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1331116,
+      "group_id": 475016,
+      "repo_id": 120,
+      "repo_full_name": "GeorgeDoors888/GB-Power-Market-JJ",
+      "path": "openclaw-skills/skills/anpupil/seedream-img-gen/SKILL.md",
+      "file_sha": "e8ce9e905c90f4463a279ff39fdcfd6a9e1f74cf",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-10-31T12:03:15Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 1410268,
+      "group_id": 475016,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_00813/SKILL.md",
+      "file_sha": "cf3ca67ca51a1893b45dc28589b17110833273d6",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "3a3919cca0cb4816aacd3dd629e664679db4b1e02b1f547ab2801f0be814f237"
+    },
+    {
+      "artifact_id": 1417603,
+      "group_id": 475016,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_00225/SKILL.md",
+      "file_sha": "558d2139ee0b0679457bd0a9c9a42f92c0aee9b4",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "8f6e70ef86e7473a72d2e038ef8dafa2410a573c638b60a116a9d14d7a73624a"
+    },
+    {
+      "artifact_id": 1420515,
+      "group_id": 475016,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_05014/SKILL.md",
+      "file_sha": "d1854b0087f982df5b689b126a295fc37cca849d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-06T07:03:15Z",
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 8,
+      "sibling_content_sha": "80f0c150bcc454b484cc0cddeed16b3705cd829396c469b3710b74c23c09543f"
+    },
+    {
+      "artifact_id": 1424945,
+      "group_id": 475016,
+      "repo_id": 6447,
+      "repo_full_name": "knownasnaffy/prompthound",
+      "path": "dataset/case_03429/SKILL.md",
+      "file_sha": "77ba73a33b54df916cc2f35ecd35808ee0d92311",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-04T19:54:25Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "26049b432d19c4172e6d61d0ea181129c4502757b72803258601bc41fed3a232"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

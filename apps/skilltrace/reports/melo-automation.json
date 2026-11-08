@@ -1,0 +1,537 @@
+{
+  "name": "melo-automation",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 7,
+    "artifact_group_count": 2,
+    "skill_variant_count": 7,
+    "bundle_variant_count": 7,
+    "cluster_count": 1,
+    "related_skill_pair_count": 21,
+    "within_group_related_pair_count": 15,
+    "across_group_related_pair_count": 6,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 5,
+    "within_group_ambiguous_edge_count": 4,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          940246,
+          947097,
+          968538,
+          969784,
+          979004,
+          1003593,
+          1466359
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            940246,
+            947097,
+            968538,
+            969784,
+            979004,
+            1003593
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 940246,
+              "target_artifact_id": 1466359,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8268156424581006,
+              "shared_shingles": 296,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 940246,
+              "right_artifact_id": 979004,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 947097,
+              "right_artifact_id": 940246,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 947097,
+              "right_artifact_id": 979004,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 947097,
+              "right_artifact_id": 1003593,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 968538,
+              "right_artifact_id": 940246,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 968538,
+              "right_artifact_id": 947097,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 968538,
+              "right_artifact_id": 969784,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 968538,
+              "right_artifact_id": 979004,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 968538,
+              "right_artifact_id": 1003593,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 969784,
+              "right_artifact_id": 940246,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 969784,
+              "right_artifact_id": 947097,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 969784,
+              "right_artifact_id": 979004,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 969784,
+              "right_artifact_id": 1003593,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1003593,
+              "right_artifact_id": 940246,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1003593,
+              "right_artifact_id": 979004,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 296,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 947097,
+              "target_artifact_id": 1466359,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8268156424581006,
+              "shared_shingles": 296,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 968538,
+              "target_artifact_id": 1466359,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8268156424581006,
+              "shared_shingles": 296,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 969784,
+              "target_artifact_id": 1466359,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8268156424581006,
+              "shared_shingles": 296,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 979004,
+              "target_artifact_id": 1466359,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8268156424581006,
+              "shared_shingles": 296,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1003593,
+              "target_artifact_id": 1466359,
+              "basis": "containment",
+              "containment": 1.0,
+              "jaccard": 0.8268156424581006,
+              "shared_shingles": 296,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                59230
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 940246,
+      "effective_chronology": "2026-07-06T23:54:38Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 969784
+    },
+    {
+      "artifact_id": 968538,
+      "effective_chronology": "2026-07-06T23:54:38Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 969784
+    },
+    {
+      "artifact_id": 979004,
+      "effective_chronology": "2026-07-06T23:54:38Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 969784
+    },
+    {
+      "artifact_id": 1003593,
+      "effective_chronology": "2026-07-06T23:54:38Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 969784
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 940246,
+      "group_id": 59230,
+      "repo_id": 3936,
+      "repo_full_name": "MikeCheng1208/BattleTree",
+      "path": ".agents/skills/melo-automation/SKILL.md",
+      "file_sha": "cecfc50ea88695dd7121c241605eeb5e4fae8458",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-03T06:59:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 947097,
+      "group_id": 59230,
+      "repo_id": 1290,
+      "repo_full_name": "luokai0/ai-agent-skills-by-luo-kai",
+      "path": "ai-agent-skills/18-ai-agents-and-automation (by Luo Kai)/04-workspace-integrations/melo-automation/SKILL.md",
+      "file_sha": "97ae1e3269dc401723df7910b685e7d290777267",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-16T02:08:32Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 968538,
+      "group_id": 61546,
+      "repo_id": 4687,
+      "repo_full_name": "anubhavg-icpl/vibe",
+      "path": "skills/composio-melo-automation/SKILL.md",
+      "file_sha": "49703c5a0bb62602961581ac0ad9f5821f074b82",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-11-05T10:32:18Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 969784,
+      "group_id": 59230,
+      "repo_id": 15591,
+      "repo_full_name": "claudianus/superliora",
+      "path": "packages/agent-core/src/skill/catalog/luokai-melo-automation/SKILL.md",
+      "file_sha": "80e2fae7f7071087ac1def7764f2b2edee98af5a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-06T23:54:38Z",
+      "repo_created_at": "2026-06-26T17:36:26Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 979004,
+      "group_id": 59230,
+      "repo_id": 268,
+      "repo_full_name": "JadeGate/jadegate",
+      "path": "skills/melo-automation/SKILL.md",
+      "file_sha": "e4479c3ad9c91eeea7af09d273d1b1ddfe69a6ad",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-21T03:36:41Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1003593,
+      "group_id": 59230,
+      "repo_id": 4501,
+      "repo_full_name": "ranbot-ai/awesome-skills",
+      "path": "skills/melo-automation/SKILL.md",
+      "file_sha": "c31cab59998487b337965a68328fca58eecd39fb",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-24T13:53:30Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1466359,
+      "group_id": 59230,
+      "repo_id": 18810,
+      "repo_full_name": "thiagofernandes1987-create/APEX",
+      "path": "skills/integrations/composio/melo-automation/SKILL.md",
+      "file_sha": "2796bbde4a082fc7a98f19243e62a0b7d8df00ec",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-04-08T19:27:05Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 7,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

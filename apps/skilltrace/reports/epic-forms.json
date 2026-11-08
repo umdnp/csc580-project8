@@ -1,0 +1,333 @@
+{
+  "name": "epic-forms",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 6,
+    "artifact_group_count": 2,
+    "skill_variant_count": 6,
+    "bundle_variant_count": 6,
+    "cluster_count": 2,
+    "related_skill_pair_count": 10,
+    "within_group_related_pair_count": 4,
+    "across_group_related_pair_count": 6,
+    "directed_edge_count": 4,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 2,
+    "ambiguous_edge_count": 2,
+    "within_group_ambiguous_edge_count": 2,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 4
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2287273,
+          2318147,
+          3336867,
+          3336868,
+          3338670
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3338670
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 3338670,
+              "target_artifact_id": 2287273,
+              "basis": "repo-created-boundary",
+              "containment": 0.4830949284785436,
+              "jaccard": 0.4714467005076142,
+              "shared_shingles": 743,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3338670,
+              "target_artifact_id": 2318147,
+              "basis": "repo-created-boundary",
+              "containment": 0.49349804941482445,
+              "jaccard": 0.4815989847715736,
+              "shared_shingles": 759,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 3338670,
+              "target_artifact_id": 3336867,
+              "basis": "repo-created-boundary",
+              "containment": 0.9967490247074122,
+              "jaccard": 0.9948085658663206,
+              "shared_shingles": 1533,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                592964
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 3338670,
+              "target_artifact_id": 3336868,
+              "basis": "repo-created-boundary",
+              "containment": 0.9967490247074122,
+              "jaccard": 0.9948085658663206,
+              "shared_shingles": 1533,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                592964
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2287273,
+              "right_artifact_id": 2318147,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9948783610755442,
+              "containment_right_to_left": 0.9749058971141782,
+              "jaccard": 0.9700374531835206,
+              "shared_shingles": 777,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                542065
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 3336868,
+              "right_artifact_id": 3336867,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1536,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                592964
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 2287273,
+              "target_artifact_id": 3336867,
+              "basis": "containment",
+              "containment": 0.9551856594110115,
+              "jaccard": 0.4748567791215786,
+              "shared_shingles": 746,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2287273,
+              "target_artifact_id": 3336868,
+              "basis": "containment",
+              "containment": 0.9551856594110115,
+              "jaccard": 0.4748567791215786,
+              "shared_shingles": 746,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2318147,
+              "target_artifact_id": 3336867,
+              "basis": "containment",
+              "containment": 0.9560853199498118,
+              "jaccard": 0.48504137492043287,
+              "shared_shingles": 762,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 2318147,
+              "target_artifact_id": 3336868,
+              "basis": "containment",
+              "containment": 0.9560853199498118,
+              "jaccard": 0.48504137492043287,
+              "shared_shingles": 762,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          808686
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            808686
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 808686,
+      "group_id": 542065,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-skillclaw-36k/skillsmp/skillclaw-ecc105fd69e58ca7-epic-forms/SKILL.md",
+      "file_sha": "2ed67340f0c63efadf043e406a31029b34ae1be3",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2287273,
+      "group_id": 542065,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-36k/skillsmp/merged-ecc105fd69e58ca7-epic-forms/SKILL.md",
+      "file_sha": "a7825c1b07f07b77851870d684731f76f9c8f63f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2318147,
+      "group_id": 542065,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-autoskill-36k/skillsmp/merged-ecc105fd69e58ca7-epic-forms/SKILL.md",
+      "file_sha": "e000b4b5e998eb30d363b5ab9e130c9db56368a7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3336867,
+      "group_id": 592964,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-agentskillos-36k/skillsmp/epic-forms/SKILL.md",
+      "file_sha": "fa9c3d1abaa27af931a9e21fe232b5ec4dbc277f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3336868,
+      "group_id": 592964,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-agentskillos-36k/skillsmp/epic-forms-1/SKILL.md",
+      "file_sha": "83489d385e4c9cfbc72b46362cd42add0d8e5b28",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3338670,
+      "group_id": 592964,
+      "repo_id": 240572,
+      "repo_full_name": "epicweb-dev/epic-stack",
+      "path": "docs/skills/epic-forms/SKILL.md",
+      "file_sha": "2457203e0b99e417800b9d3bdde76e005ca519cb",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-20T18:46:19Z",
+      "repo_created_at": "2023-05-04T21:45:08Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 6,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

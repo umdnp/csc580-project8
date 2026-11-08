@@ -1,0 +1,253 @@
+{
+  "name": "perplexity-load-scale",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 2,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 2,
+    "related_skill_pair_count": 4,
+    "within_group_related_pair_count": 4,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1949083,
+          1959637,
+          1962608
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1949083,
+            1959637
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1949083,
+              "target_artifact_id": 1962608,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 653,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "equivalent-peer"
+              ],
+              "shared_group_ids": [
+                593994
+              ],
+              "same_artifact_group": true,
+              "chronology": {
+                "source": {
+                  "effective_chronology": "2026-01-06T06:42:02Z",
+                  "chronology_basis": "equivalent-peer",
+                  "chronology_source_artifact_id": 1959637
+                }
+              }
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1949083,
+              "right_artifact_id": 1959637,
+              "relationship_status": "equivalent",
+              "basis": "equivalent-state",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 653,
+              "change_type": "equivalent",
+              "evidence": [],
+              "shared_group_ids": [
+                593994
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 1959637,
+              "target_artifact_id": 1962608,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 653,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                593994
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          1893848,
+          1942819
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1893848,
+            1942819
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1942819,
+              "right_artifact_id": 1893848,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9228187919463087,
+              "containment_right_to_left": 0.9581881533101045,
+              "jaccard": 0.8870967741935484,
+              "shared_shingles": 550,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [
+                329212
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [
+    {
+      "artifact_id": 1949083,
+      "effective_chronology": "2026-01-06T06:42:02Z",
+      "chronology_basis": "equivalent-peer",
+      "chronology_source_artifact_id": 1959637
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": 1893848,
+      "group_id": 329212,
+      "repo_id": 36195,
+      "repo_full_name": "Brmbobo/Web2podcast",
+      "path": ".claude/agents/enterprise-frontend-design/agents/saas-packs/perplexity-pack/skills/perplexity-load-scale/SKILL.md",
+      "file_sha": "cc9c66fa1accf751c1dc0d8d4781b19b99bd3460",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-23T06:55:57Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1942819,
+      "group_id": 329212,
+      "repo_id": 283,
+      "repo_full_name": "micsapp/micstec-skills",
+      "path": "claude-code/plugins-plus-skills/plugins/saas-packs/perplexity-pack/skills/perplexity-load-scale/SKILL.md",
+      "file_sha": "2493e5689b8d196928ab504e9d2427252fdf0f8c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-20T03:23:59Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1949083,
+      "group_id": 593994,
+      "repo_id": 157230,
+      "repo_full_name": "jukeyman/jukeyman-skills",
+      "path": "skills/saas-packs--perplexity-pack--perplexity-load-scale/SKILL.md",
+      "file_sha": "32f365582c43f1a9bb9d2661bf31afa161e2fb29",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-12T21:11:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1959637,
+      "group_id": 593994,
+      "repo_id": 27554,
+      "repo_full_name": "flight505/skill-forge",
+      "path": "plugins/saas-packs/perplexity-pack/skills/perplexity-load-scale/SKILL.md",
+      "file_sha": "b759e51ad2533293d56aa332a2a2d95a4b6ddc15",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-06T06:42:02Z",
+      "repo_created_at": "2026-05-05T22:39:14Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1962608,
+      "group_id": 593994,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/jeremylongshore@claude-code-plugins-plus-skills/plugins/saas-packs/perplexity-pack/skills/perplexity-load-scale/SKILL.md",
+      "file_sha": "eeb4b3d2f155b341ee62b905f44a4d313b3f5e75",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

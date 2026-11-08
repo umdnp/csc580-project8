@@ -1,0 +1,179 @@
+{
+  "name": "explore-plan",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 3,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 2,
+    "related_skill_pair_count": 2,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 2,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1367327,
+          1558076,
+          1634451
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1634451
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1634451,
+              "target_artifact_id": 1367327,
+              "basis": "chronology",
+              "containment": 0.7365439093484419,
+              "jaccard": 0.7133058984910837,
+              "shared_shingles": 520,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 1634451,
+              "target_artifact_id": 1558076,
+              "basis": "chronology",
+              "containment": 0.7903682719546742,
+              "jaccard": 0.6838235294117647,
+              "shared_shingles": 558,
+              "change_type": "skill-only",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                591452
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          666200
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            666200
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 666200,
+      "group_id": 122681,
+      "repo_id": 32739,
+      "repo_full_name": "rimanem18/hoxt-backlog",
+      "path": ".claude/skills/explore-plan/SKILL.md",
+      "file_sha": "c5bdd8820ba77fc051dd070f5a1b9b8984d7106d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-25T09:00:05Z",
+      "repo_created_at": "2025-08-10T13:56:51Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1367327,
+      "group_id": 200538,
+      "repo_id": 54774,
+      "repo_full_name": "AlexanderMattTurner/.dotfiles",
+      "path": ".claude/skills/explore-plan/SKILL.md",
+      "file_sha": "980ed1f6dd35eef93a94c6d4a0d0342d381b1fae",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-07-03T23:26:12Z",
+      "repo_created_at": "2023-04-26T00:44:54Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1558076,
+      "group_id": 591452,
+      "repo_id": 164219,
+      "repo_full_name": "AlexanderMattTurner/agent-glovebox",
+      "path": ".claude/skills/explore-plan/SKILL.md",
+      "file_sha": "24c5cfe6ab717784f9d53efe8fc2e660a19d7425",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-14T10:10:43Z",
+      "repo_created_at": "2026-05-24T16:42:35Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 1634451,
+      "group_id": 591452,
+      "repo_id": 54772,
+      "repo_full_name": "AlexanderMattTurner/claude-automation-template",
+      "path": ".claude/skills/explore-plan/SKILL.md",
+      "file_sha": "33fc65a038afec61051175d96bcd63a13bc1388c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-28T03:42:01Z",
+      "repo_created_at": "2026-02-03T05:40:26Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

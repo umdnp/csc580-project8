@@ -1,0 +1,112 @@
+{
+  "name": "tao-train-deformable-detr",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 2,
+    "artifact_group_count": 1,
+    "skill_variant_count": 2,
+    "bundle_variant_count": 2,
+    "cluster_count": 1,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2877139,
+          3110533
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2877139
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2877139,
+              "target_artifact_id": 3110533,
+              "basis": "containment",
+              "containment": 0.8575609756097561,
+              "jaccard": 0.5832780358327804,
+              "shared_shingles": 879,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                144110
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 2877139,
+      "group_id": 144110,
+      "repo_id": 55256,
+      "repo_full_name": "AshishKmj/MJChatSyncs",
+      "path": ".agents/skills/tao-train-deformable-detr/SKILL.md",
+      "file_sha": "7bc19ca5fa5762f4921fef0f997afebdae33648c",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-24T10:49:20Z",
+      "sibling_file_count": 23,
+      "sibling_content_sha": "b16ee327ef02400ba56d639a5cba15a92771094f9d175953ac47a5ffae789219"
+    },
+    {
+      "artifact_id": 3110533,
+      "group_id": 144110,
+      "repo_id": 55712,
+      "repo_full_name": "bayuewalker/walkermind-os",
+      "path": ".claude/skills/tao-train-deformable-detr/SKILL.md",
+      "file_sha": "647bf4df05c2e33cdf0cbc6831a62725e2bfa938",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-28T02:42:20Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 2,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

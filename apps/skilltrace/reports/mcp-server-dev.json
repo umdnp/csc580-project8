@@ -1,0 +1,238 @@
+{
+  "name": "mcp-server-dev",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 6,
+    "artifact_group_count": 6,
+    "skill_variant_count": 6,
+    "bundle_variant_count": 6,
+    "cluster_count": 5,
+    "related_skill_pair_count": 1,
+    "within_group_related_pair_count": 0,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 0,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 0,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 1,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 0
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1306712,
+          2294611
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1306712
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1306712,
+              "target_artifact_id": 2294611,
+              "basis": "containment",
+              "containment": 0.9437652811735942,
+              "jaccard": 0.4346846846846847,
+              "shared_shingles": 386,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          3460273
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3460273
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          1825724
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1825724
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 4,
+        "artifact_ids": [
+          1866373
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1866373
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 5,
+        "artifact_ids": [
+          2772332
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2772332
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1306712,
+      "group_id": 372620,
+      "repo_id": 20589,
+      "repo_full_name": "mamckanna/CPMAS",
+      "path": "_research/drew_ai_skills/mcp-server-dev/SKILL.md",
+      "file_sha": "e631e1bd15e18b27a9d1404b4c41e8d873f98e75",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-28T22:59:27Z",
+      "sibling_file_count": 11,
+      "sibling_content_sha": "67118462871873b91b6ab9ea9af7639d4bbce24538d1e11b2cad7aae3a8925d1"
+    },
+    {
+      "artifact_id": 1825724,
+      "group_id": 66375,
+      "repo_id": 186618,
+      "repo_full_name": "Liquid4All/cookbook",
+      "path": "examples/localcowork/.claude/skills/mcp-server-dev/SKILL.md",
+      "file_sha": "f444e6da44723395fa562b990a82614072a6f172",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-02-25T00:10:16Z",
+      "repo_created_at": "2025-10-03T08:52:03Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "af3cc2b289c9de78964cfb5abfb32888a073aa8c1e6695253ca8d793952b765e"
+    },
+    {
+      "artifact_id": 1866373,
+      "group_id": 535367,
+      "repo_id": 189354,
+      "repo_full_name": "andisab/swe-marketplace",
+      "path": "plugins/context-engineering/skills/mcp-server-dev/SKILL.md",
+      "file_sha": "a7b571fb5df1e00c1d2dfe95943bc3aa0b10467d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-11-20T02:11:28Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "a79fbe809178fc1e9b1a719b5bd58c5944f5c33832ae6d94bbb020794a86dd64"
+    },
+    {
+      "artifact_id": 2294611,
+      "group_id": 298342,
+      "repo_id": 88814,
+      "repo_full_name": "drewid74/ai_skills",
+      "path": "mcp-server-dev/SKILL.md",
+      "file_sha": "31a13fb8932a7de0c68270c896a7afdfb7257b5e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-30T17:39:57Z",
+      "sibling_file_count": 11,
+      "sibling_content_sha": "67118462871873b91b6ab9ea9af7639d4bbce24538d1e11b2cad7aae3a8925d1"
+    },
+    {
+      "artifact_id": 2772332,
+      "group_id": 498896,
+      "repo_id": 104136,
+      "repo_full_name": "euxx/claude-skills-for-copilot",
+      "path": "skills/mcp-server-dev/SKILL.md",
+      "file_sha": "2a58c2b76e281a91c28b04fd275089efb4fb7d90",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-13T15:27:42Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 3460273,
+      "group_id": 396932,
+      "repo_id": 265853,
+      "repo_full_name": "RynoCrypto/braiins-os-mcp-server",
+      "path": ".claude/skills/mcp-server-dev/SKILL.md",
+      "file_sha": "e1e2ba06c49390542cdb3b84c1658aa21c10c5e7",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2025-12-29T01:53:26Z",
+      "repo_created_at": "2025-12-14T14:59:46Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 6,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

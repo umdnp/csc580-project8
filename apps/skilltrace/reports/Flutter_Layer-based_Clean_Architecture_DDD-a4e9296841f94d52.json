@@ -1,0 +1,235 @@
+{
+  "name": "Flutter Layer-based Clean Architecture + DDD",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 1,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 1,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 6,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 1,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 5,
+    "within_group_ambiguous_edge_count": 5,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          635649,
+          638446,
+          639525,
+          647990
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            635649,
+            638446,
+            639525
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 638446,
+              "target_artifact_id": 647990,
+              "basis": "chronology",
+              "containment": 0.9781420765027322,
+              "jaccard": 0.9572192513368984,
+              "shared_shingles": 179,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                363115
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 638446,
+              "right_artifact_id": 635649,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 183,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                363115
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 639525,
+              "right_artifact_id": 635649,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.7823834196891192,
+              "containment_right_to_left": 0.825136612021858,
+              "jaccard": 0.6711111111111111,
+              "shared_shingles": 151,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                363115
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 639525,
+              "right_artifact_id": 638446,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.7823834196891192,
+              "containment_right_to_left": 0.825136612021858,
+              "jaccard": 0.6711111111111111,
+              "shared_shingles": 151,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                363115
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 647990,
+              "right_artifact_id": 635649,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9781420765027322,
+              "containment_right_to_left": 0.9781420765027322,
+              "jaccard": 0.9572192513368984,
+              "shared_shingles": 179,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                363115
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 647990,
+              "right_artifact_id": 639525,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8032786885245902,
+              "containment_right_to_left": 0.7616580310880829,
+              "jaccard": 0.6419213973799127,
+              "shared_shingles": 147,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                363115
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 635649,
+      "group_id": 363115,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-agentskillos-36k/skillsmp/flutter-layer-based-clean-architecture-ddd-1/SKILL.md",
+      "file_sha": "b0872a25d7662866d0a35ef0d767f7566e2f0f4b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 638446,
+      "group_id": 363115,
+      "repo_id": 338,
+      "repo_full_name": "David-Li0406/meta-skill-evloving",
+      "path": "skill-flow/data/skills-refined-agentskillos-36k/skillsmp/flutter-layer-based-clean-architecture-ddd/SKILL.md",
+      "file_sha": "aab2a9e04ba56dada7561bd5604ed2a615c27988",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-28T03:17:03Z",
+      "repo_created_at": "2026-05-18T07:30:59Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 639525,
+      "group_id": 363115,
+      "repo_id": 22943,
+      "repo_full_name": "TuanVo3423/test-ai-generation",
+      "path": ".trae/skills/flutter/layer-based-clean-architecture/SKILL.md",
+      "file_sha": "51e3bcf61d9ddc8e5f153de1aaa7050c156ad547",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-23T04:11:03Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "64edb8fb08df55aeb903b1766b10333c5d8ba9d49d26a525bfae95f3c7d007b5"
+    },
+    {
+      "artifact_id": 647990,
+      "group_id": 363115,
+      "repo_id": 22918,
+      "repo_full_name": "thankdt/vigo-admin",
+      "path": ".claude/skills/flutter-layer-based-clean-architecture/SKILL.md",
+      "file_sha": "5142eb51d2d044e00274e46f70f9f74999328f34",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-06-22T06:51:09Z",
+      "repo_created_at": "2026-01-10T19:34:17Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "cab5b2b37531e14e6ef0733f49ddc780dcc64ab6c016a6595e1ce27d1dd05308"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

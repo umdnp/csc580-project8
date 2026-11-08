@@ -1,0 +1,230 @@
+{
+  "name": "reposit",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 4,
+    "artifact_group_count": 1,
+    "skill_variant_count": 4,
+    "bundle_variant_count": 4,
+    "cluster_count": 1,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 6,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 3,
+    "within_group_directed_edge_count": 3,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 3
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1431980,
+          1660660,
+          3681311,
+          3707530
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1431980
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1431980,
+              "target_artifact_id": 1660660,
+              "basis": "containment",
+              "containment": 0.9200863930885529,
+              "jaccard": 0.6574074074074074,
+              "shared_shingles": 426,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                620996
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1660660,
+              "target_artifact_id": 3681311,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 611,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                620996
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1660660,
+              "target_artifact_id": 3707530,
+              "basis": "repo-created-boundary",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 611,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                620996
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3707530,
+              "right_artifact_id": 3681311,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 611,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                620996
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 1431980,
+              "target_artifact_id": 3681311,
+              "basis": "containment",
+              "containment": 0.9200863930885529,
+              "jaccard": 0.6574074074074074,
+              "shared_shingles": 426,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                620996
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1431980,
+              "target_artifact_id": 3707530,
+              "basis": "containment",
+              "containment": 0.9200863930885529,
+              "jaccard": 0.6574074074074074,
+              "shared_shingles": 426,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                620996
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1431980,
+      "group_id": 620996,
+      "repo_id": 375,
+      "repo_full_name": "Demerzels-lab/elsamultiskillagent",
+      "path": "public/skills/tomasz-tomczyk/reposit/SKILL.md",
+      "file_sha": "5f15ecefda62568b35e9808e71a4d943a2950ac8",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-02-05T16:16:27Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "fe387a26999442fa0f915adcbbb46a56e77ff7de23d1ca30ac4c898cd8ac7906"
+    },
+    {
+      "artifact_id": 1660660,
+      "group_id": 620996,
+      "repo_id": 614,
+      "repo_full_name": "modbender/skill-library-mcp",
+      "path": "data/reposit/SKILL.md",
+      "file_sha": "c264510e3f965713289fa091ff26c5ec2775b9c3",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-06T18:33:57Z",
+      "repo_created_at": "2026-02-14T08:11:50Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3681311,
+      "group_id": 620996,
+      "repo_id": 267,
+      "repo_full_name": "dvcrn/openclaw-skills-marketplace",
+      "path": "plugins/tomasz-tomczyk--reposit/skills/reposit/SKILL.md",
+      "file_sha": "4981fd63c21fe2f493307801f40261a486545046",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-15T09:06:30Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3707530,
+      "group_id": 620996,
+      "repo_id": 1238,
+      "repo_full_name": "meghal86/stacksignal",
+      "path": ".agents/skills/reposit/SKILL.md",
+      "file_sha": "044c2f28ec6f5f7191505cc6dd2771324a6300e9",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-05-10T21:23:40Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 4,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

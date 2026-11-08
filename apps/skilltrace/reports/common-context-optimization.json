@@ -1,0 +1,278 @@
+{
+  "name": "common-context-optimization",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 6,
+    "artifact_group_count": 5,
+    "skill_variant_count": 6,
+    "bundle_variant_count": 6,
+    "cluster_count": 2,
+    "related_skill_pair_count": 6,
+    "within_group_related_pair_count": 1,
+    "across_group_related_pair_count": 5,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 1,
+    "across_group_directed_edge_count": 1,
+    "ambiguous_edge_count": 4,
+    "within_group_ambiguous_edge_count": 0,
+    "across_group_ambiguous_edge_count": 4,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 0,
+      "equivalent": 0,
+      "unknown": 2
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          558661,
+          599039,
+          602990
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            602990
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 602990,
+              "target_artifact_id": 558661,
+              "basis": "repo-created-boundary",
+              "containment": 0.8367346938775511,
+              "jaccard": 0.7663551401869159,
+              "shared_shingles": 164,
+              "change_type": "unknown",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "source_artifact_id": 602990,
+              "target_artifact_id": 599039,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 196,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                531477
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 558661,
+              "right_artifact_id": 599039,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9010989010989011,
+              "containment_right_to_left": 0.8367346938775511,
+              "jaccard": 0.7663551401869159,
+              "shared_shingles": 164,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          715205,
+          718525,
+          720643
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            715205,
+            718525,
+            720643
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 715205,
+              "right_artifact_id": 718525,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.975609756097561,
+              "containment_right_to_left": 0.975609756097561,
+              "jaccard": 0.9523809523809523,
+              "shared_shingles": 200,
+              "change_type": "skill-only",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 720643,
+              "right_artifact_id": 715205,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8940092165898618,
+              "containment_right_to_left": 0.9463414634146341,
+              "jaccard": 0.8508771929824561,
+              "shared_shingles": 194,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            },
+            {
+              "left_artifact_id": 720643,
+              "right_artifact_id": 718525,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.8709677419354839,
+              "containment_right_to_left": 0.9219512195121952,
+              "jaccard": 0.8111587982832618,
+              "shared_shingles": 189,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 558661,
+      "group_id": 50914,
+      "repo_id": 41907,
+      "repo_full_name": "TranHung9399/AirQuality",
+      "path": "airquality.client/.agent/skills/common/common-context-optimization/SKILL.md",
+      "file_sha": "1c9dd93c8c94b93f4889ed4e126ae259502d9f6f",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-22T14:04:01Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "6baf6f9dd1c5c3fd195d0ec11a36207c10a11bac7a3676423fc9f2f6aa419aa9"
+    },
+    {
+      "artifact_id": 599039,
+      "group_id": 531477,
+      "repo_id": 23333,
+      "repo_full_name": "wildbitca/ai-resources",
+      "path": "skills/common-context-optimization/SKILL.md",
+      "file_sha": "21d2244a6ea954472ac3abdaf8f95ae3e27116bf",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-23T20:56:11Z",
+      "repo_created_at": "2026-03-19T17:22:56Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "924843a3ad1821e11893eab580d7069639d181e15fd6d13443d7de1a383eb317"
+    },
+    {
+      "artifact_id": 602990,
+      "group_id": 531477,
+      "repo_id": 611,
+      "repo_full_name": "ComeOnOliver/skillshub",
+      "path": "skills/HoangNguyen0403/agent-skills-standard/common-context-optimization/SKILL.md",
+      "file_sha": "8848f556a79465ead8377807a30d02e6cb9fa64e",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-03-20T03:06:03Z",
+      "repo_created_at": "2026-03-16T21:03:34Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 715205,
+      "group_id": 114408,
+      "repo_id": 44381,
+      "repo_full_name": "VSF-QC-TTS/vf-qc-copilot",
+      "path": ".agents/skills/common/common-context-optimization/SKILL.md",
+      "file_sha": "1ea9d9cddbe85279768f46af8f4e04771bac8c7d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-06-25T14:49:47Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "070150c19ef686300e2d286ce3d4e3999accf9b82ab8d115d5e68ba038a6fbd9"
+    },
+    {
+      "artifact_id": 718525,
+      "group_id": 235689,
+      "repo_id": 36494,
+      "repo_full_name": "HoangNguyen0403/agent-skills-standard",
+      "path": ".agents/skills/common/common-context-optimization/SKILL.md",
+      "file_sha": "d70cffad3e0b6bf75ba2453fee7f464849d46805",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-15T15:33:38Z",
+      "sibling_file_count": 3,
+      "sibling_content_sha": "070150c19ef686300e2d286ce3d4e3999accf9b82ab8d115d5e68ba038a6fbd9"
+    },
+    {
+      "artifact_id": 720643,
+      "group_id": 245396,
+      "repo_id": 32629,
+      "repo_full_name": "li-lance/android-seraphim-framework",
+      "path": ".github/skills/common/common-context-optimization/SKILL.md",
+      "file_sha": "109df18702b2d291249799717243f4b52e11f323",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-08T11:05:55Z",
+      "sibling_file_count": 4,
+      "sibling_content_sha": "7bb09bd03f91673129f88283dbe4579603539614b0402c9096f7b74f39580cef"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 6,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

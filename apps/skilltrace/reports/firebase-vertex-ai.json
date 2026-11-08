@@ -1,0 +1,302 @@
+{
+  "name": "firebase-vertex-ai",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 6,
+    "artifact_group_count": 3,
+    "skill_variant_count": 6,
+    "bundle_variant_count": 6,
+    "cluster_count": 2,
+    "related_skill_pair_count": 7,
+    "within_group_related_pair_count": 6,
+    "across_group_related_pair_count": 1,
+    "directed_edge_count": 3,
+    "within_group_directed_edge_count": 3,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 3,
+    "within_group_ambiguous_edge_count": 2,
+    "across_group_ambiguous_edge_count": 1,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 2
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          1130289,
+          1169107,
+          1191192,
+          1209391
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            1130289
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 1130289,
+              "target_artifact_id": 1169107,
+              "basis": "repo-created-boundary",
+              "containment": 0.9845201238390093,
+              "jaccard": 0.9695121951219512,
+              "shared_shingles": 318,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "repo_created_at",
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                110122
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1130289,
+              "target_artifact_id": 1209391,
+              "basis": "chronology",
+              "containment": 0.9845201238390093,
+              "jaccard": 0.9695121951219512,
+              "shared_shingles": 318,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                110122
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 1209391,
+              "target_artifact_id": 1191192,
+              "basis": "chronology",
+              "containment": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 323,
+              "change_type": "unknown",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                110122
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 1191192,
+              "right_artifact_id": 1169107,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 323,
+              "change_type": "siblings-only",
+              "evidence": [],
+              "shared_group_ids": [
+                110122
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "left_artifact_id": 1209391,
+              "right_artifact_id": 1169107,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 323,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                110122
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": [
+            {
+              "source_artifact_id": 1130289,
+              "target_artifact_id": 1191192,
+              "basis": "chronology",
+              "containment": 0.9845201238390093,
+              "jaccard": 0.9695121951219512,
+              "shared_shingles": 318,
+              "change_type": "skill+siblings",
+              "evidence": [
+                "first_commit_at"
+              ],
+              "shared_group_ids": [
+                110122
+              ],
+              "same_artifact_group": true
+            }
+          ]
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          3209303,
+          3256042
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            3209303,
+            3256042
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 3209303,
+              "right_artifact_id": 3256042,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 0.9971830985915493,
+              "containment_right_to_left": 0.9365079365079365,
+              "jaccard": 0.9340369393139841,
+              "shared_shingles": 1416,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [],
+              "same_artifact_group": false
+            }
+          ],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 1130289,
+      "group_id": 110122,
+      "repo_id": 36195,
+      "repo_full_name": "Brmbobo/Web2podcast",
+      "path": ".claude/agents/enterprise-frontend-design/agents/community/jeremy-firebase/skills/firebase-vertex-ai/SKILL.md",
+      "file_sha": "54f48fd4942c66b36a86885a11553d0e95dd1068",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-01-25T23:24:27Z",
+      "repo_created_at": "2026-01-23T06:55:57Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "0ab63571ed3f0f2a00338913cf86a1b938ecb867a607207562760a786e6aa214"
+    },
+    {
+      "artifact_id": 1169107,
+      "group_id": 110122,
+      "repo_id": 283,
+      "repo_full_name": "micsapp/micstec-skills",
+      "path": "claude-code/plugins-plus-skills/plugins/community/jeremy-firebase/skills/firebase-vertex-ai/SKILL.md",
+      "file_sha": "e47cd7cc52563449866cb73e8246bdcf6731c43b",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-20T03:23:59Z",
+      "sibling_file_count": 2,
+      "sibling_content_sha": "78a79af25ff5a44948b415f1dbb80b6695a30df8495edfabee41911d6463eb4e"
+    },
+    {
+      "artifact_id": 1191192,
+      "group_id": 110122,
+      "repo_id": 7582,
+      "repo_full_name": "aibot88/sec_skill_store",
+      "path": "skills/claudskills/firebase-vertex-ai/SKILL.md",
+      "file_sha": "7ba482ce570de3355a962769cd61011723e26d58",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-27T03:37:09Z",
+      "repo_created_at": "2026-05-27T03:48:36Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "dbcd79f80118c5dba2a79016bd35a7e43d4288ff174d53b04f1ed83d67c3c650"
+    },
+    {
+      "artifact_id": 1209391,
+      "group_id": 110122,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/jeremylongshore@claude-code-plugins-plus-skills/plugins/community/jeremy-firebase/skills/firebase-vertex-ai/SKILL.md",
+      "file_sha": "18297ee6b4cf6368aaefa4c2608e69a2d665266d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": "2026-05-01T18:17:44Z",
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 3209303,
+      "group_id": 432704,
+      "repo_id": 2734,
+      "repo_full_name": "BbgnsurfTech/claude-skills-collection",
+      "path": "plugins/claude-code-plugins-plus/plugins/community/jeremy-firebase/skills/firebase-vertex-ai/SKILL.md",
+      "file_sha": "35d4d71f5da2aa3503b41eaa796f239b9e1ca0cc",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-12-18T12:18:32Z",
+      "sibling_file_count": 1,
+      "sibling_content_sha": "d9bbb40289b33e49760496119cdfa6f266808da23a2375fc780949278a18eeab"
+    },
+    {
+      "artifact_id": 3256042,
+      "group_id": 220167,
+      "repo_id": 4648,
+      "repo_full_name": "tools-only/X-Skills",
+      "path": "development/devops/2564-skillfull_88b19fe3/skill.md",
+      "file_sha": "5e5005c04aa18e9fbf562016371d9a66c29d6c26",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-31T18:04:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 6,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}

@@ -1,0 +1,226 @@
+{
+  "name": "openrouter-routing-rules",
+  "policy": {
+    "shingle_size": 5,
+    "min_containment": 0.8,
+    "min_jaccard": 0.3,
+    "min_shared_shingles": 5,
+    "direction_containment_margin": 0.1
+  },
+  "summary": {
+    "artifact_count": 5,
+    "artifact_group_count": 3,
+    "skill_variant_count": 5,
+    "bundle_variant_count": 5,
+    "cluster_count": 3,
+    "related_skill_pair_count": 3,
+    "within_group_related_pair_count": 3,
+    "across_group_related_pair_count": 0,
+    "directed_edge_count": 2,
+    "within_group_directed_edge_count": 2,
+    "across_group_directed_edge_count": 0,
+    "ambiguous_edge_count": 1,
+    "within_group_ambiguous_edge_count": 1,
+    "across_group_ambiguous_edge_count": 0,
+    "change_counts": {
+      "skill-only": 0,
+      "siblings-only": 0,
+      "skill+siblings": 1,
+      "equivalent": 0,
+      "unknown": 1
+    }
+  },
+  "family": {
+    "clusters": [
+      {
+        "cluster": 1,
+        "artifact_ids": [
+          2362323,
+          2750059,
+          2750876
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            2362323
+          ],
+          "directed_edges": [
+            {
+              "source_artifact_id": 2362323,
+              "target_artifact_id": 2750059,
+              "basis": "containment",
+              "containment": 0.9764868603042877,
+              "jaccard": 0.6867704280155642,
+              "shared_shingles": 706,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                179857
+              ],
+              "same_artifact_group": true
+            },
+            {
+              "source_artifact_id": 2362323,
+              "target_artifact_id": 2750876,
+              "basis": "containment",
+              "containment": 0.9764868603042877,
+              "jaccard": 0.6867704280155642,
+              "shared_shingles": 706,
+              "change_type": "skill+siblings",
+              "evidence": [],
+              "shared_group_ids": [
+                179857
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "ambiguous_edges": [
+            {
+              "left_artifact_id": 2750059,
+              "right_artifact_id": 2750876,
+              "relationship_status": "direction-unknown",
+              "basis": "similarity-only",
+              "containment_left_to_right": 1.0,
+              "containment_right_to_left": 1.0,
+              "jaccard": 1.0,
+              "shared_shingles": 1011,
+              "change_type": "unknown",
+              "evidence": [],
+              "shared_group_ids": [
+                179857
+              ],
+              "same_artifact_group": true
+            }
+          ],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 2,
+        "artifact_ids": [
+          537197
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            537197
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      },
+      {
+        "cluster": 3,
+        "artifact_ids": [
+          890821
+        ],
+        "evolution": {
+          "root_candidate_artifact_ids": [
+            890821
+          ],
+          "directed_edges": [],
+          "ambiguous_edges": [],
+          "related_edges": []
+        }
+      }
+    ]
+  },
+  "chronology_proxies": [],
+  "artifacts": [
+    {
+      "artifact_id": 537197,
+      "group_id": 105514,
+      "repo_id": 36195,
+      "repo_full_name": "Brmbobo/Web2podcast",
+      "path": ".claude/agents/enterprise-frontend-design/agents/saas-packs/openrouter-pack/skills/openrouter-routing-rules/SKILL.md",
+      "file_sha": "e40c3148eb29228dbf1a508e6e9b7249bc79772d",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-01-23T06:55:57Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "d36c24d7c1756e12ec85e5f9a48955841ec5ab4bf65cdbe11be774d31314887a"
+    },
+    {
+      "artifact_id": 890821,
+      "group_id": 388451,
+      "repo_id": 283,
+      "repo_full_name": "micsapp/micstec-skills",
+      "path": "claude-code/plugins-plus-skills/plugins/saas-packs/openrouter-pack/skills/openrouter-routing-rules/SKILL.md",
+      "file_sha": "a69bf1498a7d2c94605459510548c60ff45a7873",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-20T03:23:59Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "8608998e31103aa36d05fe6cb28fc81a953bacfa3568c62bfedd6adebf9efb22"
+    },
+    {
+      "artifact_id": 2362323,
+      "group_id": 179857,
+      "repo_id": 157230,
+      "repo_full_name": "jukeyman/jukeyman-skills",
+      "path": "skills/saas-packs--openrouter-pack--openrouter-routing-rules/SKILL.md",
+      "file_sha": "69ade5f2755190e0fb4a0c452b894740401dbd51",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-07-12T21:11:16Z",
+      "sibling_file_count": 0,
+      "sibling_content_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "artifact_id": 2750059,
+      "group_id": 179857,
+      "repo_id": 125,
+      "repo_full_name": "gabrielmoreira/agent-skills-mirror",
+      "path": "mirrors/repos/jeremylongshore@claude-code-plugins-plus-skills/plugins/saas-packs/openrouter-pack/skills/openrouter-routing-rules/SKILL.md",
+      "file_sha": "4b887b92bfadfcff9c0a2b08b610846a6b343b4a",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2026-03-23T13:19:25Z",
+      "sibling_file_count": null,
+      "sibling_content_sha": null
+    },
+    {
+      "artifact_id": 2750876,
+      "group_id": 179857,
+      "repo_id": 27670,
+      "repo_full_name": "jeremylongshore/claude-code-plugins-plus-skills",
+      "path": "plugins/saas-packs/openrouter-pack/skills/openrouter-routing-rules/SKILL.md",
+      "file_sha": "7e510d1e0eaface6bbfe3aa8e7fe3d605b2b0163",
+      "provenance": {
+        "derived_from": null,
+        "upstream_skill": null,
+        "source_repo": null,
+        "upstream_source": null
+      },
+      "first_commit_at": null,
+      "repo_created_at": "2025-10-10T01:01:00Z",
+      "sibling_file_count": 7,
+      "sibling_content_sha": "ed1d64cfe3c98ef569473bf32b49ef7ad198cd39fab2f996b1c48a6a92092a65"
+    }
+  ],
+  "input_summary": {
+    "artifacts_loaded": 5,
+    "artifacts_skipped": 0,
+    "incomplete": false
+  },
+  "skipped_artifacts": []
+}
