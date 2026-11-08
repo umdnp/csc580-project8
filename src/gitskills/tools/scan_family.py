@@ -63,8 +63,8 @@ def build_parser() -> argparse.ArgumentParser:
         limit_help="With --input, scan only the first N names for a smoke test.",
     )
     parser.add_argument(
-        "--edges", choices=("primary", "all"), default="primary",
-        help="Relationships to scan: primary evolution edges (default) or all direction-supported related edges.",
+        "--edges", choices=("primary", "all"), default="all",
+        help="Relationships to scan: all direction-supported related edges (default), or primary predecessor edges only.",
     )
     parser.add_argument(
         "--benchmark", action="store_true",
@@ -203,7 +203,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _scan_one(
     name: str, database: Path, policy: SimilarityPolicy, *,
-    verbose: bool, edges: str = "primary", timings: dict[str, float] | None = None,
+    verbose: bool, edges: str = "all", timings: dict[str, float] | None = None,
 ):
     with _timed_phase(timings, "load_s"), _timed_phase(timings, "family_load_s"):
         loaded = DuckDBFamilyRepository(database).load_available(name)

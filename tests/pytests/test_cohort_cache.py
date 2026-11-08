@@ -92,6 +92,24 @@ def test_independent_cohort_writes_cache_and_outputs(sources, tmp_path):
     assert (results / "sample_manifest.json").is_file()
 
 
+@pytest.mark.parametrize("edges", ["primary", "all"])
+def test_edge_selection_is_passed_to_scanner(sources, tmp_path, monkeypatch, edges):
+    original = cohort.scan_family_report
+    observed = []
+
+    def record(*args, **kwargs):
+        observed.append(kwargs["edges"])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(cohort, "scan_family_report", record)
+    results = tmp_path / "results"
+    cohort.summarize_cohort(["alpha"], database=sources, results=results,
+                            edges=edges, per_stratum=None)
+
+    assert observed == [edges]
+    assert _json(_scan_path(results, "alpha", edges=edges))["edge_selection"] == edges
+
+
 def test_reuses_valid_scans_and_rescan_forces_recomputation(sources, tmp_path, monkeypatch):
     results = tmp_path / "results"
     original = cohort.scan_family_report
