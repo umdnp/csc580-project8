@@ -20,11 +20,9 @@ The same code revision, rules, similarity policy, and primary-edge setting were 
 
 ## Finding 1: Security-sensitive changes appear across multiple families
 
-Supported indicators appeared in **25 of 100 families in Trial 1, 18 of 100 in Trial 2, and 20 of 100 in Trial 3**. The combined rate was **63 of 300 (21.0%)**, with detections in each sample rather than just one. The figure below shows the rates without giving more visual weight to families that contribute many comparisons. Human review will determine how reliably these automated detections reflect the defined changes.
+Supported indicators appeared in **25 families in Trial 1, 18 in Trial 2, and 20 in Trial 3**, for a combined total of **63 of 300 families (21.0%)**. The findings were spread across all three trials rather than concentrated in one. Each family counts once, regardless of how many comparisons contain an indicator, so the result shows how widely these changes appeared among the sampled families.
 
 ![Percentage of sampled families with at least one supported risk indicator, by trial and combined.](report/figures/sprint3-family-vs-pair-rates.svg){#fig-sprint3-rates width="47%"}
-
-A family counts once in this measure, whether one comparison or many contain an indicator. This keeps the focus on **how widely the changes appear among sampled families**. The sensitivity check below shows why that choice matters.
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
@@ -48,7 +46,7 @@ The risk indicators distinguish specific operational changes from ordinary diffe
 
 These categories **overlap**: one changed command or family may support several indicators. The `python-executor` example in Section V illustrates how a single operation can support more than one indicator. Counts here are not counts of independent incidents.
 
-The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials. Zero detections do not establish that these behaviors are absent from other skills or undetectable by other methods.
+The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials.
 
 ## Sensitivity check: Why families are the primary unit
 
