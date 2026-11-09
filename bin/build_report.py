@@ -26,11 +26,15 @@ def main() -> int:
     command = [executable, "--defaults", "report/pandoc.yaml"]
     suffix = "tex" if args.format == "latex" else args.format
     destination = ROOT / "report/generated-report" / f"final.{suffix}"
+
     if args.format == "pdf":
         if not shutil.which("xelatex"):
             parser.error("PDF builds require XeLaTeX (MiKTeX or TeX Live). HTML, Word, and LaTeX source builds do not.")
-        command.append("--pdf-engine=xelatex")
-        destination = ROOT / "report/final.pdf"
+        command.extend([
+            "--pdf-engine=xelatex",
+            "--lua-filter=report/two_column_tables.lua",
+        ])
+        destination = ROOT / "report/final.pdf"  
     destination.parent.mkdir(parents=True, exist_ok=True)
     command.extend(["-o", str(destination)])
     environment = os.environ.copy()

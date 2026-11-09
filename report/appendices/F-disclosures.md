@@ -1,5 +1,3 @@
-\clearpage
-
 # Appendix F Use of AI in development and report preparation
 
 Project Group 8 used AI assistance during tool and pipeline development and in preparing this report. Development assistance included discussing implementation approaches, drafting and revising code, troubleshooting errors, and supporting documentation and verification work. These activities contributed to the components integrated into the end-to-end pipeline.

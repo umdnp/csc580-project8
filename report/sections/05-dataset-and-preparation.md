@@ -1,23 +1,53 @@
 # Dataset and cohort
 
-## Source and candidate construction
+## Data source and unit of analysis
 
-The study uses GitSkills version 1.0.0, released on Zenodo on August 10, 2026. The dataset records 3,797,117 skill-file occurrences collected from public GitHub repositories in July 2026 and retains occurrences separately from distinct content [@gitskills]. The project imports the released SQLite data into a local DuckDB database for analytical queries. The imported file is a prepared analysis artifact, not the original SQLite download.
+We use GitSkills version 1.0.0, released on Zenodo on August 10, 2026. GitSkills collected agent-skill files from public GitHub repositories in July 2026. The release contains 3,797,117 **file occurrences**, including repeated copies of the same content [@gitskills]. A skill generally consists of a `SKILL.md` instruction file and may include supporting files—called **sibling files** in the dataset—such as scripts or reference material. We import the released SQLite data into a local DuckDB database for analysis.
 
-Candidate construction requires valid frontmatter, a body longer than 50 characters, non-null content/name/description, and an exact name shared by at least two qualifying occurrences. Artifacts missing any of these attributes were considered unusable to meet the research question's intent.
+Our starting unit is a **skill family**: qualifying artifacts with the same exact skill name, even when their descriptions differ. The shared name identifies candidates for comparison; it does not establish that they are copies of the same skill. Within a family, the similarity analyzer groups sufficiently related skill bodies into **clusters**. We then examine selected **directed comparisons** between related artifacts for which the available evidence supports a plausible earlier-to-later order. The relationship and direction methods are explained in the next section.
 
-Description text is normalized for subgrouping, but family analysis loads all qualifying description groups for the chosen name. These filters make comparisons feasible while excluding short, malformed, unnamed, or singleton artifacts that could still contain consequential instructions. They are eligibility criteria, not evidence of safety or copying.
+## Preparing comparison candidates
 
-A historical preparation audit on October 15 retained 943,257 candidate occurrences in 162,995 exact-name families. Those audit counts document an earlier local build and are not the denominator for the present cohort results. Appendix A preserves the SQL, cumulative selection counts, and build-local identity limitations. The current saved manifest identifies the cohort inputs and settings; the entire candidate population has not been established as analyzed.
+The project builds an `artifact_groupings` table from the GitSkills records. An artifact qualifies when its **frontmatter** (the YAML metadata at the start of `SKILL.md`) parses as valid, its instruction body is longer than 50 characters, and its content, name, and description are present. A candidate family must have at least two qualifying occurrences with the same name. Descriptions are normalized for supporting subgroups, but differences in description do not split a family during similarity analysis.
 
-## Saved exploratory cohort
+An earlier preparation audit retained 943,257 occurrences in 162,995 same-name families. These are **candidate-pool counts**, not the denominator for our study and not the number of families that passed the final sampling checks. Appendix A provides the preparation SQL and audit. The saved Sprint 3 sampling reports record the candidate pools used when each trial was drawn.
 
-The results below describe the saved `sprint2` end-to-end  pipeline output, inspected on October 26, 2026. Its manifest labels the selection **provisional**, with no approval reference. Thirty exact-name families were supplied, and the pipeline loaded 1,151 artifacts without skipping an artifact input. Family names span development, scientific, infrastructure, and security-oriented tasks. Selection was not established as random or representative, so a cohort percentage must not be presented as the prevalence of risk in GitSkills.
+## Selecting the three Sprint 3 trials
 
-The run analyzes all supported primary and additional directed edges within the selected families. Primary edges are the chosen predecessor relationships; additional edges retain other supported comparisons. It records 3,997 analyzed directed pairs and 2,244 ambiguous edges excluded from directional scanning. These are graph-comparison counts rather than counts of unique modifications. Families can differ greatly in size, content repetition, direction evidence, and contribution to the totals.
+We analyzed **three non-overlapping, stratified random samples of 100 families each**. This is the final study population for the report; earlier Sprint 1 and Sprint 2 cohorts helped develop and test the method but do not contribute to the Sprint 3 results.
 
-## Evidence availability and handling
+A family enters the random selection process only if it passes two checks (RDR-014):
 
-Skill bodies are available for the loaded artifacts, but availability of chronology and sibling content varies. A known empty sibling state differs from an unknown or truncated listing. Missing resources cannot be assumed absent historically, and an unmatched rule cannot compensate for unavailable source. The report presents input loading, extraction coverage, and sibling coverage separately because each describes a different boundary.
+1. **Distinct states:** At least two combinations of the main skill-file **hash** (an identifier derived from its exact content) and **sibling fingerprint** (a summary of known supporting-file contents) differ. Repeated copies of the same known state do not meet this requirement.
+2. **Usable relationship:** The similarity analyzer can identify at least one primary directed comparison involving different main-file hashes or different *known* sibling hashes. A different hash alone does not establish relatedness or direction.
 
-All dataset content is treated as untrusted text. The pipeline does not execute embedded commands, install referenced dependencies, clone repositories to complete missing records, or retrieve linked instructions. Aggregate tables and schematic examples are sufficient for the report; raw dataset content and credential values are not redistributed. Reproduction depends on the frozen source identities and hashes, not on numeric artifact IDs alone, because IDs can be reassigned in another database build.
+When a randomly drawn candidate fails the relationship check, the picker records the rejection and draws a replacement from the same size group. **Selection does not run the security scanner** and does not favor families with risk indicators. Families that fail eligibility are excluded from the study population, not counted as families with no risk.
+
+We divided candidate families into five groups by their **total number of artifact occurrences**, including repeated copies. The allocation deliberately gives larger families more representation than they have in the candidate pool, so the study includes both ordinary and unusually large families without letting the largest ones consume the entire sample.
+
+| Family size (artifact occurrences) | Per trial | Three trials |
+| --- | ---: | ---: |
+| Low: 2 | 20 | 60 |
+| Medium: 3–15 | 55 | 165 |
+| Large: 16–100 | 20 | 60 |
+| X-Large: 101–500 | 4 | 12 |
+| Extreme: 501 or more | 1 | 3 |
+| **Total** | **100** | **300** |
+
+: Family-size strata and allocation across the three trials
+
+The trials use recorded random seeds **5801**, **5802**, and **5803**. Trial 2 excludes names selected in Trial 1; Trial 3 excludes names selected in both previous trials. Each trial saves its `families.txt` and `sampling_report.json`, preserving the selection and rejection record. These are separate, non-overlapping samples, but the exclusions mean they are not independent draws from an unchanged pool.
+
+The allocation is **not proportional** to the wider candidate population. Our unweighted percentages therefore describe these 300 selected, relationship-eligible families; they must not be presented as population-wide estimates for GitSkills. The number of eligible families in each stratum after relationship screening has not been established for population weighting.
+
+## What we analyzed
+
+The three trials loaded **6,570 artifacts** with none skipped. Their similarity analysis selected **2,157 primary directed comparisons** in total. A *primary* comparison connects a derived candidate to at most one selected predecessor, using the graph method described in Section 6. We did not scan additional related directed edges in these trials, because doing so could count overlapping changes repeatedly within the same family (RDR-013). Equivalent or direction-unknown relationships are retained for relationship review but are not assigned introduced/removed security behavior.
+
+The main outcome is **family-level frequency**: how many sampled families contain at least one comparison with a supported risk indicator. We also report pair-level frequency using all analyzed primary directed comparisons as its denominator. The two measures answer different questions: how widely a signal appears across families versus how frequently it appears among selected comparisons. Comparisons within a family may share artifacts and are not independent historical events.
+
+## Evidence availability and safe handling
+
+The main skill bodies were available for all loaded artifacts, but commit dates and supporting-file content are not always available. A known empty sibling bundle is different from one whose contents could not be retrieved. We report unavailable files and partial evidence extraction rather than treating them as proof that no behavior exists.
+
+All skills and bundled files are untrusted data. We do not execute their commands or scripts, install referenced dependencies, fetch URLs, or clone repositories to replace missing source content. The saved manifests identify the dataset, rules, code revision, and selected inputs; local numeric artifact IDs alone are not portable across database builds. The full data dictionary and reproduction paths are linked in Appendix E.
