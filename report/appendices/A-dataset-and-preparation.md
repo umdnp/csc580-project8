@@ -36,4 +36,4 @@ The following counts come from the saved `sampling_report.json` files. A rejecti
 
 : Sprint 3 sample seeds and family-selection audit
 
-Each trial retains the same 20/55/20/4/1 size allocation described in Section 5. The sampling reports preserve the rejection reasons, source database identity, thresholds, excluded `families.txt` paths and checksums, and exact selected names. The screened eligible population was not enumerated for population weighting, so these records cannot support a corpus-wide prevalence estimate.
+Each trial retains the same 20/55/20/4/1 size allocation described in Section IV. The sampling reports preserve the rejection reasons, source database identity, thresholds, excluded `families.txt` paths and checksums, and exact selected names. The screened eligible population was not enumerated for population weighting, so these records cannot support a corpus-wide prevalence estimate.

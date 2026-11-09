@@ -1,5 +1,5 @@
 ---
-title: "Security Relevant Changes in Reused Agent Skills"
+title: "Security-Sensitive Changes in Agent Skills: A Static Analysis of GitSkills"
 subtitle: |
   CSC 580 Advanced Software Engineering  
   University of Michigan-Flint, Fall 2026  
@@ -27,6 +27,7 @@ header-includes:
     \usepackage{ragged2e}
     \definecolor{reportTableHead}{RGB}{232,238,243}
     \definecolor{reportTableStripe}{RGB}{246,248,250}
+    \definecolor{reportHeading}{RGB}{46,55,64}
     \setlength{\textfloatsep}{12pt plus 2pt minus 3pt}
     \setlength{\dbltextfloatsep}{14pt plus 2pt minus 3pt}
     \renewcommand{\topfraction}{0.93}
@@ -38,6 +39,18 @@ header-includes:
     \usepackage{fvextra}
     \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
     \setlength{\columnsep}{0.25in}
+    \usepackage{titlesec}
+    \renewcommand{\thesection}{\Roman{section}}
+    \renewcommand{\thesubsection}{\Alph{subsection}}
+    \setcounter{secnumdepth}{2}
+    \titleformat{\section}[hang]
+      {\normalfont\large\bfseries\scshape\color{reportHeading}\raggedright}{\thesection.}{0.65em}{}
+    \titleformat{\subsection}[hang]
+      {\normalfont\normalsize\itshape\raggedright}{\thesubsection.}{0.55em}{}
+    \titleformat{\subsubsection}[hang]
+      {\normalfont\normalsize\itshape\raggedright}{}{0pt}{}
+    \titlespacing*{\section}{0pt}{1.5ex plus 0.4ex minus 0.2ex}{0.65ex}
+    \titlespacing*{\subsection}{0pt}{1.1ex plus 0.3ex minus 0.1ex}{0.4ex}
 geometry:
   - margin=0.75in
 ---

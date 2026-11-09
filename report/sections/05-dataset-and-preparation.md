@@ -42,7 +42,7 @@ The allocation is **not proportional** to the wider candidate population. Our un
 
 ## What we analyzed
 
-The three trials loaded **6,570 artifacts** with none skipped. Their similarity analysis selected **2,157 primary directed comparisons** in total. A *primary* comparison connects a derived candidate to at most one selected predecessor, using the graph method described in Section 6. We did not scan additional related directed edges in these trials, to limit repeated observations of similar changes within large families. Equivalent or direction-unknown relationships are retained for relationship review but are not assigned introduced/removed security behavior.
+The three trials loaded **6,570 artifacts** with none skipped. Their similarity analysis selected **2,157 primary directed comparisons** in total. A *primary* comparison connects a derived candidate to at most one selected predecessor, using the graph method described in Section V. We did not scan additional related directed edges in these trials, to limit repeated observations of similar changes within large families. Equivalent or direction-unknown relationships are retained for relationship review but are not assigned introduced/removed security behavior.
 
 The main outcome is **family-level frequency**: how many sampled families contain at least one comparison with a supported risk indicator. We also report pair-level frequency using all analyzed primary directed comparisons as its denominator. The two measures answer different questions: how widely a signal appears across families versus how frequently it appears among selected comparisons. Comparisons within a family may share artifacts and are not independent historical events.
 
