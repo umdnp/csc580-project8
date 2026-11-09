@@ -1,50 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="424" viewBox="0 0 400 424" role="img" aria-labelledby="diagramTitle diagramDesc">
-  <title id="diagramTitle">Four stages of the skill comparison pipeline</title>
-  <desc id="diagramDesc">Group candidate skills by name, match related files and establish plausible order, compare changed operational evidence, and assess eleven risk indicators. All steps use stored data, not executed scripts.</desc>
-  <rect width="400" height="424" fill="#ffffff"/>
-  <g font-family="Arial, Helvetica, sans-serif">
-    <!-- The full-width card and fixed icon column retain alignment when reduced to one report column. -->
-    <rect x="3" y="4" width="394" height="82" rx="7" fill="#f5f8fb" stroke="#b6c8d7" stroke-width="1"/>
-    <rect x="3" y="4" width="6" height="82" rx="3" fill="#287da6"/>
-    <circle cx="30" cy="44" r="14" fill="#287da6"/>
-    <text x="30" y="49" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">1</text>
-    <text x="54" y="29" font-size="17" font-weight="bold" fill="#203342">Group candidates</text>
-    <text x="54" y="49" font-size="13.5" fill="#344b5b">Find skills with the same exact name.</text>
-    <text x="54" y="67" font-size="13.5" fill="#344b5b">These are candidates, not proven copies.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="520" viewBox="0 0 540 520" role="img" aria-labelledby="title desc">
+  <title id="title">Four-stage static analysis pipeline</title>
+  <desc id="desc">Pipeline showing four stages: group candidate families, match and order content, compare operations, and assess risk indicators. The analysis uses stored artifact text, metadata, and available sibling-file contents; it does not execute scripts.</desc>
+  <defs>
+    <style>
+      .figure-bg { fill: #ffffff; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 1.4; }
+      .box-accent { fill: #f8fafc; stroke: #334155; stroke-width: 1.4; }
+      .step-lite { fill: #f1f5f9; stroke: #334155; stroke-width: 1.2; }
+      .step-dark { fill: #0f172a; stroke: #0f172a; stroke-width: 1.2; }
+      .rule { stroke: #cbd5e1; stroke-width: 1.2; }
+      .connector { stroke: #64748b; stroke-width: 1.4; fill: none; }
+      .title { font: 500 15px 'Arial', 'Helvetica', sans-serif; fill: #1f2937; }
+      .head { font: 600 13px 'Arial', 'Helvetica', sans-serif; fill: #1f2937; }
+      .tag { font: 500 11px 'Arial', 'Helvetica', sans-serif; fill: #64748b; }
+      .body { font: 400 12px 'Arial', 'Helvetica', sans-serif; fill: #334155; }
+      .step-num { font: 600 13px 'Arial', 'Helvetica', sans-serif; text-anchor: middle; dominant-baseline: middle; }
+      .foot { font: 400 11px 'Arial', 'Helvetica', sans-serif; fill: #64748b; }
+    </style>
+  </defs>
 
-    <line x1="200" y1="87" x2="200" y2="105" stroke="#698396" stroke-width="1.4"/>
-    <path d="M195.5 100.5 L200 106 L204.5 100.5" fill="none" stroke="#698396" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect class="figure-bg" x="0" y="0" width="540" height="520"/>
+  <text class="title" x="24" y="28">Four-Stage Static Analysis Pipeline</text>
 
-    <rect x="3" y="108" width="394" height="82" rx="7" fill="#f5f8fb" stroke="#b6c8d7" stroke-width="1"/>
-    <rect x="3" y="108" width="6" height="82" rx="3" fill="#287da6"/>
-    <circle cx="30" cy="148" r="14" fill="#287da6"/>
-    <text x="30" y="153" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">2</text>
-    <text x="54" y="133" font-size="17" font-weight="bold" fill="#203342">Match and order</text>
-    <text x="54" y="153" font-size="13.5" fill="#344b5b">Identify related content; infer a plausible</text>
-    <text x="54" y="171" font-size="13.5" fill="#344b5b">earlier-to-later comparison direction.</text>
+  <line class="rule" x1="56" y1="70" x2="56" y2="472"/>
 
-    <line x1="200" y1="191" x2="200" y2="209" stroke="#698396" stroke-width="1.4"/>
-    <path d="M195.5 204.5 L200 210 L204.5 204.5" fill="none" stroke="#698396" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Step 1 -->
+  <circle class="step-lite" cx="56" cy="96" r="17"/>
+  <text class="step-num" x="56" y="96" fill="#1f2937">1</text>
+  <rect class="box" x="84" y="60" rx="4" ry="4" width="412" height="72"/>
+  <text class="head" x="100" y="88">Group Candidate Families</text>
+  <text class="tag" x="328" y="88">[Exact-Name Grouping]</text>
+  <text class="body" x="100" y="112">Collect skill artifacts sharing an exact name into candidate families.</text>
 
-    <rect x="3" y="212" width="394" height="82" rx="7" fill="#f5f8fb" stroke="#b6c8d7" stroke-width="1"/>
-    <rect x="3" y="212" width="6" height="82" rx="3" fill="#287da6"/>
-    <circle cx="30" cy="252" r="14" fill="#287da6"/>
-    <text x="30" y="257" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">3</text>
-    <text x="54" y="237" font-size="17" font-weight="bold" fill="#203342">Compare operations</text>
-    <text x="54" y="257" font-size="13.5" fill="#344b5b">Detect and compare commands, network</text>
-    <text x="54" y="275" font-size="13.5" fill="#344b5b">operations, and available sibling files.</text>
+  <!-- Connector 1 -->
+  <line class="connector" x1="260" y1="132" x2="260" y2="144"/><path d="M 255.5 143 L 260 151 L 264.5 143 Z" fill="#64748b"/>
 
-    <line x1="200" y1="295" x2="200" y2="313" stroke="#698396" stroke-width="1.4"/>
-    <path d="M195.5 308.5 L200 314 L204.5 308.5" fill="none" stroke="#698396" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Step 2 -->
+  <circle class="step-lite" cx="56" cy="190" r="17"/>
+  <text class="step-num" x="56" y="190" fill="#1f2937">2</text>
+  <rect class="box" x="84" y="154" rx="4" ry="4" width="412" height="72"/>
+  <text class="head" x="100" y="182">Match and Order Content</text>
+  <text class="tag" x="320" y="182">[Similarity &amp; Direction]</text>
+  <text class="body" x="100" y="202">Use shingle overlap to identify related content and infer a plausible</text>
+  <text class="body" x="100" y="218">base-to-derived comparison direction.</text>
 
-    <rect x="3" y="316" width="394" height="82" rx="7" fill="#edf5f8" stroke="#a9c6d4" stroke-width="1"/>
-    <rect x="3" y="316" width="6" height="82" rx="3" fill="#287da6"/>
-    <circle cx="30" cy="356" r="14" fill="#287da6"/>
-    <text x="30" y="361" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">4</text>
-    <text x="54" y="341" font-size="17" font-weight="bold" fill="#203342">Assess risk indicators</text>
-    <text x="54" y="361" font-size="13.5" fill="#344b5b">Check changed evidence against 11 defined</text>
-    <text x="54" y="379" font-size="13.5" fill="#344b5b">indicators; report gaps and uncertainty.</text>
+  <!-- Connector 2 -->
+  <line class="connector" x1="260" y1="226" x2="260" y2="238"/><path d="M 255.5 237 L 260 245 L 264.5 237 Z" fill="#64748b"/>
 
-    <text x="200" y="415" text-anchor="middle" font-size="11.5" fill="#5e6d76">Static analysis only — no skill instructions are executed</text>
-  </g>
+  <!-- Step 3 -->
+  <circle class="step-lite" cx="56" cy="296" r="17"/>
+  <text class="step-num" x="56" y="296" fill="#1f2937">3</text>
+  <rect class="box" x="84" y="250" rx="4" ry="4" width="412" height="92"/>
+  <text class="head" x="100" y="278">Compare Operations</text>
+  <text class="tag" x="356" y="278">[Diff Evidence Extraction]</text>
+  <text class="body" x="100" y="302">Compare commands, network operations, and available sibling-file</text>
+  <text class="body" x="100" y="318">evidence across the base and derived artifacts.</text>
+
+  <!-- Connector 3 -->
+  <line class="connector" x1="260" y1="342" x2="260" y2="354"/><path d="M 255.5 353 L 260 361 L 264.5 353 Z" fill="#64748b"/>
+
+  <!-- Step 4 -->
+  <circle class="step-dark" cx="56" cy="416" r="17"/>
+  <text class="step-num" x="56" y="416" fill="#ffffff">4</text>
+  <rect class="box-accent" x="84" y="372" rx="4" ry="4" width="412" height="92"/>
+  <text class="head" x="100" y="400">Assess Risk Indicators</text>
+  <text class="tag" x="370" y="400">[11 Defined RIs]</text>
+  <text class="body" x="100" y="424">Evaluate changed evidence against 11 defined risk indicators and</text>
+  <text class="body" x="100" y="440">record any remaining uncertainty in the comparison.</text>
+
+  <line class="rule" x1="24" y1="474" x2="496" y2="474"/>
+  <text class="foot" x="24" y="494">Note: Static analysis operates on stored artifact text, metadata, and available</text>
+  <text class="foot" x="24" y="509">sibling-file contents; it does not execute scripts.</text>
 </svg>

@@ -3,7 +3,7 @@
 Run from the repository root:
     python report/figures/generate_sprint3_figures.py
 
-Both SVG (editable vector) and PNG (portable PDF-build input) are written.
+SVG files are written for direct use in the report.
 This script does not rerun the trials or change their source files.
 """
 
@@ -59,9 +59,8 @@ def figure_style() -> None:
     })
 
 
-def save_both(fig: plt.Figure, output: Path) -> None:
+def save_svg(fig: plt.Figure, output: Path) -> None:
     fig.savefig(output.with_suffix(".svg"), format="svg", bbox_inches="tight")
-    fig.savefig(output.with_suffix(".png"), format="png", dpi=220, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -108,7 +107,7 @@ def make_rate_figure(families: pd.DataFrame, output: Path) -> None:
         ax.text(rate + 1.15, y, f"{rate:.0f}%  ({count}/{total})",
                 fontsize=7.4, fontweight="semibold" if is_total else "normal",
                 color=INK, va="center", ha="left")
-    save_both(fig, output)
+    save_svg(fig, output)
 
 
 def make_indicator_figure(families: pd.DataFrame, pairs: pd.DataFrame, output: Path) -> None:
@@ -163,7 +162,7 @@ def make_indicator_figure(families: pd.DataFrame, pairs: pd.DataFrame, output: P
     fig.text(0.065, 0.047,
              "No supported detections for RI-002, RI-004, or RI-009.",
              fontsize=7.6, color=MUTED, va="center")
-    save_both(fig, output)
+    save_svg(fig, output)
 
 
 def main() -> None:
@@ -175,8 +174,8 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     families, pairs = load_trials(args.results_root)
     figure_style()
-    make_rate_figure(families, args.output / "sprint3-family-vs-pair-rates.png")
-    make_indicator_figure(families, pairs, args.output / "sprint3-indicators-by-family.png")
+    make_rate_figure(families, args.output / "sprint3-family-vs-pair-rates.svg")
+    make_indicator_figure(families, pairs, args.output / "sprint3-indicators-by-family.svg")
 
 
 if __name__ == "__main__":

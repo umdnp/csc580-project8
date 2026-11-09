@@ -9,6 +9,7 @@ reference-doc: report/reference.docx
 filters:
   - report/filters/plantuml.lua
   - report/filters/pagination.lua
+  - report/filters/svg_for_latex.lua
   - report/two_column_tables.lua
 
 input-files:

@@ -39,7 +39,7 @@ or adjudicate review labels.
 
 The report is assembled from `sections/*.md` and `appendices/*.md` using `pandoc.yaml`. Pandoc includes
 Lua; no separate Lua installation is required. The Lua filter renders PlantUML
-figures locally using portable Java and PlantUML with the bundled Smetana layout
+figures as SVG locally using portable Java and PlantUML with the bundled Smetana layout
 engine. Diagram text never goes to a public rendering service.
 
 Run commands from the repository root. The Python build helper also works when
@@ -131,15 +131,15 @@ by the two-column LaTeX figure filter. Ordinary figures stay in one column;
 `.wide` spans both columns, and `.fullpage .wide` reserves a page for a
 large diagram. This prevents figures from overlapping adjacent columns.
 
-On a normal build, `filters/plantuml.lua` reuses an existing PNG or invokes local
+On a normal build, `filters/plantuml.lua` reuses a cached SVG or invokes local
 Java/PlantUML if the diagram changed. It uses Smetana rather than an external
 Graphviz installation. Failures stop the build instead of substituting an older
 image. Unmarked SQL, Python, and shell blocks remain ordinary code blocks.
 
-Generated PNGs are kept in `report/diagrams/rendered/`. Commit these together with
-sources, the filter, and `toolchain.json`. Their filenames hash the normalized
+Generated SVG diagrams are cached in `.cache/report-plantuml/` and do not need to be committed.
+Commit the editable `.puml` sources, the filter, and `toolchain.json`. Cache filenames hash the normalized
 source and pinned toolchain manifest, so edits or toolchain changes select a new
-cache entry. Changing only a caption does not require rerendering.
+cache entry. Older PNG files in `report/diagrams/rendered/` are no longer used and can be removed. Changing only a caption does not require rerendering.
 
 To build exclusively from cached images without invoking Java:
 
@@ -147,8 +147,8 @@ To build exclusively from cached images without invoking Java:
 uv run python bin/build_report.py --format html --cached-only
 ```
 
-This mode requires only Pandoc and the committed PNGs. A missing or invalid cache
-entry is an error. The toolchain manifest pins the portable renderer, but a custom
+This mode uses the locally cached SVGs from an earlier successful build.
+A missing or invalid cache entry is an error. The toolchain manifest pins the portable renderer, but a custom
 runtime supplied through environment variables must match it for comparable
 output. Use a deliberate manifest update when upgrading the rendering toolchain.
 
@@ -160,6 +160,33 @@ output. Use a deliberate manifest update when upgrading the rendering toolchain.
   and Implementation. These are classification outcomes, not stored mutable states.
 - `family-scan-sequence.puml`: the successful family-scan component interactions,
   including conditional sibling review, in Method and Implementation.
+
+## SVG figures in PDF builds
+
+Keep figures as **SVG sources** in the report; do not reference or commit PNG copies.
+The PDF builder still uses XeLaTeX, which cannot read SVG directly through
+`\includegraphics`. The `svg_for_latex.lua` filter transparently converts SVGs
+(including generated PlantUML diagrams) into **vector PDF files** under
+`.cache/report-svg-pdf/` at build time. These PDFs are intermediate files, not
+report sources and not intended for Git. HTML uses the original SVGs.
+
+The converter uses CairoSVG, Inkscape, or the pure-Python `svglib` library,
+whichever is available. On Windows, the simplest one-time setup if no converter
+is installed is:
+
+```shell
+uv add --dev svglib
+```
+
+Then the normal command works unchanged:
+
+```shell
+uv run python bin/build_report.py --format pdf
+```
+
+If you do not want to add a project dependency, you can use
+`uv run --with svglib python bin/build_report.py --format pdf` instead.
+SVGs remain editable source files, while LaTeX receives vector PDFs only.
 
 ## Two-column table and figure layout
 
@@ -226,9 +253,9 @@ PDF/Word document before submission.
 uv run pytest tests/pytests/test_report_diagrams.py -q
 ```
 
-These use synthetic cached images to check captions, cache invalidation,
-line-ending normalization, HTML embedding, and Word/LaTeX image handling.
-They require Pandoc but do not invoke Java or contact a rendering service.
+The diagram filter now caches SVG rather than PNG. Existing renderer tests may
+need their expected cache extensions and media types updated before they will
+validate the new SVG workflow. The filters do not contact a rendering service.
 
 ## References
 
@@ -250,8 +277,7 @@ uv run python report/figures/generate_sprint3_figures.py
 
 The script reads the three saved trials and does not select families, scan
 artifacts, or modify trial outputs. `pandas` and `matplotlib` are required.
-Each chart is saved as an editable SVG and a high-resolution PNG at the same
-basename. The Markdown references PNG for compatibility with the current PDF
-build; the SVGs preserve selectable text and can be edited without pixelation.
+Each chart is saved as an editable SVG only. The Markdown references SVG;
+the PDF build generates temporary vector PDFs in `.cache/` without creating PNG files.
 The charts report **family-level supported indicators**; pair-level sensitivity
 figures remain in the Results text and table rather than sharing their axes.
