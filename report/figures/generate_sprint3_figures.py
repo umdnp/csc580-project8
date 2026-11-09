@@ -16,13 +16,15 @@ import numpy as np
 import pandas as pd
 
 TRIALS = (1, 2, 3)
-BLUE = "#087DB8"
-BLACK = "#292D32"
-LIGHT_BLUE = "#56AEDA"
-GRAY = "#969DA3"
-INK = "#25292D"
-MUTED = "#5B626A"
-GRID = "#E7EAEE"
+# Desaturated blue-gray accents complement the LaTeX table palette:
+# reportTableHead #E8EEF3 and reportTableStripe #F6F8FA.
+BLUE = "#607E96"
+BLACK = "#384750"
+LIGHT_BLUE = "#A1B5C5"
+GRAY = "#B5BEC6"
+INK = "#29343D"
+MUTED = "#56636D"
+GRID = "#E8EEF3"
 
 RI_LABELS = {
     "RI-010": "Local script execution",
@@ -51,7 +53,7 @@ def load_trials(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
 def figure_style() -> None:
     plt.rcParams.update({
         "font.family": "DejaVu Sans",
-        "font.size": 10,
+        "font.size": 8.4,
         "svg.fonttype": "none",  # SVG text remains selectable and editable.
         "savefig.facecolor": "white",
     })
@@ -74,28 +76,28 @@ def make_rate_figure(families: pd.DataFrame, output: Path) -> None:
     numerators = [int(by_trial.loc[t, "positive"]) for t in TRIALS] + [combined_positive]
     denominators = [int(by_trial.loc[t, "count"]) for t in TRIALS] + [len(families)]
 
-    fig, ax = plt.subplots(figsize=(9.3, 4.15))
-    fig.subplots_adjust(left=0.09, right=0.98, top=0.72, bottom=0.20)
+    fig, ax = plt.subplots(figsize=(7.1, 3.1))
+    fig.subplots_adjust(left=0.10, right=0.985, top=0.74, bottom=0.21)
     x = np.arange(4)
     bars = ax.bar(x, values, width=0.48, color=[BLUE, BLUE, BLUE, BLACK])
-    ax.set_ylim(0, 34)
+    ax.set_ylim(0, 33)
     ax.set_xticks(x, [f"{label}\n(n={denom})" for label, denom in zip(labels, denominators)])
-    ax.set_ylabel("Families with an indicator (%)", color=INK)
+    ax.set_ylabel("Families with an indicator (%)", color=INK, fontsize=8.4)
     ax.yaxis.set_major_locator(MultipleLocator(5))
     ax.yaxis.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
     ax.spines[["left", "bottom"]].set_color("#D8DEE4")
-    ax.tick_params(axis="both", length=0, labelcolor=MUTED, pad=7)
+    ax.tick_params(axis="both", length=0, labelcolor=MUTED, pad=5, labelsize=8.0)
 
     for bar, percentage, numerator in zip(bars, values, numerators):
         ax.text(bar.get_x() + bar.get_width() / 2, percentage + 1,
                 f"{percentage:.1f}%\n({numerator} families)",
-                ha="center", va="bottom", fontsize=10.2, fontweight="bold", color=INK)
-    fig.text(0.09, 0.955, "Families with Supported Risk Indicators", fontsize=15.5,
+                ha="center", va="bottom", fontsize=8.2, fontweight="semibold", color=INK)
+    fig.text(0.10, 0.965, "Families with Supported Risk Indicators", fontsize=10.4,
              weight="bold", color=INK, ha="left", va="top")
-    fig.text(0.09, 0.888, "Three non-overlapping stratified samples; 300 families in total",
-             fontsize=10.6, color=MUTED, ha="left", va="top")
+    fig.text(0.10, 0.888, "Three stratified trials; 300 sampled families",
+             fontsize=8.2, color=MUTED, ha="left", va="top")
     save_both(fig, output)
 
 
@@ -118,16 +120,16 @@ def make_indicator_figure(families: pd.DataFrame, pairs: pd.DataFrame, output: P
 
     ids = list(RI_LABELS)
     counts = [detected[ri] for ri in ids]
-    fig, ax = plt.subplots(figsize=(10.0, 5.6))
-    fig.subplots_adjust(left=0.32, right=0.92, top=0.79, bottom=0.18)
+    fig, ax = plt.subplots(figsize=(7.65, 4.55))
+    fig.subplots_adjust(left=0.365, right=0.92, top=0.78, bottom=0.19)
     y = np.arange(len(ids))
     colors = [BLUE, BLUE, LIGHT_BLUE, LIGHT_BLUE, GRAY, GRAY, GRAY, GRAY]
     bars = ax.barh(y, np.array(counts) / total_families * 100,
                    color=colors, height=0.57)
-    ax.set_yticks(y, [f"{ri}  {RI_LABELS[ri]}" for ri in ids], fontsize=9.8)
+    ax.set_yticks(y, [f"{ri}  {RI_LABELS[ri]}" for ri in ids], fontsize=7.9)
     ax.invert_yaxis()
     ax.set_xlim(0, 16.2)
-    ax.set_xlabel("Sampled families with supported indicator (%)", labelpad=9, color=INK)
+    ax.set_xlabel("Sampled families with supported indicator (%)", labelpad=7, color=INK, fontsize=8.1)
     ax.xaxis.set_major_locator(MultipleLocator(2))
     ax.xaxis.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
@@ -137,20 +139,20 @@ def make_indicator_figure(families: pd.DataFrame, pairs: pd.DataFrame, output: P
     for bar, count in zip(bars, counts):
         ax.text(bar.get_width() + 0.20, bar.get_y() + bar.get_height() / 2,
                 f"{100*count/total_families:.1f}%  ({count})",
-                va="center", fontsize=9.8, weight="bold", color=INK)
+                va="center", fontsize=8.1, weight="semibold", color=INK)
 
     fig.text(0.065, 0.97, "Security-Sensitive Changes Across Sampled Families",
-             fontsize=15, weight="bold", color=INK, va="top")
-    fig.text(0.065, 0.909,
-             "Eight indicators had detections; individual families may appear in several rows",
-             fontsize=10, color=MUTED, va="top")
-    fig.text(0.065, 0.079,
+             fontsize=10.4, weight="bold", color=INK, va="top")
+    fig.text(0.065, 0.918,
+             "Eight indicators had detections; categories overlap",
+             fontsize=8.2, color=MUTED, va="top")
+    fig.text(0.065, 0.083,
              f"RI-010 and/or RI-005: {len(top_union)} of {len(positive_families)} indicator-bearing families "
              f"({100 * len(top_union) / len(positive_families):.1f}%).",
-             fontsize=9.3, color=MUTED, va="center")
-    fig.text(0.065, 0.044,
+             fontsize=7.6, color=MUTED, va="center")
+    fig.text(0.065, 0.047,
              "No supported detections for RI-002, RI-004, or RI-009.",
-             fontsize=9.3, color=MUTED, va="center")
+             fontsize=7.6, color=MUTED, va="center")
     save_both(fig, output)
 
 

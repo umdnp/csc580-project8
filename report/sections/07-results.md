@@ -32,19 +32,19 @@ The risk indicators distinguish specific operational changes from ordinary diffe
 
 ![Number and percentage of sampled families with each of the eight detected risk indicators.](report/figures/sprint3-indicators-by-family.png){#fig-sprint3-indicators width="100%" .wide}
 
-| Indicator | Families (of 300) | Comparisons (of 2,157) |
+| Indicator | Families | Pairs |
 | --- | ---: | ---: |
-| **RI-010** Local script execution | **39** | 201 |
-| **RI-005** External code/dependency acquisition | **26** | 155 |
-| **RI-003** Network expansion/redirection | **17** | 52 |
-| **RI-006** Destructive/privileged file operation | **10** | 159 |
-| **RI-008** System or permissions modification | 8 | 18 |
-| **RI-001** Direct download-and-execute | 3 | 3 |
-| **RI-007** Credential access/potential exposure | 2 | 4 |
-| **RI-011** External instruction dependency | 1 | 1 |
-| **RI-002**, **RI-004**, **RI-009** | **0 each** | **0 each** |
+| **RI-010** Script execution | **39** | 201 |
+| **RI-005** Code acquisition | **26** | 155 |
+| **RI-003** Network expansion | **17** | 52 |
+| **RI-006** Destructive file ops | **10** | 159 |
+| **RI-008** System/permissions | 8 | 18 |
+| **RI-001** Download-and-execute | 3 | 3 |
+| **RI-007** Credential access | 2 | 4 |
+| **RI-011** External instructions | 1 | 1 |
+| **RI-002/004/009** No detections | **0** | **0** |
 
-: Supported indicators by family and directed comparison {.wide}
+: Supported indicator counts among 300 families and 2,157 comparisons
 
 These categories **overlap**: one changed command or one family may support several indicators. For example, the `python-executor` installation change discussed in Section 6 supports both direct download-and-execute and a new network-operation destination. Neither observation establishes malicious intent or actual execution.
 
@@ -54,14 +54,14 @@ The distribution also varies by counting unit. **RI-006** Destructive or privile
 
 The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**, but it varied from **5.7% to 22.2%** across trials. A few families contributed many indicator-bearing comparisons: `cso` accounted for **55 of 113** in Trial 1, `junta-leiloeiros` for **8 of 36** in Trial 2, and `mcp-builder` for **133 of 191** in Trial 3. Excluding these three families *for a sensitivity calculation only* reduced the combined pair-level rate to **144 of 1,722 (8.4%)**, while the family-level rate changed only from **63 of 300 (21.0%)** to **60 of 297 (20.2%)**. This supports using family-level frequency to describe the spread of detections in our sample; it does not remove sampling bias or prove population-wide risk prevalence.
 
-| Trial | All comparisons | Without the listed dominant family |
+| Trial | All pairs | Excl. top family |
 | --- | ---: | ---: |
-| 1 (`cso`) | 113 / 665 = 17.0% | 58 / 549 = **10.6%** |
-| 2 (`junta-leiloeiros`) | 36 / 633 = 5.7% | 28 / 613 = **4.6%** |
-| 3 (`mcp-builder`) | 191 / 859 = 22.2% | 58 / 560 = **10.4%** |
-| **Combined** | **340 / 2,157 = 15.8%** | **144 / 1,722 = 8.4%** |
+| 1 | 113/665 (17.0%) | 58/549 (**10.6%**) |
+| 2 | 36/633 (5.7%) | 28/613 (**4.6%**) |
+| 3 | 191/859 (22.2%) | 58/560 (**10.4%**) |
+| **Total** | **340/2,157 (15.8%)** | **144/1,722 (8.4%)** |
 
-: Sensitivity of comparison-level detection rates to three influential families {.wide}
+: Sensitivity of pair-level rates to the leading family in each trial
 
 ## Supporting observation: Family size and similarity clusters
 
