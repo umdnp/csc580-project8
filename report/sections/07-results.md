@@ -20,11 +20,11 @@ The same code revision, rules, similarity policy, and primary-edge setting were 
 
 ## Finding 1: Security-sensitive changes appear across multiple families
 
-The primary result is the proportion of sampled families with at least one supported indicator. That rate was **25% in Trial 1, 18% in Trial 2, and 20% in Trial 3**, or **21% overall**. The automated detections therefore appear across all three samples, rather than being confined to a single trial. Human review will determine how reliably those detections reflect the defined changes.
+Supported indicators appeared in **25 of 100 families in Trial 1, 18 of 100 in Trial 2, and 20 of 100 in Trial 3**. The combined rate was **63 of 300 (21.0%)**, with detections in each sample rather than just one. The figure below shows the rates without giving more visual weight to families that contribute many comparisons. Human review will determine how reliably these automated detections reflect the defined changes.
 
-![Share of sampled families with at least one supported risk indicator in each trial and overall.](report/figures/sprint3-family-vs-pair-rates.png){#fig-sprint3-rates width="100%" .wide}
+![Percentage of sampled families with at least one supported risk indicator, by trial and combined.](report/figures/sprint3-family-vs-pair-rates.png){#fig-sprint3-rates width="47%"}
 
-The family-level measure is intentional: a family contributes once whether it contains one indicator-bearing comparison or many. This keeps the main question focused on **how widely potentially important changes appear** rather than how often a highly reused family contributes another comparison. The effect of that choice is assessed below.
+A family counts once in this measure, whether one comparison or many contain an indicator. This keeps the focus on **how widely the changes appear among sampled families**. The sensitivity check below shows why that choice matters.
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
@@ -46,7 +46,7 @@ The risk indicators distinguish specific operational changes from ordinary diffe
 
 : Supported indicator counts among 300 families and 2,157 comparisons
 
-These categories **overlap**: one changed command or one family may support several indicators. For example, the `python-executor` installation change discussed in Section 6 supports both direct download-and-execute and a new network-operation destination. Neither observation establishes malicious intent or actual execution.
+These categories **overlap**: one changed command or family may support several indicators. The `python-executor` example in Section 6 illustrates how a single operation can support more than one indicator. Counts here are not counts of independent incidents.
 
 The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials. Zero detections do not establish that these behaviors are absent from other skills or undetectable by other methods.
 
@@ -81,7 +81,7 @@ For example, `implement` contained **856 artifacts in 35 clusters**, while `cso`
 
 ## Supporting observation: Not every detected difference supports a risk indicator
 
-The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8%)** met the narrower requirements for at least one supported indicator. The other **779 flagged comparisons** remain recorded as changes or uncertain evidence; they are **not** declared harmless. This separation is intentional. For instance, changing `npm install` to `bun install` may be a real command difference without introducing a new dependency-acquisition operation. The evidence comparison retains that difference, while the indicator assessment avoids inflating the security-sensitive count. Section 6 contrasts this with the `python-executor` download-and-execute example.
+The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8%)** met the narrower criteria for at least one supported indicator. The remaining **779 flagged comparisons** are still recorded as differences or uncertain evidence; they are **not** declared harmless. This is an intentional distinction between noticing a change and identifying one that warrants security review. Section 6 gives contrasting examples of those outcomes.
 
 ## Evidence and ordering qualifications
 

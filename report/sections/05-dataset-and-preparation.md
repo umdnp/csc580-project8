@@ -2,7 +2,7 @@
 
 ## Data source and unit of analysis
 
-We use GitSkills version 1.0.0, released on Zenodo on August 10, 2026. GitSkills collected agent-skill files from public GitHub repositories in July 2026. The release contains 3,797,117 **file occurrences**, including repeated copies of the same content [@gitskills]. A skill generally consists of a `SKILL.md` instruction file and may include supporting files—called **sibling files** in the dataset—such as scripts or reference material. We import the released SQLite data into a local DuckDB database for analysis.
+We use GitSkills version 1.0.0, released on Zenodo on August 10, 2026. Its July 2026 collection contains **3,797,117 file occurrences** from public GitHub repositories, including repeated copies of identical content [@gitskills]. The dataset calls scripts and other resources stored alongside `SKILL.md` **sibling files**. We import the released SQLite data into DuckDB for analysis.
 
 Our starting unit is a **skill family**: qualifying artifacts with the same exact skill name, even when their descriptions differ. The shared name identifies candidates for comparison; it does not establish that they are copies of the same skill. Within a family, the similarity analyzer groups sufficiently related skill bodies into **clusters**. We then examine selected **directed comparisons** between related artifacts for which the available evidence supports a plausible earlier-to-later order. The relationship and direction methods are explained in the next section.
 

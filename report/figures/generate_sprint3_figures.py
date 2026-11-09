@@ -66,38 +66,48 @@ def save_both(fig: plt.Figure, output: Path) -> None:
 
 
 def make_rate_figure(families: pd.DataFrame, output: Path) -> None:
+    """Compact, single-column dot plot at approximately the report's 9 pt scale.
+
+    The existing output basename is retained for report compatibility.
+    """
     by_trial = families.groupby("trial")["pairs_with_indicators"].agg(
         count="size", positive=lambda counts: int(counts.gt(0).sum())
     ).reindex(TRIALS)
-    values = [100 * by_trial.loc[t, "positive"] / by_trial.loc[t, "count"] for t in TRIALS]
-    combined_positive = int(families["pairs_with_indicators"].gt(0).sum())
-    values.append(100 * combined_positive / len(families))
+    positives = [int(by_trial.loc[t, "positive"]) for t in TRIALS]
+    denominators = [int(by_trial.loc[t, "count"]) for t in TRIALS]
+    positives.append(int(families["pairs_with_indicators"].gt(0).sum()))
+    denominators.append(len(families))
+    rates = [100 * yes / total for yes, total in zip(positives, denominators)]
     labels = ["Trial 1", "Trial 2", "Trial 3", "Combined"]
-    numerators = [int(by_trial.loc[t, "positive"]) for t in TRIALS] + [combined_positive]
-    denominators = [int(by_trial.loc[t, "count"]) for t in TRIALS] + [len(families)]
+    y_positions = [3.15, 2.15, 1.15, 0.05]
 
-    fig, ax = plt.subplots(figsize=(7.1, 3.1))
-    fig.subplots_adjust(left=0.10, right=0.985, top=0.74, bottom=0.21)
-    x = np.arange(4)
-    bars = ax.bar(x, values, width=0.48, color=[BLUE, BLUE, BLUE, BLACK])
-    ax.set_ylim(0, 33)
-    ax.set_xticks(x, [f"{label}\n(n={denom})" for label, denom in zip(labels, denominators)])
-    ax.set_ylabel("Families with an indicator (%)", color=INK, fontsize=8.4)
-    ax.yaxis.set_major_locator(MultipleLocator(5))
-    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    # Build the chart at final print size instead of shrinking a page-width
+    # presentation graphic into the report's two-column layout.
+    fig, ax = plt.subplots(figsize=(3.32, 1.93))
+    fig.subplots_adjust(left=0.23, right=0.995, top=0.96, bottom=0.22)
+    ax.set_xlim(0, 39)
+    ax.set_ylim(-0.45, 3.62)
+    ax.set_yticks(y_positions, labels, fontsize=7.7)
+    ax.set_xticks([0, 10, 20, 30])
+    ax.set_xticklabels(["0", "10", "20", "30"], fontsize=7.1)
+    ax.set_xlabel("Families with a supported indicator (%)", color=INK,
+                  fontsize=7.1, labelpad=4)
+    ax.xaxis.grid(True, color=GRID, linewidth=0.65)
     ax.set_axisbelow(True)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color("#D8DEE4")
-    ax.tick_params(axis="both", length=0, labelcolor=MUTED, pad=5, labelsize=8.0)
-
-    for bar, percentage, numerator in zip(bars, values, numerators):
-        ax.text(bar.get_x() + bar.get_width() / 2, percentage + 1,
-                f"{percentage:.1f}%\n({numerator} families)",
-                ha="center", va="bottom", fontsize=8.2, fontweight="semibold", color=INK)
-    fig.text(0.10, 0.965, "Families with Supported Risk Indicators", fontsize=10.4,
-             weight="bold", color=INK, ha="left", va="top")
-    fig.text(0.10, 0.888, "Three stratified trials; 300 sampled families",
-             fontsize=8.2, color=MUTED, ha="left", va="top")
+    ax.tick_params(axis="both", length=0, colors=MUTED, pad=4)
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.spines["bottom"].set_color("#CFD8E1")
+    # Horizontal marker stems and dots take less space than large filled bars.
+    for label, y, rate, count, total in zip(labels, y_positions, rates, positives, denominators):
+        is_total = label == "Combined"
+        color = BLACK if is_total else BLUE
+        ax.plot([0, rate], [y, y], color=color, alpha=0.34,
+                linewidth=1.2, solid_capstyle="round", zorder=2)
+        ax.scatter(rate, y, color=color, s=30 if is_total else 24,
+                   zorder=3)
+        ax.text(rate + 1.15, y, f"{rate:.0f}%  ({count}/{total})",
+                fontsize=7.4, fontweight="semibold" if is_total else "normal",
+                color=INK, va="center", ha="left")
     save_both(fig, output)
 
 
