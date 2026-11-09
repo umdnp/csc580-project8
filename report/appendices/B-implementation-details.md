@@ -36,7 +36,7 @@ For each selected family, the pipeline loads all qualifying artifacts, forms con
 | Detection rules / risk indicators | 15 / 11 |
 | Source code revision | `ae69732ed8988ad7066ff351848f7d2e8ad311a1` |
 
-: Pinned analysis configuration for Sprint 3
+: Pinned analysis configuration for Sprint 3 {.wide}
 
 Direction priority is declared source, direct chronology, equivalent-peer chronology, repository-creation boundary, then asymmetric containment. These are inference rules, not proofs of copying. Additional directed edges exist in the analysis method but **were not scanned for the three Sprint 3 result sets**. Ambiguous directions and equivalent peers remain available for relationship review without being treated as evidence that a behavior was introduced.
 

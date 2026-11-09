@@ -21,8 +21,15 @@ local function escape_caption(s)
   if s == '' then return '' end
   return latex(pandoc.read(s, 'markdown').blocks)
 end
+-- Let long Git hashes wrap in narrow cells without changing their text.
 local function cell_text(cell)
-  return latex(cell.contents)
+  local s = latex(cell.contents)
+  return (s:gsub('\\texttt{([0-9a-fA-F]+)}', function(hash)
+    if #hash < 28 then return '\\texttt{' .. hash .. '}' end
+    local chunks = {}
+    for i = 1, #hash, 10 do chunks[#chunks + 1] = hash:sub(i, i + 9) end
+    return '\\texttt{' .. table.concat(chunks, '\\allowbreak{}') .. '}'
+  end))
 end
 local function get_rows(el)
   local result = {}
@@ -37,23 +44,30 @@ end
 local function numeric_cell(s)
   return s:match('^%s*[%+%-]?%d') ~= nil or s:find('\\%s*%d') ~= nil
 end
+local function pure_numeric_cell(s)
+  s = trim(s):gsub('%%$', '')
+  return s:match('^[%+%-]?[%d,%. ]+$') ~= nil
+end
 local function widths(rows,n)
   local lengths = {}
   local numeric = {}
-  for j=1,n do lengths[j]=1;numeric[j]=0 end
+  local pure_numeric = {}
+  for j=1,n do lengths[j]=1;numeric[j]=0;pure_numeric[j]=0 end
   for r=2,#rows do
     for j,cell in ipairs(rows[r].cells) do
       local txt = pandoc.utils.stringify(cell.contents)
       local size = #txt
       lengths[j] = math.max(lengths[j],size)
       if numeric_cell(txt) then numeric[j]=numeric[j]+1 end
+      if pure_numeric_cell(txt) then pure_numeric[j]=pure_numeric[j]+1 end
     end
   end
   local numcols=0
   for j=1,n do if numeric[j] >= math.max(1,math.floor((#rows-1)/2)) then numcols=numcols+1 end end
   local frac={}
   if n==2 then
-    if numcols==1 and numeric[2]>numeric[1] then frac={.74,.26}
+    if numcols==1 and numeric[2]>numeric[1] and lengths[2]<24 then frac={.74,.26}
+    elseif numcols==1 and numeric[2]>numeric[1] then frac={.42,.58}
     elseif numcols==1 then frac={.25,.75}
     elseif lengths[2] > lengths[1]*1.7 then frac={.29,.71}
     else frac={.45,.55} end
@@ -67,7 +81,7 @@ local function widths(rows,n)
   elseif n==5 then frac={.41,.1475,.1475,.1475,.1475}
   elseif n==6 then frac={.30,.14,.14,.14,.14,.14}
   else for j=1,n do frac[j]=1/n end end
-  return frac,numeric
+  return frac,pure_numeric
 end
 
 function Table(el)
@@ -87,7 +101,11 @@ function Table(el)
   local caption,marked=caption_info(el.caption)
   local wide=marked or n>=4
   -- Avoid a narrow 2-col layout for long explanatory / multirow tables.
-  local frac, numeric=widths(rows,n)
+  local frac, pure_numeric=widths(rows,n)
+  -- Two-column tables marked wide need extra room, but not a full-page-width grid.
+  if wide and n == 2 then
+    for j=1,n do frac[j]=frac[j]*0.88 end
+  end
   local env=wide and 'table*' or 'table'
   local width=wide and '\\textwidth' or '\\columnwidth'
   local lines={}
@@ -96,16 +114,26 @@ function Table(el)
   add('\\begin{'..env..'}[!tp]')
   add('\\centering')
   add('\\begingroup')
-  add('\\small')
-  add('\\setlength{\\tabcolsep}{4pt}')
-  add('\\renewcommand{\\arraystretch}{1.24}')
+  -- Dense wide tables use a slightly smaller font; others remain readable.
+  if n >= 5 then add('\\fontsize{7.7pt}{9.5pt}\\selectfont')
+  else add('\\small') end
+  -- With zero shade overhang, 2 x tabcolsep is the VISIBLE gap.
+  -- 0.7pt gives roughly 1-2 screen pixels while cell insets keep text apart.
+  add('\\setlength{\\tabcolsep}{0.7pt}')
+  add('\\renewcommand{\\arraystretch}{1.30}')
+  add('\\setlength{\\arrayrulewidth}{0.6pt}')
+  add('\\arrayrulecolor{black!70}')
   -- Keep rule edges flush against shaded rows rather than separated by white strips.
   add('\\setlength{\\aboverulesep}{0pt}')
   add('\\setlength{\\belowrulesep}{0pt}')
   local cols={}
   for j=1,n do
-    local align = numeric[j] >= math.max(1,math.floor((#rows-1)/2)) and j>1
-      and '\\RaggedLeft' or '\\RaggedRight'
+    -- Right-align columns only when nearly all values are genuinely numeric.
+    -- Mixed description/value columns should read left-to-right.
+    local right_align = j>1 and pure_numeric[j] >= math.max(1,math.ceil((#rows-1)*0.75))
+    local align = right_align
+      and '\\RaggedLeft\\leftskip=2pt plus 1fil\\rightskip=2pt'
+      or '\\RaggedRight\\leftskip=2pt\\rightskip=2pt plus 1fil'
     cols[j] = '>{'..align..'\\arraybackslash}p{\\dimexpr '..string.format('%.5f',frac[j])..width..'-2\\tabcolsep\\relax}'
   end
   add('\\begin{tabular}{@{}'..table.concat(cols,'')..'@{}}')
@@ -121,7 +149,7 @@ function Table(el)
     if ri==1 then add('\\rowcolor{reportTableHead}[0pt][0pt]')
     elseif ri%2==0 then add('\\rowcolor{reportTableStripe}[0pt][0pt]') end
     add(table.concat(cells,' & ')..' \\\\')
-    if ri==1 then add('\\midrule') end
+    if ri==1 then add('\\hline') end
   end
   add('\\bottomrule')
   add('\\end{tabular}')
