@@ -6,6 +6,14 @@ Our question asks whether related skills introduce security-sensitive behavior a
 
 Our threat model focuses on observable instructions or code involving command execution, network access, file-system operations, credentials, external code or dependency acquisition, and system modification. These operations can be legitimate. They matter because an agent acting on untrusted instructions may have tools that affect a user's machine, data, or external services. A detected change is a **reason to review**, not evidence that an instruction ran, a vulnerability was exploited, or its author intended harm. The full threat model describes the trust boundary and coverage limits.
 
+## Analysis overview
+
+The pipeline follows four stages. It first finds skills that *might* be related, then identifies sufficiently similar content and a defensible comparison order. Only after those decisions does it examine changed operations and assess them against our risk indicators. Separating these stages helps us avoid treating a shared name, a changed command, or a scanner match as proof of increased risk.
+
+![Four stages of the static comparison process: group candidates, match and order, compare operations, and assess risk indicators.](report/figures/analysis-pipeline.png){#fig-analysis-pipeline width="100%"}
+
+The next sections explain the evidence and limitations behind each stage.
+
 ## Step 1: Identify related skills
 
 We first compare artifacts within an exact-name candidate family (RDR-003). Identical `SKILL.md` content is recognized by its file hash; known bundled-file content is represented separately by a fingerprint of sibling file hashes. This matters because two copies of `SKILL.md` can contain the same instructions yet ship with different scripts. Unavailable sibling state is treated as unknown, not as an empty bundle.
@@ -68,7 +76,27 @@ The last stage tests the changed evidence against **11 risk indicators (RIs)** s
 
 We chose these indicators because they can be supported by **specific observable evidence** in the dataset rather than speculative runtime effects. They also reflect the plausible changes described in the threat model. An indicator may be supported, uncertain, or absent from the observed comparison. “Absent” means **not supported by available evidence**, not proven safe. One command may support several indicators without representing several separate incidents.
 
-A useful negative example from scanner development is a skill that changes `npm install` to `bun install` while retaining the same dependency-acquisition workflow. We still record the changed commands, but the substitution alone does not support RI-005. This distinction avoids inflating counts whenever routine instructions change (RDR-012). In contrast, introducing `curl -fsSL https://cli.inference.sh | sh && infsh login` adds an explicit download-and-execute operation. The Trial 3 `python-executor` comparison **1773238 → 1729578** received RI-001 and RI-003 for this single changed construct; its classification remains an **automated observation pending human adjudication**. Two indicators here describe two aspects of one command, not two incidents.
+A useful negative example from scanner development is a change from `npm install` to `bun install` that preserves the same dependency-acquisition workflow. Both commands remain in the extracted evidence, but the substitution alone does not support **RI-005**. This is intentional: recording a changed command does not mean reporting a newly introduced risk (RDR-012).
+
+### Worked example: A changed installation instruction
+
+One comparison in Trial 3 illustrates the other side of that decision. In the `python-executor` family, the observed pair **1773238 → 1729578** changes the installation guidance:
+
+**Base artifact:**
+
+```bash
+npx skills add inference-sh/skills@agent-tools
+```
+
+**Derived candidate:**
+
+```bash
+curl -fsSL https://cli.inference.sh | sh && infsh login
+```
+
+The base already describes software installation, so the finding is **not** that installation or network access became possible for the first time. The derived candidate introduces a *specific download-and-execute method*: it retrieves a remote shell script and passes it immediately to `sh`. It also introduces `cli.inference.sh` as a destination for an explicit network operation. The assessor consequently reported **RI-001** (direct download-and-execute) and **RI-003** (network expansion) from the same changed command—not two independent incidents.
+
+This could be legitimate installation guidance, but executing remotely supplied code is relevant to supply-chain review because the contents of that code may change outside the skill. The stored instructions do not show whether an agent executed it, whether the agent's permissions would allow it, or whether the two artifacts share a verified copying history. The comparison has incomplete overall extraction coverage, although the installer evidence itself was extracted completely. **This case is an automated finding pending independent human validation.**
 
 ## Outcomes and interpretation limits
 
