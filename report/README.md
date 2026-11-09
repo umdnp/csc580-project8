@@ -31,8 +31,8 @@ The report now describes the three saved Sprint 3 trials (300 distinct
 families, 2,157 primary directed comparisons). The abstract, evaluation,
 discussion, validity, and conclusion have been synchronized provisionally with
 the Sprint 3 counts, but the team's adjudicated manual review remains pending.
-Sections 02–04 still need a separate readability and related-work pass before
-final submission. Editing or building the report does not rerun the pipeline
+Sections 02–04 have been revised for readability and related-work context.
+The final interpretation will be updated after manual validation. Editing or building the report does not rerun the pipeline
 or adjudicate review labels.
 
 ## Build the project report
