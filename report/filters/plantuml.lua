@@ -64,10 +64,13 @@ local function render(block)
   end
   local caption = block.attributes.caption or ""
   local image = pandoc.Image(caption, target, "", pandoc.Attr("", {}, {
-    width = block.attributes.width or "6in"
+    width = block.attributes.width or "100%"
   }))
   return pandoc.Figure({pandoc.Plain({image})},
-    pandoc.Caption(pandoc.read(caption, "markdown").blocks), pandoc.Attr(block.identifier))
+    pandoc.read(caption, "markdown").blocks,
+    pandoc.Attr(block.identifier, block.classes))
 end
 
-return {CodeBlock = render}
+function CodeBlock(block)
+  return render(block)
+end

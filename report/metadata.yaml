@@ -1,21 +1,43 @@
 ---
 title: "Security Relevant Changes in Reused Agent Skills"
-subtitle: "SWE 380 / CSC 580 Group 8 Project Report"
+subtitle: |
+  CSC 580 Advanced Software Engineering  
+  University of Michigan-Flint, Fall 2026  
+  Group 8 Final Project Report
 author:
   - "Jim Prantzalos"
   - "Kyle Cantrell"
   - "Vaisnavii Mohanraj"
   - "Christian Heiney"
-date: "Fall 2026"
+date: "November 8, 2026"
 lang: en-US
 papersize: letter
-fontsize: 11pt
+documentclass: extarticle
+fontsize: 9pt
+mainfont: "TeX Gyre Pagella"
 classoption:
   - titlepage
+  - twocolumn
 header-includes:
   - |
+    \usepackage{graphicx}
+    \usepackage{array}
+    \usepackage{booktabs}
+    \usepackage[table]{xcolor}
+    \usepackage{ragged2e}
+    \definecolor{reportTableHead}{RGB}{232,238,243}
+    \definecolor{reportTableStripe}{RGB}{246,248,250}
+    \setlength{\textfloatsep}{12pt plus 2pt minus 3pt}
+    \setlength{\dbltextfloatsep}{14pt plus 2pt minus 3pt}
+    \renewcommand{\topfraction}{0.93}
+    \renewcommand{\dbltopfraction}{0.90}
+    \renewcommand{\dblfloatpagefraction}{0.85}
+    \renewcommand{\textfraction}{0.06}
+    \setcounter{topnumber}{3}
+    \setcounter{dbltopnumber}{3}
     \usepackage{fvextra}
     \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+    \setlength{\columnsep}{0.25in}
 geometry:
-  - margin=1.25in
+  - margin=0.75in
 ---
