@@ -2,60 +2,35 @@
 
 ## Three-trial overview
 
-The saved Sprint 3 analysis covers **300 distinct, randomly selected families** in three equal-sized, non-overlapping samples. The pipeline loaded **6,570 artifacts** and analyzed **2,157 primary directed comparisons**. It automatically identified at least one **supported risk indicator (RI)** in **63 families (21.0%)** and **340 comparisons (15.8%)**. These are observations under the study's implemented rules, **not** manually confirmed vulnerabilities, malicious skills, or actual security incidents. Independent review of the selected validation cases is still in progress.
+Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selected, relationship-eligible skill families**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. These are candidate security-sensitive changes identified under our rules, **not** confirmed vulnerabilities, malicious instructions, or observed executions. Independent manual validation is in progress.
 
 | Measure | Trial 1 | Trial 2 | Trial 3 | Combined |
 | --- | ---: | ---: | ---: | ---: |
 | Families analyzed | 100 | 100 | 100 | **300** |
 | Artifacts loaded | 2,275 | 2,067 | 2,228 | **6,570** |
 | Primary directed comparisons | 665 | 633 | 859 | **2,157** |
-| Families with at least one supported RI | 25 (25.0%) | 18 (18.0%) | 20 (20.0%) | **63 (21.0%)** |
-| Comparisons with at least one supported RI | 113 (17.0%) | 36 (5.7%) | 191 (22.2%) | **340 (15.8%)** |
+| Families with a supported RI | 25 (25.0%) | 18 (18.0%) | 20 (20.0%) | **63 (21.0%)** |
+| Comparisons with a supported RI | 113 (17.0%) | 36 (5.7%) | 191 (22.2%) | **340 (15.8%)** |
 | Flagged comparisons (any reason) | 346 | 271 | 502 | **1,119** |
 | Comparisons with incomplete evidence coverage | 123 | 28 | 60 | **211** |
 
 : Automated results from the three Sprint 3 trials {.wide}
 
-Family percentages use 100 families per trial (300 combined); pair percentages use all primary directed comparisons in the relevant trial. No selected artifact was skipped. Each trial used the same code revision, rule registry, similarity policy, and primary-edge setting. The 300 families are the study sample, not a representative cross-section of every GitSkills skill.
+The same code revision, rules, similarity policy, and primary-edge setting were used in all three trials. No selected artifacts were skipped. Because the study deliberately oversampled larger families and required usable directed relationships, these percentages describe **our selected families**, not all skills in GitSkills.
 
-## Finding 1: Detections occur across several families
+## Finding 1: Security-sensitive changes appear across multiple families
 
-The primary outcome—families containing at least one supported RI—ranges from **18% to 25%** across trials. This demonstrates that the scanner's indicators are not limited to one family or one trial. It does not yet establish the proportion of all GitSkills families with such changes, or how many observed detections independent reviewers will confirm.
+The primary result is the proportion of sampled families with at least one supported indicator. That rate was **25% in Trial 1, 18% in Trial 2, and 20% in Trial 3**, or **21% overall**. The automated detections therefore appear across all three samples, rather than being confined to a single trial. Human review will determine how reliably those detections reflect the defined changes.
 
-The family-level outcome is intentional (RDR-013): a family contributes **one** to this measure whether one of its comparisons or many of its comparisons contain an indicator. The pair-level measure provides a useful second view, but answers a different question.
+![Share of sampled families with at least one supported risk indicator in each trial and overall.](report/figures/sprint3-family-vs-pair-rates.png){#fig-sprint3-rates width="100%" .wide}
 
-![Family-level versus comparison-level rates in the three trials. Family-level rates are more similar across trials.](report/figures/sprint3-family-vs-pair-rates.png){#fig-sprint3-rates width="100%" .wide}
+The family-level measure is intentional: a family contributes once whether it contains one indicator-bearing comparison or many. This keeps the main question focused on **how widely potentially important changes appear** rather than how often a highly reused family contributes another comparison. The effect of that choice is assessed below.
 
-## Finding 2: Pair-level totals are sensitive to a few families
+## Finding 2: Script execution and external code acquisition are the most widespread changes
 
-As the figure shows, the comparison-level rate varies more than the family-level rate. A reason is that some families yield far more primary comparisons than others. Within a family, multiple comparisons can share artifacts and recurring evidence; they should not be counted as independent historical changes.
+The risk indicators distinguish specific operational changes from ordinary differences in instructions. **RI-010** Local script execution was supported in **39 families (13.0% of all sampled families)**, followed by **RI-005** External code or dependency acquisition in **26 families (8.7%)**. Together, those two indicators appeared in **52 distinct families**: 39 had RI-010, 26 had RI-005, and 13 had both. Thus, **52 of the 63 indicator-bearing families (82.5%)** had at least one of these two indicators. The overlap matters; adding the individual counts would double-count families.
 
-The most influential family in each trial contributed the following indicator-bearing comparisons:
-
-| Trial | Family | Indicator-bearing comparisons | Share of that trial's indicator-bearing comparisons |
-| --- | --- | ---: | ---: |
-| 1 | `cso` | 55 | 48.7% |
-| 2 | `junta-leiloeiros` | 8 | 22.2% |
-| 3 | `mcp-builder` | 133 | 69.6% |
-
-: Most influential family in each trial {.wide}
-
-To test the sensitivity of the descriptive result, we recalculated each trial's pair-level rate **without its most influential family**, leaving the original study sample and results untouched:
-
-| Trial | All families | Excluding the listed dominant family |
-| --- | ---: | ---: |
-| 1 | 113 / 665 = 17.0% | 58 / 549 = **10.6%** |
-| 2 | 36 / 633 = 5.7% | 28 / 613 = **4.6%** |
-| 3 | 191 / 859 = 22.2% | 58 / 560 = **10.4%** |
-| **Combined** | **340 / 2,157 = 15.8%** | **144 / 1,722 = 8.4%** |
-
-: Sensitivity of comparison-level detection rates to dominant families {.wide}
-
-After excluding these three families, the family-level rate is **60 of 297 (20.2%)**, compared with **63 of 300 (21.0%)** originally. This contrast explains why family-level frequency is the primary measure. It also cautions against interpreting the 2,157 comparisons as independent security events.
-
-## Finding 3: Indicators differ in how widely they appear
-
-Risk indicators describe specific security-sensitive *changes*, not general scanner matches. The table counts the number of distinct sampled families containing each indicator and, secondarily, the number of directed comparisons where it was supported. A family or comparison can appear in several rows.
+![Number and percentage of sampled families with each of the eight detected risk indicators.](report/figures/sprint3-indicators-by-family.png){#fig-sprint3-indicators width="100%" .wide}
 
 | Indicator | Families (of 300) | Comparisons (of 2,157) |
 | --- | ---: | ---: |
@@ -69,17 +44,28 @@ Risk indicators describe specific security-sensitive *changes*, not general scan
 | **RI-011** External instruction dependency | 1 | 1 |
 | **RI-002**, **RI-004**, **RI-009** | **0 each** | **0 each** |
 
-: Risk indicators by the number of sampled families and directed comparisons {.wide}
+: Supported indicators by family and directed comparison {.wide}
 
-![Number of distinct families with each supported risk indicator; indicators with no detections are included at zero.](report/figures/sprint3-indicators-by-family.png){#fig-sprint3-indicators width="100%" .wide}
+These categories **overlap**: one changed command or one family may support several indicators. For example, the `python-executor` installation change discussed in Section 6 supports both direct download-and-execute and a new network-operation destination. Neither observation establishes malicious intent or actual execution.
 
-RI-010 is observed across the most families, followed by RI-005. By contrast, RI-006 produces almost as many comparison-level observations as RI-005 but is found in only **10 families**. Of RI-006's 159 indicator-bearing comparisons, **134** occur in `cso` and `mcp-builder` together. The difference between these columns is important: a high pair count can indicate repeated comparisons within a few families rather than wide distribution across the sample.
+The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials. Zero detections do not establish that these behaviors are absent from other skills or undetectable by other methods.
 
-RI-002, RI-004, and RI-009 were not supported in these trials. Zero detections could reflect the sampled content, missing evidence, or the implemented rules. It does not establish that those behaviors are absent from GitSkills.
+## Sensitivity check: Why families are the primary unit
 
-## Supporting observation: Family size and cluster structure
+The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**, but it varied from **5.7% to 22.2%** across trials. A few families contributed many indicator-bearing comparisons: `cso` accounted for **55 of 113** in Trial 1, `junta-leiloeiros` for **8 of 36** in Trial 2, and `mcp-builder` for **133 of 191** in Trial 3. Excluding these three families *for a sensitivity calculation only* reduced the combined pair-level rate to **144 of 1,722 (8.4%)**, while the family-level rate changed only from **63 of 300 (21.0%)** to **60 of 297 (20.2%)**. This supports using family-level frequency to describe the spread of detections in our sample; it does not remove sampling bias or prove population-wide risk prevalence.
 
-Larger families were more likely to contain at least one supported RI. They also offered more candidate relationships and, often, more **similarity clusters**—groups of artifacts whose instructions are related under the study's similarity criteria.
+| Trial | All comparisons | Without the listed dominant family |
+| --- | ---: | ---: |
+| 1 (`cso`) | 113 / 665 = 17.0% | 58 / 549 = **10.6%** |
+| 2 (`junta-leiloeiros`) | 36 / 633 = 5.7% | 28 / 613 = **4.6%** |
+| 3 (`mcp-builder`) | 191 / 859 = 22.2% | 58 / 560 = **10.4%** |
+| **Combined** | **340 / 2,157 = 15.8%** | **144 / 1,722 = 8.4%** |
+
+: Sensitivity of comparison-level detection rates to three influential families {.wide}
+
+## Supporting observation: Family size and similarity clusters
+
+Larger families were more likely to contain at least one supported indicator. They also offered more opportunities for directed comparisons and often contained more **similarity clusters**, which group artifacts with related instruction content under our thresholds.
 
 | Family size | Families | Families with an RI | Rate | Mean similarity clusters per family |
 | --- | ---: | ---: | ---: | ---: |
@@ -91,22 +77,18 @@ Larger families were more likely to contain at least one supported RI. They also
 
 : Family size, indicator frequency, and similarity-cluster structure {.wide}
 
-For example, `implement` contains **856 artifacts in 35 clusters**, whereas `cso` contains **150 artifacts in two clusters**. Many occurrences under one name do not necessarily represent a single shared history: different skills may use the same name. Conversely, several clusters do not prove different authors or independent origins. The three Extreme families are too few to support a broad conclusion about their 100% detection rate.
+For example, `implement` contained **856 artifacts in 35 clusters**, while `cso` had **150 artifacts in two clusters**. This reinforces why sharing a name is not enough to establish that skills are related. Multiple clusters do not prove different authors or independent origins, and a larger family provides more opportunities to detect changes. With only three Extreme families, their 100% detection rate should not be generalized.
 
-These patterns also help explain why the study starts with same-name candidates but requires content similarity before choosing comparisons. They do **not** show that adding copies or increasing family size causes security risk.
+## Supporting observation: Not every detected difference supports a risk indicator
 
-## Supporting observation: Evidence changes are broader than supported indicators
+The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8%)** met the narrower requirements for at least one supported indicator. The other **779 flagged comparisons** remain recorded as changes or uncertain evidence; they are **not** declared harmless. This separation is intentional. For instance, changing `npm install` to `bun install` may be a real command difference without introducing a new dependency-acquisition operation. The evidence comparison retains that difference, while the indicator assessment avoids inflating the security-sensitive count. Section 6 contrasts this with the `python-executor` download-and-execute example.
 
-The scanner flagged **1,119 of 2,157 comparisons (51.9%)** for some observed rule, evidence, or indicator-related change. Only **340 (15.8%)** satisfied the narrower requirements for at least one supported RI. Thus, **779 flagged comparisons** had no supported indicator. This separation is **by design**, not a claim that the other differences are harmless.
+## Evidence and ordering qualifications
 
-For example, a change from `npm install` to `bun install` can be correctly recorded as changed command evidence, yet it does not on its own demonstrate a newly introduced acquisition source (RI-005). The comparator retains the evidence; the assessor withholds an unsupported risk indicator. The contrasting `python-executor` case in Section 6 introduces an explicit remote-script execution method and a new network-operation hostname. These are examples of how assessment considers the *meaning of the change*, not merely the presence or number of matching words.
+**Evidence coverage.** Of the **2,157 comparisons**, **211** had incomplete evidence coverage, including **81 of the 340** with supported indicators. A particular detected operation can have complete extracted evidence even when another part of the comparison is incomplete. Among the **1,946 comparisons labelled complete**, **259 (13.3%)** had supported indicators, compared with **340 of 2,157 (15.8%)** overall. This is a coverage comparison, not a correction for detection error or selection bias.
 
-## Coverage and ordering qualifications
+**Direction evidence.** The 2,157 comparisons were oriented through declared source (10), direct chronology (399), equivalent-peer chronology (355), repository-creation boundaries (827), or directional containment (566). Of the 340 indicator-bearing comparisons, **131** relied on containment for direction. These methods support plausible earlier/later ordering, not verified histories of copying. Appendix D contains the full breakdown.
 
-**Evidence coverage.** Of the **2,157 comparisons**, **211** have incomplete evidence coverage; **81** of the **340** comparisons with supported indicators are in this group. A specific operation can be fully extracted even when another portion of the same comparison is missing or partially extracted. The complete-labelled subset contains **259 indicator-bearing comparisons among 1,946 pairs (13.3%)**, compared with **340 among 2,157 (15.8%)** overall. This is a descriptive coverage check, not a correction for detection error or sampling bias.
+**Supporting files.** The analysis labelled **190 comparisons** `siblings-only` under its bundle-equivalence rules, with supported indicators in **41**. Most of those indicator-bearing comparisons are concentrated in `mcp-builder`, so manual review is needed before treating them as independent changes in executed-script behavior. Equivalence under the similarity representation does not guarantee byte-identical `SKILL.md` text.
 
-**Direction evidence.** The 2,157 comparisons use declared source (10), direct chronology (399), equivalent-peer chronology (355), repository-creation boundaries (827), or directional containment (566). Of the 340 indicator-bearing comparisons, **131** rely on containment direction alone. Such relationships provide plausible orderings but not verified ancestry. Appendix D provides the full direction breakdown and the main change-type counts.
-
-**Sibling differences.** The pipeline classifies **190 comparisons** as `siblings-only` under its bundle-equivalence rules, with supported indicators in **41**. These observations support inspecting bundled resources, but most positive `siblings-only` comparisons are concentrated in `mcp-builder`; case-level review is needed before treating them as distinct changes in executed script behavior.
-
-The independent manual reviews of the similarity decisions and the supported/unsupported indicators remain in progress. The results above are therefore final **automated trial counts** but provisional as claims about correctly detected security-sensitive changes. Their validation and the interpretation of individual cases belong in the evaluation and discussion sections.
+The three trials' automated results are complete, but **independent human validation of relationship decisions and indicator judgments is still underway**. The next section describes how those findings will be evaluated.

@@ -250,3 +250,8 @@ uv run python report/figures/generate_sprint3_figures.py
 
 The script reads the three saved trials and does not select families, scan
 artifacts, or modify trial outputs. `pandas` and `matplotlib` are required.
+Each chart is saved as an editable SVG and a high-resolution PNG at the same
+basename. The Markdown references PNG for compatibility with the current PDF
+build; the SVGs preserve selectable text and can be edited without pixelation.
+The charts report **family-level supported indicators**; pair-level sensitivity
+figures remain in the Results text and table rather than sharing their axes.
