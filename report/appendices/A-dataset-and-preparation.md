@@ -1,5 +1,6 @@
 \clearpage
 
+
 # Appendix A Dataset construction and preparation
 
 ## Candidate selection
@@ -73,12 +74,11 @@ Descriptions are lowercased, trimmed, and whitespace-normalized for subgrouping.
 
 ## Preparation workflow
 
-The activity diagram connects candidate preparation to the end-to-end cohort analysis. Preparation counts come from the October 15, 2026 local audit; the final analyzed cohort is a supplied subset of this population.
+The activity diagram connects candidate preparation to the end-to-end cohort analysis. Preparation counts come from the October 15, 2026 local audit; the three Sprint 3 samples are drawn from a separately screened subset of this candidate pool.
 
-```{#fig-preparation .plantuml source="report/diagrams/preparation-activity.puml" width="4.3in" caption="Candidate preparation and the end-to-end cohort analysis workflow."}
+```{#fig-preparation .plantuml source="report/diagrams/preparation-activity.puml" width="100%" .fullpage .wide caption="Candidate preparation and the end-to-end cohort analysis workflow."}
 ```
 
-\clearpage
 
 ## Selection audit and identity
 
@@ -92,6 +92,22 @@ The activity diagram connects candidate preparation to the end-to-end cohort ana
 | `description IS NOT NULL` | 1,621,757 | 0 |
 | Exact name occurs in at least two qualifying rows | 943,257 | 678,500 |
 
-The audit retained 943,257 occurrences in 162,995 exact-name families. These preparation totals are not the results denominator: the saved provisional run analyzes 1,151 artifacts from 30 supplied families. Family selection was not random or established as representative.
+: Candidate-selection audit for the prepared GitSkills snapshot {.wide}
+
+The audit retained 943,257 occurrences in 162,995 exact-name families. These are **not** the final family-selection pool or results denominator. The Sprint 3 family picker excluded names unsuitable for one-name-per-line selection, screened distinct main-file/sibling hash states, and checked for at least one usable primary directed comparison. Its sampling reports list 162,461 candidates at the preliminary selection stage; **not all of these candidates pass relationship validation**. The final analysis covers 300 randomly selected, validated families and 6,570 loaded artifact occurrences across three non-overlapping trials.
 
 Artifact and description-group numbers are local to the prepared database. The query assigns group numbers without an explicit ordering, so cross-build reconciliation must use the dataset snapshot, repository/path identity, and content hashes. The sibling fields begin as null placeholders; subsequent enrichment distinguishes known empty bundles from unavailable or incomplete sibling evidence. Null must not be interpreted as an empty bundle.
+
+## Sprint 3 sample audit
+
+The following counts come from the saved `sampling_report.json` files. A rejection means that the candidate failed the family picker's relationship validation, **not** that it contained no security-sensitive behavior. The picker replaced rejected candidates in the same stratum.
+
+| Sample | Seed | Families selected | Candidates rejected during drawing | Previously selected families excluded |
+| --- | ---: | ---: | ---: | ---: |
+| Trial 1 | 5801 | 100 | 239 | 0 |
+| Trial 2 | 5802 | 100 | 288 | 100 |
+| Trial 3 | 5803 | 100 | 247 | 200 |
+
+: Sprint 3 sample seeds and family-selection audit
+
+Each trial retains the same 20/55/20/4/1 size allocation described in Section 5. The sampling reports preserve the rejection reasons, source database identity, thresholds, excluded `families.txt` paths and checksums, and exact selected names. The 162,461 preliminary candidates are **not** an eligible-population denominator for estimating risk prevalence, because a validated primary directed relationship is required to enter the study.

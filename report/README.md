@@ -2,24 +2,21 @@
 
 ## Main narrative and appendices
 
-The main report targets 12-15 pages of research content, including its tables.
-Title material, references, and appendices are outside that budget. The narrative
-centers on the research question, the eleven RIs, the selected cohort, results,
-validation and interpretation. Pagination must be checked on the rebuilt PDF;
-the source word count alone does not establish the page count.
-
-The October 26, 2026 PDF refactor renders 13 pages of main content (physical
-pages 2-14), followed by references and Appendices A-F. This is a verified PDF
-count; Word pagination can differ. After appendix trimming, the complete PDF
-contains 28 pages: one title page, 13 main-content pages, one references page,
-and 13 appendix pages.
+The report centers on the research question, the eleven risk indicators (RIs),
+the three Sprint 3 trials, results, validation, and interpretation. The main
+narrative flows in a compact two-column layout; references and appendices are
+outside that narrative. Page counts depend on fonts and the final build, so
+inspect the rendered PDF rather than targeting a page count at the expense of
+readability.
+Word and PDF pagination can differ.
 
 `pandoc.yaml` defines the reading order. Section filenames run from 01 through
 12 in that same order, ending with the conclusion (11) and references (12).
 Appendices A-F are stored together in `appendices/`. Background precedes the dataset and
-method; results precede validation, discussion, and validity limits. Main sections
-flow continuously rather than forcing a new page for each heading. References
-and each appendix start on a new page.
+method; results precede validation, discussion, and validity limits. Main
+sections flow without forced page breaks. References and the first appendix
+begin on new pages; later appendices use the available space. Large PlantUML
+diagrams have dedicated pages.
 
 | Appendix | Supporting material | Source |
 | --- | --- | --- |
@@ -30,11 +27,13 @@ and each appendix start on a new page.
 | E | Links to supporting repository material and result artifacts | [Supporting material](appendices/E-reproducibility-and-artifacts.md) |
 | F | AI assistance in development and report preparation | [Disclosures](appendices/F-disclosures.md) |
 
-The current main results describe the saved provisional 30-family `sprint2` run.
-They are automated counts, not completed independent validation or population
-prevalence. When results are refreshed, verify the manifest, code/policy
-identity, sample checksums, and annotation status before revising report claims.
-Changing this report does not rerun the pipeline or adjudicate review labels.
+The report now describes the three saved Sprint 3 trials (300 distinct
+families, 2,157 primary directed comparisons). The abstract, evaluation,
+discussion, validity, and conclusion have been synchronized provisionally with
+the Sprint 3 counts, but the team's adjudicated manual review remains pending.
+Sections 02–04 still need a separate readability and related-work pass before
+final submission. Editing or building the report does not rerun the pipeline
+or adjudicate review labels.
 
 ## Build the project report
 
@@ -127,9 +126,10 @@ the relevant report section, with its source path relative to the repository roo
 ````
 
 Inline PlantUML inside a `.plantuml` code block also works. Sources must contain
-`@startuml` and `@enduml`. Use unique figure identifiers. Images default to six
-inches wide to match the report's text area; a block can specify `width="5in"`.
-Keep diagrams compact enough to remain legible on a report page.
+`@startuml` and `@enduml`. Use unique figure identifiers. Images are sized
+by the two-column LaTeX figure filter. Ordinary figures stay in one column;
+`.wide` spans both columns, and `.fullpage .wide` reserves a page for a
+large diagram. This prevents figures from overlapping adjacent columns.
 
 On a normal build, `filters/plantuml.lua` reuses an existing PNG or invokes local
 Java/PlantUML if the diagram changed. It uses Smetana rather than an external
@@ -160,6 +160,41 @@ output. Use a deliberate manifest update when upgrading the rendering toolchain.
   and Implementation. These are classification outcomes, not stored mutable states.
 - `family-scan-sequence.puml`: the successful family-scan component interactions,
   including conditional sibling review, in Method and Implementation.
+
+## Two-column table and figure layout
+
+The PDF uses the new two-column typography configured in `metadata.yaml`
+(9-point TeX Gyre Pagella and a quarter-inch column gutter). The
+`two_column_tables.lua` filter is active in `pandoc.yaml` for all direct and
+scripted Pandoc builds. It wraps long table-cell text, adds light alternating
+row shading and breathing room, and constrains image width and height.
+
+Write tables as normal Markdown. Mark a table to span both columns by adding
+`{.wide}` to its caption line:
+
+```markdown
+| Category | Rules | Detection | Limitation |
+| --- | --- | --- | --- |
+| ... | ... | ... | ... |
+
+: Scanner rule coverage {.wide}
+```
+
+The marker is hidden from the rendered caption. Tables with four or more
+columns also span both columns by default. Shorter tables normally stay within
+one column; when their descriptions are long, give them a `{.wide}` caption.
+Figures work similarly: `![Caption](path){.wide}` spans both columns, while
+small figures default to one column. A `.fullpage .wide` PlantUML block is
+placed on a dedicated figure page.
+
+References and the first appendix start on new pages; appendix tables and
+short narrative sections do not add automatic page breaks. Large diagrams are
+the deliberate exceptions. Wide LaTeX floats may move to the top of a nearby
+page to fit without clipping, so visually inspect the generated PDF.
+
+The report files in this directory are the editable sources. Rebuild the PDF
+with the project's normal build helper after edits; do not treat an older
+`final.pdf` as evidence of the latest report text.
 
 ## Heading and paragraph pagination
 
@@ -202,3 +237,16 @@ They require Pandoc but do not invoke Java or contact a rendering service.
 - [Official Pandoc releases](https://github.com/jgm/pandoc/releases)
 - [Official PlantUML releases](https://github.com/plantuml/plantuml/releases)
 - [Eclipse Temurin](https://adoptium.net/temurin/releases/)
+
+## Sprint 3 figures
+
+The two cross-trial figures referenced in `sections/07-results.md` are kept in
+`figures/` and regenerated from the pinned Sprint 3 `review/families.csv` and
+`review/directed_pairs.csv` files with:
+
+```shell
+uv run python report/figures/generate_sprint3_figures.py
+```
+
+The script reads the three saved trials and does not select families, scan
+artifacts, or modify trial outputs. `pandas` and `matplotlib` are required.
