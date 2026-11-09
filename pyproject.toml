@@ -31,6 +31,8 @@ build-backend = "setuptools.build_meta"
 dev = [
     "httpx2>=2.0.0",
     "pytest>=9.1.1",
+    "reportlab>=5.1.0",
+    "svglib>=2.4.0",
 ]
 
 [project.scripts]

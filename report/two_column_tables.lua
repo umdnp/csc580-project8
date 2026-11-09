@@ -43,7 +43,8 @@ local function fractions(n, first)
     if first == 'Setting' then return {.40,.60} end
     return {.34,.66}
   elseif n == 3 then
-    if first == 'Trial' then return {.13,.42,.45} end
+    if first == 'Trial' then return {.16,.40,.44} end
+    if first == 'Indicator' then return {.64,.18,.18} end
     if first == 'Priority' then return {.10,.28,.62} end
     return {.52,.24,.24}
   elseif n == 4 then
@@ -64,7 +65,7 @@ function Table(el)
   local caption, wide = caption_info(el)
   -- Wide flags have appeared in different AST locations across Pandoc builds.
   -- Long two-column tables get wide layout even if the caption hint is lost.
-  local wide_three = {Trial=true, Priority=true, Indicator=true, ['Cumulative selection stage']=true}
+  local wide_three = {Priority=true, ['Cumulative selection stage']=true}
   local first = pandoc.utils.stringify(rows[1].cells[1].contents)
   wide = wide or n >= 4 or (n == 2 and (#rows >= 9 or first == 'Change type')) or (n == 3 and wide_three[first])
   local width = wide and '\\textwidth' or '\\columnwidth'
