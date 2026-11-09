@@ -1,5 +1,6 @@
 from: markdown
 standalone: true
+number-sections: true
 citeproc: true
 
 metadata-file: report/metadata.yaml
@@ -7,6 +8,7 @@ bibliography: report/references.bib
 reference-doc: report/reference.docx
 
 filters:
+  - report/filters/section_headings.lua
   - report/filters/plantuml.lua
   - report/filters/pagination.lua
   - report/filters/svg_for_latex.lua

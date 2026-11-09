@@ -188,6 +188,17 @@ If you do not want to add a project dependency, you can use
 `uv run --with svglib python bin/build_report.py --format pdf` instead.
 SVGs remain editable source files, while LaTeX receives vector PDFs only.
 
+## Section heading style
+
+The PDF uses left-aligned Roman numerals for the ten main sections and true
+small caps for section titles (full-height initials, smaller capital letters
+elsewhere). Subsections are lettered and italic. `Abstract`, `References`, and
+Appendices A–F stay unnumbered; the appendix letters are part of their titles.
+`filters/section_headings.lua` capitalizes the displayed initials during LaTeX
+rendering, so the Markdown heading text does not need manual capitalization or
+number prefixes. Keep in-text section references consistent with the Roman
+numbering (e.g., Method is Section V and Results is Section VI).
+
 ## Two-column table and figure layout
 
 The PDF uses the new two-column typography configured in `metadata.yaml`

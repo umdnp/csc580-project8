@@ -2,7 +2,7 @@
 
 ## Three-trial overview
 
-Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selected, relationship-eligible skill families**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. These are automated findings about changes worth reviewing; independent human validation is still in progress.
+Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selected, relationship-eligible skill families**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. These are candidate security-sensitive changes identified under our rules, **not** confirmed vulnerabilities, malicious instructions, or observed executions. Independent manual validation is in progress.
 
 | Measure | Trial 1 | Trial 2 | Trial 3 | Combined |
 | --- | ---: | ---: | ---: | ---: |
@@ -20,11 +20,11 @@ The same code revision, rules, similarity policy, and primary-edge setting were 
 
 ## Finding 1: Security-sensitive changes appear across multiple families
 
-Supported indicators appeared in all three trials, ranging from **18 to 25 of 100 families** in each. The figure shows the family-level rates, counting each family once regardless of how many comparisons it contributes.
+Supported indicators appeared in **25 of 100 families in Trial 1, 18 of 100 in Trial 2, and 20 of 100 in Trial 3**. The combined rate was **63 of 300 (21.0%)**, with detections in each sample rather than just one. The figure below shows the rates without giving more visual weight to families that contribute many comparisons. Human review will determine how reliably these automated detections reflect the defined changes.
 
 ![Percentage of sampled families with at least one supported risk indicator, by trial and combined.](report/figures/sprint3-family-vs-pair-rates.svg){#fig-sprint3-rates width="47%"}
 
-This measure emphasizes **how widely the changes appear among sampled families**. The sensitivity check below explains why that distinction matters.
+A family counts once in this measure, whether one comparison or many contain an indicator. This keeps the focus on **how widely the changes appear among sampled families**. The sensitivity check below shows why that choice matters.
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
@@ -46,7 +46,7 @@ The risk indicators distinguish specific operational changes from ordinary diffe
 
 : Supported indicator counts among 300 families and 2,157 comparisons
 
-Indicators **overlap**: one changed operation or family may support several. The `python-executor` example in Section 6 illustrates this, so the indicator totals should not be added together.
+These categories **overlap**: one changed command or family may support several indicators. The `python-executor` example in Section V illustrates how a single operation can support more than one indicator. Counts here are not counts of independent incidents.
 
 The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials. Zero detections do not establish that these behaviors are absent from other skills or undetectable by other methods.
 
@@ -81,7 +81,7 @@ For example, `implement` contained **856 artifacts in 35 clusters**, while `cso`
 
 ## Supporting observation: Not every detected difference supports a risk indicator
 
-The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8%)** met the narrower criteria for at least one supported indicator. The remaining **779 flagged comparisons** are still recorded as differences or uncertain evidence; they are **not** declared harmless. This is an intentional distinction between noticing a change and identifying one that warrants security review. Section 6 gives contrasting examples of those outcomes.
+The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8%)** met the narrower criteria for at least one supported indicator. The remaining **779 flagged comparisons** are still recorded as differences or uncertain evidence; they are **not** declared harmless. This is an intentional distinction between noticing a change and identifying one that warrants security review. Section V gives contrasting examples of those outcomes.
 
 ## Evidence and ordering qualifications
 
@@ -91,4 +91,4 @@ The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8
 
 **Supporting files.** The analysis labelled **190 comparisons** `siblings-only` under its bundle-equivalence rules, with supported indicators in **41**. Most of those indicator-bearing comparisons are concentrated in `mcp-builder`, so manual review is needed before treating them as independent changes in executed-script behavior. Equivalence under the similarity representation does not guarantee byte-identical `SKILL.md` text.
 
-Section 8 describes the pending human review of relationships and indicator judgments.
+The three trials' automated results are complete, but **independent human validation of relationship decisions and indicator judgments is still underway**. The next section describes how those findings will be evaluated.
