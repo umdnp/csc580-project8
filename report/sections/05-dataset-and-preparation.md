@@ -23,7 +23,7 @@ A family is eligible for selection only if it passes two checks:
 
 When a randomly drawn candidate fails the relationship check, the picker records the rejection and draws a replacement from the same size group. **Selection does not run the security scanner** and does not favor families with risk indicators. Families that fail eligibility are excluded from the study population, not counted as families with no risk.
 
-We divided candidate families into five groups by their **total number of artifact occurrences**, including repeated copies. The allocation deliberately gives larger families more representation than they have in the candidate pool, so the study includes both ordinary and unusually large families without letting the largest ones consume the entire sample.
+We assigned candidate families to five size groups based on their **total number of artifact occurrences** ([Table 1](#tbl-family-strata)). The allocation deliberately gives larger families more representation than they have in the candidate pool, so the study includes both ordinary and unusually large families without letting the largest ones consume the entire sample.
 
 | Family size (artifact occurrences) | Per trial | Three trials |
 | --- | ---: | ---: |
