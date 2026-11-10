@@ -96,7 +96,7 @@ curl -fsSL https://cli.inference.sh | sh && infsh login
 
 Both instructions involve acquiring software, but the derived candidate introduces a different installation method. It explicitly downloads a shell script from `cli.inference.sh` and passes it directly to `sh` for execution. The assessor reported **RI-001** because the new command passes downloaded code directly to a shell, and **RI-003** because it introduces a new hostname for an explicit network operation. Both indicators describe the same changed command, rather than separate security incidents.
 
-This installation method may be legitimate. However, executing a remotely downloaded script raises a supply-chain concern because its contents can change independently of the skill's instructions. Our analysis identifies what the instructions direct an agent to do; it cannot determine whether the command was executed or whether the artifacts share a verified copying history. The relevant installation evidence was fully extracted, although the comparison had other evidence-coverage gaps. The findings remain subject to independent human validation.
+This installation method may be legitimate. However, executing a remotely downloaded script raises a supply-chain concern because its contents can change independently of the skill's instructions. Our analysis identifies what the instructions direct an agent to do; it cannot determine whether the command was executed or whether the artifacts share a verified copying history.
 
 ## Outcomes and interpretation limits
 
