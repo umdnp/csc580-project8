@@ -24,7 +24,7 @@ The analyzer groups related artifacts into **similarity clusters**. Variants can
 
 ## Step 2: Infer which artifact could come first
 
-We assign an earlier (**base**) and later (**derived candidate**) only after establishing relatedness. The available evidence is tested in the following order:
+After establishing that two artifacts are related, we determine which could have come first. We evaluate five types of direction evidence in priority order: declared source, direct chronology, equivalent-peer chronology, repository-creation boundaries, and directional containment. Table 2 explains each method and its limitations.
 
 | Priority | Direction evidence | What it establishes—and what it does not |
 | --- | --- | --- |
@@ -36,11 +36,13 @@ We assign an earlier (**base**) and later (**derived candidate**) only after est
 
 : Evidence used to infer earlier-to-later ordering, in priority order {.wide}
 
-For example, if a skill state has no recorded commit date but an equivalent copy was observed in January, that peer establishes that the state existed by January. If another related state is observed in March, January may support an earlier/later comparison. However, we cannot transfer that peer's date when its bundled-file state is different or unknown. Likewise, a repository created in March does **not** prove that its skill is newer than a skill in an older repository; a boundary is useful only when an independently dated state predates the repository.
+Equivalent-peer chronology helps when an artifact has no reliable commit date of its own. For example, suppose an equivalent copy of a skill was observed in January, and another related skill state was observed in March. The January observation may support an earlier-to-later comparison, even if the artifact being examined has no recorded date. However, the equivalent copy must have the same known skill content and sibling-file state. A different or unknown sibling state cannot supply that historical evidence.
 
-When none of these methods supports direction, the relationship remains unresolved. Conflicting source declarations are also left unresolved rather than forcing an order. Equivalent states remain peers rather than being forced into an earlier/later order. Each directed comparison retains its direction basis so that findings based on containment alone can be interpreted more cautiously than those supported by observed chronology.
+Repository creation dates can also help establish order, but only in specific circumstances. If one skill state was observed before another repository existed, that observation can support an earlier-to-later comparison. Simply belonging to an older repository does not establish that a skill came first.
 
-The algorithm selects at most **one primary predecessor per derived candidate**, avoiding cycles. It can also identify other related, directed comparisons, called *additional edges*. For the final three trials, we scanned **primary edges only** to study more families without repeatedly counting many related combinations within a few large families. In a controlled Sprint 2 comparison using the same scanner configuration, primary selection reduced 3,997 all-edge comparisons to 468 while retaining 43 of 44 observed family–indicator combinations. This supported the narrower design but did not establish that additional edges never contain unique findings. No separate Sprint 3 all-edge robustness result is claimed here.
+When the available evidence cannot support an ordering, we leave the relationship unresolved. Conflicting source declarations also remain unresolved, and equivalent states are retained as peers. For each directed comparison, we record the evidence used to determine its order. This allows us to distinguish comparisons supported by observed chronology from those relying on weaker evidence, such as directional containment.
+
+The algorithm selects at most **one primary predecessor per derived candidate**, avoiding cycles. It also identifies other related, directed comparisons, called *additional edges*. For the final three trials, we scanned **only primary edges** to reduce repeated comparisons within large families. In a controlled Sprint 2 test using the same scanner configuration, this reduced the number of comparisons from 3,997 to 468 while retaining 43 of 44 observed family–indicator combinations. These results supported our decision to use primary edges, although additional edges may still contain unique findings. We did not perform a separate all-edge comparison for Sprint 3.
 
 ## Step 3: Detect and compare observable evidence
 
