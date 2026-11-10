@@ -44,11 +44,11 @@ Direction priority is declared source, direct chronology, equivalent-peer chrono
 
 | Change type | Meaning |
 | --- | --- |
-| `skill-only` | `SKILL.md` content differs; known sibling state is equivalent. |
-| `siblings-only` | `SKILL.md` content is equivalent **under the analyzer's similarity representation**; known sibling state differs. |
-| `skill+siblings` | `SKILL.md` content and known sibling-file content both differ. |
-| `equivalent` | Both `SKILL.md` content and known sibling-file states are equivalent. |
-| `unknown` | Missing or uncertain sibling state prevents reliable bundle classification. |
+| `skill-only` | `SKILL.md` content differs; known sibling-file state is equivalent. |
+| `siblings-only` | `SKILL.md` content is equivalent **under the analyzer's similarity representation**; known sibling-file state differs. |
+| `skill+siblings` | `SKILL.md` content and known sibling-file state both differ. |
+| `equivalent` | Both `SKILL.md` content and known sibling-file state are equivalent. |
+| `unknown` | Missing or uncertain sibling-file state prevents reliable bundle classification. |
 
 : Bundle change classifications {#tbl-bundle-change-classes} {.wide}
 

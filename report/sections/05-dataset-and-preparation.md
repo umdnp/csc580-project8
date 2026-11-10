@@ -16,6 +16,8 @@ An earlier preparation audit established a larger pool of same-name candidates, 
 
 We analyzed **three non-overlapping, stratified random samples of 100 families each**. This is the final study population for the report; earlier Sprint 1 and Sprint 2 cohorts helped develop and test the method but do not contribute to the Sprint 3 results.
 
+The term **sibling-file state** describes what is known about a skill's supporting files and their contents, including whether the bundle is known to be empty or its contents are unavailable.
+
 A family is eligible for selection only if it passes two checks:
 
 1. **Distinct states:** At least two combinations of the `SKILL.md` **hash** (an identifier derived from its exact content) and **sibling fingerprint** (a summary of known supporting-file contents) differ. Repeated copies of the same known state do not meet this requirement.
