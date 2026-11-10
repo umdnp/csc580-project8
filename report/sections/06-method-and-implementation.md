@@ -76,11 +76,11 @@ The last stage tests the changed evidence against **11 risk indicators (RIs)** d
 
 We chose these indicators because they can be supported by **specific observable evidence** in the dataset rather than speculative runtime effects. They also reflect the plausible changes described in the threat model. An indicator may be supported, uncertain, or absent from the observed comparison. “Absent” means **not supported by available evidence**, not proven safe. One command may support several indicators without representing several separate incidents.
 
-A useful negative example from scanner development is a change from `npm install` to `bun install` that preserves the same dependency-acquisition workflow. Both commands remain in the extracted evidence, but the substitution alone does not support **RI-005**. This is intentional: recording a changed command does not mean reporting a newly introduced operation.
+A simple example from scanner development is replacing `npm install` with `bun install` while preserving the same dependency-acquisition workflow. The scanner records the changed commands, but the substitution alone does not support **RI-005**: it does not show a new acquisition operation or a changed code source.
 
 ### Worked example: A changed installation instruction
 
-The `python-executor` family provides a contrasting example from Trial 3: an installation change that meets our risk-indicator criteria. In the observed pair **1773238 → 1729578**, the guidance changes as follows:
+The `python-executor` family provides a contrasting example from Trial 3: an installation change that meets our risk-indicator criteria. In the observed comparison **1773238 → 1729578**, the instructions change from:
 
 **Base artifact:**
 
@@ -94,9 +94,9 @@ npx skills add inference-sh/skills@agent-tools
 curl -fsSL https://cli.inference.sh | sh && infsh login
 ```
 
-The base already describes software installation, so the finding is **not** that installation or network access became possible for the first time. The derived candidate introduces a *specific download-and-execute method*: it retrieves a remote shell script and passes it immediately to `sh`. It also introduces `cli.inference.sh` as a destination for an explicit network operation. The assessor consequently reported **RI-001** (direct download-and-execute) and **RI-003** (network expansion) from the same changed command—not two independent incidents.
+Both instructions involve acquiring software, but the derived candidate introduces a different installation method. It explicitly downloads a shell script from `cli.inference.sh` and passes it directly to `sh` for execution. The assessor reported **RI-001** because the new command passes downloaded code directly to a shell, and **RI-003** because it introduces a new hostname for an explicit network operation. Both indicators describe the same changed command, rather than separate security incidents.
 
-This could be legitimate installation guidance, but executing remotely supplied code is relevant to supply-chain review because the contents of that code may change outside the skill. The stored instructions do not show whether an agent executed it, whether the agent's permissions would allow it, or whether the two artifacts share a verified copying history. The comparison has incomplete overall extraction coverage, although the installer evidence itself was extracted completely. **This case is an automated finding pending independent human validation.**
+This installation method may be legitimate. However, executing a remotely downloaded script raises a supply-chain concern because its contents can change independently of the skill's instructions. Our analysis identifies what the instructions direct an agent to do; it cannot determine whether the command was executed or whether the artifacts share a verified copying history. The relevant installation evidence was fully extracted, although the comparison had other evidence-coverage gaps. The findings remain subject to independent human validation.
 
 ## Outcomes and interpretation limits
 
