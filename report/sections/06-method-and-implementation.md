@@ -10,7 +10,7 @@ Our threat model focuses on observable instructions or code involving command ex
 
 Figure 1 shows the four stages in order. We establish relatedness and a plausible direction **before** examining changed operations; otherwise, a difference alone could be mistaken for an introduced behavior.
 
-![Four stages of the static comparison process: group candidates, match and order, compare operations, and assess risk indicators.](report/figures/analysis-pipeline.svg){#fig-analysis-pipeline width="100%"}
+![Four stages of the static comparison process: group candidates, match and order, compare operations, and assess risk indicators.](report/figures/analysis-pipeline.svg){#fig-analysis-pipeline width="100%" .here}
 
 ## Step 1: Identify related skills
 
@@ -80,7 +80,7 @@ A useful negative example from scanner development is a change from `npm install
 
 ### Worked example: A changed installation instruction
 
-One comparison in Trial 3 illustrates the other side of that decision. In the `python-executor` family, the observed pair **1773238 → 1729578** changes the installation guidance:
+The `python-executor` family provides a contrasting example from Trial 3: an installation change that meets our risk-indicator criteria. In the observed pair **1773238 → 1729578**, the guidance changes as follows:
 
 **Base artifact:**
 

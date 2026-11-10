@@ -21,6 +21,8 @@ classoption:
 header-includes:
   - |
     \usepackage{graphicx}
+    \usepackage{float}
+    \usepackage{placeins}
     \usepackage{array}
     \usepackage{booktabs}
     \usepackage[table]{xcolor}

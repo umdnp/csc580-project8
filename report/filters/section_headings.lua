@@ -33,5 +33,10 @@ function Header(header)
   elseif header.level == 3 then
     capitalize_initials(header.content)
   end
+  -- Place any remaining Appendix D floats before the Appendix E heading.
+  if header.level == 1 and
+      pandoc.utils.stringify(header.content):match('^Appendix E ') then
+    return {pandoc.RawBlock('latex', '\\FloatBarrier'), header}
+  end
   return header
 end

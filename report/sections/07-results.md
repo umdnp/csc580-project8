@@ -22,7 +22,7 @@ The same code revision, rules, similarity policy, and primary-edge setting were 
 
 Supported indicators appeared in **25 families in Trial 1, 18 in Trial 2, and 20 in Trial 3**, for a combined total of **63 of 300 families (21.0%)**. The findings were spread across all three trials rather than concentrated in one. Each family counts once, regardless of how many comparisons contain an indicator, so the result shows how widely these changes appeared among the sampled families.
 
-![Percentage of sampled families with at least one supported risk indicator, by trial and combined.](report/figures/sprint3-family-vs-pair-rates.svg){#fig-sprint3-rates width="47%"}
+![Percentage of sampled families with at least one supported risk indicator, by trial and combined.](report/figures/sprint3-family-vs-pair-rates.svg){#fig-sprint3-rates width="47%" .here}
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
