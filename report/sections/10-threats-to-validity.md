@@ -1,4 +1,4 @@
-# Threats to validity
+# Threats to validity {#sec-validity}
 
 **Construct validity.** The eleven RIs cover selected observable changes, not every security risk. Pattern-based rules can mistake examples or warnings for operations, and can miss unfamiliar syntax, dynamically constructed destinations, indirect commands, or other unrecognized behavior. They may also miss risky instructions written only in non-English prose when no recognizable command, URL, path, or credential term appears. We include non-English artifacts, but exclude `SKILL.md` YAML frontmatter from behavioral scanning; instructions found only in that metadata can therefore be missed. The rules also do not separately detect environment discovery, such as reading operating-system details. Complete extraction means a recognized construct was captured, not that all relevant behavior was found.
 

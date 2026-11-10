@@ -1,4 +1,4 @@
-# Evaluation and validation
+# Evaluation and validation {#sec-evaluation}
 
 ## What the saved trials establish
 
@@ -20,4 +20,4 @@ For an RI, a **false positive** means the scanner reports a supported indicator 
 
 The protocol limits indicator-accuracy calculations to comparisons assessable for the full scope: substantive relatedness, supported direction, adequately available evidence, and completed judgments on the eleven indicators. Other cases still inform error analysis and limitations. The sampled review strata intentionally include positive, negative, and difficult cases; their unweighted metrics cannot automatically be generalized to the entire GitSkills population.
 
-**Manual validation is underway.** The saved three-trial summaries do not yet include completed independent and adjudicated accuracy or relationship-agreement results. We therefore do not report precision, recall, or agreement rates here. Once the team's adjudicated annotations are available, this section will be completed with those results, documented disagreements, and representative correctly and incorrectly classified cases. Appendix C describes the samples and Appendix E links their source artifacts.
+**Manual validation is underway.** The saved three-trial summaries do not yet include completed independent and adjudicated accuracy or relationship-agreement results. We therefore do not report precision, recall, or agreement rates here. Once the team's adjudicated annotations are available, this section will be completed with those results, documented disagreements, and representative correctly and incorrectly classified cases. [Appendix C](#app-c) describes the samples and [Appendix E](#app-e) links their source artifacts.

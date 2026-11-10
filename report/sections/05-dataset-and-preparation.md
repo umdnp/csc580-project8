@@ -1,4 +1,4 @@
-# Dataset and cohort
+# Dataset and cohort {#sec-dataset}
 
 ## Data source and unit of analysis
 
@@ -10,7 +10,7 @@ Our starting unit is a **skill family**: qualifying artifacts with the same exac
 
 The project builds an `artifact_groupings` table from the GitSkills records. An artifact qualifies when its **frontmatter** (the YAML metadata at the start of `SKILL.md`) parses as valid, its instruction body is longer than 50 characters, and its content, name, and description are present. A candidate family must have at least two qualifying occurrences with the same name. Descriptions are normalized for supporting subgroups, but differences in description do not split a family during similarity analysis.
 
-An earlier preparation audit established a larger pool of same-name candidates, but not all were eligible for the final study. Appendix A records the audit counts and links to the preparation SQL. The saved Sprint 3 sampling reports document the actual selection and replacement process.
+An earlier preparation audit established a larger pool of same-name candidates, but not all were eligible for the final study. [Appendix A](#app-a) records the audit counts and links to the preparation SQL. The saved Sprint 3 sampling reports document the actual selection and replacement process.
 
 ## Selecting the three Sprint 3 trials
 
@@ -34,7 +34,7 @@ We divided candidate families into five groups by their **total number of artifa
 | Extreme: 501 or more | 1 | 3 |
 | **Total** | **100** | **300** |
 
-: Family-size strata and allocation across the three trials
+: Family-size strata and allocation across the three trials {#tbl-family-strata}
 
 The trials use recorded random seeds **5801**, **5802**, and **5803**. Trial 2 excludes names selected in Trial 1; Trial 3 excludes names selected in both previous trials. Each trial saves its `families.txt` and `sampling_report.json`, preserving the selection and rejection record. These are separate, non-overlapping samples, but the exclusions mean they are not independent draws from an unchanged pool.
 
@@ -42,7 +42,7 @@ The allocation is **not proportional** to the wider candidate population. Our un
 
 ## What we analyzed
 
-The three trials loaded **6,570 artifacts** with none skipped. Their similarity analysis selected **2,157 primary directed comparisons** in total. A *primary* comparison connects a derived candidate to at most one selected predecessor, using the graph method described in Section V. We did not scan additional related directed edges in these trials, to limit repeated observations of similar changes within large families. Equivalent or direction-unknown relationships are retained for relationship review but are not assigned introduced/removed security behavior.
+The three trials loaded **6,570 artifacts** with none skipped. Their similarity analysis selected **2,157 primary directed comparisons** in total. A *primary* comparison connects a derived candidate to at most one selected predecessor, using the graph method described in [Section V](#sec-method). We did not scan additional related directed edges in these trials, to limit repeated observations of similar changes within large families. Equivalent or direction-unknown relationships are retained for relationship review but are not assigned introduced/removed security behavior.
 
 The main outcome is **family-level frequency**: how many sampled families contain at least one comparison with a supported risk indicator. We also report pair-level frequency using all analyzed primary directed comparisons as its denominator. The two measures answer different questions: how widely a signal appears across families versus how frequently it appears among selected comparisons. Comparisons within a family may share artifacts and are not independent historical events.
 
@@ -50,4 +50,4 @@ The main outcome is **family-level frequency**: how many sampled families contai
 
 The main skill bodies were available for all loaded artifacts, but commit dates and supporting-file content are not always available. A known empty sibling bundle is different from one whose contents could not be retrieved. We report unavailable files and partial evidence extraction rather than treating them as proof that no behavior exists.
 
-All skills and bundled files are treated as untrusted data. We inspect stored content without running commands, installing dependencies, or retrieving referenced code. Before sharing extracted examples, potentially sensitive text must be reviewed and redacted where possible. The saved manifests record the dataset, rules, code revision, and inputs; numeric artifact IDs alone cannot identify the same content across database builds. Appendix E links the data dictionary and reproduction materials.
+All skills and bundled files are treated as untrusted data. We inspect stored content without running commands, installing dependencies, or retrieving referenced code. Before sharing extracted examples, potentially sensitive text must be reviewed and redacted where possible. The saved manifests record the dataset, rules, code revision, and inputs; numeric artifact IDs alone cannot identify the same content across database builds. [Appendix E](#app-e) links the data dictionary and reproduction materials.

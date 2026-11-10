@@ -53,6 +53,8 @@ header-includes:
       {\normalfont\normalsize\itshape\raggedright}{}{0pt}{}
     \titlespacing*{\section}{0pt}{1.5ex plus 0.4ex minus 0.2ex}{0.65ex}
     \titlespacing*{\subsection}{0pt}{1.1ex plus 0.3ex minus 0.1ex}{0.4ex}
+    \usepackage{hyperref}
+    \usepackage[all]{hypcap}
 geometry:
   - margin=0.75in
 ---

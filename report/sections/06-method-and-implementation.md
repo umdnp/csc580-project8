@@ -1,4 +1,4 @@
-# Method
+# Method {#sec-method}
 
 ## Research approach and security scope
 
@@ -8,7 +8,7 @@ Our threat model focuses on observable instructions or code involving command ex
 
 ## Analysis overview
 
-Figure 1 shows the four stages in order. We establish relatedness and a plausible direction **before** examining changed operations; otherwise, a difference alone could be mistaken for an introduced behavior.
+[Figure 1](#fig-analysis-pipeline) shows the four stages in order. We establish relatedness and a plausible direction **before** examining changed operations; otherwise, a difference alone could be mistaken for an introduced behavior.
 
 ![Four stages of the static comparison process: group candidates, match and order, compare operations, and assess risk indicators.](report/figures/analysis-pipeline.svg){#fig-analysis-pipeline width="100%" .here}
 
@@ -24,7 +24,7 @@ The analyzer groups related artifacts into **similarity clusters**. Variants can
 
 ## Step 2: Infer which artifact could come first
 
-After establishing that two artifacts are related, we determine which could have come first. We evaluate five types of direction evidence in priority order: declared source, direct chronology, equivalent-peer chronology, repository-creation boundaries, and directional containment. Table 2 explains each method and its limitations.
+After establishing that two artifacts are related, we determine which could have come first. We evaluate five types of direction evidence in priority order: declared source, direct chronology, equivalent-peer chronology, repository-creation boundaries, and directional containment. [Table 2](#tbl-direction-priority) explains each method and its limitations.
 
 | Priority | Direction evidence | What it establishes—and what it does not |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ After establishing that two artifacts are related, we determine which could have
 | 4 | **Repository-creation boundary** | If one state was observed before another repository existed, that other repository occurrence could not have been earlier. Repository age alone never dates a skill. |
 | 5 | **Directional containment** | When stronger evidence is missing, substantially greater containment in one direction (difference of at least **0.10**) can suggest a plausible base-to-expanded order. This is the weakest direction signal. |
 
-: Evidence used to infer earlier-to-later ordering, in priority order {.wide}
+: Evidence used to infer earlier-to-later ordering, in priority order {#tbl-direction-priority} {.wide}
 
 Equivalent-peer chronology helps when an artifact has no reliable commit date of its own. For example, suppose an equivalent copy of a skill was observed in January, and another related skill state was observed in March. The January observation may support an earlier-to-later comparison, even if the artifact being examined has no recorded date. However, the equivalent copy must have the same known skill content and sibling-file state. A different or unknown sibling state cannot supply that historical evidence.
 
@@ -46,17 +46,17 @@ The algorithm selects at most **one primary predecessor per derived candidate**,
 
 ## Step 3: Detect and compare observable evidence
 
-The static scanner applies **15 detection rules across six categories**: command execution, network access, file-system access, credentials, external code/dependency acquisition, and system modification. The rules identify recognizable constructs, such as a shell command, URL, file operation, or package-install instruction. They do not execute the content. The `SKILL.md` frontmatter is excluded from behavioral scanning because descriptive metadata and declared tools do not, by themselves, demonstrate an operation. Provenance metadata can still inform the ordering described in Step 2.
+The static scanner applies **15 detection rules across six categories** ([Table 10](#tbl-detection-rules)): command execution, network access, file-system access, credentials, external code/dependency acquisition, and system modification. The rules identify recognizable constructs, such as a shell command, URL, file operation, or package-install instruction. They do not execute the content. The `SKILL.md` frontmatter is excluded from behavioral scanning because descriptive metadata and declared tools do not, by themselves, demonstrate an operation. Provenance metadata can still inform the ordering described in Step 2.
 
 We then **extract and compare evidence**, rather than interpreting a changed rule-match count as new risk. Evidence records retain the recognized operation, source location, context, and extraction completeness. We normalize the evidence for comparison while preserving meaningful command arguments, file paths, and URL details, along with the original text. The comparison distinguishes added, removed, and matching constructs. A different URL might matter even if the number of URL matches stays the same; repeated mentions can raise match counts without introducing an operation. Unclear associations remain uncertain.
 
 Bundled **sibling files** are assessed when added or changed content is available, regardless of file extension. For instance, a skill's instructions might remain the same while the bundled `setup.sh` changes. We examine the changed script's stored content, but do not infer its behavior from a filename when that content is missing. Renaming a file without changing its known content does not count as changed script behavior.
 
-The comparator also distinguishes `skill-only`, `siblings-only`, `skill+siblings`, and `unknown` bundle changes. Here, **equivalent skill content** can mean equivalent under the token-shingle representation, not necessarily byte-for-byte identical; therefore, a `siblings-only` label does not by itself guarantee that no textual differences exist. Appendix B defines the classifications.
+The comparator also distinguishes `skill-only`, `siblings-only`, `skill+siblings`, and `unknown` bundle changes. Here, **equivalent skill content** can mean equivalent under the token-shingle representation, not necessarily byte-for-byte identical; therefore, a `siblings-only` label does not by itself guarantee that no textual differences exist. [Appendix B](#app-b) defines the classifications.
 
 ## Step 4: Assess changes against risk indicators
 
-The last stage tests the changed evidence against **11 risk indicators (RIs)** defined for this study. Their purpose is to highlight observable ways in which an operation or source may change the agent's exposure to external code, networks, local files, credentials, or privileged actions. They do **not** assign a severity score. An indicator must be supported by the relevant *change* and its context; a rule match alone is insufficient.
+The last stage tests the changed evidence against **11 risk indicators (RIs)** defined for this study ([Table 3](#tbl-risk-indicators)). Their purpose is to highlight observable ways in which an operation or source may change the agent's exposure to external code, networks, local files, credentials, or privileged actions. They do **not** assign a severity score. An indicator must be supported by the relevant *change* and its context; a rule match alone is insufficient.
 
 | ID | Security-sensitive change assessed |
 | --- | --- |
@@ -72,7 +72,7 @@ The last stage tests the changed evidence against **11 risk indicators (RIs)** d
 | **RI-010** | Local script execution is introduced or changes to a target with observably different content. |
 | **RI-011** | A skill newly directs following external instructions, changes that source, or changes an ordinary reference into such a directive. |
 
-: Eleven evidence-based risk indicators {.wide}
+: Eleven evidence-based risk indicators {#tbl-risk-indicators} {.wide}
 
 We chose these indicators because they can be supported by **specific observable evidence** in the dataset rather than speculative runtime effects. They also reflect the plausible changes described in the threat model. An indicator may be supported, uncertain, or absent from the observed comparison. “Absent” means **not supported by available evidence**, not proven safe. One command may support several indicators without representing several separate incidents.
 
@@ -102,4 +102,4 @@ This could be legitimate installation guidance, but executing remotely supplied 
 
 Our **primary measure** is the number of sampled families with at least one supported RI divided by all sampled families. Secondary measures count primary directed comparisons containing at least one RI, the distinct families containing each indicator, and the distribution by family size, direction basis, and evidence coverage. Indicator frequencies can overlap, so their totals are not additive.
 
-A **flagged comparison** may contain rule changes, extracted-evidence changes, or uncertain observations even if no RI is supported. A **supported finding** meets a defined indicator's automated criteria; it is not a validated security incident. We separately report partial extraction, missing sibling content, and uncertainty. Complete coverage means no known gap *within the implemented extraction scope*, not comprehensive detection of all risks. Appendix B contains the rule registry and analysis workflow; Appendix E identifies the source artifacts and saved outputs used for these results.
+A **flagged comparison** may contain rule changes, extracted-evidence changes, or uncertain observations even if no RI is supported. A **supported finding** meets a defined indicator's automated criteria; it is not a validated security incident. We separately report partial extraction, missing sibling content, and uncertainty. Complete coverage means no known gap *within the implemented extraction scope*, not comprehensive detection of all risks. [Appendix B](#app-b) contains the rule registry and analysis workflow; [Appendix E](#app-e) identifies the source artifacts and saved outputs used for these results.

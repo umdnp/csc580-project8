@@ -33,10 +33,17 @@ function Header(header)
   elseif header.level == 3 then
     capitalize_initials(header.content)
   end
-  -- Place any remaining Appendix D floats before the Appendix E heading.
+  -- Unnumbered appendix headings need their own hyperlink target.
   if header.level == 1 and
-      pandoc.utils.stringify(header.content):match('^Appendix E ') then
-    return {pandoc.RawBlock('latex', '\\FloatBarrier'), header}
+      pandoc.utils.stringify(header.content):match('^Appendix [A-F] ') then
+    local blocks = {}
+    -- Keep the barrier before Appendix E's destination.
+    if pandoc.utils.stringify(header.content):match('^Appendix E ') then
+      blocks[#blocks+1] = pandoc.RawBlock('latex', [[\FloatBarrier]])
+    end
+    blocks[#blocks+1] = pandoc.RawBlock('latex', [[\phantomsection]])
+    blocks[#blocks+1] = header
+    return blocks
   end
   return header
 end
