@@ -20,7 +20,7 @@ Descriptions are lowercased, trimmed, and whitespace-normalized to form supporti
 
 : Candidate-selection audit for the prepared GitSkills snapshot {#tbl-selection-audit} {.wide}
 
-The October 15, 2026 preparation audit retained **943,257 occurrences** across **162,995 same-name families**. The Sprint 3 picker later considered **162,461 preliminary candidates**, screened for distinct main-file/sibling states, and required at least one usable directed comparison. These intermediate counts describe different screening stages; **none is the denominator for the reported 21.0% result**. The final study contains 300 relationship-eligible families and 6,570 loaded occurrences.
+The October 15, 2026 preparation audit retained **943,257 occurrences** across **162,995 same-name families**. The Sprint 3 picker later considered **162,461 preliminary candidates**, screened for distinct combinations of `SKILL.md` content and sibling-file state, and required at least one usable directed comparison. These intermediate counts describe different screening stages; **none is the denominator for the reported 21.0% result**. The final study contains 300 relationship-eligible families and 6,570 loaded occurrences.
 
 Local artifact and group IDs may differ across database builds; reproduction uses repository/path identity, content hashes, and the dataset snapshot. Sibling enrichment distinguishes known empty bundles from missing content.
 

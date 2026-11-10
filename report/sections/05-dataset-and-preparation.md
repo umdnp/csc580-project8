@@ -18,8 +18,8 @@ We analyzed **three non-overlapping, stratified random samples of 100 families e
 
 A family is eligible for selection only if it passes two checks:
 
-1. **Distinct states:** At least two combinations of the main skill-file **hash** (an identifier derived from its exact content) and **sibling fingerprint** (a summary of known supporting-file contents) differ. Repeated copies of the same known state do not meet this requirement.
-2. **Usable relationship:** The similarity analyzer can identify at least one primary directed comparison involving different main-file hashes or different *known* sibling hashes. A different hash alone does not establish relatedness or direction.
+1. **Distinct states:** At least two combinations of the `SKILL.md` **hash** (an identifier derived from its exact content) and **sibling fingerprint** (a summary of known supporting-file contents) differ. Repeated copies of the same known state do not meet this requirement.
+2. **Usable relationship:** The similarity analyzer can identify at least one primary directed comparison involving different `SKILL.md` hashes or different *known* sibling hashes. A different hash alone does not establish relatedness or direction.
 
 When a randomly drawn candidate fails the relationship check, the picker records the rejection and draws a replacement from the same size group. **Selection does not run the security scanner** and does not favor families with risk indicators. Families that fail eligibility are excluded from the study population, not counted as families with no risk.
 
@@ -48,6 +48,6 @@ The main outcome is **family-level frequency**: how many sampled families contai
 
 ## Evidence availability and safe handling
 
-The main skill bodies were available for all loaded artifacts, but commit dates and supporting-file content are not always available. A known empty sibling bundle is different from one whose contents could not be retrieved. We report unavailable files and partial evidence extraction rather than treating them as proof that no behavior exists.
+The `SKILL.md` instruction bodies were available for all loaded artifacts, but commit dates and supporting-file content are not always available. A known empty sibling bundle is different from one whose contents could not be retrieved. We report unavailable files and partial evidence extraction rather than treating them as proof that no behavior exists.
 
 All skills and bundled files are treated as untrusted data. We inspect stored content without running commands, installing dependencies, or retrieving referenced code. Before sharing extracted examples, potentially sensitive text must be reviewed and redacted where possible. The saved manifests record the dataset, rules, code revision, and inputs; numeric artifact IDs alone cannot identify the same content across database builds. [Appendix E](#app-e) links the data dictionary and reproduction materials.

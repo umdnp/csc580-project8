@@ -16,7 +16,7 @@ Our threat model focuses on observable instructions or code involving command ex
 
 We first compare artifacts within a candidate family whose artifacts have the same exact name. Identical `SKILL.md` content is recognized by its file hash; known bundled-file content is represented separately by a fingerprint of sibling file hashes. This matters because two copies of `SKILL.md` can contain the same instructions yet ship with different scripts. Unavailable sibling state is treated as unknown, not as an empty bundle.
 
-For distinct main-file contents, we compare the body text after masking the opening YAML frontmatter. We normalize and tokenize the text, then form **five-token shingles**: sequences of five consecutive tokens. Comparing sets of these short sequences tolerates some formatting changes while retaining important command and identifier structure.
+For distinct `SKILL.md` contents, we compare the body text after masking the opening YAML frontmatter. We normalize and tokenize the text, then form **five-token shingles**: sequences of five consecutive tokens. Comparing sets of these short sequences tolerates some formatting changes while retaining important command and identifier structure.
 
 We consider two skill variants sufficiently similar when they share at least **five shingles**, have a maximum **containment score of at least 0.80**, and have a **Jaccard similarity of at least 0.30**. Containment asks how much of the smaller shingle set appears in the larger one; Jaccard measures the shared shingles relative to all distinct shingles across both texts. For example, if two files have 100 and 150 shingles, with 85 shared, containment is `85 / 100 = 0.85` and Jaccard is `85 / 165 = 0.515` (approximately 0.52). The first captures retained content in an expanded skill; the second guards against treating a small shared fragment as broadly similar. Using both is useful because the *added* material in a modified skill may contain the behavior we seek.
 
@@ -30,13 +30,13 @@ After establishing that two artifacts are related, we determine which could have
 | --- | --- | --- |
 | 1 | **Declared source** | Supported provenance metadata identifies a source; declarations can still be wrong or incomplete. |
 | 2 | **Direct chronology** | `first_commit_at` records when a state was observed at its current file path, not its true original creation date. |
-| 3 | **Equivalent-peer chronology** | A different occurrence of the *same known main-file and sibling state* supplies an earlier observed date when direct history is missing or later. The date belongs to the state, not automatically to the undated occurrence. |
+| 3 | **Equivalent-peer chronology** | A different occurrence of the *same known `SKILL.md` content and sibling-file state* supplies an earlier observed date when direct history is missing or later. The date belongs to the state, not automatically to the undated occurrence. |
 | 4 | **Repository-creation boundary** | If one state was observed before another repository existed, that other repository occurrence could not have been earlier. Repository age alone never dates a skill. |
 | 5 | **Directional containment** | When stronger evidence is missing, substantially greater containment in one direction (difference of at least **0.10**) can suggest a plausible base-to-expanded order. This is the weakest direction signal. |
 
 : Evidence used to infer earlier-to-later ordering, in priority order {#tbl-direction-priority} {.wide}
 
-Equivalent-peer chronology helps when an artifact has no reliable commit date of its own. For example, suppose an equivalent copy of a skill was observed in January, and another related skill state was observed in March. The January observation may support an earlier-to-later comparison, even if the artifact being examined has no recorded date. However, the equivalent copy must have the same known skill content and sibling-file state. A different or unknown sibling state cannot supply that historical evidence.
+Equivalent-peer chronology helps when an artifact has no reliable commit date of its own. For example, suppose an equivalent copy of a skill was observed in January, and another related skill state was observed in March. The January observation may support an earlier-to-later comparison, even if the artifact being examined has no recorded date. However, the equivalent copy must have the same known `SKILL.md` content and sibling-file state. A different or unknown sibling state cannot supply that historical evidence.
 
 Repository creation dates can also help establish order, but only in specific circumstances. If one skill state was observed before another repository existed, that observation can support an earlier-to-later comparison. Simply belonging to an older repository does not establish that a skill came first.
 
@@ -52,7 +52,7 @@ We then **extract and compare evidence**, rather than interpreting a changed rul
 
 Bundled **sibling files** are assessed when added or changed content is available, regardless of file extension. For instance, a skill's instructions might remain the same while the bundled `setup.sh` changes. We examine the changed script's stored content, but do not infer its behavior from a filename when that content is missing. Renaming a file without changing its known content does not count as changed script behavior.
 
-The comparator also distinguishes `skill-only`, `siblings-only`, `skill+siblings`, and `unknown` bundle changes. Here, **equivalent skill content** can mean equivalent under the token-shingle representation, not necessarily byte-for-byte identical; therefore, a `siblings-only` label does not by itself guarantee that no textual differences exist. [Appendix B](#app-b) defines the classifications.
+The comparator also distinguishes `skill-only`, `siblings-only`, `skill+siblings`, and `unknown` bundle changes. Here, **equivalent `SKILL.md` content** can mean equivalent under the token-shingle representation, not necessarily byte-for-byte identical; therefore, a `siblings-only` label does not by itself guarantee that no textual differences exist. [Appendix B](#app-b) defines the classifications.
 
 ## Step 4: Assess changes against risk indicators
 

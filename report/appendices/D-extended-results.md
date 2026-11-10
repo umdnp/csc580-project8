@@ -40,7 +40,7 @@ The tables below are calculated from the saved Sprint 3 `review/summary.json`, `
 
 ## Bundle change types
 
-[Table 15](#tbl-bundle-counts) groups the primary comparisons by changes to the main skill text and known supporting files.
+[Table 15](#tbl-bundle-counts) groups the primary comparisons by changes to `SKILL.md` content and known supporting files.
 
 | Change type | Comparisons | With supported RIs |
 | --- | ---: | ---: |
@@ -52,7 +52,7 @@ The tables below are calculated from the saved Sprint 3 `review/summary.json`, `
 
 : Primary-comparison counts by bundle change type {#tbl-bundle-counts} {.here}
 
-`unknown` describes an unavailable or insufficiently known sibling state, not a known unchanged bundle. Equivalent relationships are not counted as base-to-derived comparisons. A `siblings-only` classification uses main-skill equivalence under the similarity representation rather than requiring identical byte hashes; see [Appendix B](#app-b).
+`unknown` describes an unavailable or insufficiently known sibling state, not a known unchanged bundle. Equivalent relationships are not counted as base-to-derived comparisons. A `siblings-only` classification uses equivalence of `SKILL.md` content under the similarity representation rather than requiring identical byte hashes; see [Appendix B](#app-b).
 
 ## Family-size and cluster notes
 

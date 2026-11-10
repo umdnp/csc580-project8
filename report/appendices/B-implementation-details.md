@@ -40,14 +40,14 @@ For each selected family, the pipeline loads all qualifying artifacts, forms con
 
 Direction priority is declared source, direct chronology, equivalent-peer chronology, repository-creation boundary, then asymmetric containment. These are inference rules, not proofs of copying. Additional directed edges exist in the analysis method but **were not scanned for the three Sprint 3 result sets**. Ambiguous directions and equivalent peers remain available for relationship review without being treated as evidence that a behavior was introduced.
 
-## Main-file and sibling-change classification
+## Skill and sibling-file change classification
 
 | Change type | Meaning |
 | --- | --- |
-| `skill-only` | Main skill text differs; known sibling state is equivalent. |
-| `siblings-only` | Main skill text is equivalent **under the analyzer's similarity representation**; known sibling state differs. |
-| `skill+siblings` | Main skill text and known sibling content both differ. |
-| `equivalent` | Both main-file and known sibling states are equivalent. |
+| `skill-only` | `SKILL.md` content differs; known sibling state is equivalent. |
+| `siblings-only` | `SKILL.md` content is equivalent **under the analyzer's similarity representation**; known sibling state differs. |
+| `skill+siblings` | `SKILL.md` content and known sibling-file content both differ. |
+| `equivalent` | Both `SKILL.md` content and known sibling-file states are equivalent. |
 | `unknown` | Missing or uncertain sibling state prevents reliable bundle classification. |
 
 : Bundle change classifications {#tbl-bundle-change-classes} {.wide}
