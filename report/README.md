@@ -199,6 +199,24 @@ rendering, so the Markdown heading text does not need manual capitalization or
 number prefixes. Keep in-text section references consistent with the Roman
 numbering (e.g., Method is Section V and Results is Section VI).
 
+## Internal links in the report
+
+Use ordinary Markdown links for explicit references to figures, tables, sections,
+and appendices, such as `[Figure 1](#fig-analysis-pipeline)`,
+`[Table 2](#tbl-direction-priority)`, `[Section V](#sec-method)`, and
+`[Appendix D](#app-d)`. Each target has a stable identifier. For tables, add
+`{#tbl-meaningful-name}` after the caption text (before a separate `{.wide}`
+or `{.here}` hint). For figures, use the existing `#fig-...` identifiers;
+for major headings, use `{#sec-...}` or `{#app-...}`.
+
+The `filters/internal_refs.lua` filter turns caption identifiers and layout
+hints into table attributes for all formats. In the PDF, it uses the actual
+LaTeX figure, table, and section numbers instead of the numbers typed in the
+Markdown link labels, so reordering does not leave incorrect PDF references.
+Appendix letters remain literal because appendix headings are unnumbered.
+The printed reference style is unchanged; links do not add colored text or
+underlines. HTML and DOCX retain normal Markdown hyperlinks.
+
 ## Two-column table and figure layout
 
 The PDF uses the new two-column typography configured in `metadata.yaml`

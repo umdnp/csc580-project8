@@ -1,6 +1,6 @@
 \clearpage
 
-# References
+# References {#ref-references}
 
 ::: {#refs}
 :::

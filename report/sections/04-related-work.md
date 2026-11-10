@@ -1,4 +1,4 @@
-# Background and related work
+# Background and related work {#sec-related-work}
 
 Relevant agent-skill security studies ask what risky instructions a skill *contains*. Liu and colleagues developed SkillScan to identify patterns involving data exposure, privilege escalation, and supply-chain concerns [@skillswild2026]. Another study combined static screening with behavioral verification to investigate malicious skills distributed through community registries [@maliciousskills2026]. These studies show why skill contents deserve security review. We focus instead on **what security-sensitive operations appear or change between related artifacts**. Their reported detection rates are not directly comparable with ours because the datasets and criteria differ.
 

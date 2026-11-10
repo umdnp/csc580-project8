@@ -1,4 +1,4 @@
-# Introduction
+# Introduction {#sec-introduction}
 
 A skill can keep the same name and purpose while asking an AI agent to do something different. That matters when the agent can run commands, use local files, or contact external services. Developers often turn to *agent skills* to provide reusable instructions for particular tasks. Under the Agent Skills specification, a skill has a `SKILL.md` instruction file and can include supporting scripts and reference material [@agentskills]. Reusing one can save effort, but its familiar description does not tell an adopter everything the instructions may do.
 

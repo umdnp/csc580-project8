@@ -1,4 +1,4 @@
-# Conclusion
+# Conclusion {#sec-conclusion}
 
 We investigated whether related agent skills contain security-sensitive operations that were absent from an artifact inferred to have come earlier. Across three Sprint 3 trials, **63 of 300 sampled families (21.0%)** contained at least one supported risk indicator. The most widespread changes involved local script execution and external code or dependency acquisition. These findings highlight a practical concern: a skill can retain its familiar name and purpose while changing what it instructs an agent to run or retrieve.
 

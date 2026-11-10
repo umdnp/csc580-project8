@@ -60,7 +60,7 @@
                 "first_commit_at"
               ],
               "shared_group_ids": [
-                280751
+                275820
               ],
               "same_artifact_group": true
             },
@@ -74,7 +74,7 @@
               "change_type": "skill+siblings",
               "evidence": [],
               "shared_group_ids": [
-                280751
+                275820
               ],
               "same_artifact_group": true
             },
@@ -116,7 +116,7 @@
               "change_type": "skill+siblings",
               "evidence": [],
               "shared_group_ids": [
-                280751
+                275820
               ],
               "same_artifact_group": true
             },
@@ -146,7 +146,7 @@
               "change_type": "skill+siblings",
               "evidence": [],
               "shared_group_ids": [
-                398422
+                404467
               ],
               "same_artifact_group": true
             }
@@ -198,7 +198,7 @@
               "change_type": "skill+siblings",
               "evidence": [],
               "shared_group_ids": [
-                398422
+                404467
               ],
               "same_artifact_group": true
             },
@@ -212,7 +212,7 @@
               "change_type": "skill+siblings",
               "evidence": [],
               "shared_group_ids": [
-                398422
+                404467
               ],
               "same_artifact_group": true
             },
@@ -296,7 +296,7 @@
   "artifacts": [
     {
       "artifact_id": 2670469,
-      "group_id": 280751,
+      "group_id": 275820,
       "repo_id": 20246,
       "repo_full_name": "cristoslc/tidegate",
       "path": ".agents/update-backup/2026-03-16/.claude/skills/swain-doctor/SKILL.md",
@@ -314,7 +314,7 @@
     },
     {
       "artifact_id": 2930572,
-      "group_id": 398422,
+      "group_id": 404467,
       "repo_id": 83027,
       "repo_full_name": "cristoslc/swain",
       "path": "skills/swain-doctor/SKILL.md",
@@ -332,7 +332,7 @@
     },
     {
       "artifact_id": 2967524,
-      "group_id": 398422,
+      "group_id": 404467,
       "repo_id": 20256,
       "repo_full_name": "cristoslc/south-portland-school-budget-FY27",
       "path": ".agents/update-backup/2026-03-30/.agents/skills/swain-doctor/SKILL.md",
@@ -350,7 +350,7 @@
     },
     {
       "artifact_id": 3148651,
-      "group_id": 280751,
+      "group_id": 275820,
       "repo_id": 20246,
       "repo_full_name": "cristoslc/tidegate",
       "path": ".agents/update-backup/2026-03-17/.claude/skills/swain-doctor/SKILL.md",
@@ -368,7 +368,7 @@
     },
     {
       "artifact_id": 3149464,
-      "group_id": 398422,
+      "group_id": 404467,
       "repo_id": 20256,
       "repo_full_name": "cristoslc/south-portland-school-budget-FY27",
       "path": ".agents/skills/swain-doctor/SKILL.md",
@@ -386,7 +386,7 @@
     },
     {
       "artifact_id": 3225439,
-      "group_id": 280751,
+      "group_id": 275820,
       "repo_id": 20246,
       "repo_full_name": "cristoslc/tidegate",
       "path": ".agents/skills/swain-doctor/SKILL.md",
@@ -404,7 +404,7 @@
     },
     {
       "artifact_id": 3317392,
-      "group_id": 398422,
+      "group_id": 404467,
       "repo_id": 20256,
       "repo_full_name": "cristoslc/south-portland-school-budget-FY27",
       "path": ".agents/update-backup/2026-03-25/.agents/skills/swain-doctor/SKILL.md",
@@ -422,7 +422,7 @@
     },
     {
       "artifact_id": 3367173,
-      "group_id": 398422,
+      "group_id": 404467,
       "repo_id": 20256,
       "repo_full_name": "cristoslc/south-portland-school-budget-FY27",
       "path": ".agents/update-backup/2026-03-22/.agents/skills/swain-doctor/SKILL.md",
@@ -440,7 +440,7 @@
     },
     {
       "artifact_id": 3373141,
-      "group_id": 177455,
+      "group_id": 157419,
       "repo_id": 151450,
       "repo_full_name": "cristoslc/architecture-reference",
       "path": ".agents/update-backup/2026-03-13/.claude/skills/swain-doctor/SKILL.md",
@@ -458,7 +458,7 @@
     },
     {
       "artifact_id": 3425053,
-      "group_id": 280751,
+      "group_id": 275820,
       "repo_id": 20246,
       "repo_full_name": "cristoslc/tidegate",
       "path": ".agents/update-backup/2026-03-14/swain-doctor/SKILL.md",

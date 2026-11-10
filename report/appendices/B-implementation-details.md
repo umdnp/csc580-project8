@@ -1,9 +1,9 @@
 
-# Appendix B Pipeline implementation
+# Appendix B Pipeline implementation {#app-b}
 
 ## Detection rule registry
 
-The saved Sprint 3 manifests identify **15 active rules across six categories**. These rules recognize candidate evidence, while the eleven risk indicators (RIs) in Section V assess whether *changes* in that evidence satisfy specific criteria. A new rule match, increased rule count, or changed command text alone does not establish an RI.
+The saved Sprint 3 manifests identify **15 active rules across six categories**. These rules recognize candidate evidence, while the eleven risk indicators (RIs) in [Section V](#sec-method) assess whether *changes* in that evidence satisfy specific criteria. A new rule match, increased rule count, or changed command text alone does not establish an RI.
 
 | Category | Active rules | What they recognize | Main limitation |
 | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ The saved Sprint 3 manifests identify **15 active rules across six categories**.
 | External code and dependency acquisition | `EXT-001`, `EXT-002`, `EXT-003`, `EXT-004` | Direct download-to-shell, explicit package installs, staged download-and-execute, and manifest-based dependency installs | A legitimate installation may match; multi-step behavior may be incomplete. |
 | System modification | `SYS-001`, `SYS-002` | Privilege elevation and system-changing commands | Administrative instructions can be legitimate. |
 
-: Fifteen detection rules and their coverage limits {.wide}
+: Fifteen detection rules and their coverage limits {#tbl-detection-rules} {.wide}
 
 The executable definitions are in `src/gitskills/rules/registry.py` and the category modules. For example, `EXT-002` covers explicit package installation, `EXT-004` covers manifest-based dependency installation, and `EXT-003` detects staged downloaded-file execution. Overlapping rules can describe the same command, so individual matches are not independent events. Leading `SKILL.md` frontmatter is masked for behavioral analysis; sibling-file content is scanned separately when eligible and available. Dataset instructions are never executed.
 
@@ -36,21 +36,21 @@ For each selected family, the pipeline loads all qualifying artifacts, forms con
 | Detection rules / risk indicators | 15 / 11 |
 | Source code revision | `ae69732ed8988ad7066ff351848f7d2e8ad311a1` |
 
-: Pinned analysis configuration for Sprint 3
+: Pinned analysis configuration for Sprint 3 {#tbl-sprint3-configuration}
 
 Direction priority is declared source, direct chronology, equivalent-peer chronology, repository-creation boundary, then asymmetric containment. These are inference rules, not proofs of copying. Additional directed edges exist in the analysis method but **were not scanned for the three Sprint 3 result sets**. Ambiguous directions and equivalent peers remain available for relationship review without being treated as evidence that a behavior was introduced.
 
-## Main-file and sibling-change classification
+## Skill and sibling-file change classification
 
 | Change type | Meaning |
 | --- | --- |
-| `skill-only` | Main skill text differs; known sibling state is equivalent. |
-| `siblings-only` | Main skill text is equivalent **under the analyzer's similarity representation**; known sibling state differs. |
-| `skill+siblings` | Main skill text and known sibling content both differ. |
-| `equivalent` | Both main-file and known sibling states are equivalent. |
-| `unknown` | Missing or uncertain sibling state prevents reliable bundle classification. |
+| `skill-only` | `SKILL.md` content differs; known sibling-file state is equivalent. |
+| `siblings-only` | `SKILL.md` content is equivalent **under the analyzer's similarity representation**; known sibling-file state differs. |
+| `skill+siblings` | `SKILL.md` content and known sibling-file state both differ. |
+| `equivalent` | Both `SKILL.md` content and known sibling-file state are equivalent. |
+| `unknown` | Missing or uncertain sibling-file state prevents reliable bundle classification. |
 
-: Bundle change classifications {.wide}
+: Bundle change classifications {#tbl-bundle-change-classes} {.wide}
 
 Similarity equivalence does not require the same byte hash, so a `siblings-only` comparison can still contain textual differences in `SKILL.md`. Added or changed sibling **files** with available nonempty content are eligible for static scanning, regardless of extension. Unavailable content is reported as missing; paths, filenames, and directory changes alone are not treated as the behavior of an unknown script.
 

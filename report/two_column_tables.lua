@@ -11,8 +11,9 @@ local function caption_info(el)
   local text = pandoc.utils.stringify(el.caption.long or {})
   -- Pandoc releases can interpret {.wide} as caption text or a table class.
   local wide = el.classes:includes('wide') or text:find('{.wide}', 1, true) ~= nil
-  text = text:gsub('%s*{%s*%.wide%s*}', '')
-  return text, wide
+  local here = el.classes:includes('here') or text:find('{.here}', 1, true) ~= nil
+  text = text:gsub('%s*{%s*%.wide%s*}', ''):gsub('%s*{%s*%.here%s*}', '')
+  return text, wide, here
 end
 
 local function rows_of(el)
@@ -62,7 +63,7 @@ function Table(el)
   local rows = rows_of(el)
   if #rows == 0 then return nil end
   local n = #rows[1].cells
-  local caption, wide = caption_info(el)
+  local caption, wide, here = caption_info(el)
   -- Wide flags have appeared in different AST locations across Pandoc builds.
   -- Long two-column tables get wide layout even if the caption hint is lost.
   local wide_three = {Priority=true, ['Cumulative selection stage']=true}
@@ -78,7 +79,7 @@ function Table(el)
     cols[j] = '>{'..align..'\\arraybackslash}p{\\dimexpr '..string.format('%.5f',sizes[j])..width..'-2\\tabcolsep\\relax}'
   end
   local code = {
-    '\\begin{'..env..'}[!tp]',
+    '\\begin{'..env..'}['..(here and not wide and 'H' or '!tp')..']',
     '\\centering\\begingroup',
     n >= 5 and '\\fontsize{7.7pt}{9.5pt}\\selectfont' or '\\small',
     '\\setlength{\\tabcolsep}{2.5pt}',
@@ -132,7 +133,12 @@ function Figure(el)
   local env = wide and 'figure*' or 'figure'
   local bounds = full and 'width=\\textwidth,height=.82\\textheight' or
     (wide and 'width=\\textwidth,height=.48\\textheight' or 'width=\\columnwidth,height=.58\\textheight')
-  local code = {'\\begin{'..env..'}['..(full and 'p' or '!tp')..']',
+  -- Explicit .here figures stay beside their explanation instead of
+  -- floating above the heading of the section that introduces them.
+  local anchored = not wide and
+    (el.classes:includes('here') or image.classes:includes('here'))
+  local placement = anchored and 'H' or (full and 'p' or '!tp')
+  local code = {'\\begin{'..env..'}['..placement..']',
     '\\centering', '\\includegraphics['..bounds..',keepaspectratio]{'..image.src..'}'}
   local caption = pandoc.utils.stringify(el.caption.long or {})
   if caption ~= '' then code[#code+1] = '\\caption{'..render(pandoc.read(caption,'markdown').blocks)..'}' end
