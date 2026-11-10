@@ -26,7 +26,7 @@ Supported indicators appeared in **25 families in Trial 1, 18 in Trial 2, and 20
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
-The risk indicators distinguish specific operational changes from ordinary differences in instructions. **RI-010** Local script execution was supported in **39 families (13.0% of all sampled families)**, followed by **RI-005** External code or dependency acquisition in **26 families (8.7%)**. Together, those two indicators appeared in **52 distinct families**: 39 had RI-010, 26 had RI-005, and 13 had both. Thus, **52 of the 63 indicator-bearing families (82.5%)** had at least one of these two indicators. The overlap matters; adding the individual counts would double-count families.
+The risk indicators distinguish specific operational changes from ordinary differences in instructions. **RI-010** Local script execution was supported in **39 families (13.0%)**, followed by **RI-005** External code or dependency acquisition in **26 families (8.7%)**. The two indicators overlapped in **13 families** and appeared in **52 of the 63 indicator-bearing families (82.5%)**.
 
 ![Number and percentage of sampled families with each of the eight detected risk indicators.](report/figures/sprint3-indicators-by-family.svg){#fig-sprint3-indicators width="100%" .wide}
 
