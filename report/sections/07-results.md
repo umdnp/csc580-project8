@@ -2,7 +2,7 @@
 
 ## Three-trial overview
 
-Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selected, relationship-eligible skill families**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. These are candidate security-sensitive changes identified under our rules, **not** confirmed vulnerabilities, malicious instructions, or observed executions. Independent manual validation is in progress.
+Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selected, relationship-eligible skill families**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. These are candidate security-sensitive changes identified under our rules, **not** confirmed vulnerabilities, malicious instructions, or observed executions. [Table 4](#tbl-trial-results) summarizes the automated results by trial.
 
 | Measure | Trial 1 | Trial 2 | Trial 3 | Combined |
 | --- | ---: | ---: | ---: | ---: |
@@ -20,13 +20,13 @@ The same code revision, rules, similarity policy, and primary-edge setting were 
 
 ## Finding 1: Security-sensitive changes appear across multiple families
 
-Supported indicators appeared in **25 families in Trial 1, 18 in Trial 2, and 20 in Trial 3**, for a combined total of **63 of 300 families (21.0%)**. The findings were spread across all three trials rather than concentrated in one. Each family counts once, regardless of how many comparisons contain an indicator, so the result shows how widely these changes appeared among the sampled families.
+Supported indicators appeared in **25 families in Trial 1, 18 in Trial 2, and 20 in Trial 3**, for a combined total of **63 of 300 families (21.0%)**. As [Figure 2](#fig-sprint3-rates) shows, the findings were spread across all three trials rather than concentrated in one. Each family counts once, regardless of how many comparisons contain an indicator, so the result shows how widely these changes appeared among the sampled families.
 
 ![Percentage of sampled families with at least one supported risk indicator, by trial and combined.](report/figures/sprint3-family-vs-pair-rates.svg){#fig-sprint3-rates width="47%" .here}
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
-The risk indicators distinguish specific operational changes from ordinary differences in instructions. **RI-010** Local script execution was supported in **39 families (13.0%)**, followed by **RI-005** External code or dependency acquisition in **26 families (8.7%)**. The two indicators overlapped in **13 families** and appeared in **52 of the 63 indicator-bearing families (82.5%)**.
+The risk indicators distinguish specific operational changes from ordinary differences in instructions. **RI-010** Local script execution was supported in **39 families (13.0%)**, followed by **RI-005** External code or dependency acquisition in **26 families (8.7%)**. The two indicators overlapped in **13 families** and appeared in **52 of the 63 indicator-bearing families (82.5%)**. [Figure 3](#fig-sprint3-indicators) shows the family-level distribution, while [Table 5](#tbl-indicator-counts) also provides comparison-level counts.
 
 ![Number and percentage of sampled families with each of the eight detected risk indicators.](report/figures/sprint3-indicators-by-family.svg){#fig-sprint3-indicators width="100%" .wide}
 
@@ -50,7 +50,7 @@ The distribution also varies by counting unit. **RI-006** Destructive or privile
 
 ## Sensitivity check: Why families are the primary unit
 
-The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**, but it varied from **5.7% to 22.2%** across trials. A few families contributed many indicator-bearing comparisons: `cso` accounted for **55 of 113** in Trial 1, `junta-leiloeiros` for **8 of 36** in Trial 2, and `mcp-builder` for **133 of 191** in Trial 3. Excluding these three families *for a sensitivity calculation only* reduced the combined pair-level rate to **144 of 1,722 (8.4%)**, while the family-level rate changed only from **63 of 300 (21.0%)** to **60 of 297 (20.2%)**. This supports using family-level frequency to describe the spread of detections in our sample; it does not remove sampling bias or prove population-wide risk prevalence.
+The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**, but it varied from **5.7% to 22.2%** across trials. A few families contributed many indicator-bearing comparisons: `cso` accounted for **55 of 113** in Trial 1, `junta-leiloeiros` for **8 of 36** in Trial 2, and `mcp-builder` for **133 of 191** in Trial 3. Excluding these three families *for a sensitivity calculation only* reduced the combined pair-level rate to **144 of 1,722 (8.4%)**, while the family-level rate changed only from **63 of 300 (21.0%)** to **60 of 297 (20.2%)**. The trial-by-trial pair-level rates appear in [Table 6](#tbl-sensitivity). This supports using family-level frequency to describe the spread of detections in our sample; it does not remove sampling bias or prove population-wide risk prevalence.
 
 | Trial | All pairs | Excl. top family |
 | --- | ---: | ---: |
@@ -63,7 +63,7 @@ The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**
 
 ## Supporting observation: Family size and similarity clusters
 
-Larger families were more likely to contain at least one supported indicator. They also offered more opportunities for directed comparisons and often contained more **similarity clusters**, which group artifacts with related instruction content under our thresholds.
+Larger families were more likely to contain at least one supported indicator. They also offered more opportunities for directed comparisons and often contained more **similarity clusters**, which group artifacts with related instruction content under our thresholds ([Table 7](#tbl-family-size-results)).
 
 | Family size | Families | Families with an RI | Rate | Mean similarity clusters per family |
 | --- | ---: | ---: | ---: | ---: |

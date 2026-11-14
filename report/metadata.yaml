@@ -23,6 +23,7 @@ header-includes:
     \usepackage{graphicx}
     \usepackage{float}
     \usepackage{placeins}
+    \usepackage{needspace}
     \usepackage{array}
     \usepackage{booktabs}
     \usepackage[table]{xcolor}
@@ -41,6 +42,7 @@ header-includes:
     \usepackage{fvextra}
     \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
     \setlength{\columnsep}{0.25in}
+    \raggedbottom
     \usepackage{titlesec}
     \renewcommand{\thesection}{\Roman{section}}
     \renewcommand{\thesubsection}{\Alph{subsection}}
