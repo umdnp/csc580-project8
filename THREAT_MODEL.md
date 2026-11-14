@@ -67,12 +67,24 @@ Extracted evidence is identified as **complete**, **partial**, or **unsupported*
 
 Regex-based static analysis can miss obfuscated or indirect actions, unfamiliar syntax, and risky instructions expressed only in prose, including non-English prose without recognizable technical indicators. It may also flag benign documentation, examples, or warnings. Neither the absence of a detection nor the absence of a supported risk indicator establishes that an artifact is safe.
 
+Explicit browser-launch commands such as `open https://example.test/page` or `xdg-open https://example.test/page` are not consistently recognized as network operations. Whether such navigation falls within RI-003 is a scope decision under the current indicator policy; a directed browser launch is distinct from a URL mentioned only as a reference. This potential coverage gap does not change the frozen Sprint 3 results.
+
 Environment discovery, such as reading operating system details through Node.js `os` APIs, is not a separate detection category. Such behavior may be routine diagnostics or security-relevant in context, but the current rules do not flag it on that basis alone.
+
+### Sprint 3 Review Observations
+
+The three Sprint 3 trials generated **90 directed-comparison and 45 relationship-review cases**. Initial annotations illustrate limits of the fixed scanner and relationship method:
+
+- **Potential unsupported detections:** In two Trial 3 `mcp-builder` comparisons, a reviewer questioned RI-003 because reformatted URL evidence referred to hostnames already present in the base artifact. A reported new network destination therefore needs source-level verification.
+- **Potential missed evidence:** Trial 1 notes identify candidate missing risk indicators. Trial 3 notes point to available sibling-file examples involving package installation, file cleanup, `subprocess.Popen`, permission changes, and network commands that were not reflected in the reported comparison evidence. These observations require review of context and indicator criteria; a documented command is not necessarily an instruction to execute it.
+- **Relationship uncertainty:** Some Trial 3 pairs without a selected related edge were judged substantively related on inspection. Relatedness, however, does not establish a reliable earlier-to-later direction.
+
+These are **reviewer observations, not adjudicated false-positive or false-negative counts**. They support documenting coverage and relationship limitations without changing the existing rules or retroactively altering the saved automated results.
 
 ## Interpretation and Safe Reporting
 
 Our results describe **static detections, observable evidence changes, and supported or uncertain risk indicators requiring review**. They do not establish runtime execution, successful network access, actual credential disclosure, exploitability, malicious intent, or verified artifact lineage.
 
-Reports preserve relevant source evidence and coverage limitations. Sensitive-looking excerpts are redacted on a best-effort basis, and generated reports should be reviewed before sharing. Manual validation is necessary to assess false positives, missed behavior, and the reliability of inferred changes.
+Reports preserve relevant source evidence and coverage limitations. Sensitive-looking excerpts are redacted on a best-effort basis, and generated reports should be reviewed before sharing. Sprint 3 annotations provide preliminary checks for unsupported detections, missed evidence, and inferred relationships; final accuracy or agreement claims require completed, reconciled, and adjudicated review records.
 
 Detailed operational instructions are maintained in [`TOOLS.md`](TOOLS.md). Broader methodological limitations are documented in [`THREATS_TO_VALIDITY.md`](THREATS_TO_VALIDITY.md).
