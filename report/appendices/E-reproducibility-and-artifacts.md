@@ -47,4 +47,4 @@ The `sampling_report.json` files record sampling seeds **5801–5803**, stratum 
 
 Two cross-trial charts in [Section VI](#sec-results) are generated from the saved `families.csv` and `directed_pairs.csv` files using `report/figures/generate_sprint3_figures.py`. The script does not alter trial results or select new families.
 
-The three sample manifests currently mark their approval reference as **provisional** (`sample_status: provisional`, no approval reference). The final report should not imply formal approval has been recorded unless the manifest or repository decision history is updated. A tagged release and final manual-validation record should be linked when available.
+The three sample manifests retain **provisional** approval status (`sample_status: provisional`, no approval reference). No formal approval reference is recorded in those manifests. A tagged release and final manual-validation record can be linked when available.
