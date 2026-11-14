@@ -17,7 +17,9 @@ The main concerns are:
 
 For example, a skill may mention `curl` while explaining an API without instructing an agent to run it. Conversely, a script using Node.js `os.platform()` or `os.arch()` to read system information may produce no rule matches. These calls can be legitimate, but their absence from findings does not establish that all security-relevant behavior was detected.
 
-Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. Sprint 2 now has 30 directed-pair review cases and 15 relationship-pair review cases. The committed annotation files contain draft entries for 21 of the 30 directed cases and all 15 relationship cases; every entry is still marked `pending`, and the notes identify AI-assisted proposals awaiting human acceptance. These are real review records, but they are not completed or adjudicated validation labels, so false-positive, false-negative, reviewer-agreement, and coverage-gap metrics are not yet reported.
+Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. Sprint 3 review notes identify possible errors in both directions. In two Trial 3 `mcp-builder` comparisons, a reviewer questioned RI-003 because URLs were reformatted but their hostnames had appeared in the base artifact. Eight Trial 1 directed-case notes identify candidate missed indicators, although those reviews remain pending and some cases are not fully assessable. Six Trial 3 directed-case notes describe potentially relevant sibling-file instructions that were not reflected in the reported comparison evidence, including package installs, cleanup commands, a Python subprocess call, and permission changes. These are case-level observations, not adjudicated scanner-error counts; examples and missing context can change the final classification.
+
+Additional Sprint 3 reviewer feedback identifies a potential RI-010 gap for relative script paths: `./scripts/verifier-fan-in.sh run` was recognized as a local-script invocation, while `scripts/verifier-fan-in.sh run` was reportedly missed. Both can invoke the same script, depending on the execution context. This is a candidate false-negative mechanism, not a confirmed false-negative RI without checking the full base-to-derived change and whether the text instructs execution rather than merely mentions a path.
 
 ### Candidate-Family Matching and Similarity
 
@@ -30,7 +32,7 @@ The main concerns are:
 - Similarity results depend on the selected method and thresholds.
 - Candidate-family membership does not establish copying, authorship, or the original source.
 
-A matching name or similarity score is therefore treated as evidence of a possible relationship, not proof of one. Similarity thresholds and representative relationships will require validation before broader conclusions are made.
+A matching name or similarity score is therefore treated as evidence of a possible relationship, not proof of one. In Trial 3, a reviewer judged three of five sampled `no-related-edge` pairs to be related, judged one uncertain, and judged one not related. This suggests that the current thresholds can miss substantively similar artifacts, but five deliberately sampled cases cannot establish a general missed-relationship rate. Relatedness also does not establish copying or direction.
 
 See [RDR-003](docs/decisions/RDR-003-grouping-and-sibling-fingerprints.md) and [RDR-004](docs/decisions/RDR-004-skillmd-similarity-strategy.md).
 
@@ -65,7 +67,7 @@ The main concerns are:
 
 The project uses the strongest available evidence to establish direction and leaves a relationship unresolved when the evidence is not strong enough. Unresolved relationships should not be used to claim that a behavior was introduced or removed.
 
-When chronology or provenance evidence is unavailable, directional containment may provide a plausible ordering based on content similarity. However, this does not establish the actual historical sequence. Conclusions based on containment-only relationships should therefore be interpreted cautiously and compared with relationships supported by stronger direction evidence.
+When chronology or provenance evidence is unavailable, directional containment may provide a plausible ordering based on content similarity. However, this does not establish the actual historical sequence. Sprint 3 relationship notes also question direction in some pairs judged substantively related. Conclusions based on containment-only or otherwise uncertain ordering should therefore be interpreted cautiously; human recognition of related content cannot substitute for chronology or provenance.
 
 See [RDR-007](docs/decisions/RDR-007-effective-chronology-and-direction-evidence.md).
 
@@ -90,25 +92,17 @@ Missing data can:
 - hide behavior contained in unavailable related files; or
 - bias the analysis toward records that have more complete metadata and history.
 
-Missing information should be reported as missing or unresolved rather than interpreted as evidence that a behavior or relationship is absent. For example, in `hello-world`, the content of a possible earlier `.cjs` counterpart to a `.js` script is unavailable, so we cannot determine whether the observed system-information gathering was introduced.
+Missing information should be reported as missing or unresolved rather than interpreted as evidence that a behavior or relationship is absent. Across the saved Sprint 3 trials, **211 of 2,157** primary comparisons have incomplete evidence coverage, including **81 of 340** comparisons with supported indicators. Even a comparison labelled complete is complete only within the implemented extraction scope, not across every possible form of behavior.
 
 ## External Validity
 
-### Sprint 1 Sample
+### Sprint 3 Cohort and Manual-Review Samples
 
-The Sprint 1 sample contains **43 artifacts across 10 skill families** and produces **17 directed comparisons** in the saved analysis reports.
+The final study consists of **three non-overlapping, stratified samples of 100 skill families each**, selected using seeds 5801, 5802, and 5803. The fixed 20/55/20/4/1 size-group allocation deliberately oversamples larger families. Selection requires at least one usable primary directed relationship, and later trials exclude previously selected names. The **300 families, 6,570 loaded occurrences, and 2,157 primary comparisons** are the study's observed sample, not a representative sample of all GitSkills families.
 
-The sample was purposefully selected to provide useful variation for developing and evaluating the analysis. It is not a random or representative sample of the full GitSkills population.
+Each trial also has **30 directed-pair cases** drawn from six review strata and **15 relationship cases** drawn from three strata (review seed 580): **90 directed and 45 relationship cases in total**. These subsets deliberately include positive, negative, ambiguous, and coverage-limited cases. Their raw proportions cannot estimate corpus prevalence or scanner accuracy without a justified assessment scope and sampling adjustment. Review notes remain separate from the frozen automated results.
 
-As a result:
-
-- Sprint 1 percentages should not be used to estimate how common security-sensitive changes are across all GitSkills artifacts.
-- The sample may favor cases that are easier for the current comparison or scanner methods to detect.
-- Additional cases may be needed if later validation exposes behaviors that are not represented in the current sample.
-
-The Sprint 2 review samples comprise 30 directed comparisons across six strata and 15 relationship comparisons across three strata. They are purposeful method-validation samples, not random samples, and do not estimate population prevalence. Draft annotations are stored alongside the samples in [`notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/`](notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/) and [`notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/`](notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/). Because all entries remain pending, they do not yet support scanner-accuracy estimates.
-
-See [RDR-006](docs/decisions/RDR-006-sprint1-sample-design-and-selection.md).
+See [RDR-013](docs/decisions/RDR-013-sprint3-sampling-and-edge-selection.md) and [RDR-014](docs/decisions/RDR-014-stratified-family-sampling-method.md).
 
 ### Dataset Coverage
 
@@ -118,21 +112,26 @@ The dataset should not be assumed to represent every agent skill, repository, pl
 
 ## Conclusion Validity
 
-Automated results are exploratory and should be interpreted cautiously until they are validated.
+The saved automated Sprint 3 results are reproducible, but they are **not independent ground truth**. The reported **63 of 300 families (21.0%)** with supported indicators is an automated rate in the sampled cohort, not a human-confirmed incident rate or a population-wide estimate.
 
-In particular:
+Initial annotations exist for all **90 directed** and **45 relationship** review cases, but review status is not uniform:
 
-- Only selected comparisons have been manually inspected; automated output is not independent ground truth.
-- Some directed comparisons may share artifacts or repeated content, so they are not necessarily independent observations.
-- Ambiguous relationships are intentionally left without directional conclusions.
-- Counts and percentages from the selected samples should not be treated as population-wide risk estimates.
+- **Trial 1:** All 30 directed reviews are marked `pending`; the 15 relationship reviews are marked `complete`.
+- **Trial 2:** The submitted annotation CSVs mark 30 directed and 15 relationship cases `complete`, but the separate review workbook marks them `pending`. The directed CSV lacks reviewer identity and comprehensive indicator judgments, and relationship notes describe draft reviews. These records need reconciliation before being treated as finalized independent assessment.
+- **Trial 3:** All 30 directed and 15 relationship records are marked `complete` and contain substantive reviewer notes, but adjudication of uncertain or contested judgments is not documented.
 
-Related artifacts may share substantial reused or generated content, causing the same security-sensitive change to appear in multiple comparisons. These observations are not necessarily independent and may inflate pair-level findings. Family-level analysis reduces this effect, but shared templates across families may still influence the results.
+All three saved execution summaries still state that independent review/adjudication is awaited, and their sample manifests remain provisional. Therefore, these files support **qualitative error analysis**, but do not yet justify finalized precision, recall, reviewer-agreement, or corrected incidence estimates. A potentially missed command is not automatically a false-negative RI; the complete indicator criteria, evidence coverage, relatedness, and direction must be assessed.
 
-These limitations will be revisited as validation and broader analysis continue.
+Additional limits remain:
+
+- Some comparisons reuse artifacts or underlying content, so their observations are not independent.
+- Ambiguous relationships are intentionally left without directional conclusions; some sampled relationships may have been missed entirely.
+- Counts from the selected families and deliberately stratified review subsets cannot be treated as population-wide risk estimates.
+
+Related artifacts may share substantial reused or generated content, potentially inflating pair-level findings. Family-level reporting reduces—but does not eliminate—this dependence, because templates can also be shared across families. The study records these limitations rather than revising the frozen scanner or automated outcome counts. Final adjudication and approvals should be recorded before making stronger validation claims.
 
 ## Reproducibility
 
 The analysis depends on the selected GitSkills release dataset, the project's derived analysis tables, the selected samples, and the versions of the analysis code and rules used to generate the results.
 
-The repository documents how to acquire the data, build the analysis tables, reconstruct the samples, and run the notebooks. Results should identify the dataset release, sample, and analysis configuration used to generate them so that later changes to the data or rules can be distinguished from earlier results.
+The repository documents how to acquire the data, build the analysis tables, reconstruct the samples, and run the notebooks. The Sprint 3 sample manifests and review files preserve sampling seeds, code and rule identity, selected cases, and checksums. The Sprint 3 scanner and automated results remain fixed under the recorded configuration. Reviewer observations document coverage limitations and opportunities for future improvements; they do not retroactively change the reported findings. The original automated summaries should remain unchanged while reviewers reconcile annotation statuses and record final adjudications and approval references. Results should identify the dataset release, sample, and analysis configuration so that later changes can be distinguished from the frozen trials.
