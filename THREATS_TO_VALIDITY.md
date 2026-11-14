@@ -1,6 +1,6 @@
 # Threats to Validity
 
-This document describes the main threats to validity in our analysis. We update it as the project progresses.
+This document explains the main limitations of the Sprint 3 analysis: what the scanner can recognize, how reliably the method compares related artifacts, and how far the findings can be generalized. The manual-review observations below have not been fully adjudicated.
 
 ## Construct Validity
 
@@ -19,7 +19,7 @@ For example, a skill may mention `curl` while explaining an API without instruct
 
 Scanner findings are therefore treated as **static risk signals, not confirmed vulnerabilities**. Sprint 3 review notes identify possible errors in both directions. In two Trial 3 `mcp-builder` comparisons, a reviewer questioned RI-003 because URLs were reformatted but their hostnames had appeared in the base artifact. Eight Trial 1 directed-case notes identify candidate missed indicators, although those reviews remain pending and some cases are not fully assessable. Six Trial 3 directed-case notes describe potentially relevant sibling-file instructions that were not reflected in the reported comparison evidence, including package installs, cleanup commands, a Python subprocess call, and permission changes. These are case-level observations, not adjudicated scanner-error counts; examples and missing context can change the final classification.
 
-Additional Sprint 3 reviewer feedback identifies a potential RI-010 gap for relative script paths: `./scripts/verifier-fan-in.sh run` was recognized as a local-script invocation, while `scripts/verifier-fan-in.sh run` was reportedly missed. Both can invoke the same script, depending on the execution context. This is a candidate false-negative mechanism, not a confirmed false-negative RI without checking the full base-to-derived change and whether the text instructs execution rather than merely mentions a path.
+Additional Sprint 3 reviewer feedback identifies a potential RI-010 gap for relative script paths: `./scripts/verifier-fan-in.sh run` was recognized as a local-script invocation, while `scripts/verifier-fan-in.sh run` was reportedly missed. Both can invoke the same script, depending on the execution context. This is a candidate false-negative mechanism, not a confirmed false-negative RI without checking the full base-to-derived change and whether the text instructs execution rather than merely mentions a path. A separate scope question concerns explicit browser launches such as `open https://example.test/page`: the current RI-003 policy does not consistently treat them as network operations, unlike recognized network-client commands. Whether they should qualify requires a definition change, not merely a pattern fix.
 
 ### Candidate-Family Matching and Similarity
 
@@ -36,16 +36,9 @@ A matching name or similarity score is therefore treated as evidence of a possib
 
 See [RDR-003](docs/decisions/RDR-003-grouping-and-sibling-fingerprints.md) and [RDR-004](docs/decisions/RDR-004-skillmd-similarity-strategy.md).
 
-### Language and Frontmatter
+### Language and Input Scope
 
-Behavioral scanning excludes YAML frontmatter and keeps non-English skills in the analysis population.
-
-This creates two known limitations:
-
-- Security-relevant information that appears only in frontmatter is outside the behavioral scan.
-- Risky behavior written only in non-English prose may be missed when it does not contain recognizable technical indicators such as commands, URLs, paths, tool names, or credential references.
-
-This tradeoff reduces false positives from descriptive metadata while preserving non-English artifacts that still contain recognizable technical behavior.
+The scanner examines the `SKILL.md` instruction body and eligible supporting files, not its YAML frontmatter. Metadata fields and declared tools do not by themselves show that an operation is being performed, so this is a deliberate scanning boundary—not a claim that metadata can never contain relevant instructions. The main detection concern is behavior expressed in an unrecognized form, including non-English prose without recognizable commands, URLs, paths, or credential references. Such behavior may be missed even when the underlying skill content is available.
 
 See [RDR-002](docs/decisions/RDR-002-language-and-frontmatter-scanning.md).
 
@@ -117,7 +110,7 @@ The saved automated Sprint 3 results are reproducible, but they are **not indepe
 Initial annotations exist for all **90 directed** and **45 relationship** review cases, but review status is not uniform:
 
 - **Trial 1:** All 30 directed reviews are marked `pending`; the 15 relationship reviews are marked `complete`.
-- **Trial 2:** The submitted annotation CSVs mark 30 directed and 15 relationship cases `complete`, but the separate review workbook marks them `pending`. The directed CSV lacks reviewer identity and comprehensive indicator judgments, and relationship notes describe draft reviews. These records need reconciliation before being treated as finalized independent assessment.
+- **Trial 2:** All 30 directed and 15 relationship cases are marked `complete` and identify reviewers. However, 29 directed cases have `indicator_review_scope=not_assessable`, and some relationship notes still describe incomplete checks. These records do not establish fully adjudicated indicator judgments.
 - **Trial 3:** All 30 directed and 15 relationship records are marked `complete` and contain substantive reviewer notes, but adjudication of uncertain or contested judgments is not documented.
 
 All three saved execution summaries still state that independent review/adjudication is awaited, and their sample manifests remain provisional. Therefore, these files support **qualitative error analysis**, but do not yet justify finalized precision, recall, reviewer-agreement, or corrected incidence estimates. A potentially missed command is not automatically a false-negative RI; the complete indicator criteria, evidence coverage, relatedness, and direction must be assessed.
