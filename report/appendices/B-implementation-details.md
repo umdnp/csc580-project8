@@ -20,7 +20,7 @@ The executable definitions are in `src/gitskills/rules/registry.py` and the cate
 
 ## End-to-end workflow and saved policy
 
-For each selected family, the pipeline loads all qualifying artifacts, forms content variants and similarity clusters, evaluates the direction hierarchy, selects primary predecessors, and scans the directed pairs. It extracts evidence from both skill bodies and eligible added or changed sibling files, compares the base and derived evidence, applies RI-001 through RI-011, and records uncertainty and missing content. Cached family scans are reused only when their source, implementation, rule, and policy fingerprints are compatible.
+For each selected family, the pipeline loads all qualifying artifacts, forms content variants and similarity clusters, evaluates the direction hierarchy, selects primary predecessors, and scans the directed pairs. It extracts evidence from both skill bodies and eligible added or changed sibling files, compares the base and derived evidence, applies RI-001 through RI-011, and records uncertainty and missing content. Cached family scans are reused only when their source, implementation, rule, and policy fingerprints are compatible. [Table 11](#tbl-sprint3-configuration) lists the pinned Sprint 3 settings.
 
 | Setting | Sprint 3 value |
 | --- | --- |
@@ -42,6 +42,8 @@ Direction priority is declared source, direct chronology, equivalent-peer chrono
 
 ## Skill and sibling-file change classification
 
+[Table 12](#tbl-bundle-change-classes) defines the classifications used for `SKILL.md` content and sibling-file state.
+
 | Change type | Meaning |
 | --- | --- |
 | `skill-only` | `SKILL.md` content differs; known sibling-file state is equivalent. |
@@ -56,7 +58,7 @@ Similarity equivalence does not require the same byte hash, so a `siblings-only`
 
 ## Relationship and scanning diagrams
 
-The first diagram shows how the analyzer separates relatedness, direction, equivalent peers, and selected versus additional edges. It is a **conceptual diagram**; only selected primary edges enter the Sprint 3 security counts. The second diagram outlines the family-scanning component, including conditional sibling analysis. Risk-indicator assessment and cohort aggregation follow the underlying evidence comparison.
+[Figure 4](#fig-relationship-state) shows how the analyzer separates relatedness, direction, equivalent peers, and selected versus additional edges. It is a **conceptual diagram**; only selected primary edges enter the Sprint 3 security counts. [Figure 5](#fig-family-scan) outlines the family-scanning component, including conditional sibling analysis. Risk-indicator assessment and cohort aggregation follow the underlying evidence comparison.
 
 ```{#fig-relationship-state .plantuml .fullpage .wide source="report/diagrams/relationship-state.puml" caption="Conceptual UML state diagram for relationship classification. Scanner flags are separate from lineage outcomes."}
 ```

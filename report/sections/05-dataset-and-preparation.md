@@ -8,9 +8,9 @@ Our starting unit is a **skill family**: qualifying artifacts with the same exac
 
 ## Preparing comparison candidates
 
-The project builds an `artifact_groupings` table from the GitSkills records. An artifact qualifies when its **frontmatter** (the YAML metadata at the start of `SKILL.md`) parses as valid, its instruction body is longer than 50 characters, and its content, name, and description are present. A candidate family must have at least two qualifying occurrences with the same name. Descriptions are normalized for supporting subgroups, but differences in description do not split a family during similarity analysis.
+The project builds an `artifact_groupings` table from the GitSkills records. An artifact qualifies when its **frontmatter** (the YAML metadata at the start of `SKILL.md`) parses as valid, its instruction body is longer than 50 characters, and its content, name, and description are present. A candidate family must have at least two qualifying occurrences with the same name. Descriptions are normalized for supporting subgroups, but differences in description do not split a family during similarity analysis. The preparation-stage counts are summarized in [Table 8](#tbl-selection-audit).
 
-An earlier preparation audit established a larger pool of same-name candidates, but not all were eligible for the final study. [Appendix A](#app-a) records the audit counts and links to the preparation SQL. The saved Sprint 3 sampling reports document the actual selection and replacement process.
+An earlier preparation audit established a larger pool of same-name candidates, but not all were eligible for the final study. [Appendix A](#app-a) links to the preparation SQL. The saved Sprint 3 sampling reports document the actual selection and replacement process.
 
 ## Selecting the three Sprint 3 trials
 
@@ -38,7 +38,7 @@ We assigned candidate families to five size groups based on their **total number
 
 : Family-size strata and allocation across the three trials {#tbl-family-strata}
 
-The trials use recorded random seeds **5801**, **5802**, and **5803**. Trial 2 excludes names selected in Trial 1; Trial 3 excludes names selected in both previous trials. Each trial saves its `families.txt` and `sampling_report.json`, preserving the selection and rejection record. These are separate, non-overlapping samples, but the exclusions mean they are not independent draws from an unchanged pool.
+The trials use recorded random seeds **5801**, **5802**, and **5803**; [Table 9](#tbl-sampling-audit) records the corresponding selection and rejection counts. Trial 2 excludes names selected in Trial 1; Trial 3 excludes names selected in both previous trials. Each trial saves its `families.txt` and `sampling_report.json`, preserving the selection and rejection record. These are separate, non-overlapping samples, but the exclusions mean they are not independent draws from an unchanged pool.
 
 The allocation is **not proportional** to the wider candidate population. Our unweighted percentages therefore describe these 300 selected, relationship-eligible families; they must not be presented as population-wide estimates for GitSkills. The number of eligible families in each stratum after relationship screening has not been established for population weighting.
 
