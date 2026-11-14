@@ -62,9 +62,13 @@ function Header(header)
   if header.level == 1 and
       pandoc.utils.stringify(header.content):match('^Appendix [A-F] ') then
     local blocks = {}
-    -- Keep the barrier before Appendix E's destination.
-    if pandoc.utils.stringify(header.content):match('^Appendix E ') then
+    -- Flush earlier floats before the Appendix E/F hyperlink targets.
+    if pandoc.utils.stringify(header.content):match('^Appendix [EF] ') then
       blocks[#blocks+1] = pandoc.RawBlock('latex', [[\FloatBarrier]])
+    end
+    -- Appendix F is short enough to remain in one column, if given room.
+    if pandoc.utils.stringify(header.content):match('^Appendix F ') then
+      blocks[#blocks+1] = pandoc.RawBlock('latex', [[\Needspace{34\baselineskip}]])
     end
     blocks[#blocks+1] = pandoc.RawBlock('latex', [[\phantomsection]])
     blocks[#blocks+1] = header

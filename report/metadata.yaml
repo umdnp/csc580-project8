@@ -23,6 +23,7 @@ header-includes:
     \usepackage{graphicx}
     \usepackage{float}
     \usepackage{placeins}
+    \usepackage{needspace}
     \usepackage{array}
     \usepackage{booktabs}
     \usepackage[table]{xcolor}

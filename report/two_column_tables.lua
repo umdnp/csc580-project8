@@ -38,6 +38,12 @@ end
 
 -- Simple width presets, not cell-by-cell heuristics. Header-specific choices
 -- exist only where the column roles differ markedly from the defaults.
+local protected_header_words = {
+  ['tbl-direction-evidence'] = 'evidence',
+  ['tbl-bundle-counts'] = 'supported',
+  ['tbl-family-examples'] = 'occurrences',
+}
+
 local function fractions(n, first)
   if n == 2 then
     if first == 'ID' then return {.15,.85} end
@@ -47,10 +53,12 @@ local function fractions(n, first)
     if first == 'Trial' then return {.16,.40,.44} end
     if first == 'Indicator' then return {.64,.18,.18} end
     if first == 'Priority' then return {.10,.28,.62} end
+    if first == 'Change type' then return {.34,.27,.39} end
+    if first == 'Family' then return {.36,.35,.29} end
     return {.52,.24,.24}
   elseif n == 4 then
     if first == 'Trial' then return {.08,.23,.30,.39} end
-    if first == 'Direction basis' then return {.38,.20,.21,.21} end
+    if first == 'Direction basis' then return {.35,.18,.20,.27} end
     return {.26,.20,.27,.27}
   elseif n == 5 then return {.42,.145,.145,.145,.145}
   elseif n == 6 then return {.30,.14,.14,.14,.14,.14} end
@@ -101,6 +109,11 @@ function Table(el)
     local cells = {}
     for j,cell in ipairs(row.cells) do
       local str = cell_text(cell)
+      -- Keep key header words intact when column widths trigger hyphenation.
+      local term = i == 1 and protected_header_words[el.identifier] or nil
+      if term then
+        str = str:gsub('%f[%a]' .. term .. '%f[%A]', '\\mbox{' .. term .. '}')
+      end
       if str == '' then str = '\\mbox{}' end
       if i == 1 and j == 1 then str = header_pad .. str end
       cells[#cells+1] = str
