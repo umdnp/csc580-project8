@@ -11,7 +11,7 @@ Throughout the project, I contributed to research planning, dataset preparation,
 - Co-defined the comparison approach and research sample, including eligibility filters, selection criteria, and data-quality limitations. [#30](https://github.com/umdnp/csc580-project8/issues/30)
 - Authored numerous research decision records, plus architecture, design, and workflow documentation.
 - Consolidated NotebookLM research into a sourced elicitation matrix with follow-up questions.
-- Developed and refined threats-to-validity documentation covering provenance, measurement, scanner coverage, and interpretation limits. [#34](https://github.com/umdnp/csc580-project8/issues/34)
+- Developed and refined threats-to-validity and threat-model documentation, covering provenance uncertainty, measurement limitations, scanner coverage, and interpretation of results. [#34](https://github.com/umdnp/csc580-project8/issues/34)
 
 ## Artifact comparison and security analysis
 
@@ -35,7 +35,7 @@ Throughout the project, I contributed to research planning, dataset preparation,
 ## Validation support and experiments
 
 - Supported manual validation through protocol, annotation-template, and reviewer-guidance improvements.
-- Evaluated validation findings and corrected defects, including missed indicators, false positives, and related regression tests. [#207](https://github.com/umdnp/csc580-project8/issues/207)
+- Evaluated validation findings, corrected reporting inaccuracies and scanner defects, and added regression tests for missed indicators and false positives. [#207](https://github.com/umdnp/csc580-project8/issues/207)
 - Ran and analyzed the 30-family baseline, summarizing findings by family and risk indicator. [#208](https://github.com/umdnp/csc580-project8/issues/208)
 - Benchmarked primary-edge versus all-edge scanning and ran three seeded 100-family trials, preserving selections, configurations, timing, and results. [#209](https://github.com/umdnp/csc580-project8/issues/209)
 
@@ -50,10 +50,10 @@ Throughout the project, I contributed to research planning, dataset preparation,
 
 ## Research report and presentation
 
-- Co-authored and extensively revised the final research report, including methodology, results, interpretation, limitations, and conclusions. [#211](https://github.com/umdnp/csc580-project8/issues/211)
+- Co-authored and extensively revised the final research report, incorporating Sprint 3 validation findings and refining the methodology, results, limitations, and conclusions. [#211](https://github.com/umdnp/csc580-project8/issues/211)
 - Developed and refined report figures and tables, including the pipeline diagram and Sprint 3 visualizations.
 - Improved report production across PDF, HTML, and DOCX, including layout, SVG figures, references, and pagination.
-- Contributed substantially to the presentation slide deck, including its introduction, research narrative, and supporting examples. [#215](https://github.com/umdnp/csc580-project8/issues/215)
+- Developed and extensively revised the final presentation deck, including the introduction, methodology, review findings, validation, conclusion, visual design, and presentation script. [#215](https://github.com/umdnp/csc580-project8/issues/215)
 
 ## Personal Reflection
 
