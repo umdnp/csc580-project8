@@ -46,7 +46,7 @@ The risk indicators distinguish specific operational changes from ordinary diffe
 
 These categories **overlap**: one changed command or family may support several indicators. The `python-executor` example in [Section V](#sec-method) illustrates how a single operation can support more than one indicator. Counts here are not counts of independent incidents.
 
-The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials.
+The distribution also varies by counting unit. **RI-006** Destructive or privileged file operations appeared in just **10 families**, but in **159 comparisons**; **134** of those comparisons came from `cso` and `mcp-builder`. That concentration is a reason to present family counts first. **RI-002**, **RI-004**, and **RI-009** had no supported detections in these trials. This does not mean those behaviors are absent from GitSkills or that our rules would recognize every instance.
 
 ## Sensitivity check: Why families are the primary unit
 
@@ -75,7 +75,7 @@ Larger families were more likely to contain at least one supported indicator. Th
 
 : Family size, indicator frequency, and similarity-cluster structure {#tbl-family-size-results} {.wide}
 
-For example, `implement` contained **856 artifacts in 35 clusters**, while `cso` had **150 artifacts in two clusters**. This reinforces why sharing a name is not enough to establish that skills are related. Multiple clusters do not prove different authors or independent origins, and a larger family provides more opportunities to detect changes. With only three Extreme families, their 100% detection rate should not be generalized.
+For example, `implement` contained **856 artifacts in 35 clusters**, while `cso` had **150 artifacts in two clusters**. This reinforces why sharing a name is not enough to establish that skills are related. Multiple clusters do not prove different authors or independent origins. Higher detection rates in larger families may simply reflect more artifacts and more chances to observe a change, **not** greater inherent security risk. With only three Extreme families, their 100% detection rate should not be generalized.
 
 ## Supporting observation: Not every detected difference supports a risk indicator
 
