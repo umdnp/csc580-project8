@@ -85,9 +85,22 @@ Open the notebook in a supported IDE using the project's `.venv` Python environm
 uv run --with jupyterlab jupyter lab
 ```
 
-In JupyterLab, open `notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb`, review its configuration, and run the analysis cells in order. The final validation cell is intended for use after manual review and adjudication.
+For **Sprint 3**, run the notebook **three separate times**. In the **Set Variables** cell, keep `SPRINT = 3` and change `SAMPLE` for each run:
 
-Results are saved under [`notebooks/end_to_end_pipeline/results/`](notebooks/end_to_end_pipeline/results/), including tables, figures, audit records, and manual-review samples. For full execution instructions and output descriptions, see the [Pipeline README](notebooks/end_to_end_pipeline/README.md) and [saved results guide](notebooks/end_to_end_pipeline/results/sprint2/README.md).
+```python
+SPRINT = 3
+SAMPLE = 1  # First run; change to 2 for the second run and 3 for the third.
+```
+
+Run the notebook cells in order through **Findings for manual review**, then repeat with `SAMPLE = 2` and `SAMPLE = 3`. Run the trials in that order because subsequent samples exclude families selected earlier. Each trial uses a separate saved list of 100 families; existing `families.txt` files are reused. Keep the study settings consistent (`EDGES = "primary"`, `SEED = 580`, and `FAMILY_SAMPLE_SIZE = 100`). The final adjudication cell is intended for use only after manual review and team adjudication.
+
+Sprint 3 results, including research tables, figures, audit records, and manual-review samples, are saved separately:
+
+- [Trial 1 results](notebooks/end_to_end_pipeline/sprint3/results1/) — [selected families](notebooks/end_to_end_pipeline/sprint3/samples1/families.txt)
+- [Trial 2 results](notebooks/end_to_end_pipeline/sprint3/results2/) — [selected families](notebooks/end_to_end_pipeline/sprint3/samples2/families.txt)
+- [Trial 3 results](notebooks/end_to_end_pipeline/sprint3/results3/) — [selected families](notebooks/end_to_end_pipeline/sprint3/samples3/families.txt)
+
+For detailed settings, output descriptions, and validation instructions, see the [Pipeline README](notebooks/end_to_end_pipeline/README.md) and [Reproducibility Guide](docs/instructions/reproducibility.md). The earlier Sprint 2 outputs are retained separately under [`notebooks/end_to_end_pipeline/sprint2/results/`](notebooks/end_to_end_pipeline/sprint2/results/).
 
 ## Automated Tests
 
@@ -141,4 +154,4 @@ uv run python -m apps.skilltrace --host 127.0.0.1 --port 8000
 
 Open **http://127.0.0.1:8000**, select a family report, and choose artifacts to inspect. Use the diff views and **Run scan** / **Inspect evidence** tools to compare detections against the original content. SkillTrace's on-demand scans inspect a selected skill or sibling file; the notebook performs the broader family-level analysis.
 
-For manual validation, we use the notebook's directed-pair and relationship-pair samples to check inferred relationships and scanner accuracy. Working review records are stored in the [directed-pair annotations](notebooks/end_to_end_pipeline/results/sprint2/manual-review/directed-pairs/annotations.csv) and [relationship-pair annotations](notebooks/end_to_end_pipeline/results/sprint2/manual-review/relationship-pairs/annotations.csv). See the [Manual Annotation Protocol](docs/instructions/manual_annotation_protocol.md) and [SkillTrace README](apps/skilltrace/README.md) for the review process and additional app instructions.
+For manual validation, the Sprint 3 pipeline saves directed-pair and relationship-pair annotations for each trial under its `manual-review/` directory. For example, Trial 1 includes [directed-pair annotations](notebooks/end_to_end_pipeline/sprint3/results1/manual-review/directed-pairs/annotations.csv) and [relationship-pair annotations](notebooks/end_to_end_pipeline/sprint3/results1/manual-review/relationship-pairs/relationship_annotations.csv); corresponding files are available for [Trial 2](notebooks/end_to_end_pipeline/sprint3/results2/manual-review/) and [Trial 3](notebooks/end_to_end_pipeline/sprint3/results3/manual-review/). See the [Manual Annotation Protocol](docs/instructions/manual_annotation_protocol.md) and [SkillTrace README](apps/skilltrace/README.md) for review procedures. Completed annotation records do not by themselves establish final team adjudication or validated scanner accuracy.
