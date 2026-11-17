@@ -74,6 +74,8 @@ Changes may also shift risk rather than simply increase or decrease it. For exam
 
 The analysis separates **what changed** (observable in the artifacts) from **what the change means** (which requires interpretation). A security-sensitive change alone does not establish malicious intent or increased risk.
 
+**Confounding factors.** Family size and intended functionality may influence our findings. Larger families provide more opportunities to detect security-sensitive changes, while new operations may reflect legitimate functional requirements rather than increased risk. We did not control for these factors, so our results describe observed changes rather than establish causal relationships.
+
 ### Missing and Incomplete Data
 
 Some GitSkills records have incomplete history, metadata, or related-file information.

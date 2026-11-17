@@ -1,117 +1,214 @@
-# End-to-end reproduction check
+# End-to-End Reproducibility
 
-This records the equivalent isolated check for [story #213](https://github.com/umdnp/csc580-project8/issues/213), performed on November 8, 2026. It distinguishes reproducing the historical report from running the same cohort under updated code.
+This guide explains how to reproduce the **three Sprint 3 research trials**, inspect their outputs, and build the research report. It also preserves the separate, independently performed **Sprint 2 baseline reproduction check** from November 8, 2026 ([issue #213](https://github.com/umdnp/csc580-project8/issues/213)).
 
-## Scope and result
+**Verification status:** The November 8 isolated check verified the Sprint 2 baseline and report build. The three Sprint 3 trials have saved results, manifests, and family lists in the repository, but that earlier isolated check **did not rerun or independently verify the three Sprint 3 trials**. The steps below document how to rerun them; they are not a claim that a new clean-environment Sprint 3 reproduction check has already been performed.
 
-| Acceptance check | Evidence |
-|---|---|
-| Setup and execution instructions | This document gives locked installation, a versioned dataset download/checksum, native PowerShell SQL preparation, baseline configuration, output locations, and report commands. |
-| Isolated installation and pipeline | Detached committed-source worktrees outside OneDrive, fresh virtual environments, and an initially empty `uv` download cache; no active/global Python packages or scan caches were used. Both revisions installed successfully with `uv sync --locked`. |
-| Historical primary results | The historical scanner reproduced the committed summary, all six research CSV tables, and both review samples exactly as parsed values. All four SVG figures were regenerated with matching numerical labels. |
-| Report sources | HTML, Word, LaTeX source, and the official 28-page PDF built from committed report sources. The PDF has 13 main-content pages (physical pages 2-14), references on page 15, and Appendices A-F on pages 16-28. |
-| Remaining dependencies and limits | The large source download was checksum-verified, not downloaded again; the full DuckDB import was not repeated. A pre-existing prepared snapshot was read-only, and all three preparation SQL scripts were tested on a fresh SQLite fixture. See the limits below. |
+## 1. Requirements and source version
 
-This verifies the **provisional Sprint 2 baseline**, not completion of human validation, population prevalence, or optional Sprint 3 experiments.
+Use Git, [uv](https://docs.astral.sh/uv/), Python 3.12 or newer, the [DuckDB CLI](https://duckdb.org/docs/installation/), and JupyterLab. The source dataset is large: allow space for the **44.4 GB SQLite download**, approximately **40 GB for DuckDB**, and additional temporary files. Do not commit the downloaded databases.
 
-## Pinned inputs and environments
-
-- Report-source/current-code checkout: `0baeb0fff3e3e8598c5754cdf5637a0799142d8e`.
-- Historical scanner checkout: `e1d6b773956c87877c51c8b0faa9ebb39fffdaf3`, as recorded in the [saved manifest](../../notebooks/end_to_end_pipeline/sprint2/results/sample_manifest.json).
-- Family input: the committed [30-family list](../../notebooks/end_to_end_pipeline/sprint2/samples/families.txt). Its checked file SHA-256 was `4562ff59808f2b1535d09fd242d8f9b8522885f15e99b1bf33f59c1751898763`; line-ending conversion can change this file hash without changing parsed names.
-- Source release: GitSkills **1.0.0**, DOI `10.5281/zenodo.21875637`, SQLite size **44,388,249,600 bytes**, published MD5 `b058631fb1926efac6e82a4706646742`.
-- Windows x64, Python **3.12.3**, current locked DuckDB **1.5.6**, historical locked DuckDB **2.0.0**, and DuckDB CLI **1.5.6**. The original manifest recorded Python **3.14.7**; reproducing the numeric results did not require that interpreter.
-- Prepared database used in this check: **39,941,320,704 bytes**, rather than the historical manifest's **40,123,510,784 bytes**. All 1,151 cohort artifact IDs, repository/path identities, primary hashes, sibling counts, and sibling hashes matched; group IDs differed after preparation changes. Database file size alone is not an input identity check.
-- The four imported table counts matched the public release: `artifacts` **3,797,117**; `artifact_siblings` **7,264,865**; `repos` **282,200**; `mining_runs` **7**.
-
-The dataset URL returned HTTP 200 with the published byte length. The existing SQLite file's computed MD5 matched the public record. No credentials were required. MD5 is used only to check agreement with the release record.
-
-## Equivalent isolated installation
-
-Install Git, [uv](https://docs.astral.sh/uv/getting-started/installation/), and the [DuckDB CLI](https://duckdb.org/docs/installation/) before running the PowerShell commands below. Python 3.12 must be available or downloadable by `uv`. Clone the project if needed:
+Clone the repository and install the locked Python dependencies:
 
 ```powershell
 git clone https://github.com/umdnp/csc580-project8.git
 Set-Location csc580-project8
-```
-
-The check used `git worktree add --detach` for each revision, separate environments outside the synced repository, `UV_LINK_MODE=copy`, and a new `UV_CACHE_DIR`. The current checkout downloaded and installed all locked dependencies and built the project from its committed `pyproject.toml`. The historical install used its own lockfile; verified downloads from the first check were reused, but installed packages and the environment were separate.
-
-An equivalent new-user check, from the main checkout in PowerShell, is:
-
-```powershell
-git worktree add --detach ..\csc580-reproduction 0baeb0fff3e3e8598c5754cdf5637a0799142d8e
-Set-Location ..\csc580-reproduction
-$env:UV_PROJECT_ENVIRONMENT = "$env:LOCALAPPDATA\uv\environments\csc580-reproduction"
-$env:UV_CACHE_DIR = "$env:LOCALAPPDATA\uv\cache-csc580-reproduction"
-$env:UV_LINK_MODE = "copy"
 uv sync --locked --python 3.12
 ```
 
-Choose new worktree/environment/cache paths when repeating a clean check. `uv` may download an interpreter if the requested one is not installed. The checked installation instead specified the absolute installed Python 3.12.3 executable.
+For a stable reproduction, check out the intended **Sprint 3 tag or commit** before running the notebook. Do not assume that a later `main` branch will reproduce unchanged historical figures: subsequent scanner fixes may change the reported indicators.
 
-The isolated focused validation command was:
+The saved trial manifests record these original code revisions:
 
-```powershell
-uv run --locked python -m pytest `
-  tests\test_cohort_primary_cache.py `
-  tests\pytests\test_cohort_cache.py `
-  tests\pytests\test_end_to_end_pipeline.py `
-  tests\pytests\test_research_reporting.py `
-  tests\pytests\test_pipeline_notebook.py -q
-```
+| Trial | Recorded code revision | Recorded Python |
+| --- | --- | --- |
+| 1 | `ae69732ed8988ad7066ff351848f7d2e8ad311a1` | 3.14.7 |
+| 2 | `ae69732ed8988ad7066ff351848f7d2e8ad311a1` | 3.14.7 |
+| 3 | `66ea452f6fb9d596905a62f9b0fd4546b71927b7` | 3.14.7 |
 
-Result: **53 passed**. This includes real loaders/scanning on temporary databases and execution of the production notebook on constructed inputs, with and without missing sibling content. It is not a claim that the entire repository test suite was run.
+The three manifests record the same scanner implementation and cohort fingerprints, despite the different Trial 3 Git revision. Exact historical reproduction should respect the recorded inputs, revisions, and rules. Running the three trials with one newer repository version is a **current-code rerun** and may not exactly match the frozen published numbers. Work in a separate clone or detached worktree when checking historical outputs so that generated files do not overwrite the committed evidence.
 
-## Obtain and prepare the external database
+**Historical-checkout detail:** The original commits above do **not** contain the subsequently committed `sprint3/samples1/`, `samples2/`, or `samples3/` family lists. To rerun an original code revision, first copy the saved `families.txt` (and, where needed, the corresponding `sampling_report.json`) from today's repository into the matching `sprint3/samplesX/` folders of that checkout. Preserve the same lists rather than allowing the older checkout to generate replacements. Trial 1 and Trial 2 use the first revision in the table; Trial 3 uses the second. The simpler three-run procedure in Section 3 assumes the saved lists are already present in your checkout.
 
-Allow space for the 44.4 GB SQLite download, approximately 40 GB of prepared DuckDB data, and additional import temporary files and outputs. Internet access is required for dependencies, the dataset, and DuckDB's SQLite extension. No dataset credentials are required. These files are local inputs, not PR deliverables.
+## 2. Prepare the GitSkills database
 
-From the pinned current-code checkout in PowerShell, download GitSkills 1.0.0 and verify its published checksum:
+The [GitSkills 1.0.0 dataset](https://zenodo.org/records/21875637) is distributed as **SQLite**; the project builds a separate **DuckDB** database for analysis. The published SQLite file is **44,388,249,600 bytes**, with MD5 checksum `b058631fb1926efac6e82a4706646742` (the checksum is used for release-identity verification, not as a security guarantee).
+
+The following example uses **Windows PowerShell** and `C:\data`. On WSL or other systems, adjust the file paths and shell commands as described in [data/README.md](../../data/README.md).
+
+Download the original dataset and check its published checksum:
 
 ```powershell
 New-Item -ItemType Directory -Force C:\data\sqlite, C:\data\duckdb
-if (Test-Path C:\data\sqlite\agent_skills_release.db) { throw "Choose a new download path or verify the existing SQLite file instead" }
 curl.exe --fail --location --output C:\data\sqlite\agent_skills_release.db "https://zenodo.org/records/21875637/files/agent_skills_release.db?download=1"
 if ($LASTEXITCODE -ne 0) { throw "Dataset download failed" }
 $checksum = (Get-FileHash C:\data\sqlite\agent_skills_release.db -Algorithm MD5).Hash
 if ($checksum -ne "B058631FB1926EFAC6E82A4706646742") { throw "Dataset checksum mismatch" }
 ```
 
-The downloaded file is SQLite, not DuckDB. Use a new output path and execute all three committed SQL scripts in order:
+If the downloaded file already exists, verify that file instead of downloading over it. Create the DuckDB database and its derived analysis tables **in this order**, using a new output path:
 
 ```powershell
-if (Test-Path C:\data\duckdb\agent_skills_release.db) { throw "Choose a new DuckDB output path before importing" }
 $env:GITSKILLS_SQLITE_DB = "C:\data\sqlite\agent_skills_release.db"
 duckdb -no-init -bail C:\data\duckdb\agent_skills_release.db -f sql\create_gitskills_duckdb.sql
-if ($LASTEXITCODE -ne 0) { throw "SQLite import failed; do not continue with incomplete output" }
+if ($LASTEXITCODE -ne 0) { throw "SQLite import failed" }
 duckdb -no-init -bail C:\data\duckdb\agent_skills_release.db -f sql\create_analysis_tables.sql
 if ($LASTEXITCODE -ne 0) { throw "Analysis table creation failed" }
 duckdb -no-init -bail C:\data\duckdb\agent_skills_release.db -f sql\update_artifact_groupings.sql
 if ($LASTEXITCODE -ne 0) { throw "Artifact grouping update failed" }
-$env:GITSKILLS_DB = "C:\data\duckdb\agent_skills_release.db"
-uv run --locked python -c "import os, duckdb; c = duckdb.connect(os.environ['GITSKILLS_DB'], read_only=True); print(c.execute('SHOW TABLES').fetchall()); c.close()"
-if ($LASTEXITCODE -ne 0) { throw "Prepared database access check failed" }
 ```
 
-Require matching imported/source counts, zero unresolved IDs, and the tables `artifacts`, `artifact_groupings`, `artifact_siblings`, and `repos`. The grouping scripts retain valid frontmatter, bodies longer than 50 characters, non-NULL content/name/description, and exact names occurring at least twice; they also compute available sibling fingerprints. The Sprint 1 sample-view script is not required for this baseline.
-
-Set `GITSKILLS_DB` in every new terminal before running analysis. Close database-writing sessions first. Keep virtual environments outside OneDrive and reapply `UV_PROJECT_ENVIRONMENT` and `UV_LINK_MODE` in each terminal. The native PowerShell commands above do not depend on Git Bash's `/c/...` path conventions.
-
-## Reproduce the historical numerical baseline
-
-The historical revision predates the current location of the committed family list. Pass that list from the main checkout; do not attempt to generate a random substitute.
-
-From the main checkout, after preparing and configuring the external database:
+**Do not run the import against an existing DuckDB file** unless intentionally rebuilding it from scratch. Set the database path in the terminal that will launch Jupyter:
 
 ```powershell
-$source = (Get-Location).Path
-$previousEnvironment = $env:UV_PROJECT_ENVIRONMENT
 $env:GITSKILLS_DB = "C:\data\duckdb\agent_skills_release.db"
+uv run --locked python -c "import os, duckdb; c = duckdb.connect(os.environ['GITSKILLS_DB'], read_only=True); print(c.execute('SHOW TABLES').fetchall()); c.close()"
+```
+
+The prepared database must contain `artifacts`, `artifact_groupings`, `artifact_siblings`, and `repos`. Source-release row counts are 3,797,117 `artifacts`, 7,264,865 `artifact_siblings`, 282,200 `repos`, and seven `mining_runs`. Preparation changes can alter derived IDs; compare underlying repository/path identities and content hashes, not surrogate IDs alone. The Sprint 1 sample-view script is **not required** for these trials.
+
+## 3. Run the three Sprint 3 trials
+
+**Run the same notebook three separate times, changing only `SAMPLE` from 1 to 2 to 3.** All three runs use `SPRINT = 3`. Each trial has its own saved list of 100 families and its own results directory.
+
+From the repository root, with `GITSKILLS_DB` set as above, start JupyterLab:
+
+```powershell
+uv run --with jupyterlab jupyter lab
+```
+
+Open [`notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb`](../../notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb). Select the project's Python environment as the notebook kernel.
+
+### 3.1 Confirm the notebook settings
+
+In the **Set Variables** cell, use:
+
+```python
+SPRINT = 3
+SAMPLE = 1  # Trial 1; change to 2 and then 3 for later runs
+```
+
+In the subsequent family-selection cell, retain the saved-study settings:
+
+```python
+POLICY = SimilarityPolicy()
+EDGES = "primary"
+PER_STRATUM = 5
+SEED = 580
+FAMILY_SAMPLE_SIZE = 100
+FAMILY_SEED = SEED * 10 + SAMPLE  # 5801, 5802, 5803
+APPROVAL_REFERENCE = None       # Matches the provisional saved manifests
+```
+
+`PER_STRATUM = 5` applies to **manual-review sampling**, not the five family-size groups. The 100-family selection uses five size strata with a **20/55/20/4/1** allocation. The same scanner rules and similarity policy are used across trials. `EDGES = "primary"` includes selected directed predecessor comparisons; ambiguous relationships are not treated as directed changes.
+
+### 3.2 Execute each trial separately
+
+| Run | Set `SPRINT` | Set `SAMPLE` | Family selection seed | Saved family list | Results directory |
+| --- | ---: | ---: | ---: | --- | --- |
+| Trial 1 | `3` | `1` | `5801` | `sprint3/samples1/families.txt` | `sprint3/results1/` |
+| Trial 2 | `3` | `2` | `5802` | `sprint3/samples2/families.txt` | `sprint3/results2/` |
+| Trial 3 | `3` | `3` | `5803` | `sprint3/samples3/families.txt` | `sprint3/results3/` |
+
+All paths in this table are relative to `notebooks/end_to_end_pipeline/`.
+
+1. **Trial 1:** Set `SPRINT = 3` and `SAMPLE = 1`. Restart the kernel and run the notebook cells in order **through “Findings for manual review.”** Inspect the outputs in `sprint3/results1/`.
+2. **Trial 2:** Change `SAMPLE = 2` and leave `SPRINT = 3`. Restart the kernel and rerun the same notebook cells. Inspect `sprint3/results2/`.
+3. **Trial 3:** Change `SAMPLE = 3` and leave `SPRINT = 3`. Restart the kernel and rerun the same notebook cells. Inspect `sprint3/results3/`.
+
+**Important:** Restart and rerun the notebook from the beginning for each sample. Changing `SAMPLE` without rerunning the configuration and analysis cells does not run a different trial. The final **“Independent review and adjudication”** cell is a separate team-validation step; do not treat it as required for the automated trial and do not run it with incomplete adjudication files.
+
+Each saved `samplesX/families.txt` is already committed. The notebook **reuses an existing file** rather than generating a different random sample. If a file is missing, it generates a replacement sample with `family_picker` and saves `sampling_report.json`; later samples require and exclude earlier family lists. A newly generated list is not automatically identical to the committed sample if the database, candidate pool, policy, code, or selection order has changed. For reproduction of the published cohort, **retain the committed family lists**.
+
+The notebook reuses compatible reports in its shared `.scans/` cache; incompatible entries are rebuilt. It is unnecessary to run `analyze_family`, `scan_family`, or `scan_diff` separately before the notebook.
+
+### 3.3 Locate the generated outputs
+
+For each `sprint3/resultsX/` (X is 1, 2, or 3):
+
+```text
+resultsX/
+├── sample_manifest.json              # Dataset, code/rule identity, settings, family selection
+├── execution_summary.json            # Automated execution status and coverage
+├── audit/                            # Processing and skipped-artifact records
+├── review/
+│   ├── summary.json                  # Trial-level numerical results
+│   ├── families.csv
+│   ├── directed_pairs.csv
+│   ├── edge_types.csv
+│   ├── direction_basis.csv
+│   ├── indicator_frequency.csv
+│   └── indicator_frequency_by_edge_type.csv
+├── figures/                          # Four generated SVG figures
+└── manual-review/                    # Directed and relationship review samples/templates
+```
+
+The four notebook-generated figures are `pair_outcomes.svg`, `indicators_by_family.svg`, `indicators_by_edge_type.svg`, and `indicator_frequency.svg`. The report's combined Sprint 3 figures are maintained separately under [`report/figures/`](../../report/figures/) with their [generation script](../../report/figures/generate_sprint3_figures.py).
+
+### 3.4 Compare with the saved Sprint 3 results
+
+Check each regenerated `review/summary.json`, `execution_summary.json`, and `sample_manifest.json` against the corresponding committed versions. The saved automated results are:
+
+| Measure | Trial 1 | Trial 2 | Trial 3 | Combined |
+| --- | ---: | ---: | ---: | ---: |
+| Families | 100 | 100 | 100 | **300** |
+| Artifacts loaded | 2,275 | 2,067 | 2,228 | **6,570** |
+| Primary directed comparisons | 665 | 633 | 859 | **2,157** |
+| Families with supported indicators | 25 | 18 | 20 | **63 (21.0%)** |
+| Comparisons with supported indicators | 113 | 36 | 191 | **340 (15.8%)** |
+| Comparisons with incomplete evidence coverage | 123 | 28 | 60 | **211** |
+
+To display key metrics from a rerun in PowerShell:
+
+```powershell
+1..3 | ForEach-Object {
+    $s = Get-Content "notebooks/end_to_end_pipeline/sprint3/results$_/review/summary.json" -Raw | ConvertFrom-Json
+    [pscustomobject]@{
+        Trial = $_
+        Families = $s.family_count
+        Comparisons = $s.directed_pairs_analyzed
+        FamiliesWithRI = $s.families_with_supported_indicators
+        PairsWithRI = $s.pairs_with_supported_indicators
+        IncompleteCoverage = $s.pairs_with_incomplete_evidence_coverage
+    }
+} | Format-Table -AutoSize
+```
+
+Use **parsed numerical values and family identities**, not binary equality of JSON/SVG files: absolute database paths, metadata, timestamps, file ordering, font rendering, and generated IDs can vary. A comparison against committed results must be made **before overwriting them**, ideally using another clone or worktree. If the scanner revision differs from the recorded trial revision, document any numerical differences rather than claiming exact reproduction. The saved manifests have `sample_status: provisional` and no recorded approval reference; do not silently replace that status with an invented approval.
+
+### 3.5 Manual review is a separate step
+
+Each trial generated **30 directed-pair** and **15 relationship-pair** review cases (90 and 45 across the three trials). Independent annotation records are present, but aggregate team adjudication remains incomplete. A notebook `execution_summary.json` status of `complete` means the **automated pipeline finished**, not that human review was finalized.
+
+Follow the [Manual Annotation Protocol](manual_annotation_protocol.md). Complete and reconcile reviews, then save the two adjudicated files in the applicable results folder:
+
+```text
+resultsX/manual-review/adjudicated/directed.csv
+resultsX/manual-review/adjudicated/relationships.csv
+```
+
+Only after both files are complete should the optional **“Independent review and adjudication”** notebook cell be run for that trial. It checks the saved review inputs and updates the review summaries without requiring a full rescan. Do **not** execute scripts, install commands, or other untrusted content from sampled skills.
+
+## 4. Previously verified: Sprint 2 baseline (November 8, 2026)
+
+The independent check for [story #213](https://github.com/umdnp/csc580-project8/issues/213) used detached committed-source worktrees, fresh environments and an initially empty uv cache. Both historical and current checkouts installed using `uv sync --locked`. It verified the historical 30-family study and generated the report. **This is historical verification evidence, not a verification of the three Sprint 3 trials.**
+
+| Pinned input | Value |
+| --- | --- |
+| Report-source/current-code checkout used in the check | `0baeb0fff3e3e8598c5754cdf5637a0799142d8e` |
+| Historical scanner checkout | `e1d6b773956c87877c51c8b0faa9ebb39fffdaf3` |
+| Family input | [`sprint2/samples/families.txt`](../../notebooks/end_to_end_pipeline/sprint2/samples/families.txt), 30 families |
+| Original family-list SHA-256 | `4562ff59808f2b1535d09fd242d8f9b8522885f15e99b1bf33f59c1751898763` |
+| Source release | GitSkills 1.0.0, DOI `10.5281/zenodo.21875637` |
+| Isolated environment | Windows x64, Python 3.12.3, DuckDB CLI 1.5.6; locked DuckDB 1.5.6 (current) and 2.0.0 (historical) |
+
+To reproduce the original Sprint 2 **numerical baseline**, check out the historical revision in a separate worktree and invoke its cohort summarizer with the committed family list:
+
+```powershell
+# Start at the main checkout with GITSKILLS_DB configured.
+$source = (Get-Location).Path
 git worktree add --detach ..\csc580-baseline e1d6b773956c87877c51c8b0faa9ebb39fffdaf3
 Set-Location ..\csc580-baseline
-$env:UV_PROJECT_ENVIRONMENT = "$env:LOCALAPPDATA\uv\environments\csc580-baseline"
-$env:UV_LINK_MODE = "copy"
 uv sync --locked --python 3.12
 uv run --locked python -m gitskills.tools.summarize_cohort `
   --input "$source\notebooks\end_to_end_pipeline\sprint2\samples\families.txt" `
@@ -120,111 +217,45 @@ uv run --locked python -m gitskills.tools.summarize_cohort `
   --shingle-size 5 --min-containment 0.8 --min-jaccard 0.3 `
   --min-shared-shingles 5 --direction-margin 0.1
 Set-Location $source
-if ($previousEnvironment) {
-  $env:UV_PROJECT_ENVIRONMENT = $previousEnvironment
-} else {
-  Remove-Item Env:\UV_PROJECT_ENVIRONMENT
-}
 ```
 
-Use a new output directory and do not pass annotation files: independent review remains pending. The historical implementation fingerprint matched the saved value exactly:
-`99a121b091b8b9446291af17db8fd2b56e577a7dd5fde0ebcb904a4a37fd308e`.
+The verified historical summary and six research CSV tables matched the committed versions as parsed values. The two 30/15-case review sample lists matched. Four SVG plots were regenerated with matching numeric/category labels (not byte-identical drawing geometry). The focused isolated tests passed **53/53**, including production notebook execution on constructed inputs. The study's manual-validation findings were **not** independently adjudicated by this test.
 
-To run the same configuration under the pinned current code, return to the `0baeb0f` checkout and its environment:
+The historical and then-current implementations produced different supported-indicator counts on the same cohort, reflecting changed scanner rules rather than nondeterministic timing:
 
-```powershell
-uv run --locked python -m gitskills.tools.summarize_cohort `
-  --input notebooks\end_to_end_pipeline\sprint2\samples\families.txt `
-  --output output\baseline-0baeb0f `
-  --edges all --rescan --per-stratum 5 --seed 580 `
-  --shingle-size 5 --min-containment 0.8 --min-jaccard 0.3 `
-  --min-shared-shingles 5 --direction-margin 0.1
-```
-
-Each output directory contains `sample_manifest.json`, `review\summary.json`, `review\tables\` (six CSV tables), `figures\`, and `manual-review\` (directed and relationship samples). Inspect regenerated outputs there rather than replacing committed results. Random sampling and benchmarks are optional experiments, not prerequisites for this fixed-family baseline.
-
-### Numerical comparison
-
-| Measure | Committed / historical rerun | Current-code rerun |
-|---|---:|---:|
-| Families | 30 | 30 |
-| Artifacts loaded / skipped | 1,151 / 0 | 1,151 / 0 |
-| Directed comparisons | 3,997 | 3,997 |
+| Metric (30-family baseline) | Historical scanner | November 8 current-code rerun |
+| --- | ---: | ---: |
+| Artifacts loaded | 1,151 | 1,151 |
+| Directed comparisons (`all` edges) | 3,997 | 3,997 |
 | Primary / additional comparisons | 468 / 3,529 | 468 / 3,529 |
-| Flagged comparisons | 2,241 | 2,241 |
-| Pairs with supported indicators | 588 | 577 |
+| Comparisons with supported indicators | 588 | 577 |
 | Families with supported indicators | 19 | 18 |
 | Supported findings | 5,551 | 4,096 |
-| Pairs with changed evidence | 1,998 | 1,998 |
-| Pairs with changed sibling evidence | 1,199 | 1,199 |
-| Pairs with incomplete evidence coverage | 206 | 206 |
-| Ambiguous relationships excluded from directed scanning | 2,244 | 2,244 |
 
-Historical `review/summary.json` matched every field of the committed summary. CSV comparison used parsed rows and fields, not rounded plot rates:
+The prepared snapshot used in that check was **39,941,320,704 bytes**, whereas the historical manifest recorded **40,123,510,784 bytes**. Content identities matched for all 1,151 study artifacts despite differences in derived group IDs. All three preparation scripts were tested on a fresh SQLite fixture; the **full 44.4 GB import was not repeated** in the isolated check. These facts limit what the original verification establishes.
 
-- `directed_pairs.csv`: 3,997 rows, exact match.
-- `families.csv`: 30 rows, exact match.
-- `direction_basis.csv`: five rows, exact match.
-- `edge_types.csv`: two rows, exact match.
-- `indicator_frequency.csv`: 11 rows, exact match.
-- `indicator_frequency_by_edge_type.csv`: 22 rows, exact match.
-- Directed review sample: 30 rows, exact match.
-- Relationship review sample: 15 rows, exact match.
+## 5. Build the research report
 
-Current-code differences are not random timing variation. The intervening commits change extraction and RI interpretation, including staged download-and-execute detection, package-install equivalence, package source comparisons, and credential handling. Keep current results separate; do not silently relabel the historical report as a current-code analysis.
-
-### Figure regeneration
-
-The CLI produces `indicator_frequency.svg`. For the other three figures, use the current committed notebook's plot cells on the historical tables:
-
-1. Open the notebook with the **current** project environment.
-2. Run imports; choose `SPRINT = 2`, `EDGES = "all"`, seed `580`, and the saved default policy.
-3. Set `RESULT_DIR = PROJECT_ROOT / "output" / "baseline-e1d6b77"` and `SCAN_CACHE_DIR = RESULT_DIR / ".scans"`.
-4. Run the summary, family-rate, indicator-frequency, and edge-type results cells, **skipping the analysis execution cell**. Do not rescan historical outputs with the current implementation.
-
-The isolated check executed those same trusted notebook source cells noninteractively with Matplotlib's `Agg` backend against each rerun's tables. It did not execute dataset content. All four historical figures had identical numeric/category labels to the committed figures. The frequency SVG also matched after XML normalization. The three Matplotlib SVGs were not byte/geometry-identical across the plotting environment; timestamps, generated IDs, layout, and font rendering are not numerical research results.
-
-## Report build and inspection
-
-In the current-code isolated checkout, these commands succeeded:
+Building the report uses committed Markdown, tables, citations, and diagrams. **It does not rerun the notebook or automatically replace the reported numbers with those from a new scan.** See the [report build guide](../../report/README.md) for detailed prerequisites and troubleshooting.
 
 ```powershell
-uv run --locked python bin\setup_report_tools.py
-uv run --locked python bin\build_report.py --format html
-uv run --locked python bin\build_report.py --format docx
-uv run --locked python bin\build_report.py --format latex
-uv run --locked python bin\build_report.py --format html --cached-only
-uv run --locked python bin\build_report.py --format pdf
+uv run --locked python bin/setup_report_tools.py
+uv run --locked python bin/build_report.py --format html
+uv run --locked python bin/build_report.py --format docx
+uv run --locked python bin/build_report.py --format pdf
 ```
 
-The portable setup downloaded and checksum-verified the committed toolchain's Pandoc **3.12.1**, PlantUML **1.2026.8**, and Java JRE. Normal rendering and the cached-diagram build both succeeded. HTML had no unresolved citations or external image sources; all three embedded diagrams loaded in the browser. Word contained three embedded media entries. The report contained its results tables, bibliography, conclusion, and all six appendices.
+The portable report setup pins Pandoc, PlantUML, and Java components. The PDF build additionally requires XeLaTeX (for example, from MiKTeX or TeX Live); TeX package installation and rendering details can vary. Generated HTML/DOCX files go to `report/generated-report/`; the PDF goes to `report/final.pdf`.
 
-PDF initially failed because XeLaTeX was absent. With permission, user-level **MiKTeX 25.12** was installed:
+The November 8 check built HTML, Word, LaTeX, and a **28-page PDF** successfully after installing a user-level MiKTeX distribution. It inspected the bibliography, diagrams, main tables, and appendices. PDF and SVG binary identity is not promised because fonts, layout, timestamps, and rendering tools may differ.
 
-```powershell
-winget install --id MiKTeX.MiKTeX --exact --version 25.12 --scope user `
-  --source winget --silent --accept-source-agreements `
-  --accept-package-agreements --disable-interactivity
-$tex = "$env:LOCALAPPDATA\Programs\MiKTeX\miktex\bin\x64"
-$env:PATH = "$tex;$env:PATH"
-& "$tex\initexmf.exe" "--set-config-value=[MPM]AutoInstall=1"
-& "$tex\mpm.exe" --update-db
-uv run --locked python bin\build_report.py --format pdf
-```
+## 6. Reproducibility limits and interpretation
 
-The package database update flag is deprecated in this MiKTeX release but succeeded. MiKTeX fetched required LaTeX packages automatically; internet access is therefore also required for initial TeX package installation. XeTeX reported version **4.16**. These packages are not fully pinned by the project. The build emitted nonfatal MiKTeX reminders to check distribution updates.
+- **External dataset:** The downloaded SQLite release and prepared DuckDB are not checked into Git. Exact repetition depends on consistent source data and derived-table preparation. A full clean import and all three Sprint 3 runs were not part of the November 8 isolated check.
+- **Saved cohorts:** Sprint 3 family lists and sampling reports are committed. Reuse these lists to reproduce the analyzed samples. Seeds alone cannot compensate for differences in the database, selection algorithm, or eligibility checks.
+- **Code changes:** Trial manifests preserve code revisions and scanner fingerprints. A later scanner or data-preparation change may alter detections, comparisons, or IDs. Keep frozen reported outcomes distinct from revised-code reruns.
+- **Incomplete evidence and validation:** Supported risk indicators are static signals, not confirmed vulnerabilities. Missing sibling-file content, uncertain direction, and incomplete team adjudication limit conclusions; reproducing counts does not establish scanner precision or recall.
+- **Generalizability:** The 300 families were stratified and deliberately oversampled in larger size groups, with eligibility restricted to usable primary directed relationships. Their 21.0% family-level rate is not an unweighted estimate for all GitSkills families.
+- **Output metadata:** Absolute paths, timestamps, surrogate IDs, cache filenames, source-file line endings, and SVG/PDF rendering may differ. Compare manifests, selected families, structured counts, and source/content hashes before drawing conclusions.
 
-The rebuilt PDF had **28 nonempty Letter-size pages**, a bibliography, three diagrams, readable main-result tables, and readable preparation code/diagram pages. It was inspected with MiKTeX's `pdfinfo`, `pdftotext`, and page rendering utilities. The prior committed PDF lagged the Markdown sources' pending draft-annotation status; the regenerated PDF reflects those committed sources. PDF binary equality and identical text line wrapping are not promised.
-
-## External requirements and reproducibility limits
-
-- **Large external input:** the SQLite and prepared DuckDB files are not bundled. The check validated the public release, checksum, imported row counts, and selected artifact identities, but did **not** redo the full 44.4 GB import. Import temporary space can exceed final database size.
-- **Preparation equivalent:** all three current SQL scripts were executed in order against a newly created SQLite fixture, using the documented native CLI flags. Imported counts matched, unresolved IDs were zero, and two valid family members received normalized groupings and sibling fingerprints. Full-scale resource use and a cache-free download of the SQLite extension were not validated.
-- **Historical snapshot:** its prepared database checksum was not recorded/bundled. The available snapshot has different group IDs and size, even though the cohort content identities and historical numerical outcomes agree. Surrogate IDs created by unordered `row_number()` during a fresh import can differ; compare repository/path and content hashes as well as counts.
-- **Environment metadata:** absolute paths, database timestamps/sizes, scan-cache filenames, Python versions, and manifest/sample file checksums affected by line endings can vary. Preserve new manifests; never hide these differences by copying historical metadata.
-- **Rendering and timing:** SVG/PDF bytes, layout/font metrics, and timings can vary. Fixed seeds control review selection given stable input/code ordering, not package versions or filesystem metadata.
-- **Report synchronization:** report tables are committed Markdown, not live links to newly generated CSVs. Building the report verifies its sources; it does not update research claims to the current scanner. Reconcile results explicitly before changing the reported baseline.
-- **Optional work:** random Sprint 3 samples, primary-only comparisons, and timing benchmarks are separate experiments, not covered by this reproduction check. Their locally generated outputs were neither adopted nor overwritten.
-- **Human validation:** draft annotation proposals remain pending independent review/adjudication. Reproducing automated counts does not establish scanner precision/recall, malicious intent, or historical ancestry.
-
-No baseline results, annotation drafts, or user-modified notebooks were overwritten during the check. Regenerated analysis outputs and the rebuilt report PDF are local verification outputs, not included in this documentation-only change.
+For methodology and interpretation, see [RDR-013: Sprint 3 Sampling and Edge Selection](../decisions/RDR-013-sprint3-sampling-and-edge-selection.md), [RDR-014: Stratified Family Sampling Method](../decisions/RDR-014-stratified-family-sampling-method.md), and [Threats to Validity](../../THREATS_TO_VALIDITY.md).

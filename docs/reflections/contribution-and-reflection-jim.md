@@ -46,7 +46,7 @@ Throughout the project, I contributed to research planning, dataset preparation,
 - Built and maintained backlog import/export scripts and Sprint 2–3 planning workflows.
 - Integrated teammates' contributions and investigated cross-component bugs, failing tests, and compatibility issues.
 - Maintained README files, tooling guides, setup instructions, and reproducibility documentation.
-- Recorded meeting minutes, sprint retrospectives, blockers, and AI-use documentation. [#36](https://github.com/umdnp/csc580-project8/issues/36), [#105](https://github.com/umdnp/csc580-project8/issues/105)
+- Prepared sprint deliverables documentation and retrospectives, recorded meeting minutes, and tracked blockers and AI use. [#36](https://github.com/umdnp/csc580-project8/issues/36), [#105](https://github.com/umdnp/csc580-project8/issues/105)
 
 ## Research report and presentation
 
