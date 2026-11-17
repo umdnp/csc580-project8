@@ -4,7 +4,7 @@
 **Team:** Team 8  
 **Sprint:** Sprint 1 – Research Framing and Data Foundation  
 **Sprint Dates:** September 17 – October 7, 2026  
-**Status:** Working draft for team review
+**Status:** Final
 
 > Detailed technical decisions are recorded separately in `docs/decisions/`. This retrospective focuses on what the team learned during Sprint 1, what changed as a result, and what we should carry forward.
 

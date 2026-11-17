@@ -4,7 +4,7 @@
 **Team:** Team 8  
 **Sprint:** Sprint 2 – Implementation and Validation  
 **Sprint Dates:** October 8 – October 28, 2026  
-**Status:** Working draft for team review
+**Status:** Final
 
 > Detailed technical decisions are recorded separately in `docs/decisions/`. This retrospective focuses on what the team learned during Sprint 2, what changed as a result, and what we should carry forward.
 
