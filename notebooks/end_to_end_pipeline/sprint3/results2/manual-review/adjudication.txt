@@ -1,0 +1,224 @@
+Sprint 3 / Sample 2 — adjudication
+=================================
+Checked 30 directed pairs and 15 relationship pairs against the exported skill files, available siblings, file comparisons and relationship reports.
+The independent CSVs are saved as .old.csv. Research/sample fields have not been changed.
+Original reviewer names and dates are retained. These are evidence-based proposed adjudications pending team confirmation.
+No code from the skills was executed. Missing files and incomplete sibling listings are noted where relevant.
+
+DIRECTED PAIRS
+--------------
+
+Pair 1: 3683755 -> 1904052 (agent-memory)
+- scanner_rule_review: correct -> partially_correct.
+- manual_rule_judgments: CMD-001=correct;NET-001=correct;NET-002=correct -> CMD-001=correct;CMD-002=correct;NET-001=correct;NET-002=correct.
+- manual_change_review: correct -> partially_correct.
+- indicator_review_scope: all_assessed -> not_assessable.
+- sibling_coverage_review: complete -> incomplete.
+- The derived sibling listing is truncated, and the added memory_sync.py uses a path from downloaded configuration in a shell command. The saved scan did not examine that sibling code.
+- Missed evidence: The added memory_sync.py runs a shell command built from downloaded configuration values (lines 39-46). The original scan did not cover this sibling.
+
+Pair 2: 1860333 -> 2017578 (junta-leiloeiros)
+- indicator_review_scope: not_assessable -> all_assessed.
+- sibling_coverage_review: uncertain -> complete.
+- All 36 stored sibling files are readable. The 33-to-3 inventory difference does not prove when the scripts were introduced.
+
+Pair 3: 753466 -> 954787 (agent-memory)
+- scanner_rule_review: correct -> partially_correct.
+- manual_change_review: uncertain -> partially_correct.
+- manual_change_judgments: RI-010=uncertain -> RI-010=introduced.
+- indicator_review_scope: all_assessed -> not_assessable.
+- manual_supported_indicator_ids: (blank) -> RI-010.
+- manual_uncertain_indicator_ids: RI-010 -> (blank).
+- The new bootstrap is invoked by SKILL.md and executes code assembled from three bundled text files. The base sibling listing is incomplete.
+- Missed evidence: The added _bootstrap.py reads three text chunks and executes the compiled result (lines 5-18). The original scan did not inspect that sibling code.
+
+Pair 4: 3345273 -> 3489451 (improve)
+- scanner_rule_review: correct -> partially_correct.
+- manual_rule_judgments: CMD-001=correct;CMD-002=correct;FS-001=correct;FS-003=correct;SYS-002=correct -> CMD-001=correct;CMD-002=false_negative;FS-001=correct;FS-003=false_positive;SYS-002=correct.
+- The new logging wrappers are executed after being written and chmodded. cat > file was treated as file reading even though it writes files.
+- Missed evidence: New run-cmd.sh and log-event.sh wrapper calls were not fully picked up as local commands. The three cat > file blocks write files; they were reported as file reads.
+- False positive: FS-003 treated cat > .improvement-state/*.sh here-docs as reads, although they create files (SKILL.md:129,180,191).
+
+Pair 5: 2670469 -> 3148651 (swain-doctor)
+- The original review judgments stand.
+- The added migration instructions call the scan and chart helpers, supporting RI-010. The helpers were not run.
+
+Pair 6: 592083 -> 591153 (update-pr)
+- The original review judgments stand.
+- The skill body is unchanged. The GitLab-to-GitHub edit is in package metadata, not a demonstrated network request.
+
+Pair 7: 3287820 -> 3518706 (improve)
+- The original review judgments stand.
+- The added preference and permission discussion does not establish that new commands were run or that protected files were accessed.
+
+Pair 8: 3683755 -> 3703783 (agent-memory)
+- The original review judgments stand.
+- The changed commands point to .agents instead of .claude. The derived .gitignore content is missing.
+
+Pair 9: 2788055 -> 2920831 (aeon)
+- The original review judgments stand.
+- The aeon install already exists in the base; the changed version/extras alone do not establish RI-005. Three source files are unavailable.
+
+Pair 10: 1571877 -> 1572897 (agent-memory)
+- The original review judgments stand.
+- The memory commands move to .codex. The .gitignore resource was not fetched.
+
+Pair 11: 2929622 -> 3119917 (ce-sessions)
+- scanner_rule_review: correct -> partially_correct.
+- manual_rule_judgments: CMD-001=correct;CMD-002=correct;FS-001=correct -> CMD-001=correct;CMD-002=false_negative;FS-001=correct.
+- The new Hermes session export is a command, but it is absent from CMD-002 detections. The base bundle does not contain the prior script bodies for comparison.
+- Missed evidence: The new Hermes session-export commands (SKILL.md:94,105) are not included in the command detections.
+
+Pair 12: 2438037 -> 2454387 (senior-data-scientist)
+- The original review judgments stand.
+- The old training/deployment examples are replaced by new local pipeline-script calls; the derived script implementations are not available.
+
+Pair 13: 1126094 -> 1372888 (configuring-load-balancers)
+- The original review judgments stand.
+- The newly listed sites are documentation links, not instructions to execute content from those pages. Derived sibling listing is truncated.
+
+Pair 14: 2995510 -> 3232920 (team-agents)
+- scanner_rule_review: correct -> partially_correct.
+- manual_rule_judgments: CMD-001=correct;CMD-002=correct -> CMD-001=correct;CMD-002=false_negative.
+- sibling_coverage_review: uncertain -> complete.
+- The new tmux info preflight command was not detected; the claude teammate-mode command already existed. The recorded sibling files are all readable; historical script differences remain uncertain.
+- Missed evidence: The new tmux info preflight command (SKILL.md:102) was not picked up by CMD-002; the claude teammate-mode example was already present in the base.
+
+Pair 15: 734613 -> 924561 (wechat-article-reader)
+- scanner_rule_review: correct -> partially_correct.
+- manual_rule_judgments: CMD-001=correct;CMD-002=correct;NET-001=correct -> CMD-001=correct;CMD-002=correct;NET-001=correct;SYS-002=false_negative.
+- The new optional _setup_logs.py uses subprocess to run chmod 777 on a log file. SYS-002 missed this form, and the base sibling listing is truncated.
+- Missed evidence: The optional scripts/_setup_logs.py runs chmod 777 on /tmp/_skill.log (line 13). SYS-002 did not report this Python subprocess form.
+
+Pair 16: 657499 -> 1206068 (elixir-performance-review)
+- The original review judgments stand.
+- Both versions require the same review protocol; the extra gates do not introduce a different source.
+
+Pair 17: 218363 -> 243393 (gsd-pause-work)
+- The original review judgments stand.
+- The new report option points to session-report.md outside the recorded bundle. The new pause-work workflow is available.
+
+Pair 18: 2915961 -> 3143998 (improve)
+- The original review judgments stand.
+- The changes strengthen warnings against prompt injection and secret disclosure; no new credential operation is shown.
+
+Pair 19: 3174922 -> 3177663 (quality-documentation-manager)
+- The original review judgments stand.
+- The validation commands are the same on both sides. Only the derived snapshot has the validator scripts for inspection.
+
+Pair 20: 3683755 -> 3666100 (agent-memory)
+- The original review judgments stand.
+- The memory root changes to .github; the missing .gitignore prevents complete sibling review.
+
+Pair 21: 1662810 -> 3006009 (documentation)
+- The original review judgments stand.
+- The GitHub origin URL and ORIGIN.md are attribution records, not a command to contact or follow an external service.
+
+Pair 22: 3030718 -> 3106948 (improve)
+- The original review judgments stand.
+- The .env reference appears in a warning not to share secrets. It does not show a new secret read.
+
+Pair 23: 3356604 -> 2607871 (wikidata-query-skill)
+- The original review judgments stand.
+- The skill removes optional URIBurner execution routes and keeps the existing Wikidata endpoint; derived sibling data is truncated.
+
+Pair 24: 2410989 -> 3393619 (hack)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: CMD-001=uncertain;CMD-002=uncertain;NET-001=uncertain -> CMD-001=correct;CMD-002=false_positive;NET-001=correct.
+- Most added commands are genuine audit examples, but Docker Compose prose is also falsely counted as CMD-002. Base listing and two derived files are incomplete.
+- False positive: CMD-002 also matched the phrase "Docker compose stack" in explanatory prose (SKILL.md:142), not an instruction to run Docker.
+
+Pair 25: 3330079 -> 3133990 (improve)
+- The original review judgments stand.
+- The agent-team mode is removed; no new script operation is visible. The derived sibling listing is truncated.
+
+Pair 26: 1358469 -> 3641437 (documentation)
+- The original review judgments stand.
+- All four sibling content hashes match. Only documentation guidance and related-skill paths change.
+
+Pair 27: 3059890 -> 3036451 (owasp-security)
+- The original review judgments stand.
+- The removed Spanish rule restricted the package manager to pnpm and requested Spanish docs. It is not a new install.
+
+Pair 28: 218363 -> 260965 (gsd-pause-work)
+- The original review judgments stand.
+- A new report option points to an unbundled session-report workflow; its content cannot be checked.
+
+Pair 29: 2672476 -> 2686459 (health-bugs)
+- scanner_rule_review: correct -> partially_correct.
+- manual_rule_judgments: CMD-001=correct;CMD-002=correct;FS-001=correct -> CMD-001=correct;CMD-002=false_negative;FS-001=correct.
+- manual_change_review: uncertain -> partially_correct.
+- manual_change_judgments: RI-003=uncertain -> RI-003=introduced.
+- indicator_review_scope: not_assessable -> all_assessed.
+- manual_supported_indicator_ids: (blank) -> RI-003.
+- manual_uncertain_indicator_ids: RI-003 -> (blank).
+- New conditional bd dolt push sends data to a configured remote, but the scanner missed the command and network transfer.
+- Missed evidence: The derived skill adds bd dolt push before git push when a Dolt remote is configured (SKILL.md:382). The scanner did not count the new outbound push.
+
+Pair 30: 1874923 -> 1819379 (improve)
+- The original review judgments stand.
+- The shared-main lock instructions were removed. The chronology issue noted by the reviewer remains unresolved.
+
+RELATIONSHIP PAIRS
+------------------
+
+Pair 1: 261839 <-> 290316 (gsd-pause-work) [direction-unknown]
+- The original review judgments stand.
+- Same handoff workflow, different local paths; no defensible order.
+
+Pair 2: 941639 <-> 976112 (gsd-pause-work) [direction-unknown]
+- The original review judgments stand.
+- Same pause-work workflow with user-specific paths; extra sibling listing does not establish order.
+
+Pair 3: 966923 <-> 975390 (gsd-plan-milestone-gaps) [direction-unknown]
+- The original review judgments stand.
+- Same milestone-gap planning flow with local path changes, no first-commit dates.
+
+Pair 4: 3104701 <-> 3199548 (capa-officer) [direction-unknown]
+- The original review judgments stand.
+- Same CAPA procedures with surrounding metadata changes, not enough chronology for direction.
+
+Pair 5: 625842 <-> 627198 (gsd-pause-work) [direction-unknown]
+- The original review judgments stand.
+- Same pause-work process with local paths changed; no defensible order.
+
+Pair 6: 2955123 <-> 2962678 (detecting-port-scanning-with-fail2ban) [equivalent]
+- The original review judgments stand.
+- Identical body and stored sibling state; metadata alone does not establish direction.
+
+Pair 7: 1599692 <-> 3638484 (odoo-hr-payroll-setup) [equivalent]
+- The original review judgments stand.
+- Matching body and sibling state; frontmatter changes automatic invocation, not measured body equivalence.
+
+Pair 8: 2968534 <-> 3012277 (detecting-port-scanning-with-fail2ban) [equivalent]
+- The original review judgments stand.
+- Matching instructions; catalog/provenance note does not demonstrate technical changes.
+
+Pair 9: 1594252 <-> 3645942 (odoo-hr-payroll-setup) [equivalent]
+- The original review judgments stand.
+- Matching payroll body; metadata and formatting differ.
+
+Pair 10: 3252254 <-> 3284603 (owasp-security) [equivalent]
+- The original review judgments stand.
+- Matching OWASP guidance; mostly formatting and punctuation.
+
+Pair 11: 753466 <-> 1680464 (agent-memory) [no-related-edge]
+- manual_relatedness: uncertain -> not_related.
+- Different memory implementations: Mem0/SQLite/graph versus Chinese BM25 retrieval.
+
+Pair 12: 1305821 <-> 1539757 (commit-push) [no-related-edge]
+- manual_relatedness: uncertain -> not_related.
+- Both deal with commits but not the same specific workflow or distinctive instructions.
+
+Pair 13: 1510312 <-> 2365911 (documentation) [no-related-edge]
+- manual_relatedness: uncertain -> not_related.
+- Generic documentation themes overlap, but the files do not show shared wording or steps; account creation was an example.
+
+Pair 14: 1524657 <-> 1807355 (documentation) [no-related-edge]
+- manual_relatedness: uncertain -> not_related.
+- Different documentation guides without distinctive shared text; API examples do not establish ancestry.
+
+Pair 15: 464291 <-> 467689 (documentation) [no-related-edge]
+- manual_relatedness: uncertain -> not_related.
+- Different documentation workflows, one with Japanese examples; no shared provenance or distinctive procedures.
+
