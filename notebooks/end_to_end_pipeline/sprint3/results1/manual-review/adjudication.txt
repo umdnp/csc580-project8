@@ -1,0 +1,202 @@
+Sprint 3 - Sample 1 adjudication
+
+Reviewed 30 directed pairs and 15 relationship pairs using the skill files, available sibling files, scanner results, and family comparisons.
+Original reviews are saved in the .old.csv files. The updated CSVs keep the original research data and record the review changes.
+Unfetched files were left unassessed. A scanner match alone does not show that a command was run or that a skill is malicious.
+Reviewer names and dates are unchanged. Team confirmation is still required for the final record.
+
+DIRECTED PAIRS
+==============
+
+Pair 1: 1548518 -> 1631697 (extract)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CRED-001=correct, added EXT-002=false_negative, added FS-003=false_negative.
+- The scanner also missed the npx acquisition and token-file read (derived extract.sh:45-60,98).
+- The invoked extract.sh changes from POSTing to api.tavily.com to POSTing to mcp.tavily.com. It adds conditional npx -y mcp-remote acquisition and reads cached OAuth tokens under ~/.mcp-auth. Browser authentication does not itself instruct the agent to follow external instructions.
+
+Pair 2: 3389430 -> 3468330 (aif-skill-generator)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added SYS-002=false_negative.
+- The permission change in the cleanup helper was not caught by SYS-002 (helper:232-244).
+- The new cleanup-blocked-skill.py is invoked on a blocked install and uses os.chmod before retrying recursive deletion. The base already deletes blocked skill files, so broader destruction is unproven. The renamed scan path alone is insufficient, but the cleanup helper is new.
+
+Pair 3: 3400597 -> 3468575 (aif-skill-generator)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added SYS-002=false_negative.
+- The same os.chmod permission change was missed here (helper:232-244).
+- The GitHub-path variant adds and invokes cleanup-blocked-skill.py. Its read-only-file retry changes permissions with os.chmod. The base already instructs deletion of blocked skill files, and the new helper checks that the target stays within a configured skill root.
+
+Pair 4: 2620308 -> 2788803 (ai-exposure-analyzer)
+- manual_rule_judgments: added NET-001=correct.
+- manual_change_review: uncertain -> partially_correct.
+- The Network Behavior section adds pip install -r requirements.txt. SEC and other research fetches already appear in the base and its data-collection guide. The derived sibling listing is unverified, and five base spreadsheets have no stored content.
+
+Pair 5: 3562752 -> 3606825 (cso)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CMD-002=false_negative, added NET-001=correct.
+- The added helper calls were missed by the command rule. The external link is offered only with approval.
+- The derived preamble adds analytics-marker cleanup and a local update helper. It also conditionally offers to open a new external host. The vendored migration includes git rm -r. The changed sibling is missing content.
+
+Pair 6: 3607292 -> 3607990 (cso)
+- Both versions recursively remove their corresponding vendored skill directory and use git fetch origin. The fork changes helper names and paths without establishing broader deletion. The acknowledgements cite prior work. The template body is unavailable.
+
+Pair 7: 3587044 -> 3594971 (cso)
+- scanner_rule_review: uncertain -> incorrect.
+- manual_rule_judgments: CMD-002: uncertain -> false_positive.
+- The bun test line was an example of how to phrase advice, not a step to run (SKILL.md:152).
+- A voice section adds communication guidance and command-like wording. It supplies no new operation that meets an RI trigger in the visible body. Two sibling files lack content.
+
+Pair 8: 3562752 -> 3609077 (cso)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CMD-002=false_negative, added NET-001=correct.
+- The command rule missed the added helper calls. The new template is not available for review.
+- The derived preamble adds local helper calls, analytics cleanup, a conditional browser open to a new host, and recursive removal of vendored skill files. Acknowledgements provide citations. The changed template has no stored body.
+
+Pair 9: 3460540 -> 3318888 (openclaw-parallels-smoke)
+- scanner_rule_review: not_applicable -> correct.
+- manual_rule_judgments: added CMD-002=correct, added EXT-002=correct, added SYS-001=correct.
+- The scanner correctly recorded removed commands. Calling the rule check not_applicable was too broad.
+- The derived smoke instructions shorten an existing npm-update flow and remove timeout and sudo fallback examples. No new package source or privilege expansion is visible. Saved extraction coverage is incomplete.
+
+Pair 10: 3508004 -> 3609125 (cso)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CMD-002=false_negative, added NET-001=correct.
+- The added helper calls were missed by CMD-002; the browser link is optional.
+- The derived preamble adds local helpers, marker cleanup, a conditional external browser open, and vendored-skill removal. The audit phases move to a local section, and acknowledgements cite prior work. The added section template has no stored body.
+
+Pair 11: 3575483 -> 3609390 (cso)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CMD-002=false_negative, added NET-001=correct.
+- The new local helper calls were missed by CMD-002.
+- The derived preamble adds local update helpers, marker cleanup, and a conditional browser open to a new host. The migration step deletes the vendored tree. The acknowledgements cite sources without directing the agent to follow them.
+
+Pair 12: 3606487 -> 3607748 (cso)
+- scanner_rule_review: uncertain -> correct.
+- manual_change_review: uncertain -> partially_correct.
+- The added git rm -r is clear enough to assess, even though the helper code is unavailable.
+- The derived migration adds git rm -r for its vendored skill directory. Both preambles already invoke equivalent helper roles. Their new paths do not establish different executable content. The acknowledgement URLs are citations.
+
+Pair 13: 3605445 -> 3604688 (azure-cosmos-db)
+- Both versions explicitly fetch full Microsoft Learn articles. The bundled deployment and integration guides move out of references/ and mostly preserve the same sources, replacing WebFetch with fetch_webpage. No new requirement to follow an external source is established.
+
+Pair 14: 1553624 -> 1921647 (openclaw-parallels-smoke)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CMD-002=correct, EXT-002: uncertain -> false_positive.
+- manual_change_judgments: RI-005: uncertain -> retained.
+- indicator_review_scope: not_assessable -> all_assessed on the second pass. RI-010 stays uncertain because the test code is not available.
+- manual_uncertain_indicator_ids: removed RI-005.
+- The words "npm install then update" are a heading, not a new install command. The new pnpm test body is not available.
+- The derived same-guest update lane names a new pnpm test target. The base already installs OpenClaw during smoke tests. The wrapper body and registry are unavailable. Passing an API key to a local guest process does not itself show an outbound credential transfer.
+
+Pair 15: 3599029 -> 3596137 (cso)
+- The preamble resolves the same helpers through explicit home paths. The new acknowledgements cite prior work. The removed agent configuration is readable, but the added template lacks content.
+
+Pair 16: 3545165 -> 3545287 (cso)
+- The derived preamble relocates helper and state paths to the workspace. The two-hour session cleanup keeps the same age and file filters. The available text does not establish a broader deletion scope.
+
+Pair 17: 2294316 -> 2399298 (tooluniverse-multiomic-disease-characterization)
+- scanner_rule_review: not_applicable -> partially_correct.
+- manual_rule_judgments: added CMD-002=false_negative.
+- manual_change_review: uncertain -> partially_correct.
+- The scan missed a direct instruction to write and run Python through Bash (SKILL.md:33-34).
+- The derived body asks for database-backed research and ad hoc Python analysis. It removes the test script and adds an unavailable .env.template. The visible changes specify neither a new network host nor a new local script invocation.
+
+Pair 18: 3064845 -> 3119093 (paywall-upgrade-cro)
+- scanner_rule_review: uncertain -> not_applicable.
+- The added paywall optimization guide cites research and offers product UX examples. Its delete-a-project example is UI design advice. Prerequisite and optional integration metadata do not establish a new external dependency or data transfer.
+
+Pair 19: 3594971 -> 3575483 (cso)
+- manual_change_review: uncertain -> partially_correct.
+- manual_change_judgments: added RI-006=removed.
+- RI-006 should be marked removed, since the cleanup step was taken out.
+- The derived audit removes the session deletion and telemetry setup passages and adds prior-learning guidance. No newly destructive step is evident. A base sibling is unavailable.
+
+Pair 20: 3703224 -> 3712372 (paywall-upgrade-cro)
+- The changed experiments guide adds a table of contents. The main body retains the same workflow, with version and description formatting changes.
+
+Pair 21: 3584713 -> 3593331 (cso)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: NET-002: correct -> false_positive, added CMD-001=correct.
+- The added fetch expression is inside a contributor-report example about a past bug, with no target or instruction to run it. The existing report-writing step gains formatting requirements. Two sibling files lack content.
+
+Pair 22: 3594971 -> 3595182 (cso)
+- The preamble resolves existing helpers through a configurable root. The changed invocation syntax does not establish a different executable. A removed sibling lacks content.
+
+Pair 23: 3591470 -> 3613717 (implement)
+- scanner_rule_review: uncertain -> partially_correct.
+- manual_rule_judgments: added CMD-002=false_negative.
+- The command rule missed calls to await-round.sh and verifier-fan-in.sh (SKILL.md:579,586). The script bodies are not included.
+- The derived verifier round explicitly invokes scripts/verifier-fan-in.sh. It also adds a direct await-round.sh invocation. The base mentions the await helper and invokes the dispatcher, but has no call to the new fan-in helper.
+
+Pair 24: 3400597 -> 3400798 (aif-skill-generator)
+- scanner_rule_review: uncertain -> correct.
+- manual_rule_judgments: added CMD-002=correct.
+- manual_change_judgments: added RI-010=retained.
+- The scanner script has the same recorded hash on both sides. The commands move to another agent root, and the package install retains its acquisition operation with a different agent target. There is no observed different executable or package source.
+
+Pair 25: 3063522 -> 3412360 (paywall-upgrade-cro)
+- The new GitHub URL identifies provenance. The workflow directs the reader to local copied files. The URL is neither an executed source nor an instruction to fetch and follow the upstream repository.
+
+Pair 26: 3063522 -> 3173327 (paywall-upgrade-cro)
+- The Japanese mobile-paywall section adds a check of the app's existing subscription code and feature differences. It does not target a recognized sensitive file or add an external operation.
+
+Pair 27: 2245671 -> 2523748 (implement)
+- The derived workflow adds maxWaves guidance and a read-only gh pr view check after an unconfirmed report. The base already performs GitHub PR operations, and the new check does not add a host or upload.
+
+Pair 28: 2406183 -> 2441715 (AgentDB Vector Search)
+- The changes adjust local vector-search examples, cache settings, and metadata. No new sensitive path, external source, or outbound target is specified.
+
+Pair 29: 1660796 -> 2117543 (paywall-upgrade-cro)
+- The derived copy adds a local product-marketing context check and drops the bundled experiments guide. Cross-references to adjacent skills do not establish a new external instruction source.
+
+Pair 30: 3703224 -> 1996323 (paywall-upgrade-cro)
+- The new technique map adds role, context, and output guidance to the same paywall workflow. The observed changes do not introduce a qualifying operation.
+
+RELATIONSHIP PAIRS
+==================
+
+Pair 1: 3605071 <-> 3607908 (cso, direction-unknown)
+- Artifact B could be the parent of A, but the available evidence does not establish the direction.
+
+Pair 2: 129015 <-> 129933 (gsd-explore, direction-unknown)
+- The body is the same except for the explore.md workflow path under execution_context. Neither file has a recorded first commit.
+
+Pair 3: 3505214 <-> 3505335 (openclaw-parallels-smoke, direction-unknown)
+- There is a context clue that Artifact A has a later mentioned macOS version (26.5 compared to B's 26.3.1). The similarity in the files indicates relatedness, but not necessarily familial relation. Those version numbers do not tell us which file came first.
+
+Pair 4: 788404 <-> 857213 (clawdbot-release-check, direction-unknown)
+- Besides frontmatter, these files are identical. There are only repo dates associated with each file, so the direction cannot be established. The sibling files are unavailable, so we can only confirm that the skill text matches.
+
+Pair 5: 2023843 <-> 2050390 (executive-mentor, direction-unknown)
+- Both share the same executive-mentor playbook and slash commands. A contains a plugin-packaging note and rewritten paths, while B includes author and catalog metadata. These point to repackaging, with no file commit dates to establish an order.
+
+Pair 6: 1316133 <-> 1317352 (extract, equivalent)
+- Both are basically the same file. The visible changes are whitespace only. A's date comes from B, so the matching dates do not tell us which was first.
+
+Pair 7: 2859543 <-> 2861293 (hosted-agents, equivalent)
+- These also differ by whitespace only, mostly. There is a markdown heading difference and frontmatter difference. The files both have a 'created on' date and a SKILL.md version of 1.0.0 at the bottom. Effective chronology also has an identical date and time. Equivalent is the correct assessment. Those dates do not prove which version was first.
+
+Pair 8: 1317854 <-> 1332965 (extract, equivalent)
+- Both contain the same design-system extraction body. Mostly differ by frontmatter and whitespace. Clearly equivalent.
+
+Pair 9: 507338 <-> 607372 (gws-keep, equivalent)
+- Differ by frontmatter and whitespace only. Effective chronology also has an identical date and time. Equivalent is the correct assessment. The shared date does not tell us which copy came first.
+
+Pair 10: 2041544 <-> 2041735 (searxng-search, equivalent)
+- Removed the claim that A obviously authored this first. The dates do not prove that.
+- Differ by frontmatter only. The files credit different authors, and A has an earlier effective date. That date comes from another equivalent copy, so we cannot say A authored this first. The rest is identical, which indicates equivalence.
+
+Pair 11: 207781 <-> 2104435 (implement, no-related-edge)
+- The files differ almost completely. Not related is the correct assessment.
+
+Pair 12: 3644760 <-> 3668355 (extract, no-related-edge)
+- The files use different languages. However, the readable content is substantially different. Not related is the correct assessment for the purpose of this project.
+
+Pair 13: 296217 <-> 1747684 (implement, no-related-edge)
+- The files differ almost completely. Not related is the correct assessment.
+
+Pair 14: 251274 <-> 3757072 (implement, no-related-edge)
+- The files use different languages. However, the readable content is substantially different. Not related is the correct assessment for the purpose of this project.
+
+Pair 15: 1221131 <-> 2111678 (implement, no-related-edge)
+- The files use different languages. However, the readable content is substantially different. Not related is the correct assessment for the purpose of this project.

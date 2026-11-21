@@ -1,0 +1,44 @@
+family,cluster,artifact_a_id,artifact_b_id,relationship_status,direction_basis,change_type,similarity_jaccard,similarity_containment,similarity_shared_shingles,sampling_stratum,reviewer,review_phase,review_status,review_date,manual_relatedness,direction_basis_review,notes
+mcp-builder,1,2500259,2591195,direction-unknown,similarity-only,skill+siblings,0.8751147842056930,0.9794450154162380,953,ambiguous,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts share nearly identical MCP server development instructions and the same four-phase workflow, with Hermes-specific adaptations (Jaccard 0.8751).
+
+Direction: Uncertain because both artifacts have unknown effective chronology, commit histories were not fetched, and no direction evidence is recorded.                                                                                                    "
+mcp-builder,1,2435625,2435814,direction-unknown,similarity-only,siblings-only,1.0,1.0,971,ambiguous,Vaisnavii Mohanraj,independent,complete,2026-11-09,uncertain,uncertain,Couldn’t find artifact_b_id 2435814 in SkillTrace
+mcp-builder,1,2425345,2476279,direction-unknown,similarity-only,skill+siblings,0.9020568070519100,0.9485066941297630,921,ambiguous,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts share nearly identical MCP server development instructions, including the four-phase workflow and evaluation guidance. Differences are mainly reference paths, metadata, and formatting (Jaccard 0.9021). 
+
+Direction: Uncertain because artifact 2425345 has a direct chronology date, while artifact 2476279 has unknown effective chronology. No direction evidence is recorded."
+blocknative-automation,1,985357,1073532,direction-unknown,similarity-only,unknown,1.0,1.0,296,ambiguous,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain identical Blocknative automation instructions (Jaccard 1.0000), with only metadata differences. 
+
+Direction: Uncertain because artifact 1073532 has unknown chronology, and no direction evidence is recorded."
+marketing-psychology,1,3413903,3420781,direction-unknown,similarity-only,skill+siblings,0.9950686861570980,0.9982332155477030,2825,ambiguous,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain nearly identical marketing psychology instructions, mental models, and examples, with minor metadata and context-file reference differences (Jaccard 0.9951). 
+
+Direction: Uncertain because artifact 3420781 has direct chronology, while artifact 3413903 has unknown effective chronology. No direction evidence is recorded."
+mcp-builder,3,1246073,1338621,equivalent,equivalent-state,equivalent,1.0,1.0,309,equivalent,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain identical MCP server development instructions, with only Markdown formatting differences (Jaccard 1.0000). 
+
+Direction: Uncertain because both chronology dates are inherited from an equivalent peer rather than direct commit histories, and no direction evidence is recorded."
+marketing-psychology,1,3413135,3425037,equivalent,equivalent-state,equivalent,1.0,1.0,2830,equivalent,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain identical marketing psychology instructions and examples, with only a version metadata difference (Jaccard 1.0000). 
+
+Direction: Uncertain because the equivalent content does not establish derivation order, and no direction evidence is recorded."
+planning-and-task-breakdown,1,1997221,3785718,equivalent,equivalent-state,equivalent,1.0,1.0,879,equivalent,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain identical planning and task breakdown instructions, with only a frontmatter description difference (Jaccard 1.0000). 
+
+Direction: Uncertain because artifact 3785718 has later direct chronology, while 1997221 has earlier chronology inherited from an equivalent peer. No evidence establishes direct derivation."
+mcp-builder,2,3022345,3026710,equivalent,equivalent-state,equivalent,1.0,1.0,1525,equivalent,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain equivalent MCP server development instructions, with English/Chinese frontmatter differences (Jaccard 1.0000). All nine sibling files have matching content hashes. 
+
+Direction: Uncertain because artifact 3026710 has chronology inherited from an equivalent peer, while 3022345 has direct chronology. No evidence establishes derivation between them."
+performing-automated-malware-analysis-with-cape,1,1903198,1932263,equivalent,equivalent-state,equivalent,1.0,1.0,573,equivalent,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts contain identical CAPEv2 malware analysis instructions and code, with only source metadata differences (Jaccard 1.0000). All six sibling files have matching content hashes. 
+
+Direction: Uncertain because artifact 1903198 has earlier direct chronology than 1932263, but no evidence establishes direct derivation. Artifact 1932263 references a separate source repository."
+mcp-builder,,1630160,3026710,no-related-edge,not_applicable,not_applicable,0.00803616273229533,0.03319502074688800,16,no-related-edge,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts share the same four-phase MCP development workflow, reference file paths, implementation guidance, and evaluation requirements. Artifact 1630160 is a shorter, modified version with additional MCP guidance. 
+
+Direction: Uncertain because no chronology or provenance evidence was provided to establish derivation order."
+checkpoint,,2225560,3639860,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge,Vaisnavii Mohanraj,independent,complete,2026-11-09,not_related,not_applicable,"Relatedness: Both artifacts share the name ""checkpoint"" but serve different purposes. Artifact 2225560 manages human approval and decision reconciliation in development workflows, while 3639860 saves work-session state to persistent memory. Their instructions and workflows are distinct, with no meaningful derivation evidence. 
+
+Direction: Not applicable because the artifacts are not related."
+mcp-builder,,927136,2432174,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge,Vaisnavii Mohanraj,independent,complete,2026-11-09,uncertain,uncertain,"Relatedness: Both artifacts address MCP server development and share general topics such as architecture, tool design, error handling, and testing. However, artifact 927136 is a generic checklist, while 2432174 provides detailed implementation instructions. Evidence of a shared origin is insufficient. 
+
+Direction: Uncertain because no chronology or provenance evidence was provided to establish derivation."
+mcp-builder,,834740,1311018,no-related-edge,not_applicable,not_applicable,0.0,0.0,0,no-related-edge,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts share MCP server development principles, including agent-centered tool design, API integration, context management, and testing. Artifact 834740 explicitly identifies itself as adapted from Anthropic's mcp-builder skill, while 1311018 presents a Chinese-language development guide with overlapping concepts. 
+
+Direction: Uncertain because the shared upstream attribution does not establish direct derivation between these two artifacts, and no chronology evidence was provided."
+planning-and-task-breakdown,,1400359,2021889,no-related-edge,not_applicable,not_applicable,0.25209302325581400,0.5802997858672380,271,no-related-edge,Vaisnavii Mohanraj,independent,complete,2026-11-09,related,uncertain,"Relatedness: Both artifacts share nearly identical five-step planning workflows, task structures, sizing guidelines, and verification principles. Artifact 1400359 includes gsm.viz-specific examples and TDD requirements, while 2021889 contains broader planning and parallelization guidance. 
+
+Direction: Uncertain because no chronology or provenance evidence was provided to establish derivation order."
