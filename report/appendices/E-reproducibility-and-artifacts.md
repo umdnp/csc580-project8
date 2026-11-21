@@ -1,7 +1,7 @@
 
 # Appendix E Supporting repository material {#app-e}
 
-The report uses the **three saved Sprint 3 trials**, not the earlier Sprint 2 exploratory cohort. The source code revision recorded in all three manifests is `ae69732ed8988ad7066ff351848f7d2e8ad311a1`; the manifests additionally retain the implementation fingerprint, active rules, dataset identity, and selected inputs. Results are not recomputed by rebuilding the report. [Table 17](#tbl-reproducibility) lists the supporting repository resources.
+The report uses the **three saved Sprint 3 trials**, not the earlier Sprint 2 exploratory cohort. Trials 1 and 2 record code revision `ae69732ed8988ad7066ff351848f7d2e8ad311a1`, while Trial 3 records `66ea452f6fb9d596905a62f9b0fd4546b71927b7`. The manifests record matching scanner implementation and cohort fingerprints, alongside active rules, dataset identity, and selected inputs. Results are not recomputed by rebuilding the report. [Table 17](#tbl-reproducibility) lists the supporting repository resources.
 
 | Repository resource | Purpose |
 | --- | --- |
@@ -37,13 +37,15 @@ notebooks/end_to_end_pipeline/sprint3/
     review/directed_pairs.csv
     review/indicator_frequency.csv
     review/direction_basis.csv
-    manual-review/directed-pairs/
-    manual-review/relationship-pairs/
+    manual-review/directed-pairs/           # independent annotations
+    manual-review/relationship-pairs/       # independent annotations
+    manual-review/adjudicated/              # directed.csv, relationships.csv, adjudication.txt
+    review/summary.before-adjudication.json
   results2/                  # same structure
   results3/                  # same structure
 ```
 
-The `sampling_report.json` files record sampling seeds **5801–5803**, stratum allocations, exclusions, and candidate rejections. The `sample_manifest.json` files record the selected families, policies, scanner and code identities, review sample checksums, and a source fingerprint. Research summaries and CSV files contain the automated outcome counts used in Sections [IV](#sec-dataset)–[VI](#sec-results) and [Appendix D](#app-d); audit and execution files provide coverage and processing status. The separate annotation files are reviewer-owned and remain distinct from automated predictions.
+The `sampling_report.json` files record sampling seeds **5801–5803**, stratum allocations, exclusions, and candidate rejections. The `sample_manifest.json` files record the selected families, policies, scanner and code identities, review sample checksums, and a source fingerprint. Research summaries and CSV files contain the automated outcome counts used in Sections [IV](#sec-dataset)–[VI](#sec-results) and [Appendix D](#app-d); audit and execution files provide coverage and processing status. Independent and team-adjudicated annotations remain separate from automated predictions. Final `review/summary.json` files contain the sample-limited `manual_validation` and `relationship_validation` measures; pre-adjudication copies retain the original summary state. The recorded code revisions and sample identities must be respected when reproducing the published frozen numbers.
 
 Two cross-trial charts in [Section VI](#sec-results) are generated from the saved `families.csv` and `directed_pairs.csv` files using `report/figures/generate_sprint3_figures.py`. The script does not alter trial results or select new families.
 

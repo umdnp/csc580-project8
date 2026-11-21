@@ -8,7 +8,7 @@
   <meta name="author" content="Kyle Cantrell" />
   <meta name="author" content="Vaisnavii Mohanraj" />
   <meta name="author" content="Christian Heiney" />
-  <meta name="dcterms.date" content="2026-11-08" />
+  <meta name="dcterms.date" content="2026-11-15" />
   <title>Security-Sensitive Changes in Agent Skills: A Static Analysis of GitSkills</title>
   <style>
     /* Default styles provided by pandoc.
@@ -284,9 +284,9 @@ Group 8 Final Project Report</p></p>
 <p class="author">Kyle Cantrell</p>
 <p class="author">Vaisnavii Mohanraj</p>
 <p class="author">Christian Heiney</p>
-<p class="date">November 8, 2026</p>
+<p class="date">November 15, 2026</p>
 </header>
-<h1 data-number="1" id="abstract"><span
+<h1 data-number="1" id="abs-abstract"><span
 class="header-section-number">1</span> Abstract</h1>
 <p>AI coding agents use reusable packages of instructions and supporting
 files, called <em>agent skills</em>, to perform specialized tasks. Reuse
@@ -310,9 +310,13 @@ Changes involving local script execution (39 families) and external code
 or dependency acquisition (26 families) were the most widespread. These
 automated findings identify changes worth reviewing, not confirmed
 vulnerabilities or verified copying histories. The sample rate does not
-estimate prevalence across all GitSkills, and independent human
-validation is in progress.</p>
-<h1 data-number="2" id="introduction"><span
+estimate prevalence across all GitSkills. Subsequent team adjudication
+of 90 directed and 45 relationship-review cases confirmed both missed
+indicators and unsupported detections. Only 29 directed cases met the
+strict criteria for sample-level indicator metrics; these results
+qualify the scanner’s performance but do not change the frozen study
+counts.</p>
+<h1 data-number="2" id="sec-introduction"><span
 class="header-section-number">2</span> Introduction</h1>
 <p>A skill can keep the same name and purpose while asking an AI agent
 to do something different. That matters when the agent can run commands,
@@ -347,7 +351,7 @@ instructions and supporting files without executing them. The aim is not
 to label skills as malicious. It is to give developers and security
 reviewers a reproducible way to find changes worth examining before
 adopting or updating a skill.</p>
-<h1 data-number="3" id="research-question-and-study-scope"><span
+<h1 data-number="3" id="sec-research-question"><span
 class="header-section-number">3</span> Research question and study
 scope</h1>
 <blockquote>
@@ -375,14 +379,14 @@ families</strong> with at least one directed comparison supporting a
 defined risk indicator. We also report comparison-level findings, but
 one family can contribute many related comparisons. A risk indicator is
 supported by evidence of a specific change, not simply by a new keyword
-or more scanner matches. Section V explains how we make that
-distinction.</p>
+or more scanner matches. <a href="#sec-method">Section V</a> explains
+how we make that distinction.</p>
 <p>We expected to see both security-sensitive changes and ordinary
 updates. Some reported changes may be intentional features rather than
 unwanted exposure. Our eleven indicators define which changes we assess;
 they do not establish why a change was made or whether it ran in
 practice.</p>
-<h1 data-number="4" id="background-and-related-work"><span
+<h1 data-number="4" id="sec-related-work"><span
 class="header-section-number">4</span> Background and related work</h1>
 <p>Relevant agent-skill security studies ask what risky instructions a
 skill <em>contains</em>. Liu and colleagues developed SkillScan to
@@ -411,7 +415,7 @@ skill content, record the evidence behind each comparison’s direction,
 and assess whether the observed differences satisfy specific
 security-sensitive change criteria. The result is a set of candidate
 changes for human review, not a list of confirmed malicious skills.</p>
-<h1 data-number="5" id="dataset-and-cohort"><span
+<h1 data-number="5" id="sec-dataset"><span
 class="header-section-number">5</span> Dataset and cohort</h1>
 <h2 data-number="5.1" id="data-source-and-unit-of-analysis"><span
 class="header-section-number">5.1</span> Data source and unit of
@@ -444,10 +448,11 @@ than 50 characters, and its content, name, and description are present.
 A candidate family must have at least two qualifying occurrences with
 the same name. Descriptions are normalized for supporting subgroups, but
 differences in description do not split a family during similarity
-analysis.</p>
+analysis. The preparation-stage counts are summarized in <a
+href="#tbl-selection-audit">Table 8</a>.</p>
 <p>An earlier preparation audit established a larger pool of same-name
-candidates, but not all were eligible for the final study. Appendix A
-records the audit counts and links to the preparation SQL. The saved
+candidates, but not all were eligible for the final study. <a
+href="#app-a">Appendix A</a> links to the preparation SQL. The saved
 Sprint 3 sampling reports document the actual selection and replacement
 process.</p>
 <h2 data-number="5.3" id="selecting-the-three-sprint-3-trials"><span
@@ -457,17 +462,20 @@ trials</h2>
 of 100 families each</strong>. This is the final study population for
 the report; earlier Sprint 1 and Sprint 2 cohorts helped develop and
 test the method but do not contribute to the Sprint 3 results.</p>
+<p>The term <strong>sibling-file state</strong> describes what is known
+about a skill’s supporting files and their contents, including whether
+the bundle is known to be empty or its contents are unavailable.</p>
 <p>A family is eligible for selection only if it passes two checks:</p>
 <ol type="1">
 <li><strong>Distinct states:</strong> At least two combinations of the
-main skill-file <strong>hash</strong> (an identifier derived from its
-exact content) and <strong>sibling fingerprint</strong> (a summary of
-known supporting-file contents) differ. Repeated copies of the same
+<code>SKILL.md</code> <strong>hash</strong> (an identifier derived from
+its exact content) and <strong>sibling fingerprint</strong> (a summary
+of known supporting-file contents) differ. Repeated copies of the same
 known state do not meet this requirement.</li>
 <li><strong>Usable relationship:</strong> The similarity analyzer can
 identify at least one primary directed comparison involving different
-main-file hashes or different <em>known</em> sibling hashes. A different
-hash alone does not establish relatedness or direction.</li>
+<code>SKILL.md</code> hashes or different <em>known</em> sibling hashes.
+A different hash alone does not establish relatedness or direction.</li>
 </ol>
 <p>When a randomly drawn candidate fails the relationship check, the
 picker records the rejection and draws a replacement from the same size
@@ -475,13 +483,13 @@ group. <strong>Selection does not run the security scanner</strong> and
 does not favor families with risk indicators. Families that fail
 eligibility are excluded from the study population, not counted as
 families with no risk.</p>
-<p>We divided candidate families into five groups by their <strong>total
-number of artifact occurrences</strong>, including repeated copies. The
-allocation deliberately gives larger families more representation than
-they have in the candidate pool, so the study includes both ordinary and
-unusually large families without letting the largest ones consume the
-entire sample.</p>
-<table>
+<p>We assigned candidate families to five size groups based on their
+<strong>total number of artifact occurrences</strong> (<a
+href="#tbl-family-strata">Table 1</a>). The allocation deliberately
+gives larger families more representation than they have in the
+candidate pool, so the study includes both ordinary and unusually large
+families without letting the largest ones consume the entire sample.</p>
+<table id="tbl-family-strata">
 <caption>Family-size strata and allocation across the three
 trials</caption>
 <thead>
@@ -525,9 +533,11 @@ trials</caption>
 </tbody>
 </table>
 <p>The trials use recorded random seeds <strong>5801</strong>,
-<strong>5802</strong>, and <strong>5803</strong>. Trial 2 excludes names
-selected in Trial 1; Trial 3 excludes names selected in both previous
-trials. Each trial saves its <code>families.txt</code> and
+<strong>5802</strong>, and <strong>5803</strong>; <a
+href="#tbl-sampling-audit">Table 9</a> records the corresponding
+selection and rejection counts. Trial 2 excludes names selected in Trial
+1; Trial 3 excludes names selected in both previous trials. Each trial
+saves its <code>families.txt</code> and
 <code>sampling_report.json</code>, preserving the selection and
 rejection record. These are separate, non-overlapping samples, but the
 exclusions mean they are not independent draws from an unchanged
@@ -544,11 +554,12 @@ class="header-section-number">5.4</span> What we analyzed</h2>
 skipped. Their similarity analysis selected <strong>2,157 primary
 directed comparisons</strong> in total. A <em>primary</em> comparison
 connects a derived candidate to at most one selected predecessor, using
-the graph method described in Section V. We did not scan additional
-related directed edges in these trials, to limit repeated observations
-of similar changes within large families. Equivalent or
-direction-unknown relationships are retained for relationship review but
-are not assigned introduced/removed security behavior.</p>
+the graph method described in <a href="#sec-method">Section V</a>. We
+did not scan additional related directed edges in these trials, to limit
+repeated observations of similar changes within large families.
+Equivalent or direction-unknown relationships are retained for
+relationship review but are not assigned introduced/removed security
+behavior.</p>
 <p>The main outcome is <strong>family-level frequency</strong>: how many
 sampled families contain at least one comparison with a supported risk
 indicator. We also report pair-level frequency using all analyzed
@@ -560,21 +571,21 @@ events.</p>
 <h2 data-number="5.5" id="evidence-availability-and-safe-handling"><span
 class="header-section-number">5.5</span> Evidence availability and safe
 handling</h2>
-<p>The main skill bodies were available for all loaded artifacts, but
-commit dates and supporting-file content are not always available. A
-known empty sibling bundle is different from one whose contents could
-not be retrieved. We report unavailable files and partial evidence
-extraction rather than treating them as proof that no behavior
-exists.</p>
+<p>The <code>SKILL.md</code> instruction bodies were available for all
+loaded artifacts, but commit dates and supporting-file content are not
+always available. A known empty sibling bundle is different from one
+whose contents could not be retrieved. We report unavailable files and
+partial evidence extraction rather than treating them as proof that no
+behavior exists.</p>
 <p>All skills and bundled files are treated as untrusted data. We
 inspect stored content without running commands, installing
 dependencies, or retrieving referenced code. Before sharing extracted
 examples, potentially sensitive text must be reviewed and redacted where
 possible. The saved manifests record the dataset, rules, code revision,
 and inputs; numeric artifact IDs alone cannot identify the same content
-across database builds. Appendix E links the data dictionary and
-reproduction materials.</p>
-<h1 data-number="6" id="method"><span
+across database builds. <a href="#app-e">Appendix E</a> links the data
+dictionary and reproduction materials.</p>
+<h1 data-number="6" id="sec-method"><span
 class="header-section-number">6</span> Method</h1>
 <h2 data-number="6.1" id="research-approach-and-security-scope"><span
 class="header-section-number">6.1</span> Research approach and security
@@ -598,12 +609,13 @@ was exploited, or its author intended harm. The full threat model
 describes the trust boundary and coverage limits.</p>
 <h2 data-number="6.2" id="analysis-overview"><span
 class="header-section-number">6.2</span> Analysis overview</h2>
-<p>Figure 1 shows the four stages in order. We establish relatedness and
-a plausible direction <strong>before</strong> examining changed
-operations; otherwise, a difference alone could be mistaken for an
-introduced behavior.</p>
+<p><a href="#fig-analysis-pipeline">Figure 1</a> shows the four stages
+in order. We establish relatedness and a plausible direction
+<strong>before</strong> examining changed operations; otherwise, a
+difference alone could be mistaken for an introduced behavior.</p>
 <figure id="fig-analysis-pipeline">
-<img src="report/figures/analysis-pipeline.svg" style="width:100.0%"
+<img src="report/figures/analysis-pipeline.svg" class="here"
+style="width:100.0%"
 alt="Four stages of the static comparison process: group candidates, match and order, compare operations, and assess risk indicators." />
 <figcaption aria-hidden="true">Four stages of the static comparison
 process: group candidates, match and order, compare operations, and
@@ -617,14 +629,14 @@ have the same exact name. Identical <code>SKILL.md</code> content is
 recognized by its file hash; known bundled-file content is represented
 separately by a fingerprint of sibling file hashes. This matters because
 two copies of <code>SKILL.md</code> can contain the same instructions
-yet ship with different scripts. Unavailable sibling state is treated as
-unknown, not as an empty bundle.</p>
-<p>For distinct main-file contents, we compare the body text after
-masking the opening YAML frontmatter. We normalize and tokenize the
-text, then form <strong>five-token shingles</strong>: sequences of five
-consecutive tokens. Comparing sets of these short sequences tolerates
-some formatting changes while retaining important command and identifier
-structure.</p>
+yet ship with different scripts. An unknown sibling-file state is not
+treated as an empty bundle.</p>
+<p>For distinct <code>SKILL.md</code> contents, we compare the body text
+after masking the opening YAML frontmatter. We normalize and tokenize
+the text, then form <strong>five-token shingles</strong>: sequences of
+five consecutive tokens. Comparing sets of these short sequences
+tolerates some formatting changes while retaining important command and
+identifier structure.</p>
 <p>We consider two skill variants sufficiently similar when they share
 at least <strong>five shingles</strong>, have a maximum
 <strong>containment score of at least 0.80</strong>, and have a
@@ -633,11 +645,12 @@ how much of the smaller shingle set appears in the larger one; Jaccard
 measures the shared shingles relative to all distinct shingles across
 both texts. For example, if two files have 100 and 150 shingles, with 85
 shared, containment is <code>85 / 100 = 0.85</code> and Jaccard is
-<code>85 / 165 = 0.515</code> (approximately 0.52). The first captures
-retained content in an expanded skill; the second guards against
-treating a small shared fragment as broadly similar. Using both is
-useful because the <em>added</em> material in a modified skill may
-contain the behavior we seek.</p>
+<code>85 / 165 = 0.515</code> (approximately 0.52). In simpler terms,
+the two skills must share most of the smaller text <strong>and</strong>
+a meaningful portion of their combined text. This helps us recognize an
+expanded skill without treating a small shared passage as evidence that
+otherwise different skills are related. The added material may contain
+the behavior we seek.</p>
 <p>The analyzer groups related artifacts into <strong>similarity
 clusters</strong>. Variants can belong to the same cluster through
 intermediate matches, so membership does not mean that every pair meets
@@ -649,13 +662,15 @@ choices, not probabilities of copying.</p>
 id="step-2-infer-which-artifact-could-come-first"><span
 class="header-section-number">6.4</span> Step 2: Infer which artifact
 could come first</h2>
-<p>We assign an earlier (<strong>base</strong>) and later
-(<strong>derived candidate</strong>) only after establishing
-relatedness. The available evidence is tested in the following
-order:</p>
-<table class="wide">
-<caption>Evidence used to infer earlier-to-later ordering, in priority
-order</caption>
+<p>After establishing that two artifacts are related, we determine which
+could have come first. We evaluate five types of direction evidence in
+priority order: declared source, direct chronology, equivalent-peer
+chronology, repository-creation boundaries, and directional containment.
+<a href="#tbl-direction-priority">Table 2</a> explains each method and
+its limitations.</p>
+<table id="tbl-direction-priority" class="wide">
+<caption><p>Evidence used to infer earlier-to-later ordering, in
+priority order</p></caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -684,10 +699,10 @@ its current file path, not its true original creation date.</td>
 <tr>
 <td>3</td>
 <td><strong>Equivalent-peer chronology</strong></td>
-<td>A different occurrence of the <em>same known main-file and sibling
-state</em> supplies an earlier observed date when direct history is
-missing or later. The date belongs to the state, not automatically to
-the undated occurrence.</td>
+<td>A different occurrence of the <em>same known <code>SKILL.md</code>
+content and sibling-file state</em> supplies an earlier observed date
+when direct history is missing or later. The date belongs to the state,
+not automatically to the undated occurrence.</td>
 </tr>
 <tr>
 <td>4</td>
@@ -706,48 +721,57 @@ direction signal.</td>
 </tr>
 </tbody>
 </table>
-<p>For example, if a skill state has no recorded commit date but an
-equivalent copy was observed in January, that peer establishes that the
-state existed by January. If another related state is observed in March,
-January may support an earlier/later comparison. However, we cannot
-transfer that peer’s date when its bundled-file state is different or
-unknown. Likewise, a repository created in March does
-<strong>not</strong> prove that its skill is newer than a skill in an
-older repository; a boundary is useful only when an independently dated
-state predates the repository.</p>
-<p>When none of these methods supports direction, the relationship
-remains unresolved. Conflicting source declarations are also left
-unresolved rather than forcing an order. Equivalent states remain peers
-rather than being forced into an earlier/later order. Each directed
-comparison retains its direction basis so that findings based on
-containment alone can be interpreted more cautiously than those
-supported by observed chronology.</p>
+<p>Equivalent-peer chronology helps when an artifact has no reliable
+commit date of its own. For example, suppose an equivalent copy of a
+skill was observed in January, and another related skill state was
+observed in March. The January observation may support an
+earlier-to-later comparison, even if the artifact being examined has no
+recorded date. However, the equivalent copy must have the same known
+<code>SKILL.md</code> content and sibling-file state. A different or
+unknown sibling-file state cannot supply that historical evidence.</p>
+<p>Repository creation dates can also help establish order, but only in
+specific circumstances. If one skill state was observed before another
+repository existed, that observation can support an earlier-to-later
+comparison. Simply belonging to an older repository does not establish
+that a skill came first. When stronger dating evidence is unavailable,
+<strong>directional containment</strong> considers whether one skill
+preserves most of another’s content while adding more material. That
+pattern can suggest which artifact came later, but it cannot prove the
+historical order.</p>
+<p>When the available evidence cannot support an ordering, we leave the
+relationship unresolved. Conflicting source declarations also remain
+unresolved, and equivalent states are retained as peers. For each
+directed comparison, we record the evidence used to determine its order.
+This allows us to distinguish comparisons supported by observed
+chronology from those relying on weaker evidence, such as directional
+containment.</p>
 <p>The algorithm selects at most <strong>one primary predecessor per
-derived candidate</strong>, avoiding cycles. It can also identify other
-related, directed comparisons, called <em>additional edges</em>. For the
-final three trials, we scanned <strong>primary edges only</strong> to
-study more families without repeatedly counting many related
-combinations within a few large families. In a controlled Sprint 2
-comparison using the same scanner configuration, primary selection
-reduced 3,997 all-edge comparisons to 468 while retaining 43 of 44
-observed family–indicator combinations. This supported the narrower
-design but did not establish that additional edges never contain unique
-findings. No separate Sprint 3 all-edge robustness result is claimed
-here.</p>
+derived candidate</strong>, avoiding cycles. In practical terms, we
+compare each candidate with one selected, plausibly earlier artifact
+rather than every possible predecessor. Other related, directed
+comparisons are retained as <em>additional edges</em>. For the final
+three trials, we scanned <strong>only primary edges</strong> to reduce
+repeated comparisons within large families. In a controlled Sprint 2
+test using the same scanner configuration, this reduced the number of
+comparisons from 3,997 to 468 while retaining 43 of 44 observed
+family–indicator combinations. These results supported our decision to
+use primary edges, although additional edges may still contain unique
+findings. We did not perform a separate all-edge comparison for Sprint
+3.</p>
 <h2 data-number="6.5"
 id="step-3-detect-and-compare-observable-evidence"><span
 class="header-section-number">6.5</span> Step 3: Detect and compare
 observable evidence</h2>
 <p>The static scanner applies <strong>15 detection rules across six
-categories</strong>: command execution, network access, file-system
-access, credentials, external code/dependency acquisition, and system
-modification. The rules identify recognizable constructs, such as a
-shell command, URL, file operation, or package-install instruction. They
-do not execute the content. The <code>SKILL.md</code> frontmatter is
-excluded from behavioral scanning because descriptive metadata and
-declared tools do not, by themselves, demonstrate an operation.
-Provenance metadata can still inform the ordering described in Step
-2.</p>
+categories</strong> (<a href="#tbl-detection-rules">Table 10</a>):
+command execution, network access, file-system access, credentials,
+external code/dependency acquisition, and system modification. The rules
+identify recognizable constructs, such as a shell command, URL, file
+operation, or package-install instruction. They do not execute the
+content. The <code>SKILL.md</code> frontmatter is excluded from
+behavioral scanning because descriptive metadata and declared tools do
+not, by themselves, demonstrate an operation. Provenance metadata can
+still inform the ordering described in Step 2.</p>
 <p>We then <strong>extract and compare evidence</strong>, rather than
 interpreting a changed rule-match count as new risk. Evidence records
 retain the recognized operation, source location, context, and
@@ -767,24 +791,26 @@ is missing. Renaming a file without changing its known content does not
 count as changed script behavior.</p>
 <p>The comparator also distinguishes <code>skill-only</code>,
 <code>siblings-only</code>, <code>skill+siblings</code>, and
-<code>unknown</code> bundle changes. Here, <strong>equivalent skill
-content</strong> can mean equivalent under the token-shingle
-representation, not necessarily byte-for-byte identical; therefore, a
-<code>siblings-only</code> label does not by itself guarantee that no
-textual differences exist. Appendix B defines the classifications.</p>
+<code>unknown</code> bundle changes. Here, <strong>equivalent
+<code>SKILL.md</code> content</strong> can mean equivalent under the
+token-shingle representation, not necessarily byte-for-byte identical;
+therefore, a <code>siblings-only</code> label does not by itself
+guarantee that no textual differences exist. <a href="#app-b">Appendix
+B</a> defines the classifications.</p>
 <h2 data-number="6.6"
 id="step-4-assess-changes-against-risk-indicators"><span
 class="header-section-number">6.6</span> Step 4: Assess changes against
 risk indicators</h2>
 <p>The last stage tests the changed evidence against <strong>11 risk
-indicators (RIs)</strong> defined for this study. Their purpose is to
-highlight observable ways in which an operation or source may change the
-agent’s exposure to external code, networks, local files, credentials,
-or privileged actions. They do <strong>not</strong> assign a severity
+indicators (RIs)</strong> defined for this study (<a
+href="#tbl-risk-indicators">Table 3</a>). Their purpose is to highlight
+observable ways in which an operation or source may change the agent’s
+exposure to external code, networks, local files, credentials, or
+privileged actions. They do <strong>not</strong> assign a severity
 score. An indicator must be supported by the relevant <em>change</em>
 and its context; a rule match alone is insufficient.</p>
-<table class="wide">
-<caption>Eleven evidence-based risk indicators</caption>
+<table id="tbl-risk-indicators" class="wide">
+<caption><p>Eleven evidence-based risk indicators</p></caption>
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -860,45 +886,40 @@ or absent from the observed comparison. “Absent” means <strong>not
 supported by available evidence</strong>, not proven safe. One command
 may support several indicators without representing several separate
 incidents.</p>
-<p>A useful negative example from scanner development is a change from
-<code>npm install</code> to <code>bun install</code> that preserves the
-same dependency-acquisition workflow. Both commands remain in the
-extracted evidence, but the substitution alone does not support
-<strong>RI-005</strong>. This is intentional: recording a changed
-command does not mean reporting a newly introduced operation.</p>
+<p>A simple example from scanner development is replacing
+<code>npm install</code> with <code>bun install</code> while preserving
+the same dependency-acquisition workflow. The scanner records the
+changed commands, but the substitution alone does not support
+<strong>RI-005</strong>: it does not show a new acquisition operation or
+a changed code source.</p>
 <h3 data-number="6.6.1"
 id="worked-example-a-changed-installation-instruction"><span
 class="header-section-number">6.6.1</span> Worked example: A changed
 installation instruction</h3>
-<p>One comparison in Trial 3 illustrates the other side of that
-decision. In the <code>python-executor</code> family, the observed pair
-<strong>1773238 → 1729578</strong> changes the installation
-guidance:</p>
+<p>The <code>python-executor</code> family provides a contrasting
+example from Trial 3: an installation change that meets our
+risk-indicator criteria. In the observed comparison <strong>1773238 →
+1729578</strong>, the instructions change from:</p>
 <p><strong>Base artifact:</strong></p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npx</span> skills add inference-sh/skills@agent-tools</span></code></pre></div>
 <p><strong>Derived candidate:</strong></p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://cli.inference.sh <span class="kw">|</span> <span class="fu">sh</span> <span class="kw">&amp;&amp;</span> <span class="ex">infsh</span> login</span></code></pre></div>
-<p>The base already describes software installation, so the finding is
-<strong>not</strong> that installation or network access became possible
-for the first time. The derived candidate introduces a <em>specific
-download-and-execute method</em>: it retrieves a remote shell script and
-passes it immediately to <code>sh</code>. It also introduces
-<code>cli.inference.sh</code> as a destination for an explicit network
-operation. The assessor consequently reported <strong>RI-001</strong>
-(direct download-and-execute) and <strong>RI-003</strong> (network
-expansion) from the same changed command—not two independent
-incidents.</p>
-<p>This could be legitimate installation guidance, but executing
-remotely supplied code is relevant to supply-chain review because the
-contents of that code may change outside the skill. The stored
-instructions do not show whether an agent executed it, whether the
-agent’s permissions would allow it, or whether the two artifacts share a
-verified copying history. The comparison has incomplete overall
-extraction coverage, although the installer evidence itself was
-extracted completely. <strong>This case is an automated finding pending
-independent human validation.</strong></p>
+<p>Both instructions involve acquiring software, but the derived
+candidate introduces a different installation method. It explicitly
+downloads a shell script from <code>cli.inference.sh</code> and passes
+it directly to <code>sh</code> for execution. The assessor reported
+<strong>RI-001</strong> because the new command passes downloaded code
+directly to a shell, and <strong>RI-003</strong> because it introduces a
+new hostname for an explicit network operation. Both indicators describe
+the same changed command, rather than separate security incidents.</p>
+<p>This installation method may be legitimate. However, executing a
+remotely downloaded script raises a supply-chain concern because its
+contents can change independently of the skill’s instructions. Our
+analysis identifies what the instructions direct an agent to do; it
+cannot determine whether the command was executed or whether the
+artifacts share a verified copying history.</p>
 <h2 data-number="6.7" id="outcomes-and-interpretation-limits"><span
 class="header-section-number">6.7</span> Outcomes and interpretation
 limits</h2>
@@ -912,13 +933,13 @@ Indicator frequencies can overlap, so their totals are not additive.</p>
 extracted-evidence changes, or uncertain observations even if no RI is
 supported. A <strong>supported finding</strong> meets a defined
 indicator’s automated criteria; it is not a validated security incident.
-We separately report partial extraction, missing sibling content, and
-uncertainty. Complete coverage means no known gap <em>within the
+We separately report partial extraction, missing sibling-file content,
+and uncertainty. Complete coverage means no known gap <em>within the
 implemented extraction scope</em>, not comprehensive detection of all
-risks. Appendix B contains the rule registry and analysis workflow;
-Appendix E identifies the source artifacts and saved outputs used for
-these results.</p>
-<h1 data-number="7" id="results"><span
+risks. <a href="#app-b">Appendix B</a> contains the rule registry and
+analysis workflow; <a href="#app-e">Appendix E</a> identifies the source
+artifacts and saved outputs used for these results.</p>
+<h1 data-number="7" id="sec-results"><span
 class="header-section-number">7</span> Results</h1>
 <h2 data-number="7.1" id="three-trial-overview"><span
 class="header-section-number">7.1</span> Three-trial overview</h2>
@@ -929,10 +950,12 @@ primary directed comparisons</strong>. The automated analysis found at
 least one supported <strong>risk indicator (RI)</strong> in <strong>63
 families (21.0%)</strong>. These are candidate security-sensitive
 changes identified under our rules, <strong>not</strong> confirmed
-vulnerabilities, malicious instructions, or observed executions.
-Independent manual validation is in progress.</p>
-<table class="wide">
-<caption>Automated results from the three Sprint 3 trials</caption>
+vulnerabilities, malicious instructions, or observed executions. <a
+href="#tbl-trial-results">Table 4</a> summarizes the automated results
+by trial.</p>
+<table id="tbl-trial-results" class="wide">
+<caption><p>Automated results from the three Sprint 3
+trials</p></caption>
 <colgroup>
 <col style="width: 15%" />
 <col style="width: 21%" />
@@ -1012,13 +1035,14 @@ class="header-section-number">7.2</span> Finding 1: Security-sensitive
 changes appear across multiple families</h2>
 <p>Supported indicators appeared in <strong>25 families in Trial 1, 18
 in Trial 2, and 20 in Trial 3</strong>, for a combined total of
-<strong>63 of 300 families (21.0%)</strong>. The findings were spread
+<strong>63 of 300 families (21.0%)</strong>. As <a
+href="#fig-sprint3-rates">Figure 2</a> shows, the findings were spread
 across all three trials rather than concentrated in one. Each family
 counts once, regardless of how many comparisons contain an indicator, so
 the result shows how widely these changes appeared among the sampled
 families.</p>
 <figure id="fig-sprint3-rates">
-<img src="report/figures/sprint3-family-vs-pair-rates.svg"
+<img src="report/figures/sprint3-family-vs-pair-rates.svg" class="here"
 style="width:47.0%"
 alt="Percentage of sampled families with at least one supported risk indicator, by trial and combined." />
 <figcaption aria-hidden="true">Percentage of sampled families with at
@@ -1030,14 +1054,14 @@ class="header-section-number">7.3</span> Finding 2: Script execution and
 external code acquisition are the most widespread changes</h2>
 <p>The risk indicators distinguish specific operational changes from
 ordinary differences in instructions. <strong>RI-010</strong> Local
-script execution was supported in <strong>39 families (13.0% of all
-sampled families)</strong>, followed by <strong>RI-005</strong> External
-code or dependency acquisition in <strong>26 families (8.7%)</strong>.
-Together, those two indicators appeared in <strong>52 distinct
-families</strong>: 39 had RI-010, 26 had RI-005, and 13 had both. Thus,
-<strong>52 of the 63 indicator-bearing families (82.5%)</strong> had at
-least one of these two indicators. The overlap matters; adding the
-individual counts would double-count families.</p>
+script execution was supported in <strong>39 families (13.0%)</strong>,
+followed by <strong>RI-005</strong> External code or dependency
+acquisition in <strong>26 families (8.7%)</strong>. The two indicators
+overlapped in <strong>13 families</strong> and appeared in <strong>52 of
+the 63 indicator-bearing families (82.5%)</strong>. <a
+href="#fig-sprint3-indicators">Figure 3</a> shows the family-level
+distribution, while <a href="#tbl-indicator-counts">Table 5</a> also
+provides comparison-level counts.</p>
 <figure id="fig-sprint3-indicators">
 <img src="report/figures/sprint3-indicators-by-family.svg" class="wide"
 style="width:100.0%"
@@ -1045,7 +1069,7 @@ alt="Number and percentage of sampled families with each of the eight detected r
 <figcaption aria-hidden="true">Number and percentage of sampled families
 with each of the eight detected risk indicators.</figcaption>
 </figure>
-<table>
+<table id="tbl-indicator-counts">
 <caption>Supported indicator counts among 300 families and 2,157
 comparisons</caption>
 <thead>
@@ -1105,9 +1129,9 @@ comparisons</caption>
 </table>
 <p>These categories <strong>overlap</strong>: one changed command or
 family may support several indicators. The <code>python-executor</code>
-example in Section V illustrates how a single operation can support more
-than one indicator. Counts here are not counts of independent
-incidents.</p>
+example in <a href="#sec-method">Section V</a> illustrates how a single
+operation can support more than one indicator. Counts here are not
+counts of independent incidents.</p>
 <p>The distribution also varies by counting unit.
 <strong>RI-006</strong> Destructive or privileged file operations
 appeared in just <strong>10 families</strong>, but in <strong>159
@@ -1115,7 +1139,9 @@ comparisons</strong>; <strong>134</strong> of those comparisons came
 from <code>cso</code> and <code>mcp-builder</code>. That concentration
 is a reason to present family counts first. <strong>RI-002</strong>,
 <strong>RI-004</strong>, and <strong>RI-009</strong> had no supported
-detections in these trials.</p>
+detections in these trials. This does not mean those behaviors are
+absent from GitSkills or that our rules would recognize every
+instance.</p>
 <h2 data-number="7.4"
 id="sensitivity-check-why-families-are-the-primary-unit"><span
 class="header-section-number">7.4</span> Sensitivity check: Why families
@@ -1130,10 +1156,11 @@ of 191</strong> in Trial 3. Excluding these three families <em>for a
 sensitivity calculation only</em> reduced the combined pair-level rate
 to <strong>144 of 1,722 (8.4%)</strong>, while the family-level rate
 changed only from <strong>63 of 300 (21.0%)</strong> to <strong>60 of
-297 (20.2%)</strong>. This supports using family-level frequency to
-describe the spread of detections in our sample; it does not remove
-sampling bias or prove population-wide risk prevalence.</p>
-<table>
+297 (20.2%)</strong>. The trial-by-trial pair-level rates appear in <a
+href="#tbl-sensitivity">Table 6</a>. This supports using family-level
+frequency to describe the spread of detections in our sample; it does
+not remove sampling bias or prove population-wide risk prevalence.</p>
+<table id="tbl-sensitivity">
 <caption>Sensitivity of pair-level rates to the leading family in each
 trial</caption>
 <thead>
@@ -1173,11 +1200,11 @@ size and similarity clusters</h2>
 <p>Larger families were more likely to contain at least one supported
 indicator. They also offered more opportunities for directed comparisons
 and often contained more <strong>similarity clusters</strong>, which
-group artifacts with related instruction content under our
-thresholds.</p>
-<table class="wide">
-<caption>Family size, indicator frequency, and similarity-cluster
-structure</caption>
+group artifacts with related instruction content under our thresholds
+(<a href="#tbl-family-size-results">Table 7</a>).</p>
+<table id="tbl-family-size-results" class="wide">
+<caption><p>Family size, indicator frequency, and similarity-cluster
+structure</p></caption>
 <colgroup>
 <col style="width: 15%" />
 <col style="width: 21%" />
@@ -1236,9 +1263,11 @@ structure</caption>
 in 35 clusters</strong>, while <code>cso</code> had <strong>150
 artifacts in two clusters</strong>. This reinforces why sharing a name
 is not enough to establish that skills are related. Multiple clusters do
-not prove different authors or independent origins, and a larger family
-provides more opportunities to detect changes. With only three Extreme
-families, their 100% detection rate should not be generalized.</p>
+not prove different authors or independent origins. Higher detection
+rates in larger families may simply reflect more artifacts and more
+chances to observe a change, <strong>not</strong> greater inherent
+security risk. With only three Extreme families, their 100% detection
+rate should not be generalized.</p>
 <h2 data-number="7.6"
 id="supporting-observation-not-every-detected-difference-supports-a-risk-indicator"><span
 class="header-section-number">7.6</span> Supporting observation: Not
@@ -1249,8 +1278,9 @@ criteria for at least one supported indicator. The remaining <strong>779
 flagged comparisons</strong> are still recorded as differences or
 uncertain evidence; they are <strong>not</strong> declared harmless.
 This is an intentional distinction between noticing a change and
-identifying one that warrants security review. Section V gives
-contrasting examples of those outcomes.</p>
+identifying one that warrants security review. <a
+href="#sec-method">Section V</a> gives contrasting examples of those
+outcomes.</p>
 <h2 data-number="7.7" id="evidence-and-ordering-qualifications"><span
 class="header-section-number">7.7</span> Evidence and ordering
 qualifications</h2>
@@ -1269,20 +1299,27 @@ equivalent-peer chronology (355), repository-creation boundaries (827),
 or directional containment (566). Of the 340 indicator-bearing
 comparisons, <strong>131</strong> relied on containment for direction.
 These methods support plausible earlier/later ordering, not verified
-histories of copying. Appendix D contains the full breakdown.</p>
+histories of copying. <a href="#app-d">Appendix D</a> contains the full
+breakdown.</p>
 <p><strong>Supporting files.</strong> The analysis labelled <strong>190
 comparisons</strong> <code>siblings-only</code> under its
 bundle-equivalence rules, with supported indicators in
 <strong>41</strong>. Most of those indicator-bearing comparisons are
-concentrated in <code>mcp-builder</code>, so manual review is needed
-before treating them as independent changes in executed-script behavior.
-Equivalence under the similarity representation does not guarantee
-byte-identical <code>SKILL.md</code> text.</p>
-<p>The three trials’ automated results are complete, but
-<strong>independent human validation of relationship decisions and
-indicator judgments is still underway</strong>. The next section
-describes how those findings will be evaluated.</p>
-<h1 data-number="8" id="evaluation-and-validation"><span
+concentrated in <code>mcp-builder</code>. Adjudicated review identified
+unsupported and missed detections in individual comparisons, so these
+counts should not be treated as independently verified operations or
+executed scripts. Equivalence under the similarity representation does
+not guarantee byte-identical <code>SKILL.md</code> text.</p>
+<p>The three trials’ automated results are complete. Team adjudication
+of the saved review samples confirmed two <code>mcp-builder</code>
+RI-003 formatting false positives, supported several missed indicators,
+and identified relationship-classification disagreements. A subsequent
+scanner change addressed the RI-003 formatting pattern, but
+<strong>neither the later code nor the adjudicated review metrics were
+used to recompute these frozen automated counts</strong>. <a
+href="#sec-evaluation">Section VII</a> reports the sample-limited
+validation evidence.</p>
+<h1 data-number="8" id="sec-evaluation"><span
 class="header-section-number">8</span> Evaluation and validation</h1>
 <h2 data-number="8.1" id="what-the-saved-trials-establish"><span
 class="header-section-number">8.1</span> What the saved trials
@@ -1343,15 +1380,61 @@ eleven indicators. Other cases still inform error analysis and
 limitations. The sampled review strata intentionally include positive,
 negative, and difficult cases; their unweighted metrics cannot
 automatically be generalized to the entire GitSkills population.</p>
-<p><strong>Manual validation is underway.</strong> The saved three-trial
-summaries do not yet include completed independent and adjudicated
-accuracy or relationship-agreement results. We therefore do not report
-precision, recall, or agreement rates here. Once the team’s adjudicated
-annotations are available, this section will be completed with those
-results, documented disagreements, and representative correctly and
-incorrectly classified cases. Appendix C describes the samples and
-Appendix E links their source artifacts.</p>
-<h1 data-number="9" id="discussion"><span
+<p>The original independent judgments were preserved, and the team
+recorded adjudicated decisions for all <strong>90 directed</strong> and
+<strong>45 relationship</strong> cases. Of the directed cases,
+<strong>56</strong> were labeled <code>all_assessed</code> and
+<strong>34</strong> <code>not_assessable</code> for full indicator
+review. An additional 12 cases were excluded from indicator scoring for
+unsupported comparison direction and 15 for incomplete evidence
+coverage, leaving <strong>29 eligible comparisons</strong>. Unassessable
+cases remain documented evidence gaps, not negative findings.</p>
+<p>Across eleven indicators in those 29 eligible comparisons, the saved
+validation summaries report <strong>13 true positives, 7 false
+negatives, and 0 counted false positives</strong>, yielding <strong>100%
+observed micro-precision (13/13)</strong> and <strong>65.0% observed
+micro-recall (13/20)</strong>. These are <em>sample-only</em> measures
+from deliberately stratified, non-independent comparisons, not estimates
+of full-cohort or GitSkills-wide accuracy. Two adjudicated
+<code>mcp-builder</code> RI-003 false positives were excluded from
+scoring because their base-to-derived direction was uncertain; thus zero
+<em>counted</em> false positives does not establish that the scanner
+produced none. Some indicator judgments remain uncertain even within
+reviewed evidence. No independent inter-rater agreement estimate is
+available from the team-adjudication record.</p>
+<p>Manual inspection identified several concrete failure modes. In two
+Trial 3 <code>mcp-builder</code> comparisons (<code>3032753</code> to
+<code>3026710</code> and <code>3032753</code> to <code>3031464</code>),
+the saved scanner treated reformatted references to existing network
+destinations as newly introduced RI-003 operations. Both were rejected
+in adjudication; the team subsequently improved network-operation
+comparison and added regression tests. Trial 2’s <code>improve</code>
+comparison (<code>3345273</code> to <code>3489451</code>) identified
+newly invoked local wrapper scripts absent from the supported RI-010
+findings and a file-write here-document misclassified as a read. Other
+adjudicated examples include a missed network-related indicator in
+<code>health-bugs</code> and additional network, dependency-acquisition,
+and execution-related changes in the <code>tdd-migration-pipeline</code>
+sibling script. Some examples cannot contribute to the numerical
+accuracy subset because evidence or direction is incomplete; their
+qualitative findings still expose important detection limits.</p>
+<p>For relationship validation, <strong>42 of the 45 adjudicated
+judgments agreed</strong> with the automated relatedness classification
+and <strong>3 disagreed</strong>. In particular, three of five Trial 3
+<code>no-related-edge</code> cases were judged substantively related,
+while the other two were not. This is <em>agreement between adjudicated
+human judgments and the tool’s classification</em>, not agreement
+between independent human raters or proof of historical copying.
+Relatedness alone does not establish which artifact came first.</p>
+<p>These judgments evaluate the <strong>saved Sprint 3 scanner
+outputs</strong>. The trials were not rerun after the subsequent scanner
+improvement, and the resulting <strong>63/300 family</strong> and
+<strong>340/2,157 comparison</strong> figures remain unchanged.
+Adjudication metrics were calculated separately from the frozen
+validation samples and archived summaries. <a href="#app-c">Appendix
+C</a> provides per-trial counts and qualifications; <a
+href="#app-e">Appendix E</a> identifies the saved artifacts.</p>
+<h1 data-number="9" id="sec-discussion"><span
 class="header-section-number">9</span> Discussion</h1>
 <h2 data-number="9.1" id="what-the-findings-mean-for-skill-reuse"><span
 class="header-section-number">9.1</span> What the findings mean for
@@ -1363,7 +1446,11 @@ or access</strong>. The scanner identified candidate security-sensitive
 changes in 63 of 300 selected families. The most widespread indicators
 concerned local script execution and external code acquisition. Both can
 change the code an agent is directed to use, sometimes through resources
-controlled outside the project that adopted the skill.</p>
+controlled outside the project that adopted the skill. An added script
+may run commands with the agent’s available permissions, while a new
+dependency or network destination may introduce reliance on an external
+source. Developers reviewing an adopted or updated skill can use these
+changes to decide what needs closer inspection.</p>
 <p>A change in behavior does not necessarily make a skill less secure. A
 new helper script may support a legitimate feature, and the agent’s
 permissions affect what it can actually do. Risk can also shift:
@@ -1378,9 +1465,9 @@ matters</h2>
 <p>A single family can produce many related comparisons, sometimes
 repeating the same underlying evidence. We therefore report how many
 <strong>families</strong> contained an indicator as our primary result.
-The dominant-family sensitivity check in Section VI supports that choice
-within our sample. It does not make the findings representative of every
-skill in GitSkills.</p>
+The dominant-family sensitivity check in <a href="#sec-results">Section
+VI</a> supports that choice within our sample. It does not make the
+findings representative of every skill in GitSkills.</p>
 <h2 data-number="9.3"
 id="practical-value-and-remaining-uncertainty"><span
 class="header-section-number">9.3</span> Practical value and remaining
@@ -1388,88 +1475,120 @@ uncertainty</h2>
 <p>For each comparison, the pipeline preserves the changed operation,
 its source location, the basis for direction, and any evidence gaps.
 This gives a developer or security reviewer a starting point for
-checking a modification. The <code>python-executor</code> example in
-Section V shows how a specific new instruction can be examined in
-context.</p>
+checking a modification. The <code>python-executor</code> example in <a
+href="#sec-method">Section V</a> shows how a specific new instruction
+can be examined in context.</p>
 <p>There are also reasonable alternative explanations for individual
 findings, including intended features, routine maintenance, different
 deployment environments, and unrelated artifacts sharing a name. Some
 comparison directions rely on indirect evidence, and some
-supporting-file content is missing. Manual validation will test the
-selected relationships and indicator judgments. Until that work is
-complete, the findings establish <strong>candidate changes worth
-checking</strong>, not the rate of confirmed security incidents.</p>
+supporting-file content is missing. Team-adjudicated review confirmed
+two <code>mcp-builder</code> RI-003 formatting false positives,
+identified missed indicators in other comparisons, and disagreed with
+three automated relatedness decisions. A targeted network-comparison fix
+illustrates how manual inspection can improve the tool, but that later
+fix did not alter the saved study. Only 29 reviewed directed comparisons
+qualified for numerical accuracy estimates, and the known RI-003 false
+positives were excluded from that subset because direction was
+uncertain. The results remain <strong>candidate changes worth
+checking</strong>, not confirmed security incidents or a population-wide
+validated error rate.</p>
 <h1 data-number="10" id="threats-to-validity"><span
 class="header-section-number">10</span> Threats to validity</h1>
-<p><strong>Construct validity.</strong> The eleven RIs cover selected
-observable changes, not every security risk. Pattern-based rules can
-mistake examples or warnings for operations, and can miss unfamiliar
-syntax, dynamically constructed destinations, indirect commands, or
-other unrecognized behavior. They may also miss risky instructions
-written only in non-English prose when no recognizable command, URL,
-path, or credential term appears. We include non-English artifacts, but
-exclude <code>SKILL.md</code> YAML frontmatter from behavioral scanning;
-instructions found only in that metadata can therefore be missed. The
-rules also do not separately detect environment discovery, such as
-reading operating-system details. Complete extraction means a recognized
-construct was captured, not that all relevant behavior was found.</p>
-<p><strong>Relatedness and historical order.</strong> Identical names
-can group unrelated skills; renamed relatives can be missed.
-Token-shingle containment and Jaccard support relatedness but do not
-prove copying, and similarity clusters do not identify verified original
-authors or sources. GitSkills does not supply complete historical
-contents. Commit dates refer to observations at current file paths;
-equivalent-peer chronology, repository-creation boundaries, and
-containment extend coverage but remain indirect. <strong>566 of
-2,157</strong> directed comparisons use containment as their basis,
-including <strong>131 of 340</strong> comparisons with supported RIs.
-Their inferred order needs particular caution.</p>
-<p><strong>Missing evidence.</strong> Some sibling files have no stored
-text, and historical metadata is uneven. Missing dates or content can
-prevent comparisons or hide behavior, potentially favoring
-better-documented artifacts. The three trials report <strong>211
-comparisons with incomplete evidence coverage</strong>, including
-<strong>81</strong> with supported indicators. An indicator can have
-complete local evidence even when another part of its comparison is
-missing. Unknown sibling state is not an empty or unchanged bundle;
-conversely, a comparison marked complete may still contain behavior
-outside our rules.</p>
-<p><strong>Sampling and generalizability.</strong> Each trial used the
-20/55/20/4/1 family-size allocation and required at least one usable
-primary directed relationship. Larger families were deliberately
-oversampled, and ineligible candidates were excluded rather than counted
-as having no findings. Later trials excluded names already selected, so
-the three samples are non-overlapping but not independent draws from an
-unchanged pool. Neither the <strong>21.0% family rate</strong> nor the
-<strong>15.8% comparison rate</strong> estimates prevalence in all
-GitSkills families, much less all agent skills. The dataset covers a
-particular release of publicly collected GitHub skills, not every
-platform or private repository. Family size counts occurrences, not
-independent authors or changes.</p>
-<p><strong>Dependence and conclusion validity.</strong> Multiple
-comparisons may share artifacts or the same underlying change:
-<code>mcp-builder</code>, for example, accounts for <strong>133 of
-191</strong> indicator-bearing comparisons in Trial 3. Even across
-different families, shared templates may produce related findings, so
-family-level counts do not guarantee independent observations. We
-analyzed primary predecessor edges only; other related edges may contain
-changes we did not assess. The sensitivity check measures the effect of
-dominant families, not population prevalence or the outcomes of an
-all-edge analysis.</p>
-<p><strong>Validation and reproducibility.</strong> The three trials
-generated <strong>90 directed</strong> and <strong>45
-relationship-review cases</strong>, but human adjudication is still in
-progress. Automated results and AI-assisted notes do not establish
-precision, recall, or relationship agreement. Manifests preserve the
-data identity, code revision, rules, sampling seeds, and case checksums;
-numeric artifact IDs are local to a DuckDB build. The saved manifests
-still mark approval as provisional. These safeguards aid reproducibility
-but do not remove selection bias or detection errors.</p>
-<p>The standalone <code>THREAT_MODEL.md</code> and
-<code>THREATS_TO_VALIDITY.md</code> provide further detail on detection
-coverage, safe handling, and alternative explanations.</p>
-<h1 data-number="11" id="conclusion"><span
-class="header-section-number">11</span> Conclusion</h1>
+<p>Our findings describe security-sensitive changes identified by a
+fixed analysis method in selected GitSkills families. Interpreting those
+findings depends on what the scanner can recognize, how reliably the
+artifacts can be compared, and which families entered the study. Each
+limitation affects the conclusions we can draw from the automated
+results.</p>
+<p><strong>Detection and interpretation (construct validity).</strong>
+We use 15 text-based rules and 11 risk indicators to identify changes
+worth reviewing, not to recognize every possible attack. Examples and
+warnings can resemble instructions to execute, while indirect commands,
+dynamically constructed network destinations, and instructions expressed
+only in non-English prose may go undetected. Moreover, an accurately
+detected operation may reflect legitimate maintenance rather than
+malicious intent or increased risk.</p>
+<p>Team-adjudicated reviews confirmed two Trial 3
+<code>mcp-builder</code> RI-003 formatting false positives, where
+network destinations already represented in the base artifact appeared
+newly introduced. A subsequent scanner fix and regression tests
+addressed that pattern, but did <strong>not</strong> retroactively
+change the frozen Sprint 3 results. Review also identified missed
+local-script invocations and some network, external-code, and
+sibling-file operations. Other cases remain outside the existing
+indicator definitions, such as disputed coverage of explicit
+browser-launch instructions. These observations demonstrate the limits
+of rule patterns and indicator scope, not verified harmful
+execution.</p>
+<p><strong>Relatedness and historical order (internal
+validity).</strong> To say an operation was introduced, we must first
+identify related artifacts and choose a plausible earlier-to-later
+order. Grouping by exact skill name can include unrelated artifacts and
+miss renamed ones; our similarity thresholds can also exclude related
+content. A Trial 3 reviewer judged three of five sampled
+<code>no-related-edge</code> pairs to be related, suggesting a possible
+gap but not establishing its frequency. Even when artifacts are related,
+GitSkills does not provide verified copying histories. We use available
+provenance, chronology, and content evidence to orient comparisons.
+Directional containment, the weakest basis, was used for 566 of 2,157
+primary comparisons, including 131 of the 340 with supported indicators.
+These are inferred comparison directions, not proven historical
+sequences.</p>
+<p><strong>Missing evidence.</strong> Some supporting files lack stored
+content, and historical metadata is incomplete. This may hide relevant
+behavior or prevent a relationship from being evaluated, favoring
+artifacts with better available records. Of 2,157 primary comparisons,
+211 had incomplete evidence coverage, including 81 of the 340 with
+supported indicators. A bundle with unknown sibling-file content is not
+necessarily empty or unchanged. Likewise, a comparison marked complete
+has no known gap within the implemented extraction scope; that does not
+mean every security-sensitive operation was detected.</p>
+<p><strong>Sampling and generalizability (external validity).</strong>
+Each of the three trials selected 100 families using a 20/55/20/4/1
+size-group allocation that deliberately oversampled larger families.
+Families without a usable primary directed relationship were excluded,
+and later trials excluded names chosen earlier. The trials are therefore
+non-overlapping, but not independent draws from an unchanged population.
+The automated 21.0% family-level and 15.8% comparison-level rates
+describe these selected families and pairs. They do not estimate the
+frequency of such changes across all GitSkills, other skill sources, or
+confirmed security incidents.</p>
+<p><strong>Repeated evidence and edge selection (conclusion
+validity).</strong> Several comparisons can capture the same underlying
+change. For example, <code>mcp-builder</code> contributed 133 of the 191
+indicator-bearing comparisons in Trial 3. Reporting families as the
+primary unit reduces that concentration, although shared templates can
+still create dependence across families. We scanned only selected
+primary predecessor edges, so other related comparisons may contain
+changes we did not assess. Our sensitivity check shows the effect of
+dominant families; it does not resolve those broader limitations.</p>
+<p><strong>Validation and reproducibility.</strong> All <strong>90
+directed</strong> and <strong>45 relationship</strong> review records
+are team-adjudicated and complete. Of the directed cases,
+<strong>56</strong> were marked <code>all_assessed</code>, but only
+<strong>29</strong> satisfied the additional conditions for indicator
+metrics; <strong>34</strong> were <code>not_assessable</code>, with
+other exclusions for uncertain direction or incomplete coverage. The
+eligible subset yielded 13 true positives, 7 false negatives, and no
+<em>counted</em> false positives (100% observed micro-precision; 65.0%
+observed micro-recall). Crucially, two adjudicated RI-003 false
+positives fell outside that subset because comparison direction was
+uncertain. These purposively stratified, related observations cannot
+establish the scanner’s population-wide accuracy, nor was independent
+reviewer agreement measured. The separate relationship review recorded
+42 automated-classification agreements and three disagreements. The
+original scanner and automated counts remain fixed; the later code fix
+was not used to regenerate them. Saved manifests preserve the dataset,
+code and rule identities, seeds, and sample checksums, although trial
+code revisions differ and approval metadata remains provisional. The
+adjudicated summary update is documented, but a clean-environment
+reproduction of all three finalized trials has not been established. <a
+href="#app-c">Appendix C</a> details the reviewed subset.</p>
+<p>The separate threat model and threats-to-validity documents provide
+further details on these limitations.</p>
+<h1 data-number="11" id="sec-conclusion"><span
+class="header-section-number">11</span> Conclusion and future work</h1>
 <p>We investigated whether related agent skills contain
 security-sensitive operations that were absent from an artifact inferred
 to have come earlier. Across three Sprint 3 trials, <strong>63 of 300
@@ -1485,15 +1604,45 @@ files, and evaluates differences against eleven defined risk indicators.
 Rather than treating every changed command or scanner match as a
 security concern, the method examines the underlying operations and
 preserves the evidence needed for review.</p>
-<p>Our findings are automated and still require independent manual
-validation. They do not establish confirmed vulnerabilities or verified
-copying histories, and the results cannot be generalized to all
-GitSkills families. Nevertheless, the study provides a practical
-approach for identifying changes that deserve closer examination.
-<strong>When adopting or updating an agent skill, understanding what
-changed can be just as important as understanding what the skill is
-intended to do.</strong></p>
-<h1 data-number="12" id="references"><span
+<p>Team adjudication completed 90 directed and 45 relationship reviews,
+confirming both unsupported network-change detections and missed
+indicators. In the 29 strictly eligible directed comparisons, observed
+micro-recall was 65.0%; the 100% observed precision excludes two known
+RI-003 false positives whose comparison direction was uncertain. A
+subsequent targeted scanner fix did not change the frozen Sprint 3
+counts. The review strengthens our understanding of the method’s limits,
+but our headline findings remain automated signals, not confirmed
+vulnerabilities or verified copying histories, and cannot be generalized
+to all GitSkills families.</p>
+<h2 data-number="11.1" id="future-work"><span
+class="header-section-number">11.1</span> Future work</h2>
+<p>Near-term work should build on the adjudicated reviews by improving
+recognition of local-script invocation patterns, investigating missed
+operations in supporting files, and testing network and
+browser-operation rules against the agreed labels. The resolved RI-003
+formatting cases illustrate the value of checking fixes against manually
+reviewed evidence. Additional rules and risk indicators may reveal
+security-sensitive changes that the current method misses. Testing
+revisions on reviewed examples, then rerunning the analysis under a
+separately recorded configuration, would help assess their effect
+without replacing the frozen Sprint 3 results.</p>
+<p>Longer-term research could apply an expanded and validated set of
+indicators to larger samples of GitSkills artifacts. Comparing results
+across different rule sets, sampling strategies, and similarity
+thresholds would help determine how detection coverage influences the
+observed findings. Rather than attempting to build an exhaustive
+security scanner or reconstruct complete histories from live
+repositories, future research should focus on better characterizing the
+frequency and types of security-sensitive changes associated with
+agent-skill reuse. The broader goal is to strengthen our understanding
+of potential supply-chain exposure when adopting skills from external
+sources.</p>
+<p>This study provides a reproducible starting point for identifying
+security-sensitive changes that deserve closer examination. <strong>When
+adopting or updating an agent skill, understanding what changed can be
+just as important as understanding what the skill is intended to
+do.</strong></p>
+<h1 data-number="12" id="ref-references"><span
 class="header-section-number">12</span> References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
@@ -1526,8 +1675,7 @@ Wild: An Empirical Study of Security Vulnerabilities at Scale</em>. <a
 href="https://arxiv.org/abs/2601.10338">https://arxiv.org/abs/2601.10338</a>.
 </div>
 </div>
-<h1 data-number="13"
-id="appendix-a-dataset-construction-and-preparation"><span
+<h1 data-number="13" id="app-a"><span
 class="header-section-number">13</span> Appendix A Dataset construction
 and preparation</h1>
 <h2 data-number="13.1" id="candidate-selection"><span
@@ -1551,9 +1699,9 @@ repository for reproduction.</p>
 <h2 data-number="13.2" id="selection-audit-and-identity"><span
 class="header-section-number">13.2</span> Selection audit and
 identity</h2>
-<table class="wide">
-<caption>Candidate-selection audit for the prepared GitSkills
-snapshot</caption>
+<table id="tbl-selection-audit" class="wide">
+<caption><p>Candidate-selection audit for the prepared GitSkills
+snapshot</p></caption>
 <colgroup>
 <col style="width: 27%" />
 <col style="width: 36%" />
@@ -1592,12 +1740,12 @@ snapshot</caption>
 <p>The October 15, 2026 preparation audit retained <strong>943,257
 occurrences</strong> across <strong>162,995 same-name families</strong>.
 The Sprint 3 picker later considered <strong>162,461 preliminary
-candidates</strong>, screened for distinct main-file/sibling states, and
-required at least one usable directed comparison. These intermediate
-counts describe different screening stages; <strong>none is the
-denominator for the reported 21.0% result</strong>. The final study
-contains 300 relationship-eligible families and 6,570 loaded
-occurrences.</p>
+candidates</strong>, screened for distinct combinations of
+<code>SKILL.md</code> content and sibling-file state, and required at
+least one usable directed comparison. These intermediate counts describe
+different screening stages; <strong>none is the denominator for the
+reported 21.0% result</strong>. The final study contains 300
+relationship-eligible families and 6,570 loaded occurrences.</p>
 <p>Local artifact and group IDs may differ across database builds;
 reproduction uses repository/path identity, content hashes, and the
 dataset snapshot. Sibling enrichment distinguishes known empty bundles
@@ -1609,7 +1757,7 @@ class="header-section-number">13.3</span> Sprint 3 sample audit</h2>
 candidate failed the family picker’s relationship validation,
 <strong>not</strong> that it contained no security-sensitive behavior.
 The picker replaced rejected candidates in the same stratum.</p>
-<table>
+<table id="tbl-sampling-audit">
 <caption>Sprint 3 sample seeds and family-selection audit</caption>
 <colgroup>
 <col style="width: 15%" />
@@ -1653,24 +1801,26 @@ excluded</th>
 </tbody>
 </table>
 <p>Each trial retains the same 20/55/20/4/1 size allocation described in
-Section IV. The sampling reports preserve the rejection reasons, source
-database identity, thresholds, excluded <code>families.txt</code> paths
-and checksums, and exact selected names. The screened eligible
-population was not enumerated for population weighting, so these records
-cannot support a corpus-wide prevalence estimate.</p>
-<h1 data-number="14" id="appendix-b-pipeline-implementation"><span
+<a href="#sec-dataset">Section IV</a>. The sampling reports preserve the
+rejection reasons, source database identity, thresholds, excluded
+<code>families.txt</code> paths and checksums, and exact selected names.
+The screened eligible population was not enumerated for population
+weighting, so these records cannot support a corpus-wide prevalence
+estimate.</p>
+<h1 data-number="14" id="app-b"><span
 class="header-section-number">14</span> Appendix B Pipeline
 implementation</h1>
 <h2 data-number="14.1" id="detection-rule-registry"><span
 class="header-section-number">14.1</span> Detection rule registry</h2>
 <p>The saved Sprint 3 manifests identify <strong>15 active rules across
 six categories</strong>. These rules recognize candidate evidence, while
-the eleven risk indicators (RIs) in Section V assess whether
-<em>changes</em> in that evidence satisfy specific criteria. A new rule
-match, increased rule count, or changed command text alone does not
-establish an RI.</p>
-<table class="wide">
-<caption>Fifteen detection rules and their coverage limits</caption>
+the eleven risk indicators (RIs) in <a href="#sec-method">Section V</a>
+assess whether <em>changes</em> in that evidence satisfy specific
+criteria. A new rule match, increased rule count, or changed command
+text alone does not establish an RI.</p>
+<table id="tbl-detection-rules" class="wide">
+<caption><p>Fifteen detection rules and their coverage
+limits</p></caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -1748,8 +1898,10 @@ directed pairs. It extracts evidence from both skill bodies and eligible
 added or changed sibling files, compares the base and derived evidence,
 applies RI-001 through RI-011, and records uncertainty and missing
 content. Cached family scans are reused only when their source,
-implementation, rule, and policy fingerprints are compatible.</p>
-<table>
+implementation, rule, and policy fingerprints are compatible. <a
+href="#tbl-sprint3-configuration">Table 11</a> lists the pinned Sprint 3
+settings.</p>
+<table id="tbl-sprint3-configuration">
 <caption>Pinned analysis configuration for Sprint 3</caption>
 <thead>
 <tr>
@@ -1813,11 +1965,14 @@ Ambiguous directions and equivalent peers remain available for
 relationship review without being treated as evidence that a behavior
 was introduced.</p>
 <h2 data-number="14.3"
-id="main-file-and-sibling-change-classification"><span
-class="header-section-number">14.3</span> Main-file and sibling-change
+id="skill-and-sibling-file-change-classification"><span
+class="header-section-number">14.3</span> Skill and sibling-file change
 classification</h2>
-<table class="wide">
-<caption>Bundle change classifications</caption>
+<p><a href="#tbl-bundle-change-classes">Table 12</a> defines the
+classifications used for <code>SKILL.md</code> content and sibling-file
+state.</p>
+<table id="tbl-bundle-change-classes" class="wide">
+<caption><p>Bundle change classifications</p></caption>
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -1831,24 +1986,28 @@ classification</h2>
 <tbody>
 <tr>
 <td><code>skill-only</code></td>
-<td>Main skill text differs; known sibling state is equivalent.</td>
+<td><code>SKILL.md</code> content differs; known sibling-file state is
+equivalent.</td>
 </tr>
 <tr>
 <td><code>siblings-only</code></td>
-<td>Main skill text is equivalent <strong>under the analyzer’s
-similarity representation</strong>; known sibling state differs.</td>
+<td><code>SKILL.md</code> content is equivalent <strong>under the
+analyzer’s similarity representation</strong>; known sibling-file state
+differs.</td>
 </tr>
 <tr>
 <td><code>skill+siblings</code></td>
-<td>Main skill text and known sibling content both differ.</td>
+<td><code>SKILL.md</code> content and known sibling-file state both
+differ.</td>
 </tr>
 <tr>
 <td><code>equivalent</code></td>
-<td>Both main-file and known sibling states are equivalent.</td>
+<td>Both <code>SKILL.md</code> content and known sibling-file state are
+equivalent.</td>
 </tr>
 <tr>
 <td><code>unknown</code></td>
-<td>Missing or uncertain sibling state prevents reliable bundle
+<td>Missing or uncertain sibling-file state prevents reliable bundle
 classification.</td>
 </tr>
 </tbody>
@@ -1863,13 +2022,14 @@ not treated as the behavior of an unknown script.</p>
 <h2 data-number="14.4" id="relationship-and-scanning-diagrams"><span
 class="header-section-number">14.4</span> Relationship and scanning
 diagrams</h2>
-<p>The first diagram shows how the analyzer separates relatedness,
-direction, equivalent peers, and selected versus additional edges. It is
-a <strong>conceptual diagram</strong>; only selected primary edges enter
-the Sprint 3 security counts. The second diagram outlines the
-family-scanning component, including conditional sibling analysis.
-Risk-indicator assessment and cohort aggregation follow the underlying
-evidence comparison.</p>
+<p><a href="#fig-relationship-state">Figure 4</a> shows how the analyzer
+separates relatedness, direction, equivalent peers, and selected versus
+additional edges. It is a <strong>conceptual diagram</strong>; only
+selected primary edges enter the Sprint 3 security counts. <a
+href="#fig-family-scan">Figure 5</a> outlines the family-scanning
+component, including conditional sibling analysis. Risk-indicator
+assessment and cohort aggregation follow the underlying evidence
+comparison.</p>
 <figure id="fig-relationship-state" class="plantuml fullpage wide">
 <img
 src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGRhdGEtZGlhZ3JhbS10eXBlPSJTVEFURSIgc3R5bGU9IndpZHRoOjEyODdweDtoZWlnaHQ6MTM5NXB4O2JhY2tncm91bmQ6I0ZGRkZGRjsiIHdpZHRoPSIxMjg3LjVweCIgaGVpZ2h0PSIxMzk1LjMxM3B4IiB2aWV3Qm94PSIwIDAgMTI4NyAxMzk1IiB6b29tQW5kUGFuPSJtYWduaWZ5IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyI+PD9wbGFudHVtbCAxLjIwMjYuOD8+PGRlZnMvPjxnIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciPjxnIGNsYXNzPSJ0aXRsZSIgZGF0YS1zb3VyY2UtbGluZT0iNyI+PHRleHQgeD0iMzY4LjIyIiB5PSIzNi4xNDMiIGZpbGw9IiMwMDAiIGZvbnQtc2l6ZT0iMjEuODc1IiB0ZXh0TGVuZ3RoPSI1NDAuOTA0IiBmb250LXdlaWdodD0iNzAwIiBmb250LWZhbWlseT0iQXJpYWwiPkNvbmNlcHR1YWwgY2xhc3NpZmljYXRpb24gb2YgYSBjYW5kaWRhdGUgYnVuZGxlIHBhaXI8L3RleHQ+PC9nPjxyZWN0IHg9Ijk1Mi4zNDQiIHk9IjE3Mi4wMjkiIHdpZHRoPSIxNjguMDcyIiBoZWlnaHQ9IjYyLjUiIGZpbGw9IiNGMUYxRjEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC43ODE7IiByeD0iMTkuNTMxIiByeT0iMTkuNTMxIi8+PHRleHQgeD0iOTYwLjE1NiIgeT0iMjExLjc4OCIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjE1Mi40NDciIGZvbnQtZmFtaWx5PSJBcmlhbCI+Q2FuZGlkYXRlIHBhaXI8L3RleHQ+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1xdWFsaWZpZWQtbmFtZT0iUmVsYXRlZG5lc3MiIGlkPSJlbnQwMDAyIj48cG9seWdvbiBwb2ludHM9IjEwMzYuNzE5LDM2Ni41NiwxMDU1LjQ2OSwzODUuMzEsMTAzNi43MTksNDA0LjA2LDEwMTcuOTY5LDM4NS4zMSwxMDM2LjcxOSwzNjYuNTYiIGZpbGw9IiNGMUYxRjEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC43ODE7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIvPjwvZz48cmVjdCB4PSI5ODUuMTU2IiB5PSI2MjYuNzE3IiB3aWR0aD0iMjc3LjUiIGhlaWdodD0iNjIuNSIgZmlsbD0iI0YxRjFGMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjc4MTsiIHJ4PSIxOS41MzEiIHJ5PSIxOS41MzEiLz48dGV4dCB4PSI5OTIuOTY5IiB5PSI2NjYuNDc1IiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iMjYxLjg3NSIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBxdWFsaWZ5aW5nIHJlbGF0aW9uc2hpcDwvdGV4dD48cmVjdCB4PSI1NDUuMzEzIiB5PSI1MzYuMDkyIiB3aWR0aD0iMTQyLjAwMiIgaGVpZ2h0PSI2Mi41IiBmaWxsPSIjRjFGMUYxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxOyIgcng9IjE5LjUzMSIgcnk9IjE5LjUzMSIvPjx0ZXh0IHg9IjU1My4xMjUiIHk9IjU3NS44NSIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjEyNi4zNzciIGZvbnQtZmFtaWx5PSJBcmlhbCI+UmVsYXRlZCBwYWlyPC90ZXh0PjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtcXVhbGlmaWVkLW5hbWU9IkV2aWRlbmNlIiBpZD0iZW50MDAwNSI+PHBvbHlnb24gcG9pbnRzPSI2MjQuMjE5LDcxNy4zNDIsNjQyLjk2OSw3MzYuMDkyLDYyNC4yMTksNzU0Ljg0Miw2MDUuNDY5LDczNi4wOTIsNjI0LjIxOSw3MTcuMzQyIiBmaWxsPSIjRjFGMUYxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxO3N0cm9rZS1saW5lam9pbjptaXRlcjtzdHJva2UtbWl0ZXJsaW1pdDoxMDsiLz48L2c+PHJlY3QgeD0iNjcwLjMxMyIgeT0iOTM0LjUyOSIgd2lkdGg9IjIyOS4yNzUiIGhlaWdodD0iNjIuNSIgZmlsbD0iI0YxRjFGMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjc4MTsiIHJ4PSIxOS41MzEiIHJ5PSIxOS41MzEiLz48dGV4dCB4PSI2NzguMTI1IiB5PSI5NzQuMjg4IiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iMjEzLjY1IiBmb250LWZhbWlseT0iQXJpYWwiPkRpcmVjdGlvbiB1bnJlc29sdmVkPC90ZXh0PjxyZWN0IHg9IjgwOS4zNzUiIHk9IjEwOTAuNzc5IiB3aWR0aD0iMjUxLjQ1MyIgaGVpZ2h0PSI2Mi41IiBmaWxsPSIjRjFGMUYxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxOyIgcng9IjE5LjUzMSIgcnk9IjE5LjUzMSIvPjx0ZXh0IHg9IjgxNy4xODgiIHk9IjExMzAuNTM4IiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iMjM1LjgyOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5FcXVpdmFsZW50IHJlbGF0aW9uc2hpcDwvdGV4dD48cmVjdCB4PSI0MDEuNTYzIiB5PSI4NDMuOTA0IiB3aWR0aD0iMjExLjA1NiIgaGVpZ2h0PSI2Mi41IiBmaWxsPSIjRjFGMUYxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxOyIgcng9IjE5LjUzMSIgcnk9IjE5LjUzMSIvPjx0ZXh0IHg9IjQwOS4zNzUiIHk9Ijg4My42NjMiIGZpbGw9IiMwMDAiIGZvbnQtc2l6ZT0iMjMuNDM4IiB0ZXh0TGVuZ3RoPSIxOTUuNDMxIiBmb250LWZhbWlseT0iQXJpYWwiPkRpcmVjdGVkIGNhbmRpZGF0ZTwvdGV4dD48ZyBjbGFzcz0iZW50aXR5IiBkYXRhLXF1YWxpZmllZC1uYW1lPSJTZWxlY3Rpb24iIGlkPSJlbnQwMDA5Ij48cG9seWdvbiBwb2ludHM9IjQ2My4yODEsMTAyNS4xNTQsNDgyLjAzMSwxMDQzLjkwNCw0NjMuMjgxLDEwNjIuNjU0LDQ0NC41MzEsMTA0My45MDQsNDYzLjI4MSwxMDI1LjE1NCIgZmlsbD0iI0YxRjFGMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjc4MTtzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PC9nPjxyZWN0IHg9Ijc2LjU2MyIgeT0iMTE4MS40MDQiIHdpZHRoPSIzMDAuOTcyIiBoZWlnaHQ9IjYyLjUiIGZpbGw9IiNGMUYxRjEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC43ODE7IiByeD0iMTkuNTMxIiByeT0iMTkuNTMxIi8+PHRleHQgeD0iODQuMzc1IiB5PSIxMjIxLjE2MyIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjI4NS4zNDciIGZvbnQtZmFtaWx5PSJBcmlhbCI+U2VsZWN0ZWQgcHJlZGVjZXNzb3IgZWRnZTwvdGV4dD48cmVjdCB4PSI0MDcuMDMxIiB5PSIxMTgxLjQwNCIgd2lkdGg9IjMzNC44MzUiIGhlaWdodD0iNjIuNSIgZmlsbD0iI0YxRjFGMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjc4MTsiIHJ4PSIxOS41MzEiIHJ5PSIxOS41MzEiLz48dGV4dCB4PSI0MTQuODQ0IiB5PSIxMjIxLjE2MyIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjMxOS4yMSIgZm9udC1mYW1pbHk9IkFyaWFsIj5BZGRpdGlvbmFsIGRpcmVjdGVkIHJlbGF0aW9uc2hpcDwvdGV4dD48ZyBjbGFzcz0ic3RhcnRfZW50aXR5IiBkYXRhLXF1YWxpZmllZC1uYW1lPSIuc3RhcnQuIiBpZD0iZW50MDAxMiIgZGF0YS1zb3VyY2UtbGluZT0iMTkiPjxlbGxpcHNlIGN4PSIxMDM2LjcxOSIgY3k9IjkyLjM0MiIgcng9IjE1LjYyNSIgcnk9IjE1LjYyNSIgZmlsbD0iIzIyMiIgc3R5bGU9InN0cm9rZTojMjIyO3N0cm9rZS13aWR0aDoxLjU2MzsiLz48L2c+PGcgY2xhc3M9ImVuZF9lbnRpdHkiIGRhdGEtcXVhbGlmaWVkLW5hbWU9Ii5lbmQuIiBpZD0iZW50MDAyNCIgZGF0YS1zb3VyY2UtbGluZT0iMzAiPjxlbGxpcHNlIGN4PSI3ODUuMTU2IiBjeT0iMTMzNC41MjkiIHJ4PSIxNy4xODgiIHJ5PSIxNy4xODgiIGZpbGw9Im5vbmUiIHN0eWxlPSJzdHJva2U6IzIyMjtzdHJva2Utd2lkdGg6MS41NjM7Ii8+PGVsbGlwc2UgY3g9Ijc4NS4xNTYiIGN5PSIxMzM0LjUyOSIgcng9IjkuMzc1IiByeT0iOS4zNzUiIGZpbGw9IiMyMjIiIHN0eWxlPSJzdHJva2U6IzIyMjtzdHJva2Utd2lkdGg6MS41NjM7Ii8+PC9nPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtcXVhbGlmaWVkLW5hbWU9IkdNTjMwIiBpZD0iZW50MDAzMSIgZGF0YS1zb3VyY2UtbGluZT0iMzYiPjxwYXRoIGQ9Ik0zNTcuODEzLDMyMy41OTIgTDM1Ny44MTMsNDQ3LjAyIEEwLDAgMCAwIDAgMzU3LjgxMyw0NDcuMDIgTDYxMC4xNTYsNDQ3LjAyIEw2MTYuNDA2LDUzNS44OTcgTDYyMi42NTYsNDQ3LjAyIEw4NzUuMjE0LDQ0Ny4wMiBBMCwwIDAgMCAwIDg3NS4yMTQsNDQ3LjAyIEw4NzUuMjE0LDMzOS4yMTcgTDg1OS41ODksMzIzLjU5MiBMMzU3LjgxMywzMjMuNTkyIEEwLDAgMCAwIDAgMzU3LjgxMywzMjMuNTkyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxOyIgZmlsbD0iI0ZFRkZERCIvPjxwYXRoIGQ9Ik04NTkuNTg5LDMyMy41OTIgTDg1OS41ODksMzM5LjIxNyBMODc1LjIxNCwzMzkuMjE3IEw4NTkuNTg5LDMyMy41OTIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC43ODE7IiBmaWxsPSIjRkVGRkREIi8+PHRleHQgeD0iMzY3LjE4OCIgeT0iMzUzLjM4OCIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjQ1My4zNTgiIGZvbnQtZmFtaWx5PSJBcmlhbCI+RGVjbGFyZWQgc291cmNlIGlzIGNoZWNrZWQgYmVmb3JlIGZhbGxiYWNrLjwvdGV4dD48dGV4dCB4PSIzNjcuMTg4IiB5PSIzODAuMzM5IiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iNDg0LjU4OSIgZm9udC1mYW1pbHk9IkFyaWFsIj5Db25mbGljdHMgcmVtYWluIHVucmVzb2x2ZWQuIFdpdGhvdXQgYSBzb3VyY2UsPC90ZXh0Pjx0ZXh0IHg9IjM2Ny4xODgiIHk9IjQwNy4yOSIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjQ4My4zNDEiIGZvbnQtZmFtaWx5PSJBcmlhbCI+ZXF1aXZhbGVudCBzdGF0ZXMgcmVtYWluIHVuZGlyZWN0ZWQ7IG90aGVyd2lzZTwvdGV4dD48dGV4dCB4PSIzNjcuMTg4IiB5PSI0MzQuMjQxIiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iNDE2Ljg4NSIgZm9udC1mYW1pbHk9IkFyaWFsIj5mYWxsYmFjayBldmlkZW5jZSBtYXkgc3VwcG9ydCBkaXJlY3Rpb24uPC90ZXh0PjwvZz48ZyBjbGFzcz0iZW50aXR5IiBkYXRhLXF1YWxpZmllZC1uYW1lPSJHTU4zMyIgaWQ9ImVudDAwMzQiIGRhdGEtc291cmNlLWxpbmU9IjQyIj48cGF0aCBkPSJNOS4zNzUsMTMwMS43MTcgTDkuMzc1LDEzNzEuMjQzIEEwLDAgMCAwIDAgOS4zNzUsMTM3MS4yNDMgTDQ0Ni4wNzIsMTM3MS4yNDMgQTAsMCAwIDAgMCA0NDYuMDcyLDEzNzEuMjQzIEw0NDYuMDcyLDEzMTcuMzQyIEw0MzAuNDQ3LDEzMDEuNzE3IEwyMzMuNTk0LDEzMDEuNzE3IEwyMjcuMzQ0LDEyNDMuOTU3IEwyMjEuMDk0LDEzMDEuNzE3IEw5LjM3NSwxMzAxLjcxNyBBMCwwIDAgMCAwIDkuMzc1LDEzMDEuNzE3IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxOyIgZmlsbD0iI0ZFRkZERCIvPjxwYXRoIGQ9Ik00MzAuNDQ3LDEzMDEuNzE3IEw0MzAuNDQ3LDEzMTcuMzQyIEw0NDYuMDcyLDEzMTcuMzQyIEw0MzAuNDQ3LDEzMDEuNzE3IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNzgxOyIgZmlsbD0iI0ZFRkZERCIvPjx0ZXh0IHg9IjE4Ljc1IiB5PSIxMzMxLjUxMyIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjM5Ni4wNjkiIGZvbnQtZmFtaWx5PSJBcmlhbCI+U2VsZWN0ZWQgZWRnZXMgZW50ZXIgZmFtaWx5IHNjYW5uaW5nLjwvdGV4dD48dGV4dCB4PSIxOC43NSIgeT0iMTM1OC40NjQiIGZpbGw9IiMwMDAiIGZvbnQtc2l6ZT0iMjMuNDM4IiB0ZXh0TGVuZ3RoPSI0MDMuODg1IiBmb250LWZhbWlseT0iQXJpYWwiPlNjYW5uZXIgZmxhZ3MgYXJlIGEgc2VwYXJhdGUgb3V0Y29tZS48L3RleHQ+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDEyIiBkYXRhLWVudGl0eS0yPSJlbnQwMDAxIiBpZD0ibG5rMTMiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9IjEwMzYuNzE5LDE3MS42OTEsMTA0Mi45NjksMTU3LjYyOSwxMDM2LjcxOSwxNjMuODc5LDEwMzAuNDY5LDE1Ny42MjksMTAzNi43MTksMTcxLjY5MSIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTEwMzYuNzE5LDExNC4zMTYgQzEwMzYuNzE5LDEyOS44OCAxMDM2LjcxOSwxNDUuMjg1IDEwMzYuNzE5LDE2My44NzkiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7IiBmaWxsPSJub25lIi8+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDAxIiBkYXRhLWVudGl0eS0yPSJlbnQwMDAyIiBpZD0ibG5rMTQiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9IjEwMzYuNzE5LDM2Ni4yMDUsMTA0Mi45NjksMzUyLjE0MywxMDM2LjcxOSwzNTguMzkzLDEwMzAuNDY5LDM1Mi4xNDMsMTAzNi43MTksMzY2LjIwNSIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTEwMzYuNzE5LDIzNC43ODYgQzEwMzYuNzE5LDI3Mi4zODcgMTAzNi43MTksMzI3Ljg0OCAxMDM2LjcxOSwzNTguMzkzIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzOyIgZmlsbD0ibm9uZSIvPjx0ZXh0IHg9IjEwMzkuODQ0IiB5PSIyODcuNzYzIiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iMTM0LjIwNSIgZm9udC1mYW1pbHk9IkFyaWFsIj5ldmFsdWF0ZSBwYWlyPC90ZXh0PjwvZz48ZyBjbGFzcz0ibGluayIgZGF0YS1lbnRpdHktMT0iZW50MDAwMiIgZGF0YS1lbnRpdHktMj0iZW50MDAwMyIgaWQ9ImxuazE1IiBkYXRhLWxpbmstdHlwZT0iZGVwZW5kZW5jeSI+PHBvbHlnb24gcG9pbnRzPSIxMTE0LjU2OSw2MjYuNjc4LDExMTYuMTcxLDYxMS4zNzMsMTExMi4xNTYsNjE5LjI0OCwxMTA0LjI4Miw2MTUuMjMzLDExMTQuNTY5LDYyNi42NzgiIGZpbGw9IiMxODE4MTgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIvPjxwYXRoIGQ9Ik0xMDQyLjMyNSw0MDQuMTQzIEMxMDU2LjkyMyw0NDkuMTA4IDEwOTMuODI4LDU2Mi43OTEgMTExMi4xNTYsNjE5LjI0OCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MzsiIGZpbGw9Im5vbmUiLz48dGV4dCB4PSIxMDc4LjkwNiIgeT0iNTAwLjI2MyIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjEyMy43NzkiIGZvbnQtZmFtaWx5PSJBcmlhbCI+W25vdCByZWxhdGVkXTwvdGV4dD48L2c+PGcgY2xhc3M9ImxpbmsiIGRhdGEtZW50aXR5LTE9ImVudDAwMDIiIGRhdGEtZW50aXR5LTI9ImVudDAwMDQiIGlkPSJsbmsxNiIgZGF0YS1saW5rLXR5cGU9ImRlcGVuZGVuY3kiPjxwb2x5Z29uIHBvaW50cz0iNjg2LjE5Niw1MzYuMDczLDcwMS41ODIsNTM2LjMxNiw2OTMuMzg0LDUzMy4wMTQsNjk2LjY4Nyw1MjQuODE1LDY4Ni4xOTYsNTM2LjA3MyIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTEwMTcuNTY3LDM5NS4wMjUgQzk1OS43NTIsNDE5LjYzNCA3OTIuMSw0OTAuOTk1IDY5My4zODQsNTMzLjAxNCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MzsiIGZpbGw9Im5vbmUiLz48dGV4dCB4PSI4MzAuNDY5IiB5PSI1MDAuMjYzIiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iODQuNjg2IiBmb250LWZhbWlseT0iQXJpYWwiPltyZWxhdGVkXTwvdGV4dD48L2c+PGcgY2xhc3M9ImxpbmsiIGRhdGEtZW50aXR5LTE9ImVudDAwMDQiIGRhdGEtZW50aXR5LTI9ImVudDAwMDUiIGlkPSJsbmsxNyIgZGF0YS1saW5rLXR5cGU9ImRlcGVuZGVuY3kiPjxwb2x5Z29uIHBvaW50cz0iNjA1LjE0OCw3MTkuOTE0LDU5OC45MTMsNzA1Ljg0NSw1OTkuMzU1LDcxNC42NzMsNTkwLjUyNyw3MTUuMTE0LDYwNS4xNDgsNzE5LjkxNCIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTU5NC41ODQsNTk4LjcxNyBDNTg5LjQ0NSw2MDcuMzMyIDU4NC42OTMsNjE3LjAzMyA1ODIuMDMxLDYyNi43MTcgQzU3NC42Nyw2NTMuNTAxIDU3MS44NjEsNjYzLjM2OCA1ODIuMDMxLDY4OS4yMTcgQzU4Ni43NTQsNzAxLjIxOSA1OTAuNTI1LDcwNi42ODQgNTk5LjM1NSw3MTQuNjczIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzOyIgZmlsbD0ibm9uZSIvPjx0ZXh0IHg9IjU4NS4xNTYiIHk9IjY2Ni42NjkiIGZpbGw9IiMwMDAiIGZvbnQtc2l6ZT0iMjMuNDM4IiB0ZXh0TGVuZ3RoPSIzODMuMDIyIiBmb250LWZhbWlseT0iQXJpYWwiPmNsYXNzaWZ5IGNoYW5nZSBhbmQgcmVzb2x2ZSBkaXJlY3Rpb248L3RleHQ+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDA1IiBkYXRhLWVudGl0eS0yPSJlbnQwMDA3IiBpZD0ibG5rMTgiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9IjkzOC40MDEsMTA5MC40NTcsOTQ1Ljc1OCwxMDc2Ljk0LDkzOS4wMjcsMTA4Mi42NjksOTMzLjI5OCwxMDc1LjkzOCw5MzguNDAxLDEwOTAuNDU3IiBmaWxsPSIjMTgxODE4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzO3N0cm9rZS1saW5lam9pbjptaXRlcjtzdHJva2UtbWl0ZXJsaW1pdDoxMDsiLz48cGF0aCBkPSJNNjQzLjYwNiw3MzguOTkxIEM2OTMuMzM1LDc0Mi43OTUgODIzLjczOCw3NTUuMjM5IDg1NS40NjksNzgyLjk2NyBDOTQ2LjEzOCw4NjIuMTk4IDk0NC40LDEwMTUuODM3IDkzOS4wMjcsMTA4Mi42NjkiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7IiBmaWxsPSJub25lIi8+PHRleHQgeD0iOTI4LjkwNiIgeT0iODgzLjg1NyIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjExOS44NzciIGZvbnQtZmFtaWx5PSJBcmlhbCI+W2VxdWl2YWxlbnRdPC90ZXh0PjwvZz48ZyBjbGFzcz0ibGluayIgZGF0YS1lbnRpdHktMT0iZW50MDAwNSIgZGF0YS1lbnRpdHktMj0iZW50MDAwOCIgaWQ9ImxuazE5IiBkYXRhLWxpbmstdHlwZT0iZGVwZW5kZW5jeSI+PHBvbHlnb24gcG9pbnRzPSI1MzIuODg1LDg0My42MDIsNTQ2LjgsODM3LjAzMiw1MzcuOTg2LDgzNy42ODUsNTM3LjMzMyw4MjguODcsNTMyLjg4NSw4NDMuNjAyIiBmaWxsPSIjMTgxODE4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzO3N0cm9rZS1saW5lam9pbjptaXRlcjtzdHJva2UtbWl0ZXJsaW1pdDoxMDsiLz48cGF0aCBkPSJNNjA5LjM3Nyw3NTQuODcxIEM1OTAuMTYxLDc3Ny4xNjEgNTYxLjQ2MSw4MTAuNDUzIDUzNy45ODYsODM3LjY4NSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MzsiIGZpbGw9Im5vbmUiLz48dGV4dCB4PSI1ODYuNzE5IiB5PSI4MDguMDc2IiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iOTYuNDA1IiBmb250LWZhbWlseT0iQXJpYWwiPltkaXJlY3RlZF08L3RleHQ+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDA1IiBkYXRhLWVudGl0eS0yPSJlbnQwMDA2IiBpZD0ibG5rMjAiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9Ijc3NS4wNzgsOTM0LjUxMyw3NzYuMDg2LDkxOS4xNTcsNzcyLjM4LDkyNy4xODEsNzY0LjM1NSw5MjMuNDc1LDc3NS4wNzgsOTM0LjUxMyIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTY0My4yMDgsNzQ3LjA2NSBDNjU3LjgxNSw3NTUuMDQ0IDY3Ny43NDgsNzY3LjYyNCA2OTEuNDA2LDc4Mi45NjcgQzczMi4zOTQsODI5LjAwOCA3NTguMjc2LDg4OC44NjQgNzcyLjM4LDkyNy4xODEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7IiBmaWxsPSJub25lIi8+PHRleHQgeD0iNzE5LjUzMSIgeT0iODA4LjA3NiIgZmlsbD0iIzAwMCIgZm9udC1zaXplPSIyMy40MzgiIHRleHRMZW5ndGg9IjEyNy42ODIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+W3VucmVzb2x2ZWRdPC90ZXh0PjwvZz48ZyBjbGFzcz0ibGluayIgZGF0YS1lbnRpdHktMT0iZW50MDAwOCIgZGF0YS1lbnRpdHktMj0iZW50MDAwOSIgaWQ9ImxuazIxIiBkYXRhLWxpbmstdHlwZT0iZGVwZW5kZW5jeSI+PHBvbHlnb24gcG9pbnRzPSI0NTguMDY5LDEwMjQuODk3LDQ2MC42MzMsMTAwOS43MjMsNDU2LjEzLDEwMTcuMzI5LDQ0OC41MjQsMTAxMi44MjYsNDU4LjA2OSwxMDI0Ljg5NyIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTQ3My44ODIsOTA3LjAxNCBDNDY3LjAwOSw5MTUuMjA0IDQ2MC43MzYsOTI0LjU4MSA0NTcuMDMxLDkzNC41MjkgQzQ0NS43NzYsOTY0Ljc0OSA0NTAuNTI3LDk5NS40NjEgNDU2LjEzLDEwMTcuMzI5IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzOyIgZmlsbD0ibm9uZSIvPjx0ZXh0IHg9IjQ2MC4xNTYiIHk9Ijk3NC40ODIiIGZpbGw9IiMwMDAiIGZvbnQtc2l6ZT0iMjMuNDM4IiB0ZXh0TGVuZ3RoPSIxOTIuNzk5IiBmb250LWZhbWlseT0iQXJpYWwiPnJhbmsgcHJlZGVjZXNzb3JzPC90ZXh0PjwvZz48ZyBjbGFzcz0ibGluayIgZGF0YS1lbnRpdHktMT0iZW50MDAwOSIgZGF0YS1lbnRpdHktMj0iZW50MDAxMCIgaWQ9ImxuazIyIiBkYXRhLWxpbmstdHlwZT0iZGVwZW5kZW5jeSI+PHBvbHlnb24gcG9pbnRzPSIyMzYuODMsMTE4MS4zOTQsMjQ3LjYxNSwxMTcwLjQxNiwyMzkuNTcsMTE3NC4wNzgsMjM1LjkwOCwxMTY2LjAzMywyMzYuODMsMTE4MS4zOTQiIGZpbGw9IiMxODE4MTgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIvPjxwYXRoIGQ9Ik00NDQuMTYsMTA0Ni4wMDkgQzQxMC43NTcsMTA0Ny44ODQgMzQxLjA1OSwxMDU2LjAxNCAyOTYuMDk0LDEwOTAuNzc5IEMyNjYuMjEzLDExMTMuODgyIDI0OS44NjUsMTE0Ni41ODIgMjM5LjU3LDExNzQuMDc4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzOyIgZmlsbD0ibm9uZSIvPjx0ZXh0IHg9IjI5OS4yMTkiIHk9IjExMzAuNzMyIiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iMTg3LjYwMyIgZm9udC1mYW1pbHk9IkFyaWFsIj5bY2hvc2VuOyBubyBjeWNsZV08L3RleHQ+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDA5IiBkYXRhLWVudGl0eS0yPSJlbnQwMDExIiBpZD0ibG5rMjMiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9IjU1NC4yMTcsMTE4MS4yMyw1NTEuNTg0LDExNjYuMDY4LDU0OS44NjksMTE3NC43MzksNTQxLjE5OCwxMTczLjAyNCw1NTQuMjE3LDExODEuMjMiIGZpbGw9IiMxODE4MTgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIvPjxwYXRoIGQ9Ik00NzUuMTU0LDEwNjMuMTkxIEM0OTQuMDQ2LDEwOTEuMzk4IDUyNi44MiwxMTQwLjMyOCA1NDkuODY5LDExNzQuNzM5IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzOyIgZmlsbD0ibm9uZSIvPjx0ZXh0IHg9IjUzOS44NDQiIHk9IjExMzAuNzMyIiBmaWxsPSIjMDAwIiBmb250LXNpemU9IjIzLjQzOCIgdGV4dExlbmd0aD0iMTM5LjQxMiIgZm9udC1mYW1pbHk9IkFyaWFsIj5bbm90IHNlbGVjdGVkXTwvdGV4dD48L2c+PGcgY2xhc3M9ImxpbmsiIGRhdGEtZW50aXR5LTE9ImVudDAwMDMiIGRhdGEtZW50aXR5LTI9ImVudDAwMjQiIGlkPSJsbmsyNSIgZGF0YS1saW5rLXR5cGU9ImRlcGVuZGVuY3kiPjxwb2x5Z29uIHBvaW50cz0iODAyLjYzLDEzMzEuOTg3LDgxNy40NzQsMTMzNi4wNDQsODEwLjM1MywxMzMwLjgwOCw4MTUuNTg4LDEzMjMuNjg3LDgwMi42MywxMzMxLjk4NyIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTExMTkuMzc5LDY4OS42NTIgQzExMTUuMzExLDcxNy42MDQgMTExMC4xNTYsNzYwLjQwNyAxMTEwLjE1Niw3OTcuODEgQzExMTAuMTU2LDc5Ny44MSAxMTEwLjE1Niw3OTcuODEgMTExMC4xNTYsMTIxNC4yMTcgQzExMTAuMTU2LDEyODAuMzk5IDg3Ny44NTksMTMyMC41MDYgODEwLjM1MywxMzMwLjgwOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MzsiIGZpbGw9Im5vbmUiLz48L2c+PGcgY2xhc3M9ImxpbmsiIGRhdGEtZW50aXR5LTE9ImVudDAwMDYiIGRhdGEtZW50aXR5LTI9ImVudDAwMjQiIGlkPSJsbmsyNiIgZGF0YS1saW5rLXR5cGU9ImRlcGVuZGVuY3kiPjxwb2x5Z29uIHBvaW50cz0iNzg1LjE1NiwxMzE3LjAyNCw3OTEuNDA2LDEzMDIuOTYxLDc4NS4xNTYsMTMwOS4yMTEsNzc4LjkwNiwxMzAyLjk2MSw3ODUuMTU2LDEzMTcuMDI0IiBmaWxsPSIjMTgxODE4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzO3N0cm9rZS1saW5lam9pbjptaXRlcjtzdHJva2UtbWl0ZXJsaW1pdDoxMDsiLz48cGF0aCBkPSJNNzg1LjE1Niw5OTcuMzkgQzc4NS4xNTYsMTA3MS4wNCA3ODUuMTU2LDEyNTAuOTY1IDc4NS4xNTYsMTMwOS4yMTEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7IiBmaWxsPSJub25lIi8+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDA3IiBkYXRhLWVudGl0eS0yPSJlbnQwMDI0IiBpZD0ibG5rMjciIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9Ijc5Ny40NiwxMzE3LjIyNyw4MTAuNzAzLDEzMDkuMzg4LDgwMS45ODgsMTMxMC44Niw4MDAuNTE2LDEzMDIuMTQ0LDc5Ny40NiwxMzE3LjIyNyIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTkxMy45ODMsMTE1My4zNjYgQzg4Mi4xNjUsMTE5OC4xMTEgODI3LjU1NiwxMjc0LjkwNSA4MDEuOTg4LDEzMTAuODYiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7IiBmaWxsPSJub25lIi8+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDEwIiBkYXRhLWVudGl0eS0yPSJlbnQwMDI0IiBpZD0ibG5rMjgiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9Ijc2Ny44MTIsMTMzMC43ODgsNzU1LjM4MywxMzIxLjcxNCw3NjAuMTc1LDEzMjkuMTQxLDc1Mi43NDgsMTMzMy45MzMsNzY3LjgxMiwxMzMwLjc4OCIgZmlsbD0iIzE4MTgxOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU2MztzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW1pdGVybGltaXQ6MTA7Ii8+PHBhdGggZD0iTTM2NS4yMywxMjQzLjk1NyBDNTA0LjYwNCwxMjc0LjAxOCA3MDAuMDk5LDEzMTYuMTgzIDc2MC4xNzUsMTMyOS4xNDEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7IiBmaWxsPSJub25lIi8+PC9nPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJlbnQwMDExIiBkYXRhLWVudGl0eS0yPSJlbnQwMDI0IiBpZD0ibG5rMjkiIGRhdGEtbGluay10eXBlPSJkZXBlbmRlbmN5Ij48cG9seWdvbiBwb2ludHM9Ijc2Ny42OTUsMTMyNC41Nyw3NTguNTc3LDEzMTIuMTc0LDc2MC45MDksMTMyMC42OTksNzUyLjM4MywxMzIzLjAzMiw3NjcuNjk1LDEzMjQuNTciIGZpbGw9IiMxODE4MTgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41NjM7c3Ryb2tlLWxpbmVqb2luOm1pdGVyO3N0cm9rZS1taXRlcmxpbWl0OjEwOyIvPjxwYXRoIGQ9Ik02MjYuMzYxLDEyNDMuOTU3IEM2NzIuNDc3LDEyNzAuMjYgNzMwLjI2NiwxMzAzLjIyMiA3NjAuOTA5LDEzMjAuNjk5IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTYzOyIgZmlsbD0ibm9uZSIvPjwvZz48P3BsYW50dW1sLXNyYyBSTEd6Um5pbjNEdGxMeDBQWW9QOFhvdjk0MjE4cVo1M1d3OTN1ODZNVTN4MkVrYVl3VW93bHh3S0JQc0taeWEteWw3WnlMN3lDZGRTWjBXNjNzd0U0NFFBUUI0Qk14T0pVWG5YWk1neHlNd3MtanVQdnM0X1NBSjY3bVJLUml6czBwc1FxN2VxekpZUi1ERlAtOEdabVByZEQ5X3hkX2FWbVZTVmhORFlDTG5zMHNpMjZnVHU0N25HZGdWOHBkUUhlbzZ1VHJSSDU2U3FlMG82bTNxaEo3dm1GSTBlajllckhlQXJqMl91MlRidDhJUkJzVnRZSkRPcG0wMkJBTUQtYVA0VlJJYTRrQmJIV3NENWp4U2JtUEUzTHdkQ19JNkh6bWFoYlNGMHFwN1B1cnpiUGFzd203RW9NWXFSaWx6bjlxSTVwSVU1N2pZSkVoQVFoUVZXcDh4cUNTRmx2UkQwN3J6ZHRnNFg2cHpmUUY2ekpJbXpCT0N3MGVpdm12eDl2RjhWTXBsdjRZakZjZkdDSVpRNHpFUUtnN1dCLWF2aEplYjRCYnJBVnNZcFdoZ05ob2l1Rnh6alRBY1k5TmtocG5NR2E5a0JkYnRoSXpXWVhtMVZoQ2xaOFJ0dzAybXcyVXV6dmZJZTI3TExUa3UwUWEyeDhQM2M4MmtJMlFQTE5HQUVxTEtXQUszQnItZWpSNTU2RzZMS3hvMUxfMElnY3g3Z2JrMDRnLWZUV0tVeFJQS0FOVkxNeDJjWEExdDhOZURyZTB4QXFFZVRqajRvSnBKYVFFY3BwM2UxSFNJa3dSTU9jYTRLcXJBLTY5ZVFuSUk1MkFBUnFXQ2wzbVpXV0tHQXVHTjFwTHhjbXE0YThSS0xvdmZ3dm9kVDlmQ2tzT01Xdk1ocVhiS0M4alE4dDN3aDJfWjNTS1k3NDdFa1JuOUdQT0JaOVpVMUhQbmhTNzRXbHNVdldCMUthdnRDWWVydVczMUZhX0VuaGlQNUh4OG5ZVEE5cnpoNXdDUDRSTmF2SzRMOXBvZzBENDVVMmVuaTlBQ3lOMmxOOXg1d0psLUpvLTBjVzRtWktRMXFKMk1wQzU5a2Y1aG1GbTAwPz48L2c+PC9zdmc+"
@@ -1888,7 +2048,7 @@ alt="Family scanning and conditional sibling analysis; shown as a component-leve
 sibling analysis; shown as a component-level summary rather than the
 complete research aggregation.</p></figcaption>
 </figure>
-<h1 data-number="15" id="appendix-c-validation-scope-and-status"><span
+<h1 data-number="15" id="app-c"><span
 class="header-section-number">15</span> Appendix C Validation scope and
 status</h1>
 <p>Each of the <strong>three Sprint 3 trials</strong> generated
@@ -1915,39 +2075,164 @@ policy. A <strong>false negative</strong> requires a manually supported
 supported. A reviewer should not count a benign change outside RI-001
 through RI-011 as a missed indicator merely because it is
 security-related in another sense.</p>
-<p>At the time of the saved runs, the annotation templates and selected
-cases existed, but <strong>no independently adjudicated Sprint 3
-validation metrics were included</strong> in the summaries. Manual
-review is ongoing. We therefore do not report precision, recall,
-reviewer agreement, or confirmed positive/negative counts yet. When
-adjudicated files are available, the pipeline can recompute the
-validation portion of each saved summary without changing the original
-sample or scanner outputs.</p>
-<p>The stratified review samples help characterize error types and
-coverage gaps, but their raw proportions should not be treated as
-population-wide accuracy estimates without a justified sampling
-calculation. Detailed review instructions are in
-<code>docs/instructions/manual_annotation_protocol.md</code>; the saved
-case lists and manifest checksums are linked in Appendix E.</p>
-<h1 data-number="16" id="appendix-d-additional-sprint-3-results"><span
+<p>Original independent annotations were preserved, and final
+team-agreed copies of all <strong>90 directed</strong> and <strong>45
+relationship</strong> judgments were recorded as
+<code>adjudicated</code> and <code>complete</code>. The original
+selected pairs, automated outputs, and sample manifests were retained
+unchanged. The study’s original manifests still have provisional
+approval metadata; the later team approval is documented separately in
+each trial’s adjudication notes.</p>
+<h2 data-number="15.1" id="indicator-review-and-accuracy"><span
+class="header-section-number">15.1</span> Indicator review and
+accuracy</h2>
+<table id="tbl-validation-review" class="wide">
+<caption><p>Adjudicated directed-review scope and indicator
+counts</p></caption>
+<thead>
+<tr>
+<th>Measure</th>
+<th style="text-align: right;">Trial 1</th>
+<th style="text-align: right;">Trial 2</th>
+<th style="text-align: right;">Trial 3</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Directed reviews</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;"><strong>90</strong></td>
+</tr>
+<tr>
+<td><code>all_assessed</code></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;"><strong>56</strong></td>
+</tr>
+<tr>
+<td><code>not_assessable</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;"><strong>34</strong></td>
+</tr>
+<tr>
+<td>Excluded: direction not supported</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;"><strong>12</strong></td>
+</tr>
+<tr>
+<td>Excluded: incomplete coverage</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;"><strong>15</strong></td>
+</tr>
+<tr>
+<td>Eligible for indicator metrics</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;"><strong>29</strong></td>
+</tr>
+<tr>
+<td>True positives</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;"><strong>13</strong></td>
+</tr>
+<tr>
+<td>False positives (counted)</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><strong>0</strong></td>
+</tr>
+<tr>
+<td>False negatives</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;"><strong>7</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The exclusions partition the 90 cases in the saved validation
+summaries; they do not mean that all review questions were answered in
+excluded cases. For the <strong>29 eligible comparisons</strong>, the
+computed eleven-indicator results yield <strong>100% observed
+micro-precision (13/13)</strong> and <strong>65.0% observed micro-recall
+(13/20)</strong>. Two indicator judgments in Trial 1 remain uncertain
+and are not counted as negatives. These metrics are conditional on
+relatedness, defensible direction, review scope, and evidence coverage.
+They apply only to this small stratified review subset, not the full
+trial population.</p>
+<p>In two Trial 3 <code>mcp-builder</code> comparisons (base
+<code>3032753</code> to derived <code>3026710</code> and
+<code>3031464</code>), review rejected the saved RI-003 claim:
+reformatted references pointed to existing network destinations rather
+than newly introduced operations. Both comparisons had uncertain
+direction and thus were <strong>excluded from the counted precision
+denominator</strong>. The later scanner correction added targeted
+regression tests, but the original trial counts were not regenerated.
+Other examples reveal missed local wrapper-script invocations
+(<code>improve</code>), a missed network-related indicator
+(<code>health-bugs</code>), and additional network, dependency, and
+execution changes in a <code>tdd-migration-pipeline</code> supporting
+Python script. Missing sibling evidence and uncertain direction prevent
+some such cases from contributing to quantitative estimates.</p>
+<h2 data-number="15.2" id="relationship-review"><span
+class="header-section-number">15.2</span> Relationship review</h2>
+<p>The <strong>45</strong> adjudicated relationship judgments produced
+<strong>42 agreements and 3 disagreements</strong> with the algorithm’s
+relatedness classification (15/0, 15/0, and 12/3 across Trials 1–3). In
+Trial 3, three of the five selected <code>no-related-edge</code> cases
+were judged related, while the other two were judged not related. These
+results concern classification agreement with the tool, <strong>not
+independently measured inter-rater agreement</strong>, proof of copying,
+or a population-wide error rate. Ordering remained uncertain in many
+reviewed relationships.</p>
+<p>The trial-level <code>review/summary.json</code> files hold the
+calculated <code>manual_validation</code> and
+<code>relationship_validation</code> outputs, with the pre-adjudication
+summaries preserved separately. Detailed original and final judgments,
+source observations, and unresolved evidence limitations are retained in
+the <code>manual-review/</code> folders. The <a
+href="../../docs/instructions/manual_annotation_protocol.md">Manual
+Annotation Protocol</a> defines the review criteria; <a
+href="#app-e">Appendix E</a> links the supporting repository
+artifacts.</p>
+<h1 data-number="16" id="app-d"><span
 class="header-section-number">16</span> Appendix D Additional Sprint 3
 results</h1>
 <p>The tables below are calculated from the saved Sprint 3
 <code>review/summary.json</code>, <code>review/families.csv</code>,
 <code>review/directed_pairs.csv</code>, and
-<code>review/direction_basis.csv</code> files. All indicator results are
-<strong>automated</strong> and pending independent human adjudication.
-Per-indicator counts overlap: one comparison may contain more than one
-supported indicator, and multiple comparisons may share artifacts.</p>
+<code>review/direction_basis.csv</code> files. These are <strong>frozen
+automated</strong> indicator counts, not corrected accuracy
+measurements. Two <code>mcp-builder</code> RI-003 formatting cases were
+rejected in subsequent team adjudication, and the scanner was improved
+after the saved run. The separately computed validation results do not
+revise these frozen automated tables. Per-indicator counts overlap: one
+comparison may contain more than one supported indicator, and multiple
+comparisons may share artifacts.</p>
 <h2 data-number="16.1" id="indicator-frequency-by-trial"><span
 class="header-section-number">16.1</span> Indicator frequency by
 trial</h2>
-<p>Each entry counts <strong>primary directed comparisons</strong> with
-the indicated supported RI. The final column counts <strong>distinct
-families</strong> across the three non-overlapping trials that have at
-least one such comparison.</p>
-<table class="wide">
-<caption>Risk-indicator frequency across the three trials</caption>
+<p><a href="#tbl-indicator-frequency">Table 13</a> counts primary
+directed comparisons supporting each risk indicator across the three
+trials. Its final column shows how many distinct families had at least
+one such comparison.</p>
+<table id="tbl-indicator-frequency" class="wide">
+<caption><p>Risk-indicator frequency across the three
+trials</p></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 17%" />
@@ -1968,7 +2253,7 @@ least one such comparison.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>RI-001</strong></td>
+<td>RI-001</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">3</td>
@@ -1976,7 +2261,7 @@ least one such comparison.</p>
 <td style="text-align: right;">3</td>
 </tr>
 <tr>
-<td><strong>RI-002</strong></td>
+<td>RI-002</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
@@ -1984,7 +2269,7 @@ least one such comparison.</p>
 <td style="text-align: right;">0</td>
 </tr>
 <tr>
-<td><strong>RI-003</strong></td>
+<td>RI-003</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">41</td>
@@ -1992,7 +2277,7 @@ least one such comparison.</p>
 <td style="text-align: right;">17</td>
 </tr>
 <tr>
-<td><strong>RI-004</strong></td>
+<td>RI-004</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
@@ -2000,7 +2285,7 @@ least one such comparison.</p>
 <td style="text-align: right;">0</td>
 </tr>
 <tr>
-<td><strong>RI-005</strong></td>
+<td>RI-005</td>
 <td style="text-align: right;">25</td>
 <td style="text-align: right;">15</td>
 <td style="text-align: right;">115</td>
@@ -2008,7 +2293,7 @@ least one such comparison.</p>
 <td style="text-align: right;">26</td>
 </tr>
 <tr>
-<td><strong>RI-006</strong></td>
+<td>RI-006</td>
 <td style="text-align: right;">57</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">95</td>
@@ -2016,7 +2301,7 @@ least one such comparison.</p>
 <td style="text-align: right;">10</td>
 </tr>
 <tr>
-<td><strong>RI-007</strong></td>
+<td>RI-007</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
@@ -2024,7 +2309,7 @@ least one such comparison.</p>
 <td style="text-align: right;">2</td>
 </tr>
 <tr>
-<td><strong>RI-008</strong></td>
+<td>RI-008</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">6</td>
@@ -2032,7 +2317,7 @@ least one such comparison.</p>
 <td style="text-align: right;">8</td>
 </tr>
 <tr>
-<td><strong>RI-009</strong></td>
+<td>RI-009</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
@@ -2040,7 +2325,7 @@ least one such comparison.</p>
 <td style="text-align: right;">0</td>
 </tr>
 <tr>
-<td><strong>RI-010</strong></td>
+<td>RI-010</td>
 <td style="text-align: right;">33</td>
 <td style="text-align: right;">23</td>
 <td style="text-align: right;">145</td>
@@ -2048,7 +2333,7 @@ least one such comparison.</p>
 <td style="text-align: right;">39</td>
 </tr>
 <tr>
-<td><strong>RI-011</strong></td>
+<td>RI-011</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
@@ -2061,12 +2346,13 @@ least one such comparison.</p>
 id="direction-evidence-and-selected-comparisons"><span
 class="header-section-number">16.2</span> Direction evidence and
 selected comparisons</h2>
-<p>The following categories are mutually exclusive per directed
-comparison. Counts of comparisons with RIs are <em>not</em> counts of
-verified copied-skill lineages.</p>
-<table class="wide">
-<caption>Direction evidence and coverage for selected
-comparisons</caption>
+<p><a href="#tbl-direction-evidence">Table 14</a> groups the 2,157
+primary directed comparisons by the evidence used to infer their order.
+Each comparison belongs to one direction category. These are inferred
+comparisons, not verified copying histories.</p>
+<table id="tbl-direction-evidence" class="wide">
+<caption><p>Direction evidence and coverage for selected
+comparisons</p></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 26%" />
@@ -2122,8 +2408,11 @@ comparisons</caption>
 </table>
 <h2 data-number="16.3" id="bundle-change-types"><span
 class="header-section-number">16.3</span> Bundle change types</h2>
-<table>
-<caption>Primary-comparison counts by bundle change type</caption>
+<p><a href="#tbl-bundle-counts">Table 15</a> classifies primary
+comparisons by <code>SKILL.md</code> content and sibling-file state.</p>
+<table id="tbl-bundle-counts" class="here">
+<caption><p>Primary-comparison counts by bundle change
+type</p></caption>
 <thead>
 <tr>
 <th>Change type</th>
@@ -2159,12 +2448,13 @@ class="header-section-number">16.3</span> Bundle change types</h2>
 </tr>
 </tbody>
 </table>
-<p><code>unknown</code> describes an unavailable or insufficiently known
-sibling state, not a known unchanged bundle. Equivalent relationships
-are not counted as base-to-derived comparisons. A
-<code>siblings-only</code> classification uses main-skill equivalence
-under the similarity representation rather than requiring identical byte
-hashes; see Appendix B.</p>
+<p>The <code>unknown</code> change type indicates that sibling-file
+state was unavailable or insufficiently known; it does not mean the
+bundle was unchanged. Equivalent relationships are not counted as
+base-to-derived comparisons. A <code>siblings-only</code> classification
+uses equivalence of <code>SKILL.md</code> content under the similarity
+representation rather than requiring identical byte hashes; see <a
+href="#app-b">Appendix B</a>.</p>
 <h2 data-number="16.4" id="family-size-and-cluster-notes"><span
 class="header-section-number">16.4</span> Family-size and cluster
 notes</h2>
@@ -2174,10 +2464,12 @@ smaller strata (0 of 60 Low families; 10 of 165 Medium) and more common
 in the larger strata (19 of 60 Large; all 12 X-Large; all three
 Extreme). These clusters indicate relatedness under the project’s
 token-shingle method, not verified independent origins.</p>
-<p>For illustration, selected large families show different cluster
-structures:</p>
-<table>
-<caption>Examples of family size and similarity clusters</caption>
+<p><a href="#tbl-family-examples">Table 16</a> illustrates how artifact
+counts and similarity-cluster counts differ among four sampled
+families.</p>
+<table id="tbl-family-examples" class="here">
+<caption><p>Examples of family size and similarity
+clusters</p></caption>
 <thead>
 <tr>
 <th>Family</th>
@@ -2212,19 +2504,21 @@ structures:</p>
 comparisons remain in the three saved <code>review/</code> directories.
 They are not duplicated here because the detailed tables are best
 inspected directly as reproducible data files.</p>
-<h1 data-number="17"
-id="appendix-e-supporting-repository-material"><span
+<h1 data-number="17" id="app-e"><span
 class="header-section-number">17</span> Appendix E Supporting repository
 material</h1>
 <p>The report uses the <strong>three saved Sprint 3 trials</strong>, not
-the earlier Sprint 2 exploratory cohort. The source code revision
-recorded in all three manifests is
-<code>ae69732ed8988ad7066ff351848f7d2e8ad311a1</code>; the manifests
-additionally retain the implementation fingerprint, active rules,
-dataset identity, and selected inputs. Results are not recomputed by
-rebuilding the report.</p>
-<table class="wide">
-<caption>Reproducibility and supporting repository resources</caption>
+the earlier Sprint 2 exploratory cohort. Trials 1 and 2 record code
+revision <code>ae69732ed8988ad7066ff351848f7d2e8ad311a1</code>, while
+Trial 3 records <code>66ea452f6fb9d596905a62f9b0fd4546b71927b7</code>.
+The manifests record matching scanner implementation and cohort
+fingerprints, alongside active rules, dataset identity, and selected
+inputs. Results are not recomputed by rebuilding the report. <a
+href="#tbl-reproducibility">Table 17</a> lists the supporting repository
+resources.</p>
+<table id="tbl-reproducibility" class="wide">
+<caption><p>Reproducibility and supporting repository
+resources</p></caption>
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -2258,7 +2552,8 @@ preparation</a></td>
 <td><a
 href="https://github.com/umdnp/csc580-project8/blob/main/sql/create_analysis_tables.sql">Candidate-selection
 SQL</a></td>
-<td>Generates the comparison candidate pool (Appendix A).</td>
+<td>Generates the comparison candidate pool (<a href="#app-a">Appendix
+A</a>).</td>
 </tr>
 <tr>
 <td><a
@@ -2323,8 +2618,10 @@ trial has the same layout):</p>
     review/directed_pairs.csv
     review/indicator_frequency.csv
     review/direction_basis.csv
-    manual-review/directed-pairs/
-    manual-review/relationship-pairs/
+    manual-review/directed-pairs/           # independent annotations
+    manual-review/relationship-pairs/       # independent annotations
+    manual-review/adjudicated/              # directed.csv, relationships.csv, adjudication.txt
+    review/summary.before-adjudication.json
   results2/                  # same structure
   results3/                  # same structure</code></pre>
 <p>The <code>sampling_report.json</code> files record sampling seeds
@@ -2332,22 +2629,27 @@ trial has the same layout):</p>
 candidate rejections. The <code>sample_manifest.json</code> files record
 the selected families, policies, scanner and code identities, review
 sample checksums, and a source fingerprint. Research summaries and CSV
-files contain the automated outcome counts used in Sections IV–VI and
-Appendix D; audit and execution files provide coverage and processing
-status. The separate annotation files are reviewer-owned and remain
-distinct from automated predictions.</p>
-<p>Two cross-trial charts in Section VI are generated from the saved
-<code>families.csv</code> and <code>directed_pairs.csv</code> files
-using <code>report/figures/generate_sprint3_figures.py</code>. The
-script does not alter trial results or select new families.</p>
-<p>The three sample manifests currently mark their approval reference as
-<strong>provisional</strong> (<code>sample_status: provisional</code>,
-no approval reference). The final report should not imply formal
-approval has been recorded unless the manifest or repository decision
-history is updated. A tagged release and final manual-validation record
-should be linked when available.</p>
-<h1 data-number="18"
-id="appendix-f-use-of-ai-in-development-and-report-preparation"><span
+files contain the automated outcome counts used in Sections <a
+href="#sec-dataset">IV</a>–<a href="#sec-results">VI</a> and <a
+href="#app-d">Appendix D</a>; audit and execution files provide coverage
+and processing status. Independent and team-adjudicated annotations
+remain separate from automated predictions. Final
+<code>review/summary.json</code> files contain the sample-limited
+<code>manual_validation</code> and <code>relationship_validation</code>
+measures; pre-adjudication copies retain the original summary state. The
+recorded code revisions and sample identities must be respected when
+reproducing the published frozen numbers.</p>
+<p>Two cross-trial charts in <a href="#sec-results">Section VI</a> are
+generated from the saved <code>families.csv</code> and
+<code>directed_pairs.csv</code> files using
+<code>report/figures/generate_sprint3_figures.py</code>. The script does
+not alter trial results or select new families.</p>
+<p>The three sample manifests retain <strong>provisional</strong>
+approval status (<code>sample_status: provisional</code>, no approval
+reference). No formal approval reference is recorded in those manifests.
+A tagged release and final manual-validation record can be linked when
+available.</p>
+<h1 data-number="18" id="app-f"><span
 class="header-section-number">18</span> Appendix F Use of AI in
 development and report preparation</h1>
 <p>Project Group 8 used AI assistance during tool and pipeline

@@ -27,13 +27,15 @@ diagrams have dedicated pages.
 | E | Links to supporting repository material and result artifacts | [Supporting material](appendices/E-reproducibility-and-artifacts.md) |
 | F | AI assistance in development and report preparation | [Disclosures](appendices/F-disclosures.md) |
 
-The report now describes the three saved Sprint 3 trials (300 distinct
-families, 2,157 primary directed comparisons). The abstract, evaluation,
-discussion, validity, and conclusion have been synchronized provisionally with
-the Sprint 3 counts. One RI-003 formatting finding has been adjudicated and fixed in the scanner, but aggregate team adjudication and validated accuracy measures remain pending.
-Sections 02–04 have been revised for readability and related-work context.
-The final interpretation will be updated after manual validation. Editing or building the report does not rerun the pipeline
-or adjudicate review labels.
+The report describes the three saved Sprint 3 trials (300 distinct families,
+2,157 primary directed comparisons) and the completed team adjudication of
+90 directed and 45 relationship-review cases. The evaluation and appendices
+report 29 strictly eligible directed comparisons, with sample-limited
+accuracy measures and explicit qualifications. Two `mcp-builder` RI-003
+formatting cases were rejected in adjudication; a subsequent scanner fix did
+not change the frozen automated counts. Sections 02–04 have been revised for
+readability and related-work context. Editing or building the report does not
+rerun the pipeline or adjudicate review labels.
 
 ## Build the project report
 
