@@ -1,0 +1,200 @@
+Sprint 3, sample 3 — adjudication notes
+
+The 30 directed pairs and 15 relationship pairs were checked against the exported skill files, available siblings, and scan reports. The original CSVs are saved as .old.csv.
+Files that were not fetched were not treated as empty. Script and command examples are evidence of instructions, not evidence of execution. Similarity and file dates do not prove who copied whom.
+
+DIRECTED PAIRS
+==============
+
+Pair 1: 3032753 -> 3026710 (mcp-builder)
+- The original review correctly rejected RI-003. Both files point to the same SDK URLs.
+- Changed RI-010 from uncertain to supported. The evaluation script was edited, though I did not find new harmful behavior in it.
+- Columns changed: manual_change_judgments: RI-003=none_detected;RI-010=uncertain -> RI-003=none_detected;RI-010=mixed; manual_supported_indicator_ids: (blank) -> RI-010; manual_uncertain_indicator_ids: RI-010 -> (blank).
+
+Pair 2: 2382314 -> 2472784 (mcp-builder)
+- Changed RI-005, RI-006, and RI-010 from uncertain to supported. The new guides include pip installs, an rm -rf dist clean step, and script calls.
+- Removed the missed-finding note. These were already in the family scan; only the separate skill-file comparison excluded the siblings.
+- Columns changed: manual_change_review: uncertain -> correct; manual_change_judgments: RI-005=uncertain;RI-006=uncertain;RI-010=uncertain -> RI-005=introduced;RI-006=introduced;RI-010=introduced; manual_supported_indicator_ids: (blank) -> RI-005;RI-006;RI-010; manual_uncertain_indicator_ids: RI-005;RI-006;RI-010 -> (blank).
+
+Pair 3: 3032753 -> 3031464 (mcp-builder)
+- The RI-003 false positive was already identified correctly.
+- Changed RI-010 from uncertain to supported because the invoked evaluation script changed. Most edits appear to be formatting or minor code cleanup.
+- Columns changed: manual_change_judgments: RI-003=none_detected;RI-010=uncertain -> RI-003=none_detected;RI-010=mixed; manual_supported_indicator_ids: (blank) -> RI-010; manual_uncertain_indicator_ids: RI-010 -> (blank).
+
+Pair 4: 1705009 -> 2440120 (tdd-migration-pipeline)
+- Added RI-003, RI-005, and RI-008. The new validator downloads files from two hosts, uses chmod 777, and runs the downloaded shell script.
+- The original review caught the local Python invocation (RI-010) but missed the work done by the Python file. RI-006 was not supported by the chmod operation alone.
+- Columns changed: manual_rule_judgments: CMD-001=correct;CMD-002=correct -> CMD-001=correct;CMD-002=false_negative;NET-001=false_negative;NET-002=false_negative;SYS-002=false_negative;EXT-003=false_negative; manual_change_judgments: RI-010=introduced;RI-006=uncertain -> RI-003=introduced;RI-005=introduced;RI-006=none_detected;RI-008=introduced;RI-010=introduced; manual_supported_indicator_ids: RI-010 -> RI-003;RI-005;RI-008;RI-010; manual_uncertain_indicator_ids: RI-006 -> (blank).
+
+Pair 5: 2382314 -> 2465192 (mcp-builder)
+- The available sibling guides support RI-005, RI-006, and RI-010, rather than leaving all three uncertain.
+- Kept the overall scope not_assessable because several Zone.Identifier records are unavailable.
+- Columns changed: manual_change_review: uncertain -> partially_correct; manual_change_judgments: RI-005=uncertain;RI-006=uncertain;RI-010=uncertain -> RI-005=introduced;RI-006=introduced;RI-010=introduced; manual_supported_indicator_ids: (blank) -> RI-005;RI-006;RI-010; manual_uncertain_indicator_ids: RI-005;RI-006;RI-010 -> (blank).
+
+Pair 6: 1410009 -> 1456365 (vsphere)
+- Changed RI-003 from uncertain to none detected; the new curl examples still target vCenter.
+- The expanded govc guide adds guest-run commands that the command rules do not fully detect. All listed text resources were available, so changed the scope to all_assessed.
+- Columns changed: scanner_rule_review: correct -> partially_correct; manual_rule_judgments: CMD-001=correct;CRED-001=correct;EXT-002=correct;NET-001=correct -> CMD-001=correct;CMD-002=false_negative;CRED-001=correct;EXT-002=correct;NET-001=correct; manual_change_judgments: RI-003=uncertain -> RI-003=none_detected; manual_uncertain_indicator_ids: RI-003 -> (blank); indicator_review_scope: not_assessable -> all_assessed.
+
+Pair 7: 1729578 -> 1792561 (python-executor)
+- Kept RI-011 uncertain. The new link points to outside install instructions, but the wording does not clearly require following them.
+- Changed the overall scope to all_assessed. Both main files and the recorded sibling were available.
+- Columns changed: indicator_review_scope: not_assessable -> all_assessed.
+
+Pair 8: 3220275 -> 3436736 (good-question)
+- The added Python search commands support RI-010. The original review had that right.
+- Some resources in the large base bundle were not fetched. Kept not_assessable.
+
+Pair 9: 3052979 -> 3021383 (mcp-builder)
+- The skill instructions remain much the same. The extra local.patch entry cannot be inspected.
+- No change to the original judgments; the incomplete sibling coverage is still relevant.
+
+Pair 10: 1729578 -> 1839804 (python-executor)
+- The newer skill adds links to installation and checksum information, but not a new install or execute command.
+- Changed the scope to all_assessed. The available skill text is sufficient for the indicator review.
+- Columns changed: indicator_review_scope: not_assessable -> all_assessed.
+
+Pair 11: 3421754 -> 3555764 (checkpoint)
+- The base already cleaned up pending analytics files. The new rm -f command targets a specific pending file.
+- Changed RI-006 from uncertain to retained; no new destructive behavior was established.
+- Columns changed: manual_change_review: uncertain -> partially_correct; manual_change_judgments: RI-006=uncertain -> RI-006=retained; manual_uncertain_indicator_ids: RI-006 -> (blank).
+
+Pair 12: 1159674 -> 1481151 (mcp-builder)
+- The pip install example is present in a description of the Python SDK, rather than an explicit setup step.
+- Kept RI-005 uncertain. The original review was appropriately cautious.
+
+Pair 13: 1773238 -> 1940940 (python-executor)
+- The link to outside installation instructions could be an added dependency, but the wording does not settle RI-011.
+- Kept the RI-011 uncertainty and changed the overall scope to all_assessed; the available files were sufficient to inspect the reference.
+- Columns changed: indicator_review_scope: not_assessable -> all_assessed.
+
+Pair 14: 1703472 -> 3079236 (flow-next-work)
+- The new rm -f .flow/meta.json.tmp cleanup supports RI-006. That part of the original review stands.
+- The source does not show a new package-install command, so recorded RI-005 as none detected. All bundled text is available, so changed the scope to all_assessed.
+- Columns changed: manual_change_judgments: RI-006=introduced -> RI-005=none_detected;RI-006=introduced; indicator_review_scope: not_assessable -> all_assessed.
+
+Pair 15: 2265868 -> 2441836 (mcp-builder)
+- The changed guides add pip installs, rm -rf dist, and local script-run examples.
+- Changed RI-005, RI-006, and RI-010 from uncertain to supported. These are documented commands, not evidence they were run.
+- Columns changed: manual_change_review: uncertain -> partially_correct; manual_change_judgments: RI-005=uncertain;RI-006=uncertain;RI-010=uncertain -> RI-005=introduced;RI-006=introduced;RI-010=introduced; manual_supported_indicator_ids: (blank) -> RI-005;RI-006;RI-010; manual_uncertain_indicator_ids: RI-005;RI-006;RI-010 -> (blank).
+
+Pair 16: 2395644 -> 2440634 (mcp-builder)
+- Two image resources were not available, and the derived bundle has fewer supporting files.
+- No reason to change the original scope or risk judgments.
+
+Pair 17: 2476623 -> 2588130 (azure-resource-manager-playwright-dotnet)
+- The extra __init__.py is on the base side only. Neither skill adds a new security-sensitive command.
+- The original assessment stands; the first-file order is not proven by an observed commit for the derived copy.
+
+Pair 18: 2382314 -> 2574076 (mcp-builder)
+- The newly bundled evaluation and Node guides contain pip installs, cleanup, and script invocations.
+- Changed RI-005, RI-006, and RI-010 from uncertain to supported. The family scan had already reported them.
+- Columns changed: manual_change_review: uncertain -> correct; manual_change_judgments: RI-005=uncertain;RI-006=uncertain;RI-010=uncertain -> RI-005=introduced;RI-006=introduced;RI-010=introduced; manual_supported_indicator_ids: (blank) -> RI-005;RI-006;RI-010; manual_uncertain_indicator_ids: RI-005;RI-006;RI-010 -> (blank).
+
+Pair 19: 3651766 -> 1609242 (avileo)
+- The main skill text is unchanged for scanning purposes, but the development guide adds a Docker database-password example.
+- Added CRED-001 to the reviewed rule list. The example does not show a password being sent to an outside destination, so no RI-007 is supported.
+- Columns changed: manual_rule_judgments: CMD-001=correct;CMD-002=correct -> CMD-001=correct;CMD-002=correct;CRED-001=correct.
+
+Pair 20: 2031772 -> 2068441 (analyzing-cyber-kill-chain)
+- The changes are mostly metadata and a resource edit. No new security-sensitive behavior was supported.
+- The original review stands.
+
+Pair 21: 3106663 -> 3147434 (react-hook-form-zod)
+- The changes add form-handling examples, not a new install, network target, or risky file operation.
+- The original review stands.
+
+Pair 22: 3022345 -> 3179950 (mcp-builder)
+- The derived guide adds WebFetch/MCP advice but still points to the same documentation sources.
+- No new risk indicator was supported; the original review stands.
+
+Pair 23: 1129214 -> 1156753 (seo-cannibalization-detector)
+- The main instructions differ only slightly, and the base-side .openskills.json has no derived counterpart.
+- The original review stands.
+
+Pair 24: 2459220 -> 1992088 (planning-and-task-breakdown)
+- Changed manual_relatedness from uncertain to related. The task plan structure, dependency graph, and checkpoints closely match.
+- The npm test and build examples were detected. No new risk indicator is supported.
+- Columns changed: manual_relatedness: uncertain -> related.
+
+Pair 25: 2451552 -> 2440750 (mcp-builder)
+- Only a license file was added to the bundle; the main MCP guidance is essentially unchanged.
+- The original review stands.
+
+Pair 26: 3249091 -> 3414097 (marketing-psychology)
+- The marketing guidance stays the same. The evaluation file appears only on the base side.
+- No new security-sensitive behavior was found; the original review stands.
+
+Pair 27: 863360 -> 1252927 (seo-cannibalization-detector)
+- The two SEO skills are clearly related. The changed wording does not introduce a relevant command or network action.
+- The original review stands.
+
+Pair 28: 1252927 -> 1224262 (seo-cannibalization-detector)
+- Another related SEO pair. The added text is not a new security-sensitive operation.
+- The original review stands.
+
+Pair 29: 1876886 -> 1897268 (marketing-psychology)
+- The marketing psychology instructions still cover the same subject, with no new scanned risk behavior.
+- The original review stands.
+
+Pair 30: 3728012 -> 2113175 (compose-outreach)
+- Both copies use the same outreach workflow and the supporting file is unchanged.
+- The original review stands.
+
+RELATIONSHIP PAIRS
+==================
+
+Pair 1: 2500259 <-> 2591195 (mcp-builder; direction-unknown)
+- The same MCP workflow is present in both. Hermes adds some platform-specific details, but the direction is still unknown. No change.
+
+Pair 2: 2435625 <-> 2435814 (mcp-builder; direction-unknown)
+- The earlier reviewer could not find the second artifact. Both files were available in this export.
+- Changed relatedness from uncertain to related. The instructions match; neither file has direct first-commit evidence for direction.
+- Columns changed: manual_relatedness: uncertain -> related.
+
+Pair 3: 2425345 <-> 2476279 (mcp-builder; direction-unknown)
+- Both files have the same MCP workflow, with some path and packaging differences. The original related/uncertain result stands.
+
+Pair 4: 985357 <-> 1073532 (blocknative-automation; direction-unknown)
+- Both copies contain the same Blocknative instructions. Nothing in the available history establishes which copy came first. No change.
+
+Pair 5: 3413903 <-> 3420781 (marketing-psychology; direction-unknown)
+- The marketing psychology guides are nearly the same. One first-commit date is missing, so direction is still uncertain. No change.
+
+Pair 6: 1246073 <-> 1338621 (mcp-builder; equivalent)
+- The MCP instructions are equivalent, but the dates are inherited from other copies. No direct order between these two is established. No change.
+
+Pair 7: 3413135 <-> 3425037 (marketing-psychology; equivalent)
+- The substantive marketing instructions are the same; the metadata differs. The original review stands.
+
+Pair 8: 1997221 <-> 3785718 (planning-and-task-breakdown; equivalent)
+- The planning guides are equivalent in content. A chronology proxy does not prove one was copied from the other. No change.
+
+Pair 9: 3022345 <-> 3026710 (mcp-builder; equivalent)
+- The MCP skill bodies and known supporting files match. That supports equivalence, not direct ancestry. No change.
+
+Pair 10: 1903198 <-> 1932263 (performing-automated-malware-analysis-with-cape; equivalent)
+- The CAPE analysis instructions and six known sibling hashes match. The different source metadata does not settle direction. No change.
+
+Pair 11: 1630160 <-> 3026710 (mcp-builder; no-related-edge)
+- The scanner called this no-related-edge, but the shorter file follows the same distinctive four-phase MCP workflow and points to the same reference guides.
+- Kept related. The direct order is still unknown.
+
+Pair 12: 2225560 <-> 3639860 (checkpoint; no-related-edge)
+- These two checkpoint skills do different jobs: one handles approvals, while the other saves session state.
+- The original not_related judgment stands.
+
+Pair 13: 927136 <-> 2432174 (mcp-builder; no-related-edge)
+- Changed uncertain to not_related. One file is a short, generic MCP checklist; the other is a full guide. They share a topic but not distinctive instructions.
+- Direction is now not_applicable.
+- Columns changed: manual_relatedness: uncertain -> not_related; direction_basis_review: uncertain -> not_applicable.
+
+Pair 14: 834740 <-> 1311018 (mcp-builder; no-related-edge)
+- The first skill says it was adapted from Anthropic, and the second is a Chinese-language MCP-building guide with similar ideas.
+- Kept related, but neither source proves direct copying between these two files.
+
+Pair 15: 1400359 <-> 2021889 (planning-and-task-breakdown; no-related-edge)
+- The two planning guides share the same task-template structure and ordered steps, despite the score falling below the automatic threshold.
+- Kept related. Neither file has direct ordering evidence.
+
+The independent reviewers' names and dates are unchanged for traceability. The adjudicated entries still need team confirmation before they are treated as the final agreed record.
