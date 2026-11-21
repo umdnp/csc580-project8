@@ -14,6 +14,12 @@ Behavioral analysis covers the body of `SKILL.md` and eligible bundled sibling f
 
 Candidate relationships are inferred from content similarity and available provenance or chronology evidence. They do not prove direct copying, authorship, or historical ancestry.
 
+## Threat Sources and Assets
+
+Potential sources of risk include intentionally altered skill content, a compromised upstream source, or an ordinary revision that unintentionally adds unsafe instructions. The study does **not** determine whether any observed change was malicious. The potential consumer is a developer or an AI agent using the skill. Assets that could be affected include local files, credentials, host configuration, and external services accessible through the agent's tools.
+
+The security concern arises if an agent **acts on untrusted skill instructions** using its available permissions. Merely storing or statically inspecting those instructions does not establish an impact, and our pipeline does not execute them.
+
 ## Threat Categories and Detection Coverage
 
 The scanner uses **15 rules across six categories**, primarily based on textual patterns. The rules detect selected signals, not all possible expressions of each behavior.
@@ -67,24 +73,14 @@ Extracted evidence is identified as **complete**, **partial**, or **unsupported*
 
 Regex-based static analysis can miss obfuscated or indirect actions, unfamiliar syntax, and risky instructions expressed only in prose, including non-English prose without recognizable technical indicators. It may also flag benign documentation, examples, or warnings. Neither the absence of a detection nor the absence of a supported risk indicator establishes that an artifact is safe.
 
-Explicit browser-launch commands such as `open https://example.test/page` or `xdg-open https://example.test/page` are not consistently recognized as network operations. Whether such navigation falls within RI-003 is a scope decision under the current indicator policy; a directed browser launch is distinct from a URL mentioned only as a reference. This potential coverage gap does not change the frozen Sprint 3 results.
+Explicit browser-launch instructions are not consistently treated as RI-003 network operations, and environment discovery through runtime APIs is not a separate detection category. Whether a particular operation belongs within an indicator is a policy question, not solely a pattern-matching issue.
 
-Environment discovery, such as reading operating system details through Node.js `os` APIs, is not a separate detection category. Such behavior may be routine diagnostics or security-relevant in context, but the current rules do not flag it on that basis alone.
-
-### Sprint 3 Review Observations
-
-The three Sprint 3 trials generated **90 directed-comparison and 45 relationship-review cases**. Initial annotations illustrate limits of the fixed scanner and relationship method:
-
-- **Unsupported detection and correction:** In two Trial 3 `mcp-builder` comparisons, a reviewer questioned RI-003 because reformatted URL evidence referred to hostnames already present in the base artifact. The team adjudicated one pair (`3032753` to `3026710`) as an RI-003 false positive and improved the network-operation comparison logic with targeted regression tests. The original Sprint 3 automated results were not rerun after the fix, and the other case remains subject to review.
-- **Potential missed evidence:** Trial 1 notes identify candidate missing risk indicators. A Trial 2 `improve` review (`3345273` to `3489451`) supports a possible missed RI-010 involving new wrapper-script invocations, although evidence extraction is incomplete. Trial 3 notes point to available sibling-file examples involving package installation, file cleanup, `subprocess.Popen`, permission changes, and network commands that were not reflected in the reported comparison evidence. These observations require review of context and indicator criteria; a documented command is not necessarily an instruction to execute it.
-- **Relationship uncertainty:** Some Trial 3 pairs without a selected related edge were judged substantively related on inspection. Relatedness, however, does not establish a reliable earlier-to-later direction.
-
-Except for the specific adjudicated RI-003 case, these are **reviewer observations, not adjudicated false-positive or false-negative counts**. They document coverage and relationship limitations without retroactively altering the saved automated results.
+Adjudicated Sprint 3 examples demonstrate both unsupported and missed detections, as well as limitations in inferring relationships between artifacts. They do not prove that any instruction was executed or retroactively change the frozen automated results. Case-level findings and sample-limited validation metrics are discussed in [`THREATS_TO_VALIDITY.md`](THREATS_TO_VALIDITY.md) and the [evaluation report](report/sections/08-evaluation-and-validation.md).
 
 ## Interpretation and Safe Reporting
 
 Our results describe **static detections, observable evidence changes, and supported or uncertain risk indicators requiring review**. They do not establish runtime execution, successful network access, actual credential disclosure, exploitability, malicious intent, or verified artifact lineage.
 
-Reports preserve relevant source evidence and coverage limitations. Sensitive-looking excerpts are redacted on a best-effort basis, and generated reports should be reviewed before sharing. All 135 Sprint 3 review records are marked `complete`, but some indicator judgments remain unassessable or require reconciliation. Final accuracy or agreement claims require supported assessment scope and aggregate team adjudication.
+Reports preserve relevant source evidence and coverage limitations. Sensitive-looking excerpts are redacted on a best-effort basis, and generated reports should be reviewed before sharing. Team-adjudicated sample reviews identify detection and relationship errors, but some comparisons remain unassessable for the full indicator scope. Any accuracy estimate applies only to the eligible reviewed subset, not to every scanned artifact or the broader GitSkills population.
 
 Detailed operational instructions are maintained in [`TOOLS.md`](TOOLS.md). Broader methodological limitations are documented in [`THREATS_TO_VALIDITY.md`](THREATS_TO_VALIDITY.md).

@@ -1,8 +1,9 @@
 Sprint 3 / Sample 2 — adjudication
 =================================
 Checked 30 directed pairs and 15 relationship pairs against the exported skill files, available siblings, file comparisons and relationship reports.
-The independent CSVs are saved as .old.csv. Research/sample fields have not been changed.
-Original reviewer names and dates are retained. These are evidence-based proposed adjudications pending team confirmation.
+Original independent reviews are preserved in ../directed-pairs/annotations.csv and ../relationship-pairs/relationship_annotations.csv. The adjudicated directed.csv and relationships.csv in this folder retain the original research/sample fields.
+Original reviewer names and review dates are retained in the CSVs for attribution, not as the team approval date. Group 8 has reviewed and approved these final adjudicated judgments; approval was confirmed by 2026-11-21. The exact team review date and individual sign-offs are not separately recorded in the supplied files.
+The frozen sample_manifest.json retains its original provisional approval metadata; this note records the subsequent team approval of manual judgments without changing the original study manifest.
 No code from the skills was executed. Missing files and incomplete sibling listings are noted where relevant.
 
 DIRECTED PAIRS
