@@ -1,0 +1,215 @@
+family,cluster,base_artifact_id,derived_artifact_id,edge_type,direction_basis,change_type,flagged,rule_flagged,skill_added,skill_removed,sibling_added,sibling_removed,indicator_ids,uncertain_indicator_ids,finding_count,coverage_status,evidence_complete,evidence_partial,evidence_unsupported,missing_sibling_content,unknown_sibling_hashes,sibling_listing_incomplete,sampling_stratum,reviewer,review_phase,review_status,review_date,manual_relatedness,direction_basis_review,scanner_rule_review,manual_rule_judgments,manual_change_review,manual_change_judgments,indicator_review_scope,manual_supported_indicator_ids,manual_uncertain_indicator_ids,sibling_coverage_review,missed_observations,false_positive_notes,notes
+mcp-builder,2,3032753,3026710,primary,equivalent-peer-chronology,siblings-only,1,1,2,2,3,2,RI-003;RI-010,,8,complete,115,0,0,0,0,0,supported-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,uncertain,correct,CMD-002=correct;NET-001=correct,partially_correct,RI-003=none_detected;RI-010=mixed,all_assessed,RI-010,,complete,,"RI-003: four derived SKILL.md URL records were realigned/reformatted; raw.githubusercontent.com and the same Python/TypeScript SDK README URLs already occur in base, so no new hostname was introduced.","Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+The SDK URLs were already present, so RI-003 is not a new network destination. The bundled evaluation script is still used, but its stored content changed. That supports RI-010 as a changed script, not proof of new harmful behavior."
+mcp-builder,1,2382314,2472784,primary,repo-created-boundary,siblings-only,1,1,0,0,46,0,RI-005;RI-006;RI-010,,11,complete,66,0,0,0,0,0,supported-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,correct,RI-005=introduced;RI-006=introduced;RI-010=introduced,all_assessed,RI-005;RI-006;RI-010,,complete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+The added evaluation guide gives pip install commands and calls scripts/evaluation.py. The Node guide also adds an rm -rf dist clean script. All those files are available; RI-005, RI-006, and RI-010 can be assessed from the source. These are examples, not proof they ran."
+mcp-builder,2,3032753,3031464,primary,equivalent-peer-chronology,siblings-only,1,1,2,2,3,2,RI-003;RI-010,,8,complete,115,0,0,0,0,0,supported-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,uncertain,correct,CMD-002=correct;NET-001=correct,partially_correct,RI-003=none_detected;RI-010=mixed,all_assessed,RI-010,,complete,,"RI-003: four derived SKILL.md URL records were realigned/reformatted; raw.githubusercontent.com and the same Python/TypeScript SDK README URLs already occur in base, so no new hostname was introduced.","Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+The same SDK URLs appear on both sides, so RI-003 is a false alarm. The evaluation script changed while its use was retained, which is enough to support the RI-010 change signal. I did not find a new harmful action in that script."
+tdd-migration-pipeline,1,1705009,2440120,primary,containment,unknown,1,1,2,0,0,0,RI-010,,1,complete,2,0,0,0,0,0,supported-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-001=correct;CMD-002=false_negative;NET-001=false_negative;NET-002=false_negative;SYS-002=false_negative;EXT-003=false_negative,partially_correct,RI-003=introduced;RI-005=introduced;RI-006=none_detected;RI-008=introduced;RI-010=introduced,all_assessed,RI-003;RI-005;RI-008;RI-010,,complete,"The added scripts/ops_validator.py downloads files from two hosts, uses chmod 777, and runs the downloaded validator.sh (lines 12, 37-49). These steps were missed in the cohort findings.",,"Relatedness: Both describe an orchestrated test-driven workflow for migrating or rewriting codebases. The derived artifact expands the workflow with executable steps while retaining the same migration objective.
+
+The new setup step calls scripts/ops_validator.py. Its code downloads a remote validator.sh, sets permissions with chmod 777, then runs the script (lines 37-49). The review missed the new network and permission changes as well as the outside-code download and execution. chmod alone does not support RI-006."
+mcp-builder,1,2382314,2465192,primary,repo-created-boundary,siblings-only,1,1,0,0,47,0,RI-005;RI-006;RI-010,,11,incomplete,67,0,0,10,0,0,supported-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,partially_correct,RI-005=introduced;RI-006=introduced;RI-010=introduced,not_assessable,RI-005;RI-006;RI-010,,incomplete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+The available evaluation and Node guides support RI-005, RI-006, and RI-010. The missing Zone.Identifier entries still leave the bundle review incomplete, so I kept not_assessable for the overall scope."
+vsphere,1,1410009,1456365,primary,chronology,skill+siblings,1,1,0,0,9,8,,,0,incomplete,137,2,0,0,0,0,coverage-limited,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-001=correct;CMD-002=false_negative;CRED-001=correct;EXT-002=correct;NET-001=correct,partially_correct,RI-003=none_detected,all_assessed,,,complete,The expanded references/govc.md includes VM guest commands such as govc guest.run. The scanner does not recognize all govc invocations.,,"Relatedness: Both provide VMware vSphere administration guidance covering VM operations, API access, and associated tooling. Their shared operational instructions support a meaningful comparison.
+
+The added vSphere commands still target the same vCenter host, so I found no new RI-003 destination. The expanded govc guide includes guest.run and related VM commands that the command rules do not fully catch. The sibling text itself is available."
+python-executor,1,1729578,1792561,primary,equivalent-peer-chronology,unknown,1,1,2,1,0,0,,RI-011,0,incomplete,37,4,0,0,0,0,coverage-limited,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,uncertain,partially_correct,CMD-001=correct;CMD-002=correct;EXT-001=correct;NET-001=correct;NET-002=correct,uncertain,RI-011=uncertain,all_assessed,,RI-011,complete,,,"Relatedness: Both concern running Python-based tasks through the same execution-tool workflow. They share substantial instructions and command/network references, with differences in specific setup or resource links.
+
+Both main files and the one recorded sibling are available. The external install-instructions link remains ambiguous for RI-011, but that uncertainty does not make the whole review not_assessable."
+good-question,1,3220275,3436736,primary,containment,skill+siblings,1,1,4,0,0,83,RI-010,,3,incomplete,87,0,0,4,0,0,coverage-limited,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-002=correct;NET-001=correct,correct,RI-010=introduced,not_assessable,RI-010,,incomplete,,,"Relatedness: Both help formulate and refine research questions or hypotheses. The derived guide adds command examples and references while preserving the same research-question workflow.
+
+Direction: containment; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 4; scanner indicators RI-010; manual judgments RI-010=introduced.
+
+Coverage: sibling entries base=45, derived=13; added names=0, removed names=32, changed-content entries=28; sibling metadata/content availability incomplete. Added: none; removed: .gitattributes, .gitignore, CHANGELOG.md, CONTRIBUTING.md, LICENSE, README.md, agents/openai.yaml, assets/good-question-integrated-banner-1280.png.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification.
+
+Sibling evidence limitation: Sibling content unavailable for one or more entries. ZIP sibling review: 45 base and 13 derived entries; 28 entries show textual differences; coverage incomplete. Unavailable content: .gitattributes, .gitignore, assets/good-question-integrated-banner-1280.png, assets/good-question-integrated-banner-1280.webp.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 45 sibling-entry diff(s); 0 have derived-side textual additions/changes. Sibling coverage limited (missing content=4, unknown hashes=0, incomplete listing=0)."
+mcp-builder,2,3052979,3021383,primary,chronology,skill+siblings,1,1,4,4,1,3,,,0,incomplete,110,0,0,1,0,0,coverage-limited,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,correct,,not_assessable,,,incomplete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+Direction: chronology; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 12 to 12; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=11, derived=9; added names=0, removed names=2, changed-content entries=3; sibling metadata/content availability incomplete. Added: none; removed: LICENSE, local.patch.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification.
+
+Sibling evidence limitation: Sibling content unavailable for one or more entries. ZIP sibling review: 11 base and 9 derived entries; 3 entries show textual differences; coverage incomplete. Unavailable content: local.patch.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 11 sibling-entry diff(s); 2 have derived-side textual additions/changes. Changed sibling examples: reference/mcp_best_practices.md, reference/python_mcp_server.md. Sibling coverage limited (missing content=1, unknown hashes=0, incomplete listing=0)."
+python-executor,1,1729578,1839804,primary,repo-created-boundary,unknown,1,1,3,0,0,0,,,0,incomplete,39,4,0,0,0,0,coverage-limited,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-001=correct;CMD-002=correct;EXT-001=correct;NET-001=correct;NET-002=correct,correct,,all_assessed,,,complete,,,"Relatedness: Both concern running Python-based tasks through the same execution-tool workflow. They share substantial instructions and command/network references, with differences in specific setup or resource links.
+
+Both skill files and the recorded sibling are available. The new install and checksum links are visible in the skill, so the indicator scope can be assessed even though the automated scan reports incomplete extraction."
+checkpoint,1,3421754,3555764,primary,containment,skill+siblings,1,1,13,2,0,14,,RI-006,0,complete,65,0,0,0,0,0,uncertain-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-001=correct;CMD-002=correct;FS-001=correct;NET-001=correct,partially_correct,RI-006=retained,all_assessed,,,complete,,,"Relatedness: Both describe a checkpoint-oriented workflow with shared command and file-operation instructions. The derived content extends the existing workflow rather than changing its purpose.
+
+The base already removed pending analytics files with rm -f. The derived skill adds another, more specific cleanup of the same kind. RI-006 is retained rather than a new destructive action."
+mcp-builder,3,1159674,1481151,primary,repo-created-boundary,skill-only,1,1,1,0,0,0,,RI-005,0,complete,1,0,0,0,0,0,uncertain-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-002=correct;EXT-002=correct,uncertain,RI-005=uncertain,all_assessed,,RI-005,not_applicable,,,"Relatedness: Both describe principles for building MCP servers, including tool design and integration practices. The derived guide adds explicit setup commands while preserving the same core MCP-building task.
+
+Direction: repo-created-boundary; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 2; scanner indicators none; manual judgments RI-005=uncertain.
+
+Coverage: sibling entries base=0, derived=0; added names=0, removed names=0, changed-content entries=0; sibling metadata/content availability complete. Added: none; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 0 base and 0 derived entries; 0 entries show textual differences; coverage not_applicable.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 0 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+python-executor,1,1773238,1940940,primary,repo-created-boundary,skill-only,1,1,3,2,0,0,,RI-011,0,incomplete,39,4,0,0,0,0,uncertain-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-001=correct;CMD-002=correct;NET-001=correct;NET-002=correct,uncertain,RI-011=uncertain,all_assessed,,RI-011,not_applicable,,,"Relatedness: Both concern running Python-based tasks through the same execution-tool workflow. They share substantial instructions and command/network references, with differences in specific setup or resource links.
+
+The skill files are available and there are no siblings. The outside install-instructions link still makes RI-011 uncertain, but the reviewed scope is assessable."
+flow-next-work,1,1703472,3079236,primary,containment,skill+siblings,1,1,4,0,33,1,RI-006,RI-005,2,incomplete,67,1,0,0,0,0,uncertain-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-001=correct;FS-001=correct,correct,RI-005=none_detected;RI-006=introduced,all_assessed,RI-006,,complete,,,"Relatedness: Both address the same next-work planning workflow. The derived version adds explicit shell/file operations within that workflow.
+
+The new rm -f .flow/meta.json.tmp is a real, added cleanup step. The instructions refer to a bundled flowctl and ask the user to refresh local setup; they do not add a package-install command. All listed resources are available."
+mcp-builder,1,2265868,2441836,primary,chronology,skill+siblings,1,1,3,0,37,0,RI-005;RI-006;RI-010,RI-010,4,complete,74,0,0,0,0,0,uncertain-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-002=correct;NET-001=correct,partially_correct,RI-005=introduced;RI-006=introduced;RI-010=introduced,all_assessed,RI-005;RI-006;RI-010,,complete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+The updated evaluation and Node guides add install commands, a clean step using rm -rf dist, and script-run examples. RI-005, RI-006, and RI-010 are supported by those files. No command was executed during this review."
+mcp-builder,1,2395644,2440634,primary,repo-created-boundary,siblings-only,1,1,0,0,2,25,,,0,incomplete,87,0,0,2,0,0,sibling-change,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,correct,,not_assessable,,,incomplete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+Direction: repo-created-boundary; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 10 to 10; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=9, derived=8; added names=3, removed names=4, changed-content entries=8; sibling metadata/content availability incomplete. Added: agents/verdent.yaml, assets/icon-dark.png, assets/icon-light.png; removed: reference/evaluation.md, scripts/evaluation.py, scripts/example_evaluation.xml, scripts/requirements.txt.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 9 base and 8 derived entries; 8 entries show textual differences; coverage incomplete. Unavailable content: assets/icon-dark.png, assets/icon-light.png.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 12 sibling-entry diff(s); 3 have derived-side textual additions/changes. Changed sibling examples: reference/mcp_best_practices.md, reference/node_mcp_server.md, agents/verdent.yaml. Sibling coverage limited (missing content=2, unknown hashes=0, incomplete listing=0)."
+azure-resource-manager-playwright-dotnet,1,2476623,2588130,primary,equivalent-peer-chronology,skill+siblings,0,0,0,0,0,0,,,0,complete,14,0,0,0,0,0,sibling-change,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,uncertain,correct,CMD-001=correct;CRED-001=correct;NET-001=correct,correct,,all_assessed,,,complete,,,"Relatedness: Both address the Azure Resource Manager SDK for Microsoft Playwright Testing in .NET. The compared instructions concern the same integration and remain substantially aligned.
+
+Direction: equivalent-peer-chronology; assessment uncertain; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 7 to 7; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=1, derived=0; added names=0, removed names=1, changed-content entries=0; sibling metadata/content availability complete. Added: none; removed: __init__.py.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 1 base and 0 derived entries; 0 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 1 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+mcp-builder,1,2382314,2574076,primary,repo-created-boundary,skill+siblings,1,1,0,0,47,0,RI-005;RI-006;RI-010,,11,complete,67,0,0,0,0,0,sibling-change,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,correct,RI-005=introduced;RI-006=introduced;RI-010=introduced,all_assessed,RI-005;RI-006;RI-010,,complete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+The derived bundle adds evaluation and Node guides with pip install, rm -rf dist, and local script commands. These support the three reported indicators. The separate SKILL.md comparison does not scan those extra files."
+avileo,1,3651766,1609242,primary,chronology,skill+siblings,1,1,0,0,6,9,,,0,complete,195,0,0,0,0,0,sibling-change,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-001=correct;CMD-002=correct;CRED-001=correct,correct,,all_assessed,,,complete,,,"Relatedness: Both artifacts describe the same Avileo skill workflow and retain the same command-related evidence. No substantive divergence is apparent from the compared material.
+
+The development guide includes a new Docker database example with POSTGRES_PASSWORD=avileo123, and the modules guide adds password references. These are real credential-related matches, but not evidence that credentials were sent outside the system."
+analyzing-cyber-kill-chain,1,2031772,2068441,primary,equivalent-peer-chronology,siblings-only,0,0,0,0,0,0,,,0,complete,0,0,0,0,0,0,sibling-change,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,uncertain,correct,,correct,,all_assessed,,,complete,,,"Relatedness: Both artifacts address cyber kill-chain analysis and share the same core skill material. Neither scan surface introduces a distinct operational workflow.
+
+Direction: equivalent-peer-chronology; assessment uncertain; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=3, derived=3; added names=0, removed names=0, changed-content entries=1; sibling metadata/content availability complete. Added: none; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 3 base and 3 derived entries; 1 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 3 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+react-hook-form-zod,2,3106663,3147434,primary,repo-created-boundary,skill+siblings,1,1,0,0,0,1,,,0,complete,309,0,0,0,0,0,flagged-no-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-001=correct;CMD-002=correct;CRED-001=correct;EXT-002=correct;NET-001=correct;NET-002=correct,correct,,all_assessed,,,complete,,,"Relatedness: Both artifacts address React Hook Form integration with Zod validation. Their instructions remain aligned, with no detected SKILL.md evidence changes.
+
+Direction: repo-created-boundary; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 25 to 25; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=20, derived=19; added names=0, removed names=1, changed-content entries=15; sibling metadata/content availability complete. Added: none; removed: .claude-plugin/plugin.json.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 20 base and 19 derived entries; 15 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 20 sibling-entry diff(s); 14 have derived-side textual additions/changes. Changed sibling examples: references/error-handling.md, references/performance-optimization.md, references/rhf-api-reference.md, references/shadcn-integration.md, references/top-errors.md, among others."
+mcp-builder,2,3022345,3179950,primary,repo-created-boundary,skill+siblings,1,0,0,0,0,2,,,0,complete,26,0,0,0,0,0,flagged-no-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,correct,,all_assessed,,,complete,,,"Relatedness: Both describe building MCP servers with Python or TypeScript SDKs. The same development workflow is present even where the guide is expressed in a different language or packaging context.
+
+Direction: repo-created-boundary; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 12 to 12; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=9, derived=8; added names=0, removed names=1, changed-content entries=1; sibling metadata/content availability complete. Added: none; removed: LICENSE.txt.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 9 base and 8 derived entries; 1 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 9 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+seo-cannibalization-detector,1,1129214,1156753,primary,equivalent-peer-chronology,siblings-only,1,0,0,0,0,1,,,0,complete,1,0,0,0,0,0,flagged-no-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,uncertain,correct,,correct,,all_assessed,,,complete,,,"Relatedness: Both analyze keyword overlap and possible SEO cannibalization across pages, with guidance for differentiating content. The underlying task and instructions remain comparable.
+
+Direction: equivalent-peer-chronology; assessment uncertain; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=1, derived=0; added names=0, removed names=1, changed-content entries=1; sibling metadata/content availability complete. Added: none; removed: .openskills.json.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 1 base and 0 derived entries; 1 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 1 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+planning-and-task-breakdown,1,2459220,1992088,primary,chronology,skill-only,1,1,2,0,0,0,,,0,complete,2,0,0,0,0,0,flagged-no-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,partially_correct,CMD-002=correct,correct,,all_assessed,,,not_applicable,,,"Relatedness: Both concern planning and breaking work into tasks, but the observed evidence does not establish that their detailed workflows are equivalent. Relatedness therefore remains uncertain.
+
+These are clearly versions of the same planning guide. They share the same task template, dependency graph, checkpoints, and much of the text. Related is more accurate than uncertain."
+mcp-builder,1,2451552,2440750,primary,repo-created-boundary,skill+siblings,1,1,0,0,2,0,,,0,complete,22,0,0,0,0,0,flagged-no-indicator,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,CMD-002=correct;NET-001=correct,correct,,all_assessed,,,complete,,,"Relatedness: Both artifacts provide MCP server-building guidance, including tool design and integration with external services. Their core instructions substantially overlap; differences involve presentation, examples, or supporting material rather than an unrelated skill.
+
+Direction: repo-created-boundary; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 10 to 10; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=8, derived=9; added names=1, removed names=0, changed-content entries=1; sibling metadata/content availability complete. Added: LICENSE.txt; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 8 base and 9 derived entries; 1 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 9 sibling-entry diff(s); 1 have derived-side textual additions/changes. Changed sibling examples: LICENSE.txt."
+marketing-psychology,1,3249091,3414097,primary,containment,skill+siblings,0,0,0,0,0,0,,,0,complete,0,0,0,0,0,0,unflagged-directed,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,,correct,,all_assessed,,,complete,,,"Relatedness: Both apply behavioral-science and psychology concepts to marketing decisions. Their central task and guidance remain meaningfully comparable.
+
+Direction: containment; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=1, derived=0; added names=0, removed names=1, changed-content entries=1; sibling metadata/content availability complete. Added: none; removed: evals/evals.json.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 1 base and 0 derived entries; 1 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 1 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+seo-cannibalization-detector,1,863360,1252927,primary,chronology,skill-only,0,0,0,0,0,0,,,0,complete,0,0,0,0,0,0,unflagged-directed,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,,correct,,all_assessed,,,not_applicable,,,"Relatedness: Both analyze keyword overlap and possible SEO cannibalization across pages, with guidance for differentiating content. The underlying task and instructions remain comparable.
+
+Direction: chronology; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=0, derived=0; added names=0, removed names=0, changed-content entries=0; sibling metadata/content availability complete. Added: none; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 0 base and 0 derived entries; 0 entries show textual differences; coverage not_applicable.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 0 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+seo-cannibalization-detector,1,1252927,1224262,primary,chronology,skill-only,0,0,0,0,0,0,,,0,complete,0,0,0,0,0,0,unflagged-directed,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,,correct,,all_assessed,,,not_applicable,,,"Relatedness: Both analyze keyword overlap and possible SEO cannibalization across pages, with guidance for differentiating content. The underlying task and instructions remain comparable.
+
+Direction: chronology; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=0, derived=0; added names=0, removed names=0, changed-content entries=0; sibling metadata/content availability complete. Added: none; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 0 base and 0 derived entries; 0 entries show textual differences; coverage not_applicable.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 0 sibling-entry diff(s); 0 have derived-side textual additions/changes."
+marketing-psychology,2,1876886,1897268,primary,chronology,unknown,0,0,0,0,0,0,,,0,complete,0,0,0,0,0,0,unflagged-directed,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,,correct,,all_assessed,,,not_applicable,,,"Relatedness: Both apply behavioral-science and psychology concepts to marketing decisions. Their central task and guidance remain meaningfully comparable.
+
+Direction: chronology; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=0, derived=0; added names=0, removed names=0, changed-content entries=0; sibling metadata/content availability complete. Added: none; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 0 base and 0 derived entries; 0 entries show textual differences; coverage not_applicable.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 0 sibling-entry diff(s); 0 have derived-side textual additions/changes. Chronology basis is present in comparison metadata although the template direction metadata was previously reported ambiguous; do not infer direct copying."
+compose-outreach,1,3728012,2113175,primary,containment,skill-only,0,0,0,0,0,0,,,0,complete,0,0,0,0,0,0,unflagged-directed,Vaisnavii Mohanraj,adjudicated,complete,2026-11-10,related,supported,correct,,correct,,all_assessed,,,complete,,,"Relatedness: Both generate personalized outreach messages using contact or intent signals. They retain the same message-composition objective and substantially overlapping guidance.
+
+Direction: containment; assessment supported; chronological/containment evidence does not prove direct copying.
+
+Changes/RIs: SKILL.md matches 0 to 0; scanner indicators none; manual judgments none detected on scanned surface.
+
+Coverage: sibling entries base=1, derived=1; added names=0, removed names=0, changed-content entries=0; sibling metadata/content availability complete. Added: none; removed: none.
+
+Limits: SKILL.md scan is not a full sibling-code security scan; indicator judgments marked uncertain require manual verification. ZIP sibling review: 1 base and 1 derived entries; 0 entries show textual differences; coverage complete.
+
+Source review: SkillTrace includes both SKILL.md texts, relationship diff, SKILL.md risk evidence, and 1 sibling-entry diff(s); 0 have derived-side textual additions/changes."

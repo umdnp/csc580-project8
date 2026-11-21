@@ -100,5 +100,128 @@
     "min_shared_shingles": 5,
     "shingle_size": 5
   },
-  "supported_findings": 224
+  "supported_findings": 224,
+  "manual_validation": {
+    "reviewed_pairs": 30,
+    "assessable_pairs": 4,
+    "excluded_pairs": {
+      "not_assessable": 18,
+      "unrelated_or_uncertain": 0,
+      "direction_not_supported": 6,
+      "incomplete_coverage": 2
+    },
+    "uncertain_indicator_judgments": 0,
+    "scope": "adjudicated, assessable sample only; not population estimates",
+    "micro": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "tn": 42,
+      "precision": 1.0,
+      "recall": 0.5
+    },
+    "by_indicator": {
+      "RI-001": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-002": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-003": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "tn": 3,
+        "precision": null,
+        "recall": 0.0
+      },
+      "RI-004": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-005": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-006": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-007": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-008": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-009": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      },
+      "RI-010": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "tn": 3,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "RI-011": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4,
+        "precision": null,
+        "recall": null
+      }
+    }
+  },
+  "relationship_validation": {
+    "reviewed_pairs": 15,
+    "relatedness_agree": 15,
+    "relatedness_disagree": 0,
+    "relatedness_uncertain": 0,
+    "direction_review": {
+      "supported": 0,
+      "unsupported": 0,
+      "uncertain": 5,
+      "not_applicable": 10
+    },
+    "scope": "adjudicated relationship review sample; excludes directed indicator metrics"
+  }
 }
