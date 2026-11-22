@@ -8,7 +8,7 @@
   <meta name="author" content="Kyle Cantrell" />
   <meta name="author" content="Vaisnavii Mohanraj" />
   <meta name="author" content="Christian Heiney" />
-  <meta name="dcterms.date" content="2026-11-15" />
+  <meta name="dcterms.date" content="2026-11-21" />
   <title>Security-Sensitive Changes in Agent Skills: A Static Analysis of GitSkills</title>
   <style>
     /* Default styles provided by pandoc.
@@ -284,7 +284,7 @@ Group 8 Final Project Report</p></p>
 <p class="author">Kyle Cantrell</p>
 <p class="author">Vaisnavii Mohanraj</p>
 <p class="author">Christian Heiney</p>
-<p class="date">November 15, 2026</p>
+<p class="date">November 21, 2026</p>
 </header>
 <h1 data-number="1" id="abs-abstract"><span
 class="header-section-number">1</span> Abstract</h1>
@@ -318,38 +318,41 @@ qualify the scanner’s performance but do not change the frozen study
 counts.</p>
 <h1 data-number="2" id="sec-introduction"><span
 class="header-section-number">2</span> Introduction</h1>
-<p>A skill can keep the same name and purpose while asking an AI agent
-to do something different. That matters when the agent can run commands,
-use local files, or contact external services. Developers often turn to
-<em>agent skills</em> to provide reusable instructions for particular
-tasks. Under the Agent Skills specification, a skill has a
-<code>SKILL.md</code> instruction file and can include supporting
-scripts and reference material <span class="citation"
-data-cites="agentskills">(Agent Skills, n.d.)</span>. Reusing one can
-save effort, but its familiar description does not tell an adopter
-everything the instructions may do.</p>
-<p>This is a <strong>software supply-chain</strong> concern. A project
-can depend on code or instructions written elsewhere, and changes to
-that material can introduce behavior its users have not reviewed. For
-example, an adapted skill might start downloading code from a new source
-or running a script that was not part of an earlier observed form. Such
-changes may be entirely legitimate. The security question is whether
-they are visible to someone deciding whether to trust the skill.</p>
-<p>Finding those changes is harder than comparing two numbered software
-releases. Skills appear in different GitHub repositories, sometimes
-under the same name even when their contents are unrelated.
-<strong>GitSkills</strong> collects occurrences of these files from
-public repositories, giving us a way to look for similarities and
-differences <span class="citation" data-cites="gitskills">(Destefanis et
-al. 2026)</span>. But it does not provide a complete history showing
-which artifact was copied from another, and some supporting files and
-dates are unavailable.</p>
-<p>Our study addresses that gap by first identifying related skills,
-then establishing a plausible comparison order, and finally examining
-which operations changed. We use static analysis: we inspect stored
-instructions and supporting files without executing them. The aim is not
-to label skills as malicious. It is to give developers and security
-reviewers a reproducible way to find changes worth examining before
+<p>Imagine you want your AI coding agent to make a draft sound more
+natural. You search for a writing “humanizer” skill, find one that
+promises to do just that, and add it to your project. What you don’t
+realize is that someone has copied a legitimate skill and slipped in an
+instruction to download and run a script. If your agent follows that
+instruction, the script could steal API keys, access private files, or
+install malware—even while the skill appears to do the writing task you
+wanted.</p>
+<p><em>Skills</em> are reusable instructions that help AI agents perform
+specialized tasks. Under the Agent Skills specification, a skill
+contains a <code>SKILL.md</code> file and may include supporting scripts
+and other resources <span class="citation"
+data-cites="agentskills">(Agent Skills, n.d.)</span>. Its instructions
+can tell an agent which commands to run, which files to access, or which
+external services to contact. A skill’s name and description do not tell
+the whole story.</p>
+<p><strong>How can developers spot security-sensitive changes before
+trusting a skill?</strong> Instructions can be copied, modified, and
+shared from many sources while keeping a familiar name and purpose. That
+creates a <strong>software supply-chain</strong> concern: a
+useful-looking skill may ask an agent to do something its adopter never
+intended.</p>
+<p>Finding these changes is harder than comparing numbered software
+releases. Similar skills may be distributed independently, and sharing a
+name does not necessarily mean that two skills are related.
+<strong>GitSkills</strong> collects agent-skill files from public GitHub
+repositories, allowing us to examine similarities and differences <span
+class="citation" data-cites="gitskills">(Destefanis et al. 2026)</span>.
+Its records do not provide complete copying histories, and some
+supporting files and dates are unavailable.</p>
+<p>Our study compares skills with similar content, infers which artifact
+may have come earlier, and examines differences in their instructions
+and supporting files. We use <strong>static analysis</strong> to inspect
+the stored content without executing it. The goal is to help developers
+and security reviewers identify changes worth investigating before
 adopting or updating a skill.</p>
 <h1 data-number="3" id="sec-research-question"><span
 class="header-section-number">3</span> Research question and study
@@ -359,14 +362,18 @@ scope</h1>
 file-system access, network access, or other risky behavior that was
 absent from an earlier version or source artifact?</strong></p>
 </blockquote>
-<p>The study operationalizes this question as a comparison of stored
-instructions between related artifacts. An <strong>artifact
-occurrence</strong> is one skill at a repository and path in the
-dataset. A <strong>skill variant</strong> groups identical file content,
-while a <strong>bundle variant</strong> also accounts for the known
-state of sibling resources. A <strong>candidate family</strong> contains
-qualifying occurrences with the same exact name. Sharing a name defines
-a search space; it is not evidence of reuse by itself.</p>
+<p>We investigate this question by comparing stored instructions from
+skills that appear related. We first group skills with the same exact
+name, then check whether their content is sufficiently similar for
+comparison. Sharing a name or similar content does <strong>not</strong>
+prove that one was copied from another.</p>
+<p>An <strong>artifact occurrence</strong> is a skill found at a
+particular repository and file path. Occurrences with identical
+<code>SKILL.md</code> content form a <strong>skill variant</strong>; a
+<strong>bundle variant</strong> also accounts for the known contents of
+accompanying files, such as scripts. A <strong>candidate family</strong>
+contains qualifying occurrences sharing an exact name, including some
+that may ultimately prove unrelated.</p>
 <p>The unit of directional analysis is an ordered pair of related
 artifacts. Its endpoints are designated <strong>base</strong> and
 <strong>derived</strong> according to the available direction evidence.
@@ -410,11 +417,13 @@ compare content found in different repositories. Similarity and
 available historical clues help us choose plausible earlier/later
 comparisons, but they cannot prove copying or recover an original
 author.</p>
-<p>Our contribution combines these two perspectives. We identify related
-skill content, record the evidence behind each comparison’s direction,
-and assess whether the observed differences satisfy specific
-security-sensitive change criteria. The result is a set of candidate
-changes for human review, not a list of confirmed malicious skills.</p>
+<p>Existing work helps explain which instructions in agent skills may be
+risky and how skills evolve. Our study connects those questions:
+<strong>which security-sensitive operations differ between similar
+skills?</strong> We identify related content, record why one artifact
+was selected as the earlier comparison point, and assess the changed
+operations against defined risk indicators. This produces concrete
+changes for human review.</p>
 <h1 data-number="5" id="sec-dataset"><span
 class="header-section-number">5</span> Dataset and cohort</h1>
 <h2 data-number="5.1" id="data-source-and-unit-of-analysis"><span
@@ -465,7 +474,9 @@ test the method but do not contribute to the Sprint 3 results.</p>
 <p>The term <strong>sibling-file state</strong> describes what is known
 about a skill’s supporting files and their contents, including whether
 the bundle is known to be empty or its contents are unavailable.</p>
-<p>A family is eligible for selection only if it passes two checks:</p>
+<p>Sharing a name is only the first step. To enter a trial, a family
+must also have different known content states and at least one usable,
+plausibly ordered comparison. Specifically, it must pass two checks:</p>
 <ol type="1">
 <li><strong>Distinct states:</strong> At least two combinations of the
 <code>SKILL.md</code> <strong>hash</strong> (an identifier derived from
@@ -477,12 +488,11 @@ identify at least one primary directed comparison involving different
 <code>SKILL.md</code> hashes or different <em>known</em> sibling hashes.
 A different hash alone does not establish relatedness or direction.</li>
 </ol>
-<p>When a randomly drawn candidate fails the relationship check, the
-picker records the rejection and draws a replacement from the same size
-group. <strong>Selection does not run the security scanner</strong> and
-does not favor families with risk indicators. Families that fail
-eligibility are excluded from the study population, not counted as
-families with no risk.</p>
+<p>If a selected candidate fails the relationship check, the picker
+records the reason and draws another from the same size group.
+<strong>Selection does not use security-scanner results</strong> to
+favor families with risk indicators. Ineligible families are excluded
+from the study, not counted as having no risk.</p>
 <p>We assigned candidate families to five size groups based on their
 <strong>total number of artifact occurrences</strong> (<a
 href="#tbl-family-strata">Table 1</a>). The allocation deliberately
@@ -601,12 +611,10 @@ tree.</p>
 <p>Our threat model focuses on observable instructions or code involving
 command execution, network access, file-system operations, credentials,
 external code or dependency acquisition, and system modification. These
-operations can be legitimate. They matter because an agent acting on
-untrusted instructions may have tools that affect a user’s machine,
-data, or external services. A detected change is a <strong>reason to
-review</strong>, not evidence that an instruction ran, a vulnerability
-was exploited, or its author intended harm. The full threat model
-describes the trust boundary and coverage limits.</p>
+operations matter because an agent following untrusted instructions may
+have tools that affect a user’s machine, data, or external services. The
+full threat model describes the trust boundary and what our scanner
+covers.</p>
 <h2 data-number="6.2" id="analysis-overview"><span
 class="header-section-number">6.2</span> Analysis overview</h2>
 <p><a href="#fig-analysis-pipeline">Figure 1</a> shows the four stages
@@ -624,13 +632,14 @@ assess risk indicators.</figcaption>
 <h2 data-number="6.3" id="step-1-identify-related-skills"><span
 class="header-section-number">6.3</span> Step 1: Identify related
 skills</h2>
-<p>We first compare artifacts within a candidate family whose artifacts
-have the same exact name. Identical <code>SKILL.md</code> content is
-recognized by its file hash; known bundled-file content is represented
-separately by a fingerprint of sibling file hashes. This matters because
-two copies of <code>SKILL.md</code> can contain the same instructions
-yet ship with different scripts. An unknown sibling-file state is not
-treated as an empty bundle.</p>
+<p>Two skills can share a name but contain completely different
+instructions. Before looking for newly introduced behavior, we therefore
+check whether they are similar enough to compare. We start with
+same-name candidates and use file hashes to identify identical
+<code>SKILL.md</code> content. A separate fingerprint records the known
+state of supporting files. This matters because identical instructions
+can ship with different scripts; when supporting-file content is
+unavailable, we do not assume the bundle is empty.</p>
 <p>For distinct <code>SKILL.md</code> contents, we compare the body text
 after masking the opening YAML frontmatter. We normalize and tokenize
 the text, then form <strong>five-token shingles</strong>: sequences of
@@ -721,23 +730,18 @@ direction signal.</td>
 </tr>
 </tbody>
 </table>
-<p>Equivalent-peer chronology helps when an artifact has no reliable
-commit date of its own. For example, suppose an equivalent copy of a
-skill was observed in January, and another related skill state was
-observed in March. The January observation may support an
-earlier-to-later comparison, even if the artifact being examined has no
-recorded date. However, the equivalent copy must have the same known
-<code>SKILL.md</code> content and sibling-file state. A different or
-unknown sibling-file state cannot supply that historical evidence.</p>
-<p>Repository creation dates can also help establish order, but only in
-specific circumstances. If one skill state was observed before another
-repository existed, that observation can support an earlier-to-later
-comparison. Simply belonging to an older repository does not establish
-that a skill came first. When stronger dating evidence is unavailable,
-<strong>directional containment</strong> considers whether one skill
-preserves most of another’s content while adding more material. That
-pattern can suggest which artifact came later, but it cannot prove the
-historical order.</p>
+<p><strong>Equivalent-peer chronology</strong> helps when an artifact
+lacks a reliable date. If the same <code>SKILL.md</code> content and
+known sibling-file state were observed elsewhere at an earlier date,
+that observation can help order the content states. It does not tell us
+when the undated copy was created, and we cannot use this evidence when
+the sibling-file states differ or are unknown.</p>
+<p>A <strong>repository-creation boundary</strong> can support ordering
+when one skill state was observed before another repository existed; an
+older repository alone proves nothing about the skill’s age. When dating
+evidence is unavailable, <strong>directional containment</strong>
+considers whether one skill preserves most of another’s text while
+adding material. That pattern helps infer the comparison order.</p>
 <p>When the available evidence cannot support an ordering, we leave the
 relationship unresolved. Conflicting source declarations also remain
 unresolved, and equivalent states are retained as peers. For each
@@ -765,13 +769,12 @@ observable evidence</h2>
 <p>The static scanner applies <strong>15 detection rules across six
 categories</strong> (<a href="#tbl-detection-rules">Table 10</a>):
 command execution, network access, file-system access, credentials,
-external code/dependency acquisition, and system modification. The rules
-identify recognizable constructs, such as a shell command, URL, file
-operation, or package-install instruction. They do not execute the
-content. The <code>SKILL.md</code> frontmatter is excluded from
-behavioral scanning because descriptive metadata and declared tools do
-not, by themselves, demonstrate an operation. Provenance metadata can
-still inform the ordering described in Step 2.</p>
+external code/dependency acquisition, and system modification. These
+rules find recognizable operations, such as shell commands, URLs, and
+file access, <strong>without executing them</strong>. The
+<code>SKILL.md</code> frontmatter is excluded from behavioral scanning
+because metadata describing a tool does not itself instruct the agent to
+use it. Provenance metadata can still inform the ordering in Step 2.</p>
 <p>We then <strong>extract and compare evidence</strong>, rather than
 interpreting a changed rule-match count as new risk. Evidence records
 retain the recognized operation, source location, context, and
@@ -789,26 +792,26 @@ instance, a skill’s instructions might remain the same while the bundled
 content, but do not infer its behavior from a filename when that content
 is missing. Renaming a file without changing its known content does not
 count as changed script behavior.</p>
-<p>The comparator also distinguishes <code>skill-only</code>,
-<code>siblings-only</code>, <code>skill+siblings</code>, and
-<code>unknown</code> bundle changes. Here, <strong>equivalent
-<code>SKILL.md</code> content</strong> can mean equivalent under the
-token-shingle representation, not necessarily byte-for-byte identical;
-therefore, a <code>siblings-only</code> label does not by itself
-guarantee that no textual differences exist. <a href="#app-b">Appendix
-B</a> defines the classifications.</p>
+<p>The comparator classifies changes as <code>skill-only</code>,
+<code>siblings-only</code>, <code>skill+siblings</code>, or
+<code>unknown</code>. A <strong><code>siblings-only</code></strong>
+classification does not necessarily mean the <code>SKILL.md</code> files
+are identical: the similarity method can treat files with textual
+differences as equivalent. <a href="#app-b">Appendix B</a> defines these
+classifications.</p>
 <h2 data-number="6.6"
 id="step-4-assess-changes-against-risk-indicators"><span
 class="header-section-number">6.6</span> Step 4: Assess changes against
 risk indicators</h2>
-<p>The last stage tests the changed evidence against <strong>11 risk
-indicators (RIs)</strong> defined for this study (<a
-href="#tbl-risk-indicators">Table 3</a>). Their purpose is to highlight
-observable ways in which an operation or source may change the agent’s
+<p><strong>Detection rules identify operations; risk indicators assess
+changes in those operations.</strong> For example, a rule may recognize
+a command in an individual skill, but an indicator requires evidence
+that an operation was introduced or materially changed between two
+artifacts. This final stage applies <strong>11 risk indicators
+(RIs)</strong> (<a href="#tbl-risk-indicators">Table 3</a>) covering
 exposure to external code, networks, local files, credentials, or
-privileged actions. They do <strong>not</strong> assign a severity
-score. An indicator must be supported by the relevant <em>change</em>
-and its context; a rule match alone is insufficient.</p>
+privileged actions. Indicators do <strong>not</strong> assign severity
+scores. A rule match by itself is insufficient.</p>
 <table id="tbl-risk-indicators" class="wide">
 <caption><p>Eleven evidence-based risk indicators</p></caption>
 <colgroup>
@@ -914,45 +917,43 @@ it directly to <code>sh</code> for execution. The assessor reported
 directly to a shell, and <strong>RI-003</strong> because it introduces a
 new hostname for an explicit network operation. Both indicators describe
 the same changed command, rather than separate security incidents.</p>
-<p>This installation method may be legitimate. However, executing a
-remotely downloaded script raises a supply-chain concern because its
-contents can change independently of the skill’s instructions. Our
-analysis identifies what the instructions direct an agent to do; it
-cannot determine whether the command was executed or whether the
-artifacts share a verified copying history.</p>
+<p>Downloading and executing a script from an external website raises a
+supply-chain concern because the code can change independently of the
+skill’s instructions.</p>
 <h2 data-number="6.7" id="outcomes-and-interpretation-limits"><span
 class="header-section-number">6.7</span> Outcomes and interpretation
 limits</h2>
-<p>Our <strong>primary measure</strong> is the number of sampled
-families with at least one supported RI divided by all sampled families.
-Secondary measures count primary directed comparisons containing at
-least one RI, the distinct families containing each indicator, and the
-distribution by family size, direction basis, and evidence coverage.
-Indicator frequencies can overlap, so their totals are not additive.</p>
+<p>The <strong>primary measure</strong> is the share of sampled families
+with at least one supported RI. Secondary measures cover
+comparison-level findings, individual indicators, family size, direction
+basis, and evidence coverage. A single change can support multiple
+indicators, so their counts are not additive.</p>
 <p>A <strong>flagged comparison</strong> may contain rule changes,
 extracted-evidence changes, or uncertain observations even if no RI is
-supported. A <strong>supported finding</strong> meets a defined
-indicator’s automated criteria; it is not a validated security incident.
-We separately report partial extraction, missing sibling-file content,
-and uncertainty. Complete coverage means no known gap <em>within the
-implemented extraction scope</em>, not comprehensive detection of all
-risks. <a href="#app-b">Appendix B</a> contains the rule registry and
-analysis workflow; <a href="#app-e">Appendix E</a> identifies the source
+supported. A <strong>supported finding</strong> meets an indicator’s
+automated criteria. We report missing evidence and uncertainty
+separately. <strong>Complete coverage</strong> means no known gaps
+within the scanner’s implemented extraction scope. <a
+href="#app-b">Appendix B</a> contains the rule registry and analysis
+workflow; <a href="#app-e">Appendix E</a> identifies the source
 artifacts and saved outputs used for these results.</p>
 <h1 data-number="7" id="sec-results"><span
 class="header-section-number">7</span> Results</h1>
 <h2 data-number="7.1" id="three-trial-overview"><span
 class="header-section-number">7.1</span> Three-trial overview</h2>
-<p>Across three non-overlapping Sprint 3 trials, we analyzed <strong>300
-randomly selected, relationship-eligible skill families</strong>,
-comprising <strong>6,570 artifact occurrences</strong> and <strong>2,157
-primary directed comparisons</strong>. The automated analysis found at
-least one supported <strong>risk indicator (RI)</strong> in <strong>63
-families (21.0%)</strong>. These are candidate security-sensitive
-changes identified under our rules, <strong>not</strong> confirmed
-vulnerabilities, malicious instructions, or observed executions. <a
-href="#tbl-trial-results">Table 4</a> summarizes the automated results
-by trial.</p>
+<p>A central distinction in our results is between changes the scanner
+flags for review and changes supported by evidence of a specific
+security-sensitive operation. Here, <strong>supported</strong> means
+that the automated analysis found evidence meeting an indicator’s
+criteria—not that a human reviewer independently confirmed it. Across
+three non-overlapping Sprint 3 trials, we analyzed <strong>300
+relationship-eligible skill families selected through stratified random
+sampling</strong>, comprising <strong>6,570 artifact
+occurrences</strong> and <strong>2,157 primary directed
+comparisons</strong>. The automated analysis found at least one
+supported <strong>risk indicator (RI)</strong> in <strong>63 families
+(21.0%)</strong>. <a href="#tbl-trial-results">Table 4</a> summarizes
+the automated results by trial.</p>
 <table id="tbl-trial-results" class="wide">
 <caption><p>Automated results from the three Sprint 3
 trials</p></caption>
@@ -1024,11 +1025,12 @@ trials</p></caption>
 </tr>
 </tbody>
 </table>
-<p>The same code revision, rules, similarity policy, and primary-edge
-setting were used in all three trials. No selected artifacts were
-skipped. Because the study deliberately oversampled larger families and
-required usable directed relationships, these percentages describe
-<strong>our selected families</strong>, not all skills in GitSkills.</p>
+<p>The three trials used the same active rules, similarity policy,
+primary-edge setting, and recorded scanner and cohort implementation
+fingerprints. No selected artifacts were skipped. Because the study
+deliberately oversampled larger families and required usable directed
+relationships, these percentages describe <strong>our selected
+families</strong>, not all skills in GitSkills.</p>
 <h2 data-number="7.2"
 id="finding-1-security-sensitive-changes-appear-across-multiple-families"><span
 class="header-section-number">7.2</span> Finding 1: Security-sensitive
@@ -1052,16 +1054,17 @@ least one supported risk indicator, by trial and combined.</figcaption>
 id="finding-2-script-execution-and-external-code-acquisition-are-the-most-widespread-changes"><span
 class="header-section-number">7.3</span> Finding 2: Script execution and
 external code acquisition are the most widespread changes</h2>
-<p>The risk indicators distinguish specific operational changes from
-ordinary differences in instructions. <strong>RI-010</strong> Local
-script execution was supported in <strong>39 families (13.0%)</strong>,
-followed by <strong>RI-005</strong> External code or dependency
-acquisition in <strong>26 families (8.7%)</strong>. The two indicators
-overlapped in <strong>13 families</strong> and appeared in <strong>52 of
-the 63 indicator-bearing families (82.5%)</strong>. <a
+<p>Changes involving local scripts and external code stood out in our
+results. The automated analysis supported <strong>RI-010</strong> (local
+script execution) in <strong>39 families (13.0%)</strong> and
+<strong>RI-005</strong> (external code or dependency acquisition) in
+<strong>26 families (8.7%)</strong>. The indicators overlapped in
+<strong>13 families</strong> and together appeared in <strong>52 of the
+63 indicator-bearing families (82.5%)</strong>. These changes matter
+because they can alter what code an agent runs or obtains. <a
 href="#fig-sprint3-indicators">Figure 3</a> shows the family-level
-distribution, while <a href="#tbl-indicator-counts">Table 5</a> also
-provides comparison-level counts.</p>
+distribution, while <a href="#tbl-indicator-counts">Table 5</a> provides
+comparison-level counts.</p>
 <figure id="fig-sprint3-indicators">
 <img src="report/figures/sprint3-indicators-by-family.svg" class="wide"
 style="width:100.0%"
@@ -1152,14 +1155,15 @@ are the primary unit</h2>
 indicator-bearing comparisons: <code>cso</code> accounted for <strong>55
 of 113</strong> in Trial 1, <code>junta-leiloeiros</code> for <strong>8
 of 36</strong> in Trial 2, and <code>mcp-builder</code> for <strong>133
-of 191</strong> in Trial 3. Excluding these three families <em>for a
-sensitivity calculation only</em> reduced the combined pair-level rate
-to <strong>144 of 1,722 (8.4%)</strong>, while the family-level rate
-changed only from <strong>63 of 300 (21.0%)</strong> to <strong>60 of
-297 (20.2%)</strong>. The trial-by-trial pair-level rates appear in <a
+of 191</strong> in Trial 3. To see how much those families influenced
+the results, we excluded them in a separate sensitivity calculation. The
+pair-level rate fell from <strong>15.8%</strong> to <strong>144 of 1,722
+(8.4%)</strong>, while the family-level rate changed only slightly, from
+<strong>63 of 300 (21.0%)</strong> to <strong>60 of 297
+(20.2%)</strong>. The trial-by-trial pair-level rates appear in <a
 href="#tbl-sensitivity">Table 6</a>. This supports using family-level
-frequency to describe the spread of detections in our sample; it does
-not remove sampling bias or prove population-wide risk prevalence.</p>
+frequency to describe how widely detections appear across the sampled
+families.</p>
 <table id="tbl-sensitivity">
 <caption>Sensitivity of pair-level rates to the leading family in each
 trial</caption>
@@ -1305,20 +1309,15 @@ breakdown.</p>
 comparisons</strong> <code>siblings-only</code> under its
 bundle-equivalence rules, with supported indicators in
 <strong>41</strong>. Most of those indicator-bearing comparisons are
-concentrated in <code>mcp-builder</code>. Adjudicated review identified
-unsupported and missed detections in individual comparisons, so these
-counts should not be treated as independently verified operations or
-executed scripts. Equivalence under the similarity representation does
-not guarantee byte-identical <code>SKILL.md</code> text.</p>
-<p>The three trials’ automated results are complete. Team adjudication
-of the saved review samples confirmed two <code>mcp-builder</code>
-RI-003 formatting false positives, supported several missed indicators,
-and identified relationship-classification disagreements. A subsequent
-scanner change addressed the RI-003 formatting pattern, but
-<strong>neither the later code nor the adjudicated review metrics were
-used to recompute these frozen automated counts</strong>. <a
-href="#sec-evaluation">Section VII</a> reports the sample-limited
-validation evidence.</p>
+concentrated in <code>mcp-builder</code>. Adjudicated review found both
+unsupported and missed detections in individual comparisons. Equivalence
+under the similarity representation does not guarantee byte-identical
+<code>SKILL.md</code> text.</p>
+<p>The automated counts were frozen before subsequent review findings
+and a scanner correction. They were <strong>not recomputed</strong>
+using the revised scanner. <a href="#sec-evaluation">Section VII</a>
+explains what the adjudicated review supports and where the original
+detections were incorrect or incomplete.</p>
 <h1 data-number="8" id="sec-evaluation"><span
 class="header-section-number">8</span> Evaluation and validation</h1>
 <h2 data-number="8.1" id="what-the-saved-trials-establish"><span
@@ -1327,11 +1326,9 @@ establish</h2>
 <p>The three Sprint 3 pipelines loaded all <strong>6,570 selected
 artifacts</strong>, produced auditable results for <strong>2,157 primary
 directed comparisons</strong>, and generated separate manual-review
-samples for each 100-family trial. Successful execution establishes that
-these outputs were produced under the recorded configuration; it does
-not establish that inferred relationships reflect historical copying,
-that every supported RI is correct, or that unflagged comparisons lack
-in-scope changes.</p>
+samples for each 100-family trial. These saved results provide the
+baseline for manual review of the scanner’s relationship and detection
+judgments.</p>
 <p>Automated tests and earlier constructed examples exercised the
 analysis logic, extraction, and output handling. Those checks are useful
 for regression testing, but they do not replace independent evaluation
@@ -1356,11 +1353,12 @@ the similarity method establishes substantive relatedness and whether
 the available evidence supports the suggested order. This distinction
 matters: a detector may correctly identify a changed command while an
 inferred earlier/later relationship remains contestable.</p>
-<p>Independent review precedes team adjudication. AI-assisted case
-notes, where used, are not independent human judgments. Reviewed
-annotations must match the frozen identities and checksums in the saved
-sample; a changed family list or regenerated review sample cannot
-silently substitute for an earlier one.</p>
+<p>Reviewers first recorded their judgments independently. The team then
+checked the evidence and agreed on final judgments, a process called
+<strong>adjudication</strong>. AI-assisted notes, where used, were not
+counted as independent human judgments. The final annotations retain the
+original selected cases and checksums, so regenerated samples cannot
+silently replace those reviewed.</p>
 <h2 data-number="8.3" id="accuracy-uncertainty-and-interpretation"><span
 class="header-section-number">8.3</span> Accuracy, uncertainty, and
 interpretation</h2>
@@ -1381,14 +1379,16 @@ limitations. The sampled review strata intentionally include positive,
 negative, and difficult cases; their unweighted metrics cannot
 automatically be generalized to the entire GitSkills population.</p>
 <p>The original independent judgments were preserved, and the team
-recorded adjudicated decisions for all <strong>90 directed</strong> and
-<strong>45 relationship</strong> cases. Of the directed cases,
-<strong>56</strong> were labeled <code>all_assessed</code> and
-<strong>34</strong> <code>not_assessable</code> for full indicator
-review. An additional 12 cases were excluded from indicator scoring for
-unsupported comparison direction and 15 for incomplete evidence
-coverage, leaving <strong>29 eligible comparisons</strong>. Unassessable
-cases remain documented evidence gaps, not negative findings.</p>
+agreed on final decisions for all <strong>90 directed</strong> and
+<strong>45 relationship</strong> cases. Reviewers could assess the full
+set of risk indicators in <strong>56</strong> directed cases
+(<code>all_assessed</code>); in <strong>34</strong>, available evidence
+did not permit a complete assessment (<code>not_assessable</code>). Of
+those 56 fully assessed cases, <strong>12</strong> lacked sufficiently
+supported comparison direction and <strong>15</strong> had incomplete
+evidence coverage, leaving <strong>29 eligible comparisons</strong> for
+indicator scoring. Cases without enough evidence are not counted as
+negative findings.</p>
 <p>Across eleven indicators in those 29 eligible comparisons, the saved
 validation summaries report <strong>13 true positives, 7 false
 negatives, and 0 counted false positives</strong>, yielding <strong>100%
@@ -1402,30 +1402,34 @@ scoring because their base-to-derived direction was uncertain; thus zero
 produced none. Some indicator judgments remain uncertain even within
 reviewed evidence. No independent inter-rater agreement estimate is
 available from the team-adjudication record.</p>
-<p>Manual inspection identified several concrete failure modes. In two
-Trial 3 <code>mcp-builder</code> comparisons (<code>3032753</code> to
-<code>3026710</code> and <code>3032753</code> to <code>3031464</code>),
-the saved scanner treated reformatted references to existing network
-destinations as newly introduced RI-003 operations. Both were rejected
-in adjudication; the team subsequently improved network-operation
-comparison and added regression tests. Trial 2’s <code>improve</code>
-comparison (<code>3345273</code> to <code>3489451</code>) identified
-newly invoked local wrapper scripts absent from the supported RI-010
-findings and a file-write here-document misclassified as a read. Other
-adjudicated examples include a missed network-related indicator in
-<code>health-bugs</code> and additional network, dependency-acquisition,
-and execution-related changes in the <code>tdd-migration-pipeline</code>
-sibling script. Some examples cannot contribute to the numerical
-accuracy subset because evidence or direction is incomplete; their
-qualitative findings still expose important detection limits.</p>
+<p>Human review found two kinds of scanner errors: <strong>false
+alarms</strong> when an operation appeared new but was not, and
+<strong>missed changes</strong> when a new operation went undetected. In
+two Trial 3 <code>mcp-builder</code> comparisons (<code>3032753</code>
+to <code>3026710</code> and <code>3032753</code> to
+<code>3031464</code>), reformatted references made existing network
+destinations appear new to the scanner. Reviewers rejected both RI-003
+findings, and the team later improved network-operation comparison and
+added regression tests.</p>
+<p>Other cases exposed missed detections. In Trial 2, the
+<code>improve</code> comparison (<code>3345273</code> to
+<code>3489451</code>) introduced calls to local wrapper scripts that did
+not receive supported RI-010 findings; the scanner also mistook a
+file-writing here-document for a read. Reviewers found a missed
+network-related indicator in <code>health-bugs</code> and additional
+network, dependency-acquisition, and execution-related changes in the
+<code>tdd-migration-pipeline</code> supporting script. Some cases could
+not enter the numerical accuracy subset because their direction or
+supporting evidence was incomplete, but they still helped reveal
+weaknesses in the scanner.</p>
 <p>For relationship validation, <strong>42 of the 45 adjudicated
 judgments agreed</strong> with the automated relatedness classification
-and <strong>3 disagreed</strong>. In particular, three of five Trial 3
-<code>no-related-edge</code> cases were judged substantively related,
-while the other two were not. This is <em>agreement between adjudicated
-human judgments and the tool’s classification</em>, not agreement
-between independent human raters or proof of historical copying.
-Relatedness alone does not establish which artifact came first.</p>
+and <strong>3 disagreed</strong>. In particular, of five Trial 3
+<code>no-related-edge</code> cases—pairs the analyzer did not classify
+as sufficiently related—reviewers judged three substantively related and
+two unrelated. This measures how often the tool’s relatedness
+classification agreed with the team’s final judgments; it does not
+measure agreement between independent reviewers.</p>
 <p>These judgments evaluate the <strong>saved Sprint 3 scanner
 outputs</strong>. The trials were not rerun after the subsequent scanner
 improvement, and the resulting <strong>63/300 family</strong> and
@@ -1439,18 +1443,23 @@ class="header-section-number">9</span> Discussion</h1>
 <h2 data-number="9.1" id="what-the-findings-mean-for-skill-reuse"><span
 class="header-section-number">9.1</span> What the findings mean for
 skill reuse</h2>
-<p>Our results suggest a practical reason to review a reused skill
-beyond its name and stated purpose: <strong>related artifacts can
-contain different instructions about what an agent should run, obtain,
-or access</strong>. The scanner identified candidate security-sensitive
-changes in 63 of 300 selected families. The most widespread indicators
-concerned local script execution and external code acquisition. Both can
-change the code an agent is directed to use, sometimes through resources
-controlled outside the project that adopted the skill. An added script
-may run commands with the agent’s available permissions, while a new
-dependency or network destination may introduce reliance on an external
-source. Developers reviewing an adopted or updated skill can use these
-changes to decide what needs closer inspection.</p>
+<p><strong>A skill’s name tells developers what it claims to do, not
+everything it may ask an agent to execute.</strong> Our findings show
+why that distinction matters: the scanner identified candidate
+security-sensitive changes in <strong>63 of 300</strong> selected
+families, most often involving local script execution and external code
+acquisition. These changes can affect which scripts an agent runs, where
+it obtains code, and which external services it contacts. When adopting
+or updating a skill, those are the details worth checking, even if its
+advertised purpose has not changed.</p>
+<p>As expected, the study found both changes meeting our
+security-indicator criteria and other flagged differences. The pipeline
+flagged <strong>1,119 comparisons</strong>, but only
+<strong>340</strong> supported at least one defined RI. The remaining
+<strong>779</strong> flagged comparisons include other differences and
+uncertain evidence; they cannot automatically be classified as harmless.
+This distinction reinforces why finding changed text is not the same as
+establishing a security-sensitive change.</p>
 <p>A change in behavior does not necessarily make a skill less secure. A
 new helper script may support a legitimate feature, and the agent’s
 permissions affect what it can actually do. Risk can also shift:
@@ -1466,8 +1475,7 @@ matters</h2>
 repeating the same underlying evidence. We therefore report how many
 <strong>families</strong> contained an indicator as our primary result.
 The dominant-family sensitivity check in <a href="#sec-results">Section
-VI</a> supports that choice within our sample. It does not make the
-findings representative of every skill in GitSkills.</p>
+VI</a> supports that choice.</p>
 <h2 data-number="9.3"
 id="practical-value-and-remaining-uncertainty"><span
 class="header-section-number">9.3</span> Practical value and remaining
@@ -1478,21 +1486,14 @@ This gives a developer or security reviewer a starting point for
 checking a modification. The <code>python-executor</code> example in <a
 href="#sec-method">Section V</a> shows how a specific new instruction
 can be examined in context.</p>
-<p>There are also reasonable alternative explanations for individual
-findings, including intended features, routine maintenance, different
-deployment environments, and unrelated artifacts sharing a name. Some
-comparison directions rely on indirect evidence, and some
-supporting-file content is missing. Team-adjudicated review confirmed
-two <code>mcp-builder</code> RI-003 formatting false positives,
-identified missed indicators in other comparisons, and disagreed with
-three automated relatedness decisions. A targeted network-comparison fix
-illustrates how manual inspection can improve the tool, but that later
-fix did not alter the saved study. Only 29 reviewed directed comparisons
-qualified for numerical accuracy estimates, and the known RI-003 false
-positives were excluded from that subset because direction was
-uncertain. The results remain <strong>candidate changes worth
-checking</strong>, not confirmed security incidents or a population-wide
-validated error rate.</p>
+<p>Individual findings may reflect intended features, routine
+maintenance, different environments, or unrelated artifacts sharing a
+name. Comparison direction and supporting-file evidence are also
+sometimes uncertain. As <a href="#sec-evaluation">Section VII</a>
+explains, adjudication found both missed and unsupported detections, and
+strict eligibility excluded some known errors from the accuracy metrics.
+The findings give reviewers <strong>specific changes worth
+checking</strong>.</p>
 <h1 data-number="10" id="threats-to-validity"><span
 class="header-section-number">10</span> Threats to validity</h1>
 <p>Our findings describe security-sensitive changes identified by a
@@ -1580,63 +1581,52 @@ reviewer agreement measured. The separate relationship review recorded
 42 automated-classification agreements and three disagreements. The
 original scanner and automated counts remain fixed; the later code fix
 was not used to regenerate them. Saved manifests preserve the dataset,
-code and rule identities, seeds, and sample checksums, although trial
-code revisions differ and approval metadata remains provisional. The
-adjudicated summary update is documented, but a clean-environment
-reproduction of all three finalized trials has not been established. <a
-href="#app-c">Appendix C</a> details the reviewed subset.</p>
+code and rule identities, seeds, and sample checksums, although approval
+metadata remains provisional. The adjudicated summary update is
+documented, but a clean-environment reproduction of all three finalized
+trials has not been established. <a href="#app-c">Appendix C</a> details
+the reviewed subset.</p>
 <p>The separate threat model and threats-to-validity documents provide
 further details on these limitations.</p>
 <h1 data-number="11" id="sec-conclusion"><span
 class="header-section-number">11</span> Conclusion and future work</h1>
 <p>We investigated whether related agent skills contain
-security-sensitive operations that were absent from an artifact inferred
-to have come earlier. Across three Sprint 3 trials, <strong>63 of 300
-sampled families (21.0%)</strong> contained at least one supported risk
-indicator. The most widespread changes involved local script execution
-and external code or dependency acquisition. These findings highlight a
-practical concern: a skill can retain its familiar name and purpose
-while changing what it instructs an agent to run or retrieve.</p>
-<p>To identify these changes, we developed a reproducible
-static-analysis pipeline that establishes plausible relationships
-between artifacts, compares their instructions and available supporting
-files, and evaluates differences against eleven defined risk indicators.
-Rather than treating every changed command or scanner match as a
-security concern, the method examines the underlying operations and
-preserves the evidence needed for review.</p>
-<p>Team adjudication completed 90 directed and 45 relationship reviews,
-confirming both unsupported network-change detections and missed
-indicators. In the 29 strictly eligible directed comparisons, observed
-micro-recall was 65.0%; the 100% observed precision excludes two known
-RI-003 false positives whose comparison direction was uncertain. A
-subsequent targeted scanner fix did not change the frozen Sprint 3
-counts. The review strengthens our understanding of the method’s limits,
-but our headline findings remain automated signals, not confirmed
-vulnerabilities or verified copying histories, and cannot be generalized
-to all GitSkills families.</p>
+security-sensitive operations absent from an artifact inferred to have
+come earlier. Across three Sprint 3 trials, <strong>63 of 300 sampled
+families (21.0%)</strong> contained at least one supported risk
+indicator, most often involving local script execution or external code
+or dependency acquisition. Skills with familiar names and similar
+purposes can contain different instructions about what an agent should
+run or retrieve.</p>
+<p>Our static-analysis pipeline infers plausible relationships and
+comparison directions, compares skill instructions and available
+supporting files, and evaluates changed operations against
+<strong>eleven defined risk indicators</strong>. It distinguishes
+changes in underlying operations from differences in text or rule-match
+counts and retains evidence for human review.</p>
+<p>Team adjudication of <strong>90 directed and 45 relationship
+reviews</strong> identified unsupported detections, missed indicators,
+and disagreements about relatedness. As <a
+href="#sec-evaluation">Section VII</a> explains, accuracy calculations
+apply only to a restricted review subset and exclude some confirmed
+errors because comparison direction is uncertain. The feedback prompted
+a targeted scanner fix, but the frozen Sprint 3 counts were not
+recomputed. Together, the results provide <strong>signals for security
+review</strong>, rather than evidence of malicious activity.</p>
 <h2 data-number="11.1" id="future-work"><span
 class="header-section-number">11.1</span> Future work</h2>
-<p>Near-term work should build on the adjudicated reviews by improving
-recognition of local-script invocation patterns, investigating missed
-operations in supporting files, and testing network and
-browser-operation rules against the agreed labels. The resolved RI-003
-formatting cases illustrate the value of checking fixes against manually
-reviewed evidence. Additional rules and risk indicators may reveal
-security-sensitive changes that the current method misses. Testing
-revisions on reviewed examples, then rerunning the analysis under a
-separately recorded configuration, would help assess their effect
-without replacing the frozen Sprint 3 results.</p>
-<p>Longer-term research could apply an expanded and validated set of
-indicators to larger samples of GitSkills artifacts. Comparing results
-across different rule sets, sampling strategies, and similarity
-thresholds would help determine how detection coverage influences the
-observed findings. Rather than attempting to build an exhaustive
-security scanner or reconstruct complete histories from live
-repositories, future research should focus on better characterizing the
-frequency and types of security-sensitive changes associated with
-agent-skill reuse. The broader goal is to strengthen our understanding
-of potential supply-chain exposure when adopting skills from external
-sources.</p>
+<p>Near-term work should improve recognition of local-script
+invocations, operations in supporting files, and network or browser
+activity. Such changes should be tested against the adjudicated
+examples, including the resolved RI-003 formatting cases, and evaluated
+under a separately recorded configuration without replacing the frozen
+Sprint 3 results.</p>
+<p>Longer-term research could validate additional risk indicators on
+larger, differently sampled cohorts. Comparing rule sets, sampling
+strategies, and similarity thresholds would help establish how these
+choices affect detection coverage and observed rates. This would help us
+better characterize security-sensitive changes associated with
+agent-skill reuse.</p>
 <p>This study provides a reproducible starting point for identifying
 security-sensitive changes that deserve closer examination. <strong>When
 adopting or updating an agent skill, understanding what changed can be
@@ -1664,9 +1654,10 @@ href="https://arxiv.org/abs/2611.04456">https://arxiv.org/abs/2611.04456</a>.
 </div>
 <div id="ref-maliciousskills2026" class="csl-entry" role="listitem">
 Liu, Yi, Zhihao Chen, Yanjun Zhang, et al. 2026. <span>“<span
-class="nocase">"Do Not Mention This to the User"</span>: Detecting and
-Understanding Malicious Agent Skills in the Wild.”</span> <em>35th
-USENIX Security Symposium (USENIX Security 26)</em>, 1727–46. <a
+class="nocase"><span>‘Do Not Mention This to the User’</span>: Detecting
+and Understanding Malicious Agent Skills in the Wild</span>.”</span>
+<em>35th USENIX Security Symposium (USENIX Security 26)</em>, 1727–46.
+<a
 href="https://www.usenix.org/conference/usenixsecurity26/presentation/liu-yi">https://www.usenix.org/conference/usenixsecurity26/presentation/liu-yi</a>.
 </div>
 <div id="ref-skillswild2026" class="csl-entry" role="listitem">
@@ -1903,6 +1894,10 @@ href="#tbl-sprint3-configuration">Table 11</a> lists the pinned Sprint 3
 settings.</p>
 <table id="tbl-sprint3-configuration">
 <caption>Pinned analysis configuration for Sprint 3</caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
 <tr>
 <th>Setting</th>
@@ -1951,11 +1946,14 @@ settings.</p>
 <td>15 / 11</td>
 </tr>
 <tr>
-<td>Source code revision</td>
-<td><code>ae69732ed8988ad7066ff351848f7d2e8ad311a1</code></td>
+<td>Implementation verification</td>
+<td>Matching scanner and cohort fingerprints across trials</td>
 </tr>
 </tbody>
 </table>
+<p>The saved manifests preserve implementation fingerprints and other
+settings used to verify consistency across the three trials. <a
+href="#app-e">Appendix E</a> identifies the supporting records.</p>
 <p>Direction priority is declared source, direct chronology,
 equivalent-peer chronology, repository-creation boundary, then
 asymmetric containment. These are inference rules, not proofs of
@@ -2507,148 +2505,108 @@ inspected directly as reproducible data files.</p>
 <h1 data-number="17" id="app-e"><span
 class="header-section-number">17</span> Appendix E Supporting repository
 material</h1>
-<p>The report uses the <strong>three saved Sprint 3 trials</strong>, not
-the earlier Sprint 2 exploratory cohort. Trials 1 and 2 record code
-revision <code>ae69732ed8988ad7066ff351848f7d2e8ad311a1</code>, while
-Trial 3 records <code>66ea452f6fb9d596905a62f9b0fd4546b71927b7</code>.
-The manifests record matching scanner implementation and cohort
-fingerprints, alongside active rules, dataset identity, and selected
-inputs. Results are not recomputed by rebuilding the report. <a
-href="#tbl-reproducibility">Table 17</a> lists the supporting repository
-resources.</p>
-<table id="tbl-reproducibility" class="wide">
-<caption><p>Reproducibility and supporting repository
-resources</p></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>Repository resource</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb">End-to-end
-notebook</a></td>
-<td>Reproduces cohort processing and result tables.</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/notebooks/end_to_end_pipeline/README.md">Pipeline
-README</a></td>
-<td>Configuration, outputs, cache, and validation instructions.</td>
-</tr>
-<tr>
-<td><a
+<p>The report uses <strong>three saved Sprint 3 trials</strong>; Sprint
+2 was exploratory. All three trials have matching recorded scanner and
+cohort implementation fingerprints, active rules, similarity settings,
+and primary-edge selection. The original manifests preserve the recorded
+code and dataset identities for reproducibility. Building this report
+does not rerun the study. The supporting resources are linked below.</p>
+<h2 data-number="17.1" id="supporting-repository-resources"><span
+class="header-section-number">17.1</span> Supporting repository
+resources</h2>
+<ul>
+<li><strong>Data preparation:</strong> <a
 href="https://github.com/umdnp/csc580-project8/blob/main/data/README.md">Dataset
-preparation</a></td>
-<td>GitSkills acquisition and DuckDB preparation.</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/sql/create_analysis_tables.sql">Candidate-selection
-SQL</a></td>
-<td>Generates the comparison candidate pool (<a href="#app-a">Appendix
-A</a>).</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/sql/update_artifact_groupings.sql">Sibling
-fingerprint SQL</a></td>
-<td>Represents known versus unknown bundled-file content.</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/docs/decisions/RDR-014-stratified-family-sampling-method.md">Sampling
-decision RDR-014</a></td>
-<td>Family eligibility and stratified sampling.</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/docs/decisions/RDR-013-sprint3-sampling-and-edge-selection.md">Edge-selection
-decision RDR-013</a></td>
-<td>Rationale for primary-only comparisons and family-level
-reporting.</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/docs/decisions/RDR-010-evidence-based-risk-indicators.md">Risk
-indicator definitions RDR-010</a></td>
-<td>Operational scope of RI-001 through RI-011.</td>
-</tr>
-<tr>
-<td><a
-href="https://github.com/umdnp/csc580-project8/blob/main/THREAT_MODEL.md">Threat
-model</a></td>
-<td>Trust boundary, detection scope, and security interpretation
-limits.</td>
-</tr>
-<tr>
-<td><a
+guide</a>, <a
+href="https://github.com/umdnp/csc580-project8/blob/main/sql/create_analysis_tables.sql">candidate-selection
+SQL</a>, and <a
+href="https://github.com/umdnp/csc580-project8/blob/main/sql/update_artifact_groupings.sql">sibling-state
+SQL</a> explain how the data is prepared.</li>
+<li><strong>Sampling and comparisons:</strong> <a
+href="https://github.com/umdnp/csc580-project8/blob/main/docs/decisions/RDR-014-stratified-family-sampling-method.md">RDR-014</a>
+and <a
+href="https://github.com/umdnp/csc580-project8/blob/main/docs/decisions/RDR-013-sprint3-sampling-and-edge-selection.md">RDR-013</a>
+document family selection and primary-edge comparisons.</li>
+<li><strong>Detection scope:</strong> <a
+href="https://github.com/umdnp/csc580-project8/blob/main/docs/decisions/RDR-010-evidence-based-risk-indicators.md">RDR-010</a>
+and the <a
+href="https://github.com/umdnp/csc580-project8/blob/main/THREAT_MODEL.md">threat
+model</a> define the indicators and their security limits.</li>
+<li><strong>Pipeline:</strong> <a
+href="https://github.com/umdnp/csc580-project8/blob/main/notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb">End-to-end
+notebook</a> and <a
+href="https://github.com/umdnp/csc580-project8/blob/main/notebooks/end_to_end_pipeline/README.md">pipeline
+README</a> document execution, outputs, and caching.</li>
+<li><strong>Validation:</strong> <a
 href="https://github.com/umdnp/csc580-project8/blob/main/docs/instructions/manual_annotation_protocol.md">Annotation
-protocol</a></td>
-<td>Independent review and adjudication guidance.</td>
-</tr>
-<tr>
-<td><a
+protocol</a> and <a
+href="https://github.com/umdnp/csc580-project8/blob/main/docs/instructions/reproducibility.md">reproducibility
+guide</a> explain review decisions and recorded settings.</li>
+<li><strong>Report:</strong> <a
 href="https://github.com/umdnp/csc580-project8/blob/main/report/README.md">Report
-build guide</a></td>
-<td>Source sections, figures, and local report rendering.</td>
-</tr>
-</tbody>
-</table>
-<p>The saved research inputs and outputs are organized as follows (each
-trial has the same layout):</p>
-<pre class="text"><code>notebooks/end_to_end_pipeline/sprint3/
-  samples1/families.txt
-  samples1/sampling_report.json
-  samples2/families.txt
-  samples2/sampling_report.json
-  samples3/families.txt
-  samples3/sampling_report.json
-  results1/
-    sample_manifest.json
-    execution_summary.json
-    review/summary.json
-    review/families.csv
-    review/directed_pairs.csv
-    review/indicator_frequency.csv
-    review/direction_basis.csv
-    manual-review/directed-pairs/           # independent annotations
-    manual-review/relationship-pairs/       # independent annotations
-    manual-review/adjudicated/              # directed.csv, relationships.csv, adjudication.txt
-    review/summary.before-adjudication.json
-  results2/                  # same structure
-  results3/                  # same structure</code></pre>
-<p>The <code>sampling_report.json</code> files record sampling seeds
-<strong>5801–5803</strong>, stratum allocations, exclusions, and
-candidate rejections. The <code>sample_manifest.json</code> files record
-the selected families, policies, scanner and code identities, review
-sample checksums, and a source fingerprint. Research summaries and CSV
-files contain the automated outcome counts used in Sections <a
+build guide</a> explains how to rebuild the paper and figures.</li>
+</ul>
+<h2 data-number="17.2"
+id="saved-research-and-validation-artifacts"><span
+class="header-section-number">17.2</span> Saved research and validation
+artifacts</h2>
+<p>The <a
+href="https://github.com/umdnp/csc580-project8/tree/main/notebooks/end_to_end_pipeline/sprint3">Sprint
+3 folder</a> contains a <code>samples1/</code>–<code>samples3/</code>
+directory and a matching <code>results1/</code>–<code>results3/</code>
+directory for each trial. Each sample folder holds
+<code>families.txt</code> and <code>sampling_report.json</code>. Each
+results folder preserves <code>sample_manifest.json</code>,
+<code>execution_summary.json</code>, automated tables under
+<code>review/</code>, and figures under <code>figures/</code>.</p>
+<p>Within each trial’s <code>manual-review/</code> folder,
+<code>directed-pairs/</code> and <code>relationship-pairs/</code> hold
+the original independent annotations. Team-approved judgments are in
+<code>adjudicated/</code>: <code>directed.csv</code>,
+<code>relationships.csv</code>, and <code>adjudication.txt</code>. The
+updated <code>review/summary.json</code> contains the sample-limited
+validation metrics, while <code>summary.before-adjudication.json</code>
+in the same folder preserves the original summary.</p>
+<h2 data-number="17.3" id="reproducing-the-published-results"><span
+class="header-section-number">17.3</span> Reproducing the published
+results</h2>
+<ol type="1">
+<li>Obtain GitSkills v1.0.0 and prepare the DuckDB tables using the <a
+href="https://github.com/umdnp/csc580-project8/blob/main/data/README.md">dataset
+guide</a>.</li>
+<li>Install dependencies with <code>uv sync</code> and configure
+<code>GITSKILLS_DB</code>. Reuse the saved family lists; do not select
+new samples.</li>
+<li>Run the <a
+href="https://github.com/umdnp/csc580-project8/blob/main/notebooks/end_to_end_pipeline/end_to_end_pipeline.ipynb">end-to-end
+notebook</a> with <code>SPRINT = 3</code>, processing
+<code>SAMPLE = 1</code>, <code>2</code>, then <code>3</code>, and
+<code>EDGES = "primary"</code>. Use the saved random seeds and
+historical code settings in the <a
+href="https://github.com/umdnp/csc580-project8/blob/main/docs/instructions/reproducibility.md">reproducibility
+guide</a>; do not silently substitute a newer scanner.</li>
+<li>Compare regenerated outputs against each trial’s saved manifest and
+automated tables. Adjudication metrics can be recalculated separately
+from the saved samples and team judgments without rescanning skills;
+this alone does <strong>not</strong> verify a complete clean-environment
+reproduction of the three trials.</li>
+</ol>
+<p>The sampling reports preserve seeds <strong>5801–5803</strong>, size
+strata, exclusions, and rejected candidates. The manifests record the
+dataset and code identities, rules, policies, selected inputs, and
+checksums. Automated review tables support the counts in Sections <a
 href="#sec-dataset">IV</a>–<a href="#sec-results">VI</a> and <a
-href="#app-d">Appendix D</a>; audit and execution files provide coverage
-and processing status. Independent and team-adjudicated annotations
-remain separate from automated predictions. Final
-<code>review/summary.json</code> files contain the sample-limited
-<code>manual_validation</code> and <code>relationship_validation</code>
-measures; pre-adjudication copies retain the original summary state. The
-recorded code revisions and sample identities must be respected when
-reproducing the published frozen numbers.</p>
-<p>Two cross-trial charts in <a href="#sec-results">Section VI</a> are
-generated from the saved <code>families.csv</code> and
-<code>directed_pairs.csv</code> files using
-<code>report/figures/generate_sprint3_figures.py</code>. The script does
-not alter trial results or select new families.</p>
-<p>The three sample manifests retain <strong>provisional</strong>
-approval status (<code>sample_status: provisional</code>, no approval
-reference). No formal approval reference is recorded in those manifests.
-A tagged release and final manual-validation record can be linked when
-available.</p>
+href="#app-d">Appendix D</a>; separate human annotations and summaries
+document validation without changing those counts. The cross-trial
+figures were generated from saved tables with the <a
+href="https://github.com/umdnp/csc580-project8/blob/main/report/figures/generate_sprint3_figures.py">chart-generation
+script</a>.</p>
+<p>The original manifests’ <strong>provisional</strong> status concerns
+sample-selection approval metadata, not the later human review. The
+team’s approval of adjudicated judgments is documented separately in
+each trial’s adjudication notes. The Sprint 3 research snapshot is
+tagged <strong><code>sprint3</code></strong>, and later review artifacts
+are preserved separately.</p>
 <h1 data-number="18" id="app-f"><span
 class="header-section-number">18</span> Appendix F Use of AI in
 development and report preparation</h1>

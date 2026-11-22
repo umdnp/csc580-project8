@@ -2,7 +2,7 @@
 
 ## Three-trial overview
 
-Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selected, relationship-eligible skill families**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. These are candidate security-sensitive changes identified under our rules, **not** confirmed vulnerabilities, malicious instructions, or observed executions. [Table 4](#tbl-trial-results) summarizes the automated results by trial.
+A central distinction in our results is between changes the scanner flags for review and changes supported by evidence of a specific security-sensitive operation. Here, **supported** means that the automated analysis found evidence meeting an indicator's criteria—not that a human reviewer independently confirmed it. Across three non-overlapping Sprint 3 trials, we analyzed **300 relationship-eligible skill families selected through stratified random sampling**, comprising **6,570 artifact occurrences** and **2,157 primary directed comparisons**. The automated analysis found at least one supported **risk indicator (RI)** in **63 families (21.0%)**. [Table 4](#tbl-trial-results) summarizes the automated results by trial.
 
 | Measure | Trial 1 | Trial 2 | Trial 3 | Combined |
 | --- | ---: | ---: | ---: | ---: |
@@ -16,7 +16,7 @@ Across three non-overlapping Sprint 3 trials, we analyzed **300 randomly selecte
 
 : Automated results from the three Sprint 3 trials {#tbl-trial-results} {.wide}
 
-The same code revision, rules, similarity policy, and primary-edge setting were used in all three trials. No selected artifacts were skipped. Because the study deliberately oversampled larger families and required usable directed relationships, these percentages describe **our selected families**, not all skills in GitSkills.
+The three trials used the same active rules, similarity policy, primary-edge setting, and recorded scanner and cohort implementation fingerprints. No selected artifacts were skipped. Because the study deliberately oversampled larger families and required usable directed relationships, these percentages describe **our selected families**, not all skills in GitSkills.
 
 ## Finding 1: Security-sensitive changes appear across multiple families
 
@@ -26,7 +26,7 @@ Supported indicators appeared in **25 families in Trial 1, 18 in Trial 2, and 20
 
 ## Finding 2: Script execution and external code acquisition are the most widespread changes
 
-The risk indicators distinguish specific operational changes from ordinary differences in instructions. **RI-010** Local script execution was supported in **39 families (13.0%)**, followed by **RI-005** External code or dependency acquisition in **26 families (8.7%)**. The two indicators overlapped in **13 families** and appeared in **52 of the 63 indicator-bearing families (82.5%)**. [Figure 3](#fig-sprint3-indicators) shows the family-level distribution, while [Table 5](#tbl-indicator-counts) also provides comparison-level counts.
+Changes involving local scripts and external code stood out in our results. The automated analysis supported **RI-010** (local script execution) in **39 families (13.0%)** and **RI-005** (external code or dependency acquisition) in **26 families (8.7%)**. The indicators overlapped in **13 families** and together appeared in **52 of the 63 indicator-bearing families (82.5%)**. These changes matter because they can alter what code an agent runs or obtains. [Figure 3](#fig-sprint3-indicators) shows the family-level distribution, while [Table 5](#tbl-indicator-counts) provides comparison-level counts.
 
 ![Number and percentage of sampled families with each of the eight detected risk indicators.](report/figures/sprint3-indicators-by-family.svg){#fig-sprint3-indicators width="100%" .wide}
 
@@ -50,7 +50,7 @@ The distribution also varies by counting unit. **RI-006** Destructive or privile
 
 ## Sensitivity check: Why families are the primary unit
 
-The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**, but it varied from **5.7% to 22.2%** across trials. A few families contributed many indicator-bearing comparisons: `cso` accounted for **55 of 113** in Trial 1, `junta-leiloeiros` for **8 of 36** in Trial 2, and `mcp-builder` for **133 of 191** in Trial 3. Excluding these three families *for a sensitivity calculation only* reduced the combined pair-level rate to **144 of 1,722 (8.4%)**, while the family-level rate changed only from **63 of 300 (21.0%)** to **60 of 297 (20.2%)**. The trial-by-trial pair-level rates appear in [Table 6](#tbl-sensitivity). This supports using family-level frequency to describe the spread of detections in our sample; it does not remove sampling bias or prove population-wide risk prevalence.
+The secondary comparison-level detection rate was **340 of 2,157 pairs (15.8%)**, but it varied from **5.7% to 22.2%** across trials. A few families contributed many indicator-bearing comparisons: `cso` accounted for **55 of 113** in Trial 1, `junta-leiloeiros` for **8 of 36** in Trial 2, and `mcp-builder` for **133 of 191** in Trial 3. To see how much those families influenced the results, we excluded them in a separate sensitivity calculation. The pair-level rate fell from **15.8%** to **144 of 1,722 (8.4%)**, while the family-level rate changed only slightly, from **63 of 300 (21.0%)** to **60 of 297 (20.2%)**. The trial-by-trial pair-level rates appear in [Table 6](#tbl-sensitivity). This supports using family-level frequency to describe how widely detections appear across the sampled families.
 
 | Trial | All pairs | Excl. top family |
 | --- | ---: | ---: |
@@ -87,6 +87,6 @@ The scanner **flagged 1,119 of 2,157 comparisons (51.9%)**, but only **340 (15.8
 
 **Direction evidence.** The 2,157 comparisons were oriented through declared source (10), direct chronology (399), equivalent-peer chronology (355), repository-creation boundaries (827), or directional containment (566). Of the 340 indicator-bearing comparisons, **131** relied on containment for direction. These methods support plausible earlier/later ordering, not verified histories of copying. [Appendix D](#app-d) contains the full breakdown.
 
-**Supporting files.** The analysis labelled **190 comparisons** `siblings-only` under its bundle-equivalence rules, with supported indicators in **41**. Most of those indicator-bearing comparisons are concentrated in `mcp-builder`. Adjudicated review identified unsupported and missed detections in individual comparisons, so these counts should not be treated as independently verified operations or executed scripts. Equivalence under the similarity representation does not guarantee byte-identical `SKILL.md` text.
+**Supporting files.** The analysis labelled **190 comparisons** `siblings-only` under its bundle-equivalence rules, with supported indicators in **41**. Most of those indicator-bearing comparisons are concentrated in `mcp-builder`. Adjudicated review found both unsupported and missed detections in individual comparisons. Equivalence under the similarity representation does not guarantee byte-identical `SKILL.md` text.
 
-The three trials' automated results are complete. Team adjudication of the saved review samples confirmed two `mcp-builder` RI-003 formatting false positives, supported several missed indicators, and identified relationship-classification disagreements. A subsequent scanner change addressed the RI-003 formatting pattern, but **neither the later code nor the adjudicated review metrics were used to recompute these frozen automated counts**. [Section VII](#sec-evaluation) reports the sample-limited validation evidence.
+The automated counts were frozen before subsequent review findings and a scanner correction. They were **not recomputed** using the revised scanner. [Section VII](#sec-evaluation) explains what the adjudicated review supports and where the original detections were incorrect or incomplete.
