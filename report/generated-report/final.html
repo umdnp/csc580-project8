@@ -348,12 +348,15 @@ repositories, allowing us to examine similarities and differences <span
 class="citation" data-cites="gitskills">(Destefanis et al. 2026)</span>.
 Its records do not provide complete copying histories, and some
 supporting files and dates are unavailable.</p>
-<p>Our study compares skills with similar content, infers which artifact
-may have come earlier, and examines differences in their instructions
-and supporting files. We use <strong>static analysis</strong> to inspect
-the stored content without executing it. The goal is to help developers
-and security reviewers identify changes worth investigating before
-adopting or updating a skill.</p>
+<p>To investigate this problem, we developed a method for identifying
+related skills and inferring which artifact may have come earlier. We
+then built a <strong>static analyzer</strong> to compare changes in
+their instructions and supporting files against eleven risk indicators,
+without executing untrusted code. Finally, we evaluated the approach
+across 300 sampled families and used team-adjudicated reviews to examine
+detection errors. Together, this work gives developers and security
+reviewers a reproducible way to identify changes worth investigating
+before adopting or updating a skill.</p>
 <h1 data-number="3" id="sec-research-question"><span
 class="header-section-number">3</span> Research question and study
 scope</h1>
