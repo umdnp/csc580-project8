@@ -13,9 +13,9 @@ The report uses **three saved Sprint 3 trials**; Sprint 2 was exploratory. All t
 
 ## Saved research and validation artifacts
 
-The [Sprint 3 folder](https://github.com/umdnp/csc580-project8/tree/main/notebooks/end_to_end_pipeline/sprint3) contains a `samples1/`–`samples3/` directory and a matching `results1/`–`results3/` directory for each trial. Each sample folder holds `families.txt` and `sampling_report.json`. Each results folder preserves `sample_manifest.json`, `execution_summary.json`, automated tables under `review/`, and figures under `figures/`.
+Each of the three trials has matching input and result folders in the [Sprint 3 directory](https://github.com/umdnp/csc580-project8/tree/main/notebooks/end_to_end_pipeline/sprint3). The input folders (`samples1`–`samples3`) hold family lists and sampling reports. The result folders (`results1`–`results3`) hold run manifests, execution records, tables, figures, and manual-review files.
 
-Within each trial's `manual-review/` folder, `directed-pairs/` and `relationship-pairs/` hold the original independent annotations. Team-approved judgments are in `adjudicated/`: `directed.csv`, `relationships.csv`, and `adjudication.txt`. The updated `review/summary.json` contains the sample-limited validation metrics, while `summary.before-adjudication.json` in the same folder preserves the original summary.
+The original independent reviews remain under `manual-review/` in the `directed-pairs/` and `relationship-pairs/` folders. Each `adjudicated/` folder contains the team's final `directed.csv`, `relationships.csv`, and `adjudication.txt`. Final validation metrics are in `review/summary.json`, with the pre-adjudication summary preserved alongside them.
 
 ## Reproducing the published results
 

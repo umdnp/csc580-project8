@@ -318,14 +318,14 @@ qualify the scanner’s performance but do not change the frozen study
 counts.</p>
 <h1 data-number="2" id="sec-introduction"><span
 class="header-section-number">2</span> Introduction</h1>
-<p>Imagine you want your AI coding agent to make a draft sound more
-natural. You search for a writing “humanizer” skill, find one that
-promises to do just that, and add it to your project. What you don’t
-realize is that someone has copied a legitimate skill and slipped in an
-instruction to download and run a script. If your agent follows that
-instruction, the script could steal API keys, access private files, or
-install malware—even while the skill appears to do the writing task you
-wanted.</p>
+<p>A developer building a web application searches for a skill to help
+an AI coding agent generate front-end components and layouts. Its name
+and description look promising, so the developer adds it to the project.
+Unknown to the developer, someone has republished a modified copy of a
+legitimate skill and inserted an instruction to download and run an
+external script. If the agent follows that instruction, the script could
+steal API keys, read private project files, or install malware—even
+while the agent builds the requested interface.</p>
 <p><em>Skills</em> are reusable instructions that help AI agents perform
 specialized tasks. Under the Agent Skills specification, a skill
 contains a <code>SKILL.md</code> file and may include supporting scripts
@@ -2550,23 +2550,21 @@ build guide</a> explains how to rebuild the paper and figures.</li>
 id="saved-research-and-validation-artifacts"><span
 class="header-section-number">17.2</span> Saved research and validation
 artifacts</h2>
-<p>The <a
+<p>Each of the three trials has matching input and result folders in the
+<a
 href="https://github.com/umdnp/csc580-project8/tree/main/notebooks/end_to_end_pipeline/sprint3">Sprint
-3 folder</a> contains a <code>samples1/</code>–<code>samples3/</code>
-directory and a matching <code>results1/</code>–<code>results3/</code>
-directory for each trial. Each sample folder holds
-<code>families.txt</code> and <code>sampling_report.json</code>. Each
-results folder preserves <code>sample_manifest.json</code>,
-<code>execution_summary.json</code>, automated tables under
-<code>review/</code>, and figures under <code>figures/</code>.</p>
-<p>Within each trial’s <code>manual-review/</code> folder,
-<code>directed-pairs/</code> and <code>relationship-pairs/</code> hold
-the original independent annotations. Team-approved judgments are in
-<code>adjudicated/</code>: <code>directed.csv</code>,
-<code>relationships.csv</code>, and <code>adjudication.txt</code>. The
-updated <code>review/summary.json</code> contains the sample-limited
-validation metrics, while <code>summary.before-adjudication.json</code>
-in the same folder preserves the original summary.</p>
+3 directory</a>. The input folders
+(<code>samples1</code>–<code>samples3</code>) hold family lists and
+sampling reports. The result folders
+(<code>results1</code>–<code>results3</code>) hold run manifests,
+execution records, tables, figures, and manual-review files.</p>
+<p>The original independent reviews remain under
+<code>manual-review/</code> in the <code>directed-pairs/</code> and
+<code>relationship-pairs/</code> folders. Each <code>adjudicated/</code>
+folder contains the team’s final <code>directed.csv</code>,
+<code>relationships.csv</code>, and <code>adjudication.txt</code>. Final
+validation metrics are in <code>review/summary.json</code>, with the
+pre-adjudication summary preserved alongside them.</p>
 <h2 data-number="17.3" id="reproducing-the-published-results"><span
 class="header-section-number">17.3</span> Reproducing the published
 results</h2>

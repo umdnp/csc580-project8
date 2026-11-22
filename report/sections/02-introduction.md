@@ -1,6 +1,6 @@
 # Introduction {#sec-introduction}
 
-Imagine you want your AI coding agent to make a draft sound more natural. You search for a writing "humanizer" skill, find one that promises to do just that, and add it to your project. What you don't realize is that someone has copied a legitimate skill and slipped in an instruction to download and run a script. If your agent follows that instruction, the script could steal API keys, access private files, or install malware—even while the skill appears to do the writing task you wanted.
+A developer building a web application searches for a skill to help an AI coding agent generate front-end components and layouts. Its name and description look promising, so the developer adds it to the project. Unknown to the developer, someone has republished a modified copy of a legitimate skill and inserted an instruction to download and run an external script. If the agent follows that instruction, the script could steal API keys, read private project files, or install malware—even while the agent builds the requested interface.
 
 *Skills* are reusable instructions that help AI agents perform specialized tasks. Under the Agent Skills specification, a skill contains a `SKILL.md` file and may include supporting scripts and other resources [@agentskills]. Its instructions can tell an agent which commands to run, which files to access, or which external services to contact. A skill's name and description do not tell the whole story.
 
