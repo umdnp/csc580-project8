@@ -1,7 +1,7 @@
 [project]
 name = "gitskills-p8"
 description = "CSC 580 Group Project - Mining AI-Native Software Engineering"
-version = "0.1.0"
+version = "1.0.0"
 requires-python = ">=3.12,<4.0"
 authors = [
     { name = "Kyle Cantrell" },
