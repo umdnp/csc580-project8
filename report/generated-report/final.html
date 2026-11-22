@@ -1434,13 +1434,15 @@ two unrelated. This measures how often the tool’s relatedness
 classification agreed with the team’s final judgments; it does not
 measure agreement between independent reviewers.</p>
 <p>These judgments evaluate the <strong>saved Sprint 3 scanner
-outputs</strong>. The trials were not rerun after the subsequent scanner
-improvement, and the resulting <strong>63/300 family</strong> and
-<strong>340/2,157 comparison</strong> figures remain unchanged.
-Adjudication metrics were calculated separately from the frozen
-validation samples and archived summaries. <a href="#app-c">Appendix
-C</a> provides per-trial counts and qualifications; <a
-href="#app-e">Appendix E</a> identifies the saved artifacts.</p>
+outputs</strong>. The subsequent scanner improvement was not applied to
+the frozen Sprint 3 results; the reported <strong>63/300 family</strong>
+and <strong>340/2,157 comparison</strong> figures remain unchanged. The
+team separately completed a clean-environment reproduction of the three
+Sprint 3 trials. Adjudication metrics were calculated separately from
+the frozen validation samples and archived summaries. <a
+href="#app-c">Appendix C</a> provides per-trial counts and
+qualifications; <a href="#app-e">Appendix E</a> identifies the saved
+artifacts.</p>
 <h1 data-number="9" id="sec-discussion"><span
 class="header-section-number">9</span> Discussion</h1>
 <h2 data-number="9.1" id="what-the-findings-mean-for-skill-reuse"><span
@@ -1520,17 +1522,17 @@ newly introduced. A subsequent scanner fix and regression tests
 addressed that pattern, but did <strong>not</strong> retroactively
 change the frozen Sprint 3 results. Review also identified missed
 local-script invocations and some network, external-code, and
-sibling-file operations. Other cases remain outside the existing
-indicator definitions, such as disputed coverage of explicit
-browser-launch instructions. These observations demonstrate the limits
-of rule patterns and indicator scope, not verified harmful
-execution.</p>
+sibling-file operations. Explicit browser-launch instructions also
+raised an unresolved scope question: the current rules do not
+consistently treat them as RI-003 network operations. These observations
+demonstrate the limits of rule patterns and indicator scope, not
+verified harmful execution.</p>
 <p><strong>Relatedness and historical order (internal
 validity).</strong> To say an operation was introduced, we must first
 identify related artifacts and choose a plausible earlier-to-later
 order. Grouping by exact skill name can include unrelated artifacts and
 miss renamed ones; our similarity thresholds can also exclude related
-content. A Trial 3 reviewer judged three of five sampled
+content. Final Trial 3 adjudication judged three of five sampled
 <code>no-related-edge</code> pairs to be related, suggesting a possible
 gap but not establishing its frequency. Even when artifacts are related,
 GitSkills does not provide verified copying histories. We use available
@@ -1585,10 +1587,11 @@ reviewer agreement measured. The separate relationship review recorded
 original scanner and automated counts remain fixed; the later code fix
 was not used to regenerate them. Saved manifests preserve the dataset,
 code and rule identities, seeds, and sample checksums, although approval
-metadata remains provisional. The adjudicated summary update is
-documented, but a clean-environment reproduction of all three finalized
-trials has not been established. <a href="#app-c">Appendix C</a> details
-the reviewed subset.</p>
+metadata remains provisional. The team also completed a separate
+clean-environment reproduction of all three Sprint 3 trials; this is
+distinct from the adjudication-only summary update and did not replace
+the frozen analysis results. <a href="#app-c">Appendix C</a> details the
+reviewed subset.</p>
 <p>The separate threat model and threats-to-validity documents provide
 further details on these limitations.</p>
 <h1 data-number="11" id="sec-conclusion"><span
@@ -2587,10 +2590,11 @@ historical code settings in the <a
 href="https://github.com/umdnp/csc580-project8/blob/main/docs/instructions/reproducibility.md">reproducibility
 guide</a>; do not silently substitute a newer scanner.</li>
 <li>Compare regenerated outputs against each trial’s saved manifest and
-automated tables. Adjudication metrics can be recalculated separately
-from the saved samples and team judgments without rescanning skills;
-this alone does <strong>not</strong> verify a complete clean-environment
-reproduction of the three trials.</li>
+automated tables. The team completed a separate
+<strong>clean-environment reproduction of all three Sprint 3
+trials</strong>. Separately, adjudication metrics were updated from the
+saved samples and team judgments without rescanning skills or changing
+the frozen results.</li>
 </ol>
 <p>The sampling reports preserve seeds <strong>5801–5803</strong>, size
 strata, exclusions, and rejected candidates. The manifests record the
