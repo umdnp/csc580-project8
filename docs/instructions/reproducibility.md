@@ -2,7 +2,9 @@
 
 This guide explains how to reproduce the **three Sprint 3 research trials**, inspect their outputs, and build the research report. It also preserves the separate, independently performed **Sprint 2 baseline reproduction check** from November 8, 2026 ([issue #213](https://github.com/umdnp/csc580-project8/issues/213)).
 
-**Verification status:** The November 8 isolated check verified the Sprint 2 baseline and report build. The three Sprint 3 trials have saved results, manifests, and family lists in the repository, but that earlier isolated check **did not rerun or independently verify the three Sprint 3 trials**. The steps below document how to rerun them; they are not a claim that a new clean-environment Sprint 3 reproduction check has already been performed.
+For the final Sprint 3 workflow, use this guide and the [current notebook README](../../notebooks/end_to_end_pipeline/README.md); the separate [October 5 pipeline walkthrough](pipeline-walkthrough.md) records a historical implementation snapshot.
+
+**Verification status:** The team **completed clean-environment reproduction of all three Sprint 3 trials**. This was a separate check from the November 8 Sprint 2 baseline verification and the adjudication-only summary update. The original Sprint 3 check was not documented at the time; its completion is recorded in Section 3.6 below.
 
 ## 1. Requirements and source version
 
@@ -116,7 +118,7 @@ All paths in this table are relative to `notebooks/end_to_end_pipeline/`.
 2. **Trial 2:** Change `SAMPLE = 2` and leave `SPRINT = 3`. Restart the kernel and rerun the same notebook cells. Inspect `sprint3/results2/`.
 3. **Trial 3:** Change `SAMPLE = 3` and leave `SPRINT = 3`. Restart the kernel and rerun the same notebook cells. Inspect `sprint3/results3/`.
 
-**Important:** Restart and rerun the notebook from the beginning for each sample. Changing `SAMPLE` without rerunning the configuration and analysis cells does not run a different trial. The final **“Independent review and adjudication”** cell is a separate team-validation step; do not treat it as required for the automated trial and do not run it with incomplete adjudication files.
+**Important:** Restart and rerun the notebook from the beginning for each sample. Changing `SAMPLE` without rerunning the configuration and analysis cells does not run a different trial. The final **“Independent review and adjudication”** cell is a separate validation-summary step, already completed for all three published trials. It is not part of an automated scan rerun; supply only finalized, matching adjudication files when recalculating validation metrics.
 
 Each saved `samplesX/families.txt` is already committed. The notebook **reuses an existing file** rather than generating a different random sample. If a file is missing, it generates a replacement sample with `family_picker` and saves `sampling_report.json`; later samples require and exclude earlier family lists. A newly generated list is not automatically identical to the committed sample if the database, candidate pool, policy, code, or selection order has changed. For reproduction of the published cohort, **retain the committed family lists**.
 
@@ -178,20 +180,43 @@ Use **parsed numerical values and family identities**, not binary equality of JS
 
 ### 3.5 Manual review is a separate step
 
-Each trial generated **30 directed-pair** and **15 relationship-pair** review cases (90 and 45 across the three trials). Independent annotation records are present, but aggregate team adjudication remains incomplete. A notebook `execution_summary.json` status of `complete` means the **automated pipeline finished**, not that human review was finalized.
-
-Follow the [Manual Annotation Protocol](manual_annotation_protocol.md). Complete and reconcile reviews, then save the two adjudicated files in the applicable results folder:
+Each trial generated **30 directed-pair** and **15 relationship-pair** review cases (90 and 45 across the three trials). The team completed adjudication of all **135** cases and preserved the original independent annotations separately from its final decisions. The adjudicated copies are saved under each `sprint3/resultsX/` directory:
 
 ```text
-resultsX/manual-review/adjudicated/directed.csv
-resultsX/manual-review/adjudicated/relationships.csv
+resultsX/manual-review/
+├── directed-pairs/annotations.csv                   # Original independent judgments
+├── relationship-pairs/relationship_annotations.csv  # Original independent judgments
+└── adjudicated/
+    ├── directed.csv                                 # Final team-agreed directed reviews
+    ├── relationships.csv                            # Final team-agreed relationship reviews
+    └── adjudication.txt                             # Decision notes and approval provenance
 ```
 
-Only after both files are complete should the optional **“Independent review and adjudication”** notebook cell be run for that trial. It checks the saved review inputs and updates the review summaries without requiring a full rescan. Do **not** execute scripts, install commands, or other untrusted content from sampled skills.
+The final **“Independent review and adjudication”** notebook cell has already processed both adjudicated CSVs for **all three trials**, updating each `review/summary.json` and `execution_summary.json` without rescanning skills or changing the frozen automated counts. Each execution summary now records `validation_status: "adjudicated results provided"`. The pre-adjudication summaries are preserved as `review/summary.before-adjudication.json` and `execution_summary.before-adjudication.json`.
+
+The computed totals agree with [Appendix C of the final report](../../report/appendices/C-validation-materials.md):
+
+| Measure | Final Sprint 3 result |
+| --- | ---: |
+| Directed / relationship cases | 90 / 45 |
+| Directed `all_assessed` / `not_assessable` | 56 / 34 |
+| Excluded among `all_assessed`: direction / evidence coverage | 12 / 15 |
+| Directed comparisons eligible for indicator scoring | **29** |
+| True positives / false negatives / counted false positives | 13 / 7 / 0 |
+| Observed micro-precision / micro-recall | **100% (13/13) / 65.0% (13/20)** |
+| Relatedness classification agreement | **42 / 45** |
+
+The observed precision is limited to the 29 eligible comparisons: two adjudicated `mcp-builder` RI-003 false positives were **excluded** because direction was uncertain. These deliberately stratified review cases do not measure accuracy across the full dataset, and independent inter-rater agreement was not calculated.
+
+To verify or repeat the *adjudication-only* summary calculation, use the committed final CSVs, compatible saved inputs and settings, and the last notebook cell separately for `SAMPLE = 1`, `2`, and `3`. Do not rerun the earlier scan cells or overwrite the frozen study results simply to update human-validation metrics. The [Manual Annotation Protocol](manual_annotation_protocol.md) explains review fields and decisions. Never execute untrusted skill instructions or scripts.
+
+### 3.6 Completed Sprint 3 clean-environment verification
+
+The team confirms that it **reproduced all three Sprint 3 trials in a clean environment**. This verification is separate from the adjudication-only update documented in Section 3.5: the latter applies final human judgments to saved results without rescanning. The original automated findings remain the published reference, and later scanner improvements were not substituted into those frozen counts. The original verification run's date, environment, and command transcript were not recorded here; the saved manifests, family lists, and output summaries provide the study inputs and comparison points.
 
 ## 4. Previously verified: Sprint 2 baseline (November 8, 2026)
 
-The independent check for [story #213](https://github.com/umdnp/csc580-project8/issues/213) used detached committed-source worktrees, fresh environments and an initially empty uv cache. Both historical and current checkouts installed using `uv sync --locked`. It verified the historical 30-family study and generated the report. **This is historical verification evidence, not a verification of the three Sprint 3 trials.**
+The independent check for [story #213](https://github.com/umdnp/csc580-project8/issues/213) used detached committed-source worktrees, fresh environments and an initially empty uv cache. Both historical and current checkouts installed using `uv sync --locked`. It verified the historical 30-family study and generated the report. **This November 8 check is separate from the completed clean-environment Sprint 3 verification documented in Section 3.6.**
 
 | Pinned input | Value |
 | --- | --- |
@@ -251,10 +276,10 @@ The November 8 check built HTML, Word, LaTeX, and a **28-page PDF** successfully
 
 ## 6. Reproducibility limits and interpretation
 
-- **External dataset:** The downloaded SQLite release and prepared DuckDB are not checked into Git. Exact repetition depends on consistent source data and derived-table preparation. A full clean import and all three Sprint 3 runs were not part of the November 8 isolated check.
+- **External dataset:** The downloaded SQLite release and prepared DuckDB are not checked into Git. Exact repetition depends on consistent source data and derived-table preparation. The November 8 Sprint 2 check did not include a full clean import or the three Sprint 3 trials; the team completed a separate clean-environment verification of those trials.
 - **Saved cohorts:** Sprint 3 family lists and sampling reports are committed. Reuse these lists to reproduce the analyzed samples. Seeds alone cannot compensate for differences in the database, selection algorithm, or eligibility checks.
 - **Code changes:** Trial manifests preserve code revisions and scanner fingerprints. A later scanner or data-preparation change may alter detections, comparisons, or IDs. Keep frozen reported outcomes distinct from revised-code reruns.
-- **Incomplete evidence and validation:** Supported risk indicators are static signals, not confirmed vulnerabilities. Missing sibling-file content, uncertain direction, and incomplete team adjudication limit conclusions; reproducing counts does not establish scanner precision or recall.
+- **Incomplete evidence and validation:** Supported risk indicators are static signals, not confirmed vulnerabilities. Team adjudication is complete, but missing sibling-file content, uncertain direction, and the small restricted scoring subset limit conclusions. Sample precision and recall do not establish full-cohort accuracy.
 - **Generalizability:** The 300 families were stratified and deliberately oversampled in larger size groups, with eligibility restricted to usable primary directed relationships. Their 21.0% family-level rate is not an unweighted estimate for all GitSkills families.
 - **Output metadata:** Absolute paths, timestamps, surrogate IDs, cache filenames, source-file line endings, and SVG/PDF rendering may differ. Compare manifests, selected families, structured counts, and source/content hashes before drawing conclusions.
 

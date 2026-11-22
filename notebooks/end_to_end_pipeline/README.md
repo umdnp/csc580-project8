@@ -22,7 +22,7 @@
 
 5. Sprint 2 requires its existing approved `samples/families.txt`. For Sprint 3, if `samplesX/families.txt` is missing, the notebook automatically generates 100 families and saves `families.txt` plus `sampling_report.json` in that sample directory. Run samples 1, 2, then 3; later samples exclude names selected earlier. If the file exists, it is reused unchanged. You can also pre-generate lists with `family_picker`. One name per line; blank lines and `#` comments are ignored.
 6. Check `POLICY`, `EDGES`, `PER_STRATUM`, `SEED`, and `APPROVAL_REFERENCE`. Sprint 3 uses `FAMILY_SAMPLE_SIZE = 100` and `FAMILY_SEED = SEED * 10 + SAMPLE` (5801, 5802, 5803) for family selection; `SEED = 580` separately controls manual-review sampling. Record the team's approval before setting `APPROVAL_REFERENCE`.
-7. Run cells in order through **Findings for manual review**. Run the final adjudication cell only after the team's reviews are complete.
+7. Run cells in order through **Findings for manual review**. Run the final adjudication cell only after the team's reviews are complete. **The published Sprint 3 adjudication-only updates have already been run for Samples 1, 2, and 3.**
 
 The notebook calls `summarize_cohort()` directly; separate `analyze_family`, `scan_family`, or `scan_diff` runs are unnecessary. By default, `EDGES = "primary"` scans selected predecessor relationships only. Pairs with ambiguous direction are considered for relationship validation, but not directed security comparisons. `PER_STRATUM = 5` selects up to five validation pairs **per category across the cohort**, without restricting the full analysis.
 
@@ -76,13 +76,18 @@ resultsX/                            # Or sprint2/results/
     │   ├── relationship_validation_sample.csv
     │   └── relationship_annotations_template.csv
     └── adjudicated/                  # Team-created decisions
+        ├── directed.csv
+        ├── relationships.csv
+        └── adjudication.txt
 ```
 
-An automated `execution_summary.json` status of `complete` means processing finished; it does **not** mean human validation is complete. Sprint 3 selection requires at least one usable primary directed pair in every selected family; a changed policy, incomplete evidence, or an older pre-existing list may still affect actual results. Check the audit and coverage fields before interpreting their results.
+An automated `execution_summary.json` status of `complete` means processing finished; it does **not** by itself establish human validation. For the finalized **Sprint 3** trials, the execution summaries additionally state `validation_status: "adjudicated results provided"`, and the trial-level `review/summary.json` files contain the human-validation metrics. Sprint 3 selection requires at least one usable primary directed pair in every selected family; a changed policy, incomplete evidence, or an older pre-existing list may still affect actual results. Check the audit and coverage fields before interpreting their results.
 
 ## Human validation
 
-See the [Manual Annotation Protocol](../../docs/instructions/manual_annotation_protocol.md) for field definitions, permitted judgments, and the full review procedure. Reviewers must inspect source content and relevant sibling files, not only scanner summaries. Do **not** execute scripts, installers, or commands stored in the dataset.
+**Final Sprint 3 status:** The team completed independent review and adjudication for **all 90 directed** and **45 relationship** sample cases. The original independent review files remain under `directed-pairs/annotations.csv` and `relationship-pairs/relationship_annotations.csv`; the team-agreed decisions are in `adjudicated/`. The saved cohort was reused to calculate validation metrics without rerunning the scanner. Across the three trials, **56** directed cases were fully assessed, **34** were not assessable, and **29** met the additional requirements for accuracy calculations. Results on that restricted subset were **100% observed micro-precision (13/13)** and **65.0% observed micro-recall (13/20)**. Two known RI-003 false positives were excluded because their direction was uncertain. Relatedness review agreed with the automated classification in **42 of 45** cases. See the [final report evaluation](../../report/sections/08-evaluation-and-validation.md).
+
+The procedure below documents how the completed annotations were prepared and how to review a new cohort. See the [Manual Annotation Protocol](../../docs/instructions/manual_annotation_protocol.md) for field definitions and permitted judgments. Reviewers must inspect source content and relevant sibling files, not only scanner summaries. Do **not** execute scripts, installers, or commands stored in the dataset.
 
 There are two independent review tasks:
 

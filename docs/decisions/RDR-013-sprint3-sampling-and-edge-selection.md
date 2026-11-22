@@ -9,6 +9,8 @@
 | **Evidence** | `notebooks/end_to_end_pipeline/sprint2/results/` |
 | **Supersedes** | None; defines the Sprint 3 analysis sample rather than the earlier validation sample |
 
+**Historical decision:** The proposed robustness and inference steps below were plans as of November 7. The [Final Sprint 3 Outcome](#final-sprint-3-outcome-november-21-2026) records what was actually completed and what was not.
+
 ## Context
 
 Question 4 asks whether modified or reused skills introduce security-sensitive behavior absent from an earlier artifact. To understand how often these changes appear across GitSkills, we need to examine a broad range of skill families without allowing a few large families to dominate the results.
@@ -78,6 +80,24 @@ A later primary-only run used updated scanner rules, so differences between that
 - Report family-level prevalence, pair-level rates, trial-to-trial variation, and appropriately weighted pooled estimates with uncertainty.
 - Complete manual review of selected findings and examine false positives and missed behavior.
 - Compare primary and all edges on a smaller stratified subset, reporting indicator patterns that appear only on additional edges.
+
+## Final Sprint 3 Outcome (November 21, 2026)
+
+The team completed the three planned **100-family, primary-edge** trials. The
+saved study reports **300 families, 2,157 primary directed comparisons, and 63
+families with at least one supported risk indicator**. Final adjudication covers
+90 directed and 45 relationship-review cases. The report presents the original
+Sprint 2 controlled all-edge versus primary-edge comparison and a Sprint 3
+**dominant-family sensitivity calculation** (15.8% versus 8.4% at the pair level).
+
+The additional **20–30-family Sprint 3 all-edge robustness run** proposed above
+was **not performed**, and the eligible population was not enumerated for
+stratum-weighted population estimates or resampling uncertainty intervals.
+Those are limits on the original plan, not additional completed analyses.
+The final report states the primary-edge coverage and sampling limitations
+explicitly; see [Results](../../report/sections/07-results.md) and
+[Threats to Validity](../../THREATS_TO_VALIDITY.md). This outcome note preserves
+the original decision and follow-up intentions rather than rewriting history.
 
 ## Revisit Criteria
 
