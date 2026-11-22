@@ -1,7 +1,7 @@
 
 # Appendix D Additional Sprint 3 results {#app-d}
 
-The tables below are calculated from the saved Sprint 3 `review/summary.json`, `review/families.csv`, `review/directed_pairs.csv`, and `review/direction_basis.csv` files. These are **frozen automated** indicator counts, not corrected accuracy measurements. One `mcp-builder` RI-003 formatting case was adjudicated and fixed in the scanner after the saved run, while aggregate validation remains pending. Per-indicator counts overlap: one comparison may contain more than one supported indicator, and multiple comparisons may share artifacts.
+The tables below are calculated from the saved Sprint 3 `review/summary.json`, `review/families.csv`, `review/directed_pairs.csv`, and `review/direction_basis.csv` files. These are **frozen automated** indicator counts, not corrected accuracy measurements. Two `mcp-builder` RI-003 formatting cases were rejected in subsequent team adjudication, and the scanner was improved after the saved run. The separately computed validation results do not revise these frozen automated tables. Per-indicator counts overlap: one comparison may contain more than one supported indicator, and multiple comparisons may share artifacts.
 
 ## Indicator frequency by trial
 

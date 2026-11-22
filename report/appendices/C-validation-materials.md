@@ -7,8 +7,30 @@ Directed review covers supported indicators, uncertain indicators, flagged compa
 
 Reviewers distinguish rule matches, extracted evidence, supported versus uncertain indicator decisions, missing evidence, and evidence for direction. A reported RI is a **false positive** when manual inspection does not support it under the defined indicator policy. A **false negative** requires a manually supported *in-scope* indicator that the scanner did not report as supported. A reviewer should not count a benign change outside RI-001 through RI-011 as a missed indicator merely because it is security-related in another sense.
 
-Initial independent-review annotations are now marked `complete` for all **90 directed** and **45 relationship** cases. However, **39 directed cases** are marked `not_assessable` for indicator review: 12 in Trial 1, 18 in Trial 2, and 9 in Trial 3. The remaining **51** directed cases are marked `all_assessed`, although some still have uncertain direction or incomplete supporting evidence; that designation alone does not establish validated accuracy. Some review notes still call for further checks, and final **aggregate** team adjudication is not documented, notwithstanding the resolved RI-003 case described below. The sample manifests remain provisional.
+Original independent annotations were preserved, and final team-agreed copies of all **90 directed** and **45 relationship** judgments were recorded as `adjudicated` and `complete`. The original selected pairs, automated outputs, and sample manifests were retained unchanged. The study's original manifests still have provisional approval metadata; the later team approval is documented separately in each trial's adjudication notes.
 
-Review notes identify candidate missed indicators in Trial 1, questioned RI-003 detections, and potentially missed sibling-file operations in Trial 3. The team **adjudicated one `mcp-builder` RI-003 formatting case** (base `3032753`, derived `3026710`) as a false positive: the original scanner treated existing network-fetch operations as new when their wording and URLs were formatted differently. The updated scanner compares those existing operations more consistently, with targeted regression tests to prevent this pattern from recurring. **The saved annotation record does not reflect that case-level adjudication**. A Trial 3 reviewer also judged three of five sampled `no-related-edge` pairs related, without establishing their historical order. In Trial 2, the `improve` comparison (`3345273` to `3489451`) has a reviewer-supported, potentially missed RI-010 involving new wrapper-script invocations. Because the recorded evidence coverage is incomplete and this case has not been adjudicated, it remains a candidate false negative. Other observations remain preliminary; resolving the RI-003 case does not establish finalized false-positive or false-negative rates. The saved summaries do not support precision, recall, reviewer agreement, or confirmed overall positive/negative totals. Original samples and automated outputs remain unchanged; reconciled annotations could support a later aggregate validation summary.
+## Indicator review and accuracy
 
-The stratified review samples help characterize error types and coverage gaps, but their raw proportions should not be treated as population-wide accuracy estimates without a justified sampling calculation. Detailed review instructions are in `docs/instructions/manual_annotation_protocol.md`; the saved case lists and manifest checksums are linked in [Appendix E](#app-e).
+| Measure | Trial 1 | Trial 2 | Trial 3 | Total |
+| --- | ---: | ---: | ---: | ---: |
+| Directed reviews | 30 | 30 | 30 | **90** |
+| `all_assessed` | 18 | 12 | 26 | **56** |
+| `not_assessable` | 12 | 18 | 4 | **34** |
+| Excluded: direction not supported | 0 | 6 | 6 | **12** |
+| Excluded: incomplete coverage | 4 | 2 | 9 | **15** |
+| Eligible for indicator metrics | 14 | 4 | 11 | **29** |
+| True positives | 2 | 1 | 10 | **13** |
+| False positives (counted) | 0 | 0 | 0 | **0** |
+| False negatives | 3 | 1 | 3 | **7** |
+
+: Adjudicated directed-review scope and indicator counts {#tbl-validation-review} {.wide}
+
+The exclusions partition the 90 cases in the saved validation summaries; they do not mean that all review questions were answered in excluded cases. For the **29 eligible comparisons**, the computed eleven-indicator results yield **100% observed micro-precision (13/13)** and **65.0% observed micro-recall (13/20)**. Two indicator judgments in Trial 1 remain uncertain and are not counted as negatives. These metrics are conditional on relatedness, defensible direction, review scope, and evidence coverage. They apply only to this small stratified review subset, not the full trial population.
+
+In two Trial 3 `mcp-builder` comparisons (base `3032753` to derived `3026710` and `3031464`), review rejected the saved RI-003 claim: reformatted references pointed to existing network destinations rather than newly introduced operations. Both comparisons had uncertain direction and thus were **excluded from the counted precision denominator**. The later scanner correction added targeted regression tests, but the original trial counts were not regenerated. Other examples reveal missed local wrapper-script invocations (`improve`), a missed network-related indicator (`health-bugs`), and additional network, dependency, and execution changes in a `tdd-migration-pipeline` supporting Python script. Missing sibling evidence and uncertain direction prevent some such cases from contributing to quantitative estimates.
+
+## Relationship review
+
+The **45** adjudicated relationship judgments produced **42 agreements and 3 disagreements** with the algorithm's relatedness classification (15/0, 15/0, and 12/3 across Trials 1–3). In Trial 3, three of the five selected `no-related-edge` cases were judged related, while the other two were judged not related. These results concern classification agreement with the tool, **not independently measured inter-rater agreement**, proof of copying, or a population-wide error rate. Ordering remained uncertain in many reviewed relationships.
+
+The trial-level `review/summary.json` files hold the calculated `manual_validation` and `relationship_validation` outputs, with the pre-adjudication summaries preserved separately. Detailed original and final judgments, source observations, and unresolved evidence limitations are retained in the `manual-review/` folders. The [Manual Annotation Protocol](../../docs/instructions/manual_annotation_protocol.md) defines the review criteria; [Appendix E](#app-e) links the supporting repository artifacts.

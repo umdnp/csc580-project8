@@ -18,12 +18,12 @@ We analyzed **three non-overlapping, stratified random samples of 100 families e
 
 The term **sibling-file state** describes what is known about a skill's supporting files and their contents, including whether the bundle is known to be empty or its contents are unavailable.
 
-A family is eligible for selection only if it passes two checks:
+Sharing a name is only the first step. To enter a trial, a family must also have different known content states and at least one usable, plausibly ordered comparison. Specifically, it must pass two checks:
 
 1. **Distinct states:** At least two combinations of the `SKILL.md` **hash** (an identifier derived from its exact content) and **sibling fingerprint** (a summary of known supporting-file contents) differ. Repeated copies of the same known state do not meet this requirement.
 2. **Usable relationship:** The similarity analyzer can identify at least one primary directed comparison involving different `SKILL.md` hashes or different *known* sibling hashes. A different hash alone does not establish relatedness or direction.
 
-When a randomly drawn candidate fails the relationship check, the picker records the rejection and draws a replacement from the same size group. **Selection does not run the security scanner** and does not favor families with risk indicators. Families that fail eligibility are excluded from the study population, not counted as families with no risk.
+If a selected candidate fails the relationship check, the picker records the reason and draws another from the same size group. **Selection does not use security-scanner results** to favor families with risk indicators. Ineligible families are excluded from the study, not counted as having no risk.
 
 We assigned candidate families to five size groups based on their **total number of artifact occurrences** ([Table 1](#tbl-family-strata)). The allocation deliberately gives larger families more representation than they have in the candidate pool, so the study includes both ordinary and unusually large families without letting the largest ones consume the entire sample.
 

@@ -4,7 +4,7 @@
 
 To assess what changed, we must first decide which skills are related and which artifact could have come earlier. GitSkills provides snapshots and some repository and commit metadata, but **not a complete version history or verified copying relationships**. Some commit dates are missing; even a recorded first commit at the current path may be later than the skill's origin. We therefore infer plausible comparison directions rather than reconstructing a proven family tree.
 
-Our threat model focuses on observable instructions or code involving command execution, network access, file-system operations, credentials, external code or dependency acquisition, and system modification. These operations can be legitimate. They matter because an agent acting on untrusted instructions may have tools that affect a user's machine, data, or external services. A detected change is a **reason to review**, not evidence that an instruction ran, a vulnerability was exploited, or its author intended harm. The full threat model describes the trust boundary and coverage limits.
+Our threat model focuses on observable instructions or code involving command execution, network access, file-system operations, credentials, external code or dependency acquisition, and system modification. These operations matter because an agent following untrusted instructions may have tools that affect a user's machine, data, or external services. The full threat model describes the trust boundary and what our scanner covers.
 
 ## Analysis overview
 
@@ -14,7 +14,7 @@ Our threat model focuses on observable instructions or code involving command ex
 
 ## Step 1: Identify related skills
 
-We first compare artifacts within a candidate family whose artifacts have the same exact name. Identical `SKILL.md` content is recognized by its file hash; known bundled-file content is represented separately by a fingerprint of sibling file hashes. This matters because two copies of `SKILL.md` can contain the same instructions yet ship with different scripts. An unknown sibling-file state is not treated as an empty bundle.
+Two skills can share a name but contain completely different instructions. Before looking for newly introduced behavior, we therefore check whether they are similar enough to compare. We start with same-name candidates and use file hashes to identify identical `SKILL.md` content. A separate fingerprint records the known state of supporting files. This matters because identical instructions can ship with different scripts; when supporting-file content is unavailable, we do not assume the bundle is empty.
 
 For distinct `SKILL.md` contents, we compare the body text after masking the opening YAML frontmatter. We normalize and tokenize the text, then form **five-token shingles**: sequences of five consecutive tokens. Comparing sets of these short sequences tolerates some formatting changes while retaining important command and identifier structure.
 
@@ -36,9 +36,9 @@ After establishing that two artifacts are related, we determine which could have
 
 : Evidence used to infer earlier-to-later ordering, in priority order {#tbl-direction-priority} {.wide}
 
-Equivalent-peer chronology helps when an artifact has no reliable commit date of its own. For example, suppose an equivalent copy of a skill was observed in January, and another related skill state was observed in March. The January observation may support an earlier-to-later comparison, even if the artifact being examined has no recorded date. However, the equivalent copy must have the same known `SKILL.md` content and sibling-file state. A different or unknown sibling-file state cannot supply that historical evidence.
+**Equivalent-peer chronology** helps when an artifact lacks a reliable date. If the same `SKILL.md` content and known sibling-file state were observed elsewhere at an earlier date, that observation can help order the content states. It does not tell us when the undated copy was created, and we cannot use this evidence when the sibling-file states differ or are unknown.
 
-Repository creation dates can also help establish order, but only in specific circumstances. If one skill state was observed before another repository existed, that observation can support an earlier-to-later comparison. Simply belonging to an older repository does not establish that a skill came first. When stronger dating evidence is unavailable, **directional containment** considers whether one skill preserves most of another's content while adding more material. That pattern can suggest which artifact came later, but it cannot prove the historical order.
+A **repository-creation boundary** can support ordering when one skill state was observed before another repository existed; an older repository alone proves nothing about the skill's age. When dating evidence is unavailable, **directional containment** considers whether one skill preserves most of another's text while adding material. That pattern helps infer the comparison order.
 
 When the available evidence cannot support an ordering, we leave the relationship unresolved. Conflicting source declarations also remain unresolved, and equivalent states are retained as peers. For each directed comparison, we record the evidence used to determine its order. This allows us to distinguish comparisons supported by observed chronology from those relying on weaker evidence, such as directional containment.
 
@@ -46,17 +46,17 @@ The algorithm selects at most **one primary predecessor per derived candidate**,
 
 ## Step 3: Detect and compare observable evidence
 
-The static scanner applies **15 detection rules across six categories** ([Table 10](#tbl-detection-rules)): command execution, network access, file-system access, credentials, external code/dependency acquisition, and system modification. The rules identify recognizable constructs, such as a shell command, URL, file operation, or package-install instruction. They do not execute the content. The `SKILL.md` frontmatter is excluded from behavioral scanning because descriptive metadata and declared tools do not, by themselves, demonstrate an operation. Provenance metadata can still inform the ordering described in Step 2.
+The static scanner applies **15 detection rules across six categories** ([Table 10](#tbl-detection-rules)): command execution, network access, file-system access, credentials, external code/dependency acquisition, and system modification. These rules find recognizable operations, such as shell commands, URLs, and file access, **without executing them**. The `SKILL.md` frontmatter is excluded from behavioral scanning because metadata describing a tool does not itself instruct the agent to use it. Provenance metadata can still inform the ordering in Step 2.
 
 We then **extract and compare evidence**, rather than interpreting a changed rule-match count as new risk. Evidence records retain the recognized operation, source location, context, and extraction completeness. We normalize the evidence for comparison while preserving meaningful command arguments, file paths, and URL details, along with the original text. The comparison distinguishes added, removed, and matching constructs. A different URL might matter even if the number of URL matches stays the same; repeated mentions can raise match counts without introducing an operation. Unclear associations remain uncertain.
 
 Bundled **sibling files** are assessed when added or changed content is available, regardless of file extension. For instance, a skill's instructions might remain the same while the bundled `setup.sh` changes. We examine the changed script's stored content, but do not infer its behavior from a filename when that content is missing. Renaming a file without changing its known content does not count as changed script behavior.
 
-The comparator also distinguishes `skill-only`, `siblings-only`, `skill+siblings`, and `unknown` bundle changes. Here, **equivalent `SKILL.md` content** can mean equivalent under the token-shingle representation, not necessarily byte-for-byte identical; therefore, a `siblings-only` label does not by itself guarantee that no textual differences exist. [Appendix B](#app-b) defines the classifications.
+The comparator classifies changes as `skill-only`, `siblings-only`, `skill+siblings`, or `unknown`. A **`siblings-only`** classification does not necessarily mean the `SKILL.md` files are identical: the similarity method can treat files with textual differences as equivalent. [Appendix B](#app-b) defines these classifications.
 
 ## Step 4: Assess changes against risk indicators
 
-The last stage tests the changed evidence against **11 risk indicators (RIs)** defined for this study ([Table 3](#tbl-risk-indicators)). Their purpose is to highlight observable ways in which an operation or source may change the agent's exposure to external code, networks, local files, credentials, or privileged actions. They do **not** assign a severity score. An indicator must be supported by the relevant *change* and its context; a rule match alone is insufficient.
+**Detection rules identify operations; risk indicators assess changes in those operations.** For example, a rule may recognize a command in an individual skill, but an indicator requires evidence that an operation was introduced or materially changed between two artifacts. This final stage applies **11 risk indicators (RIs)** ([Table 3](#tbl-risk-indicators)) covering exposure to external code, networks, local files, credentials, or privileged actions. Indicators do **not** assign severity scores. A rule match by itself is insufficient.
 
 | ID | Security-sensitive change assessed |
 | --- | --- |
@@ -96,10 +96,10 @@ curl -fsSL https://cli.inference.sh | sh && infsh login
 
 Both instructions involve acquiring software, but the derived candidate introduces a different installation method. It explicitly downloads a shell script from `cli.inference.sh` and passes it directly to `sh` for execution. The assessor reported **RI-001** because the new command passes downloaded code directly to a shell, and **RI-003** because it introduces a new hostname for an explicit network operation. Both indicators describe the same changed command, rather than separate security incidents.
 
-This installation method may be legitimate. However, executing a remotely downloaded script raises a supply-chain concern because its contents can change independently of the skill's instructions. Our analysis identifies what the instructions direct an agent to do; it cannot determine whether the command was executed or whether the artifacts share a verified copying history.
+Downloading and executing a script from an external website raises a supply-chain concern because the code can change independently of the skill's instructions.
 
 ## Outcomes and interpretation limits
 
-Our **primary measure** is the number of sampled families with at least one supported RI divided by all sampled families. Secondary measures count primary directed comparisons containing at least one RI, the distinct families containing each indicator, and the distribution by family size, direction basis, and evidence coverage. Indicator frequencies can overlap, so their totals are not additive.
+The **primary measure** is the share of sampled families with at least one supported RI. Secondary measures cover comparison-level findings, individual indicators, family size, direction basis, and evidence coverage. A single change can support multiple indicators, so their counts are not additive.
 
-A **flagged comparison** may contain rule changes, extracted-evidence changes, or uncertain observations even if no RI is supported. A **supported finding** meets a defined indicator's automated criteria; it is not a validated security incident. We separately report partial extraction, missing sibling-file content, and uncertainty. Complete coverage means no known gap *within the implemented extraction scope*, not comprehensive detection of all risks. [Appendix B](#app-b) contains the rule registry and analysis workflow; [Appendix E](#app-e) identifies the source artifacts and saved outputs used for these results.
+A **flagged comparison** may contain rule changes, extracted-evidence changes, or uncertain observations even if no RI is supported. A **supported finding** meets an indicator's automated criteria. We report missing evidence and uncertainty separately. **Complete coverage** means no known gaps within the scanner's implemented extraction scope. [Appendix B](#app-b) contains the rule registry and analysis workflow; [Appendix E](#app-e) identifies the source artifacts and saved outputs used for these results.

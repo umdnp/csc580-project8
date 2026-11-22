@@ -2,7 +2,9 @@
 
 > **Do modified or reused skills introduce command execution, file-system access, network access, or other risky behavior that was absent from an earlier version or source artifact?**
 
-The study operationalizes this question as a comparison of stored instructions between related artifacts. An **artifact occurrence** is one skill at a repository and path in the dataset. A **skill variant** groups identical file content, while a **bundle variant** also accounts for the known state of sibling resources. A **candidate family** contains qualifying occurrences with the same exact name. Sharing a name defines a search space; it is not evidence of reuse by itself.
+We investigate this question by comparing stored instructions from skills that appear related. We first group skills with the same exact name, then check whether their content is sufficiently similar for comparison. Sharing a name or similar content does **not** prove that one was copied from another.
+
+An **artifact occurrence** is a skill found at a particular repository and file path. Occurrences with identical `SKILL.md` content form a **skill variant**; a **bundle variant** also accounts for the known contents of accompanying files, such as scripts. A **candidate family** contains qualifying occurrences sharing an exact name, including some that may ultimately prove unrelated.
 
 The unit of directional analysis is an ordered pair of related artifacts. Its endpoints are designated **base** and **derived** according to the available direction evidence. These terms identify the comparison orientation, not proven original authorship or direct copying. Equivalent and direction-unknown relationships are retained separately rather than treated as negative security findings.
 
